@@ -1,5 +1,5 @@
-from tokenizer.tokenizer import Tokenizer
-from tokenizer import tokens
+from tokenizer import Tokenizer
+import tokens
 
 PROMPT = ">> "
 
