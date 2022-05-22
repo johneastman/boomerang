@@ -1,76 +1,101 @@
-import tokens
+NUMBER = "NUMBER"
+IDENTIFIER = "IDENTIFIER"
+ASSIGN = "ASSIGN"
+LET = "LET"
+PLUS = "PLUS"
+MINUS = "MINUS"
+MULTIPLY = "MULTIPLY"
+DIVIDE = "DIVIDE"
+SEMICOLON = "SEMICOLON"
+OPEN_PAREN = "OPEN_PAREN"
+CLOSED_PAREN = "CLOSED_PAREN"
+EOF = "EOF"  # End of File
+
+
+class Token:
+
+    def __init__(self, value, _type):
+        self.value = value
+        self.type = _type
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(value={self.value}, type={self.type})"
 
 
 class Tokenizer:
-    def __init__(self, _input):
-        self.input = _input
-        self.position = 0  # position of current character
-        self.read_position = 0  # position of next character
-        self.ch = None
+    def __init__(self, source):
+        self.source = source
+        self.index = 0
 
-        self.read_char()
+    def tokenize(self):
+        tokens = []
 
-    def read_char(self):
-        self.ch = None if self.read_position >= len(self.input) else self.input[self.read_position]
-        self.position = self.read_position
-        self.read_position += 1
+        while True:
+            self.skip_whitespace()
 
-    def peek_char(self):
-        return None if self.read_position >= len(self.input) else self.input[self.read_position]
-
-    def next_token(self):
-        self.skip_whitespace()
-
-        if self.ch is None:
-            tok = tokens.Token(tokens.EOF, "")
-        elif self.ch == "=":
-            if self.peek_char() == "=":
-                ch = self.ch
-                self.read_char()
-                tok = tokens.Token(tokens.EQ, ch + self.ch)
-            else:
-                tok = tokens.Token(tokens.ASSIGN, self.ch)
-        elif self.ch == "!":
-            if self.peek_char() == "=":
-                ch = self.ch
-                self.read_char()
-                tok = tokens.Token(tokens.NOT_EQ, ch + self.ch)
-            else:
-                tok = tokens.Token(tokens.BANG, self.ch)
-        elif (_type := tokens.single_char_lookup(self.ch)) is not None:
-            tok = tokens.Token(_type, self.ch)
-        else:
-            if self.is_letter():
-                literal = self.read_identifier()
-                _type = tokens.keyword_lookup(literal)
-                return tokens.Token(_type, literal)
+            if self.current is None:
+                break
+            elif self.current == "+":
+                tokens.append(Token(self.current, PLUS))
+            elif self.current == "-":
+                tokens.append(Token(self.current, MINUS))
+            elif self.current == "*":
+                tokens.append(Token(self.current, MULTIPLY))
+            elif self.current == "/":
+                tokens.append(Token(self.current, DIVIDE))
+            elif self.current == ";":
+                tokens.append(Token(self.current, SEMICOLON))
+            elif self.current == "(":
+                tokens.append(Token(self.current, OPEN_PAREN))
+            elif self.current == ")":
+                tokens.append(Token(self.current, CLOSED_PAREN))
+            elif self.current == "=":
+                tokens.append(Token(self.current, ASSIGN))
             elif self.is_digit():
-                literal = self.read_number()
-                return tokens.Token(tokens.INT, literal)
-            else:
-                tok = tokens.Token(tokens.ILLEGAL, self.ch)
+                number = self.read_number()
+                tokens.append(Token(number, NUMBER))
+                continue
+            elif self.is_letter():
+                letters = self.read_letters()
+                keywords = {
+                    "let": LET
+                }
+                keyword = keywords.get(letters, None)
+                token_type = IDENTIFIER if keyword is None else keyword
 
-        self.read_char()
-        return tok
+                tokens.append(Token(letters, token_type))
+                continue
 
-    def read_identifier(self):
-        pos = self.position
-        while self.ch is not None and self.is_letter():
-            self.read_char()
-        return self.input[pos:self.position]
+            self.advance()
 
-    def read_number(self):
-        pos = self.position
-        while self.ch is not None and self.is_digit():
-            self.read_char()
-        return self.input[pos:self.position]
+        tokens.append(Token("", EOF))  # Add end-of-file token
+        return tokens
+
+    @property
+    def current(self):
+        return self.source[self.index] if self.index < len(self.source) else None
+
+    def advance(self):
+        self.index += 1
 
     def skip_whitespace(self):
-        while self.ch is not None and self.ch.isspace():
-            self.read_char()
+        while self.current is not None and self.current.isspace():
+            self.advance()
 
     def is_letter(self):
-        return self.ch is not None and self.ch.isalpha()
+        return self.current is not None and self.current.isalpha()
 
     def is_digit(self):
-        return self.ch is not None and self.ch.isdigit()
+        return self.current is not None and self.current.isdigit()
+
+    def read_number(self):
+        pos = self.index
+        while self.is_digit():
+            self.advance()
+        return self.source[pos:self.index]
+
+    def read_letters(self):
+        pos = self.index
+        while self.is_letter():
+            self.advance()
+        return self.source[pos:self.index]

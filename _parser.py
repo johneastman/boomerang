@@ -1,140 +1,156 @@
-import tokens
+import tokenizer
 
 
-class Node:
+class Number:
+    def __init__(self, value_token):
+        self.value_token = value_token
 
-    def __init__(self, token):
-        self.token = token
-
-    def token_literal(self):
-        return self.token.literal
-
-    def string(self):
-        return self.token_literal()
+    def __repr__(self):
+        return f"[{self.__class__.__name__}(value={self.value_token.value})]"
 
 
-class Identifier(Node):
-    def __init__(self, token, value):
-        super().__init__(token)
+class Identifier:
+    def __init__(self, name_token):
+        self.name_token = name_token
+
+    def __repr__(self):
+        return f"[{self.__class__.__name__}(value={self.name_token.value})]"
+
+
+class BinaryOperation:
+    def __init__(self, left, op, right):
+        self.left = left
+        self.op = op
+        self.right = right
+
+    def __repr__(self):
+        class_name = self.__class__.__name__
+        return f"[{class_name}(left={self.left}, op={self.op}, right={self.right})]"
+
+
+class AssignVariable:
+    def __init__(self, name, value):
+        self.name = name
         self.value = value
 
-    def string(self):
-        return f"{self.value}"
+    def __repr__(self):
+        class_name = self.__class__.__name__
+        return f"[{class_name}(name={self.name}, value={self.value})]"
 
 
-class LetStatement(Node):
-
-    def __init__(self, token: tokens.Token, name: Identifier, expression):
-        super().__init__(token)
-        self.name = name
+class UnaryOperation:
+    def __init__(self, op, expression):
+        self.op = op
         self.expression = expression
 
-    def string(self):
-        return f"{super().string()} {self.name.value} = {self.expression}"
-
-
-class ReturnStatement(Node):
-    def __init__(self, token, expression):
-        super().__init__(token)
-        self.expression = expression
-
-    def string(self):
-        return f"{super().string()} {self.expression}"
-
-
-class ExpressionStatement(Node):
-    def __init__(self, token, expression):
-        super().__init__(token)
-        self.expression = expression
-
-    def string(self):
-        return self.expression
-
-
-class Program:
-    def __init__(self):
-        self.statements = []
-
-    def token_literal(self):
-        if len(self.statements) > 0:
-            return self.statements[0].token_literal()
-        else:
-            return ""
+    def __repr__(self):
+        class_name = self.__class__.__name__
+        return f"[{class_name}(op={self.op}, expression={self.expression})]"
 
 
 class Parser:
-    def __init__(self, tokenizer):
-        self.tokenizer = tokenizer
-        self.curr_token = None
-        self.peek_token = None
-        self.errors = []
 
-        self.next_token()
-        self.next_token()
+    def __init__(self, tokens):
+        self.tokens = tokens
+        self.index = 0
 
-    def peek_error(self, token_type):
-        msg = f"expected next token to be {token_type} but got {self.peek_token.type} instead."
-        self.errors.append(msg)
+    def advance(self):
+        self.index += 1
 
-    def next_token(self):
-        self.curr_token = self.peek_token
-        self.peek_token = self.tokenizer.next_token()
+    @property
+    def current(self):
+        return self.tokens[self.index] if self.index < len(self.tokens) else None
 
-    def parse_program(self):
-        program = Program()
+    def parse(self):
+        return self.statements()
 
-        while self.curr_token.type != tokens.EOF:
-            statement = self.parse_statement()
-            if statement is not None:
-                program.statements.append(statement)
+    def statements(self):
+        ast = []
+        while self.current.type != tokenizer.EOF:
+            result = self.statement()
+            if self.current.type != tokenizer.SEMICOLON:
+                raise Exception(f"expected SEMICOLON, got {self.current.type} ({self.current.value})")
 
-            self.next_token()
+            self.advance()
+            ast.append(result)
 
-        return program
+        return ast
 
-    def parse_statement(self):
-        if self.curr_token.type == tokens.LET:
-            return self.parse_let_statement()
-        elif self.curr_token.type == tokens.RETURN:
-            return self.parse_return_statement()
+    def statement(self):
+        if self.current.type == tokenizer.LET:
+            return self.let_statement()
         else:
-            return None
+            return self.expression()
 
-    def parse_let_statement(self):
-        let_token = self.curr_token
+    def let_statement(self):
+        self.advance()
+        if self.current.type != tokenizer.IDENTIFIER:
+            self.raise_expected_token_error(tokenizer.IDENTIFIER)
+        variable_name = self.current.value
 
-        if not self.expect_peek(tokens.IDENT):
-            return None
+        self.advance()
+        if self.current.type != tokenizer.ASSIGN:
+            self.raise_expected_token_error(tokenizer.ASSIGN)
 
-        identifier_token = self.curr_token
+        self.advance()
+        variable_value = self.expression()
 
-        if not self.expect_peek(tokens.ASSIGN):
-            return None
+        return AssignVariable(variable_name, variable_value)
 
-        # TODO: Skipping expressions for now
-        while not self.curr_token.type == tokens.SEMICOLON:
-            self.next_token()
+    def expression(self):
+        left = self.term()
+        while True:
+            if self.current is None:
+                return left
+            elif self.current.type in [tokenizer.PLUS, tokenizer.MINUS]:
+                op = self.current
+                self.advance()
+                right = self.term()
+                left = BinaryOperation(left, op, right)
+            else:
+                break
 
-        ident = Identifier(identifier_token, identifier_token.literal)
-        return LetStatement(let_token, ident, None)
+        return left
 
-    def parse_return_statement(self):
+    def term(self):
+        left = self.factor()
+        while True:
+            if self.current is None:
+                return left
+            elif self.current.type in [tokenizer.MULTIPLY, tokenizer.DIVIDE]:
+                op = self.current
+                self.advance()
+                right = self.factor()
+                left = BinaryOperation(left, op, right)
+            else:
+                break
 
-        return_statement = ReturnStatement(self.curr_token, None)
+        return left
 
-        self.next_token()
+    def factor(self):
+        if self.current.type == tokenizer.MINUS:
+            op = self.current
+            self.advance()
+            expression = self.expression()
+            return UnaryOperation(op, expression)
+        elif self.current.type == tokenizer.OPEN_PAREN:
+            self.advance()
+            expression = self.expression()
+            if self.current.type == tokenizer.CLOSED_PAREN:
+                self.advance()
+                return expression
+            self.raise_expected_token_error(tokenizer.OPEN_PAREN)
+        elif self.current.type == tokenizer.NUMBER:
+            number_token = self.current
+            self.advance()
+            return Number(number_token)
+        elif self.current.type == tokenizer.IDENTIFIER:
+            variable_token = self.current
+            self.advance()
+            return Identifier(variable_token)
+        else:
+            raise Exception(f"Invalid token: {self.current}")
 
-        # TODO: Skipping expressions for now
-        while not self.curr_token.type == tokens.SEMICOLON:
-            self.next_token()
-
-        return return_statement
-
-    def expect_peek(self, token_type):
-        if self.peek_token.type == token_type:
-            self.next_token()
-            return True
-
-        self.peek_error(token_type)
-        return False
+    def raise_expected_token_error(self, expected_token_type):
+        raise Exception(f"Expected {expected_token_type}, got {self.current.type} ({self.current.value})")
 
