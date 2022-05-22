@@ -77,7 +77,7 @@ class Tokenizer:
                 tokens.append(Token(number, NUMBER))
                 continue
             elif self.is_identifier():
-                letters = self.read_letters()
+                letters = self.read_identifier()
                 keywords = {
                     "let": LET,
                     "return": RETURN,
@@ -132,7 +132,7 @@ class Tokenizer:
             self.advance()
         return self.source[pos:self.index]
 
-    def read_letters(self):
+    def read_identifier(self):
         pos = self.index
         while self.is_identifier(include_nums=True):
             self.advance()
