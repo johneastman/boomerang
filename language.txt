@@ -13,3 +13,4 @@ print(y);
 print(noReturnAgain());
 let z = ((1 + (2 * 2)) / 5);
 print(z);
+print(1, 2, 3, 4);
