@@ -20,7 +20,9 @@ class Evaluator:
             elif expression.op.type == tokenizer.MULTIPLY:
                 return self.evaluate_expression(expression.left) * self.evaluate_expression(expression.right)
             elif expression.op.type == tokenizer.DIVIDE:
-                return self.evaluate_expression(expression.left) / self.evaluate_expression(expression.right)
+                return int(self.evaluate_expression(expression.left) / self.evaluate_expression(expression.right))
+            else:
+                raise Exception(f"Invalid binary operator: {expression.op}")
 
         elif type(expression) == _parser.UnaryOperation:
             if expression.op.type == tokenizer.PLUS:
@@ -28,7 +30,8 @@ class Evaluator:
             elif expression.op.type == tokenizer.MINUS:
                 return -self.evaluate_expression(expression.expression)
             else:
-                raise Exception(f"Invalid unary operator: {expression.op.type} ({expression.op.value})")
+                raise Exception(f"Invalid unary operator: {expression.op.type} ({expression.op})")
+
         elif type(expression) == _parser.AssignVariable:
             self.variables[expression.name] = self.evaluate_expression(expression.value)
 
@@ -54,12 +57,24 @@ class Evaluator:
 
             # Map the parameters to their values and set them in the variables dictionary
             for param_name, param_value in zip(function["params"], expression.parameter_values):
-                self.variables[param_name] = self.evaluate_expression(
-                    _parser.Number(tokenizer.Token(param_value, tokenizer.NUMBER)))
+                self.evaluate_expression(_parser.AssignVariable(param_name, param_value))
 
             # Evaluate every expression in the function body
             # TODO: Retrieve the last value in this list to get the returned value
-            return [self.evaluate_expression(expression) for expression in function["statements"]][-1]
+            statements = function["statements"]
+            executed_expressions = [self.evaluate_expression(expression) for expression in statements]
+
+            return executed_expressions[-1] if type(statements[-1]) == _parser.Return else "null"
+
+        elif type(expression) == _parser.BuiltinFunction:
+            if expression.name == "print":
+                evaluated_params = []
+                for param in expression.parameters:
+                    result = self.evaluate_expression(param)
+                    evaluated_params.append(result)
+
+                print(", ".join(map(str, evaluated_params)))
+            return "null"
 
         elif type(expression) == _parser.Number:
             return int(expression.value_token.value)

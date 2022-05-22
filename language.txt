@@ -1,16 +1,15 @@
-# let x = 2 + 2;
-# x + 1;
-# -(x + 1);
-
-func a(b, c) {
-    return b + c;
+func noReturn() {
+   print(1 + 1);
 };
-let x = a(1, 2);
-x + 1;
 
-func noreturn() {
+func noReturnAgain() {
     1 + 1;
+    let a = 20;
+    return 3;
 };
 
-let y = noreturn();
-y;
+let y = noReturn();
+print(y);
+print(noReturnAgain());
+let z = ((1 + (2 * 2)) / 5);
+print(z);

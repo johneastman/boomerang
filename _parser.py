@@ -28,6 +28,16 @@ class AssignFunction:
         return f"[{class_name}(name={self.name}, parameters={self.parameters}, statements={self.statements})]"
 
 
+class BuiltinFunction:
+    def __init__(self, name, params):
+        self.name = name
+        self.parameters = params
+
+    def __repr__(self):
+        class_name = self.__class__.__name__
+        return f"[{class_name}(name={self.name}, parameters={self.parameters})]"
+
+
 class Identifier:
     def __init__(self, name_token):
         self.name_token = name_token
@@ -134,7 +144,22 @@ class Parser:
             self.raise_expected_token_error(tokenizer.OPEN_PAREN)
         self.advance()
 
-        parameters = self.parse_function_header(tokenizer.IDENTIFIER)
+        parameters = []
+        # This condition in after 'while' handles functions with no parameters. If this was set to 'while True',
+        # the parser would expect a NUMBER after the open-paren of the function call and throw the error
+        # in `if self.current.type != tokenizer.NUMBER`.
+        while self.current.type != tokenizer.CLOSED_PAREN:
+            if self.current.type != tokenizer.IDENTIFIER:
+                self.raise_expected_token_error(tokenizer.IDENTIFIER)
+            parameters.append(self.current.value)
+            self.advance()
+
+            if self.current.type == tokenizer.CLOSED_PAREN:
+                break
+
+            if self.current.type != tokenizer.COMMA:
+                self.raise_expected_token_error(tokenizer.COMMA)
+            self.advance()
 
         self.advance()
 
@@ -201,17 +226,20 @@ class Parser:
             self.advance()
             expression = self.expression()
             return UnaryOperation(op, expression)
+
         elif self.current.type == tokenizer.OPEN_PAREN:
             self.advance()
             expression = self.expression()
             if self.current.type == tokenizer.CLOSED_PAREN:
                 self.advance()
                 return expression
-            self.raise_expected_token_error(tokenizer.OPEN_PAREN)
+            self.raise_expected_token_error(tokenizer.CLOSED_PAREN)
+
         elif self.current.type == tokenizer.NUMBER:
             number_token = self.current
             self.advance()
             return Number(number_token)
+
         elif self.current.type == tokenizer.IDENTIFIER:
             identifier_token = self.current
 
@@ -219,10 +247,29 @@ class Parser:
                 self.advance()
                 self.advance()
 
-                params = self.parse_function_header(tokenizer.NUMBER)
+                parameters = []
+                # This condition in after 'while' handles functions with no parameters. If this was set to 'while True',
+                # the parser would expect a NUMBER after the open-paren of the function call and throw the error.
+                # in `if self.current.type != tokenizer.NUMBER`.
+                while self.current.type != tokenizer.CLOSED_PAREN:
+                    if self.current.type not in [tokenizer.NUMBER, tokenizer.IDENTIFIER]:
+                        self.raise_expected_token_error(tokenizer.IDENTIFIER)
+                    parameters.append(self.expression())
+
+                    if self.current.type == tokenizer.CLOSED_PAREN:
+                        break
+
+                    if self.current.type != tokenizer.COMMA:
+                        self.raise_expected_token_error(tokenizer.COMMA)
+                    self.advance()
 
                 self.advance()
-                return FunctionCall(identifier_token.value, params)
+
+                # For built-in function calls, return a BuiltinFunction object.
+                if identifier_token.value == "print":
+                    return BuiltinFunction("print", parameters)
+
+                return FunctionCall(identifier_token.value, parameters)
             else:
                 self.advance()
                 return Identifier(identifier_token)
@@ -231,26 +278,6 @@ class Parser:
             return Return(self.expression())
         else:
             raise Exception(f"Invalid token: {self.current}")
-
-    def parse_function_header(self, expected_parameter_type):
-        params = []
-
-        # This condition in after 'while' handles functions with no parameters. If this was set to 'while True',
-        # the parser would expect a NUMBER after the open-paren of the function call and throw the error
-        # in `if self.current.type != tokenizer.NUMBER`.
-        while self.current.type != tokenizer.CLOSED_PAREN:
-            if self.current.type != expected_parameter_type:
-                self.raise_expected_token_error(tokenizer.NUMBER)
-            params.append(self.current.value)
-            self.advance()
-
-            if self.current.type == tokenizer.CLOSED_PAREN:
-                break
-
-            if self.current.type != tokenizer.COMMA:
-                self.raise_expected_token_error(tokenizer.COMMA)
-            self.advance()
-        return params
 
     def raise_expected_token_error(self, expected_token_type):
         raise Exception(f"Expected {expected_token_type}, got {self.current.type} ({self.current.value})")
