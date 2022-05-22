@@ -1,7 +1,5 @@
-NUMBER = "NUMBER"
-IDENTIFIER = "IDENTIFIER"
+# Symbols
 ASSIGN = "ASSIGN"
-LET = "LET"
 PLUS = "PLUS"
 MINUS = "MINUS"
 MULTIPLY = "MULTIPLY"
@@ -9,7 +7,20 @@ DIVIDE = "DIVIDE"
 SEMICOLON = "SEMICOLON"
 OPEN_PAREN = "OPEN_PAREN"
 CLOSED_PAREN = "CLOSED_PAREN"
+OPEN_CURLY_BRACKET = "OPEN_CURLY_BRACKET"
+CLOSED_CURLY_BRACKET = "CLOSED_CURLY_BRACKET"
+COMMA = "COMMA"
+COMMENT = "COMMENT"
+
+# Keywords
+LET = "LET"
+RETURN = "RETURN"
+FUNCTION = "FUNCTION"
+
+# Misc
 EOF = "EOF"  # End of File
+NUMBER = "NUMBER"
+IDENTIFIER = "IDENTIFIER"
 
 
 class Token:
@@ -35,6 +46,8 @@ class Tokenizer:
 
             if self.current is None:
                 break
+            elif self.current == "#":
+                self.skip_comment()
             elif self.current == "+":
                 tokens.append(Token(self.current, PLUS))
             elif self.current == "-":
@@ -51,6 +64,12 @@ class Tokenizer:
                 tokens.append(Token(self.current, CLOSED_PAREN))
             elif self.current == "=":
                 tokens.append(Token(self.current, ASSIGN))
+            elif self.current == ",":
+                tokens.append(Token(self.current, COMMA))
+            elif self.current == "{":
+                tokens.append(Token(self.current, OPEN_CURLY_BRACKET))
+            elif self.current == "}":
+                tokens.append(Token(self.current, CLOSED_CURLY_BRACKET))
             elif self.is_digit():
                 number = self.read_number()
                 tokens.append(Token(number, NUMBER))
@@ -58,7 +77,9 @@ class Tokenizer:
             elif self.is_letter():
                 letters = self.read_letters()
                 keywords = {
-                    "let": LET
+                    "let": LET,
+                    "return": RETURN,
+                    "func": FUNCTION
                 }
                 keyword = keywords.get(letters, None)
                 token_type = IDENTIFIER if keyword is None else keyword
@@ -80,6 +101,10 @@ class Tokenizer:
 
     def skip_whitespace(self):
         while self.current is not None and self.current.isspace():
+            self.advance()
+
+    def skip_comment(self):
+        while self.current is not None and self.current != ";":
             self.advance()
 
     def is_letter(self):
