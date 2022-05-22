@@ -20,6 +20,13 @@ class Evaluator:
                 return self.evaluate_expression(expression.left) * self.evaluate_expression(expression.right)
             elif expression.op.type == tokenizer.DIVIDE:
                 return self.evaluate_expression(expression.left) / self.evaluate_expression(expression.right)
+        elif type(expression) == _parser.UnaryOperation:
+            if expression.op.type == tokenizer.PLUS:
+                return self.evaluate_expression(expression.expression)
+            elif expression.op.type == tokenizer.MINUS:
+                return -self.evaluate_expression(expression.expression)
+            else:
+                raise Exception(f"Invalid unary operator: {expression.op.type} ({expression.op.value})")
         elif type(expression) == _parser.AssignVariable:
             self.variables[expression.name] = self.evaluate_expression(expression.value)
         elif type(expression) == _parser.Identifier:
