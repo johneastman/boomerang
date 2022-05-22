@@ -2,7 +2,7 @@ func noReturn() {
    print(1 + 1);
 };
 
-func noReturnAgain() {
+func noReturn_2() {
     1 + 1;
     let a = 20;
     return 3;
@@ -10,7 +10,7 @@ func noReturnAgain() {
 
 let y = noReturn();
 print(y);
-print(noReturnAgain());
+print(noReturn_2());
 let z = ((1 + (2 * 2)) / 5);
 print(z);
 print(1, 2, 3, 4);

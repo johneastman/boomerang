@@ -1,3 +1,5 @@
+import string
+
 # Symbols
 ASSIGN = "ASSIGN"
 PLUS = "PLUS"
@@ -74,7 +76,7 @@ class Tokenizer:
                 number = self.read_number()
                 tokens.append(Token(number, NUMBER))
                 continue
-            elif self.is_letter():
+            elif self.is_identifier():
                 letters = self.read_letters()
                 keywords = {
                     "let": LET,
@@ -107,8 +109,19 @@ class Tokenizer:
         while self.current is not None and self.current != ";":
             self.advance()
 
-    def is_letter(self):
-        return self.current is not None and self.current.isalpha()
+    def is_identifier(self, include_nums=False):
+        """Determine if a character is valid for an identifier (a-z, A-Z, 0-9, _)
+
+        :param include_nums: Set if digits are allowed in the valid identifier characters. Identifiers can't start
+        with numbers, but can include numbers.
+        :return:
+        :rtype:
+        """
+        valid_chars = string.ascii_letters + "_"
+        if include_nums:
+            valid_chars += string.digits
+
+        return self.current is not None and self.current in valid_chars
 
     def is_digit(self):
         return self.current is not None and self.current.isdigit()
@@ -121,6 +134,6 @@ class Tokenizer:
 
     def read_letters(self):
         pos = self.index
-        while self.is_letter():
+        while self.is_identifier(include_nums=True):
             self.advance()
         return self.source[pos:self.index]
