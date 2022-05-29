@@ -1,0 +1,6 @@
+.idea/
+
+# graphviz
+*.gv
+*.gv.pdf
+

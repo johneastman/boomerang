@@ -256,7 +256,7 @@ class Parser:
         return left
 
     def factor(self):
-        if self.current.type in [tokenizer.MINUS, tokenizer.BANG]:
+        if self.current.type in [tokenizer.MINUS, tokenizer.PLUS, tokenizer.BANG]:
             op = self.current
             self.advance()
             expression = self.expression()

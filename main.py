@@ -1,6 +1,7 @@
 from tokenizer import Tokenizer
 from _parser import Parser
 from evaluator import Evaluator
+from my_ast import MyAST
 
 PROMPT = ">> "
 
@@ -35,11 +36,10 @@ if __name__ == "__main__":
     source = get_source("language.txt")
     t = Tokenizer(source)
     tokens = t.tokenize()
-    print(tokens)
 
     p = Parser(tokens)
     ast = p.parse()
     print(ast)
 
-    e = Evaluator(ast)
-    e.evaluate()
+    # ast_obj = MyAST(ast)
+    # ast_obj.visualize()
