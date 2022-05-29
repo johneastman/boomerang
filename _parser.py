@@ -66,7 +66,7 @@ class BuiltinFunction:
 
 
 class FunctionCall:
-    def __init__(self, name, parameter_values):
+    def __init__(self, name: tokenizer.Token, parameter_values):
         self.name = name
         self.parameter_values = parameter_values
 
@@ -156,7 +156,7 @@ class Parser:
 
         if self.current.type != tokenizer.IDENTIFIER:
             self.raise_expected_token_error(tokenizer.IDENTIFIER)
-        function_name = self.current.value
+        function_name = self.current
         self.advance()
 
         if self.current.type != tokenizer.OPEN_PAREN:
@@ -170,7 +170,7 @@ class Parser:
         while self.current.type != tokenizer.CLOSED_PAREN:
             if self.current.type != tokenizer.IDENTIFIER:
                 self.raise_expected_token_error(tokenizer.IDENTIFIER)
-            parameters.append(self.current.value)
+            parameters.append(self.current)
             self.advance()
 
             if self.current.type == tokenizer.CLOSED_PAREN:
@@ -209,69 +209,43 @@ class Parser:
 
         return AssignVariable(variable_name_token, variable_value)
 
+    def binary_expression(self, binary_operators: list, next_method):
+        left = next_method()
+
+        while True:
+            if self.current is None:
+                return left
+            elif self.current.type in binary_operators:
+                op = self.current
+                self.advance()
+                right = next_method()
+                left = BinaryOperation(left, op, right)
+            else:
+                break
+
+        return left
+
     def expression(self):
-        left = self.addition()
-        binary_operators = [
+        return self.binary_expression([
             tokenizer.EQ,
             tokenizer.NOT_EQ,
             tokenizer.GREATER_EQUAL,
             tokenizer.GREATER,
             tokenizer.LESS_EQ,
             tokenizer.LESS
-        ]
-
-        while True:
-            if self.current is None:
-                return left
-            elif self.current.type in binary_operators:
-                op = self.current
-                self.advance()
-                right = self.addition()
-                left = BinaryOperation(left, op, right)
-            else:
-                break
-
-        return left
+        ], self.addition)
 
     def addition(self):
-        left = self.term()
-        binary_operators = [
+        return self.binary_expression([
             tokenizer.PLUS,
             tokenizer.MINUS,
-        ]
-
-        while True:
-            if self.current is None:
-                return left
-            elif self.current.type in binary_operators:
-                op = self.current
-                self.advance()
-                right = self.term()
-                left = BinaryOperation(left, op, right)
-            else:
-                break
-
-        return left
+        ], self.term)
 
     def term(self):
-        left = self.factor()
-        binary_operators = [
+        return self.binary_expression([
             tokenizer.MULTIPLY,
             tokenizer.DIVIDE
-        ]
-
-        while True:
-            if self.current is None:
-                return left
-            elif self.current.type in binary_operators:
-                op = self.current
-                self.advance()
-                right = self.factor()
-                left = BinaryOperation(left, op, right)
-            else:
-                break
-
-        return left
+        ], self.factor)
 
     def factor(self):
         if self.current.type in [tokenizer.MINUS, tokenizer.PLUS, tokenizer.BANG]:
@@ -300,43 +274,47 @@ class Parser:
 
         elif self.current.type == tokenizer.IDENTIFIER:
             identifier_token = self.current
-
             if self.peek.type == tokenizer.OPEN_PAREN:
-                self.advance()
-                self.advance()
-
-                parameters = []
-                # This condition in after 'while' handles functions with no parameters. If this was set to 'while True',
-                # the parser would expect a NUMBER after the open-paren of the function call and throw the error.
-                # in `if self.current.type != tokenizer.NUMBER`.
-                while self.current.type != tokenizer.CLOSED_PAREN:
-                    parameters.append(self.expression())
-
-                    if self.current.type == tokenizer.CLOSED_PAREN:
-                        break
-
-                    if self.current.type != tokenizer.COMMA:
-                        self.raise_expected_token_error(tokenizer.COMMA)
-                    self.advance()
-
-                self.advance()
-
-                builtin_functions = [
-                    "print"
-                ]
-
-                # For built-in function calls, return a BuiltinFunction object.
-                if identifier_token.value in builtin_functions:
-                    return BuiltinFunction(identifier_token.value, parameters)
-                return FunctionCall(identifier_token.value, parameters)
+                return self.function_call(identifier_token)
             else:
                 self.advance()
                 return Identifier(identifier_token)
+
         elif self.current.type == tokenizer.RETURN:
             self.advance()
             return Return(self.expression())
+
         else:
             raise Exception(f"Invalid token: {self.current}")
+
+    def function_call(self, identifier_token):
+        self.advance()
+        self.advance()
+
+        parameters = []
+        # This condition in after 'while' handles functions with no parameters. If this was set to 'while True',
+        # the parser would expect a NUMBER after the open-paren of the function call and throw the error.
+        # in `if self.current.type != tokenizer.NUMBER`.
+        while self.current.type != tokenizer.CLOSED_PAREN:
+            parameters.append(self.expression())
+
+            if self.current.type == tokenizer.CLOSED_PAREN:
+                break
+
+            if self.current.type != tokenizer.COMMA:
+                self.raise_expected_token_error(" or ".join([tokenizer.COMMA, tokenizer.CLOSED_PAREN]))
+            self.advance()
+
+        self.advance()
+
+        builtin_functions = [
+            "print"
+        ]
+
+        # For built-in function calls, return a BuiltinFunction object.
+        if identifier_token.value in builtin_functions:
+            return BuiltinFunction(identifier_token.value, parameters)
+        return FunctionCall(identifier_token, parameters)
 
     def raise_expected_token_error(self, expected_token_type):
         raise Exception(f"Expected {expected_token_type}, got {self.current.type} ({self.current.value})")

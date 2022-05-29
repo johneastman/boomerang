@@ -55,30 +55,38 @@ class Evaluator:
 
         elif type(expression) == _parser.AssignFunction:
             function_parameters = expression.parameters
-            self.functions[expression.name] = {"params": function_parameters, "statements": expression.statements}
-            for i, param in enumerate(function_parameters):
-                self.variables[param] = param
+            self.functions[expression.name.value] = {"params": function_parameters, "statements": expression.statements}
+            return "null"
 
         elif type(expression) == _parser.Identifier:
             variable_value = self.variables.get(expression.value, None)
             if variable_value is None:
-                raise Exception(f"Undefined variable '{expression.value}' at line {expression.line_num}")
+                raise Exception(f"Undefined variable at line {expression.line_num}: {expression.value}")
             return variable_value
 
         elif type(expression) == _parser.FunctionCall:
-            function = self.functions.get(expression.name, None)
+            function = self.functions.get(expression.name.value, None)
 
             # If the function is not defined in the functions dictionary, throw an error saying the
             # function is undefined
             if function is None:
-                raise Exception(f"Undefined function: {expression.name}")
+                raise Exception(f"Undefined function at line {expression.name.line_num}: {expression.name.value}")
+
+            parameter_identifiers = function["params"]
+            parameter_values = expression.parameter_values
+
+            if len(parameter_identifiers) != len(parameter_values):
+                error_msg = "Incorrect number of arguments. "
+                error_msg += f"Function '{expression.name.value}' defined with {len(parameter_identifiers)} parameters "
+                error_msg += f"({', '.join(map(lambda t: t.value, parameter_identifiers))}), "
+                error_msg += f"but {len(parameter_values)} given."
+                raise Exception(error_msg)
 
             # Map the parameters to their values and set them in the variables dictionary
-            for param_name, param_value in zip(function["params"], expression.parameter_values):
+            for param_name, param_value in zip(parameter_identifiers, parameter_values):
                 self.evaluate_expression(_parser.AssignVariable(param_name, param_value))
 
             # Evaluate every expression in the function body
-            # TODO: Retrieve the last value in this list to get the returned value
             statements = function["statements"]
             executed_expressions = [self.evaluate_expression(expression) for expression in statements]
 

@@ -41,8 +41,7 @@ if __name__ == "__main__":
     ast = p.parse()
 
     e = Evaluator(ast)
-    results = e.evaluate()
-    print(results)
+    e.evaluate()
 
     # ast_obj = MyAST(ast)
     # ast_obj.visualize()
