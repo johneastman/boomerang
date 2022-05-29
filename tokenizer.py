@@ -35,21 +35,47 @@ EOF = "EOF"  # End of File
 NUMBER = "NUMBER"
 IDENTIFIER = "IDENTIFIER"
 
+token_literal_map = {
+    "+": PLUS,
+    "-": MINUS,
+    "/": DIVIDE,
+    "*": MULTIPLY,
+    "=": ASSIGN,
+    "!": BANG,
+    ">": GREATER,
+    "<": LESS,
+    ";": SEMICOLON,
+    "(": OPEN_PAREN,
+    ")": CLOSED_PAREN,
+    "{": OPEN_CURLY_BRACKET,
+    "}": CLOSED_CURLY_BRACKET,
+    "#": COMMENT,
+    ",": COMMA
+}
+
 
 class Token:
 
-    def __init__(self, value, _type):
+    def __init__(self, value, _type, line_num):
         self.value = value
         self.type = _type
+        self.line_num = line_num
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(value={self.value}, type={self.type})"
+        return f"{self.__class__.__name__}(value: {self.value}, type: {self.type}, line_num: {self.line_num})"
+
+    def __eq__(self, other):
+        if not isinstance(other, Token):
+            return False
+        return self.value == other.value and self.type == other.type and self.line_num == other.line_num
 
 
 class Tokenizer:
     def __init__(self, source):
         self.source = source
         self.index = 0
+        self.line_num = 1
+        self.line_col = 1
 
     def tokenize(self):
         tokens = []
@@ -62,55 +88,55 @@ class Tokenizer:
             elif self.current == "#":
                 self.skip_comment()
             elif self.current == "+":
-                tokens.append(Token(self.current, PLUS))
+                tokens.append(Token(self.current, PLUS, self.line_num))
             elif self.current == "-":
-                tokens.append(Token(self.current, MINUS))
+                tokens.append(Token(self.current, MINUS, self.line_num))
             elif self.current == "*":
-                tokens.append(Token(self.current, MULTIPLY))
+                tokens.append(Token(self.current, MULTIPLY, self.line_num))
             elif self.current == "/":
                 if self.next_char == "*":
                     self.skip_block_comment()
                 else:
-                    tokens.append(Token(self.current, DIVIDE))
+                    tokens.append(Token(self.current, DIVIDE, self.line_num))
             elif self.current == ";":
-                tokens.append(Token(self.current, SEMICOLON))
+                tokens.append(Token(self.current, SEMICOLON, self.line_num))
             elif self.current == "(":
-                tokens.append(Token(self.current, OPEN_PAREN))
+                tokens.append(Token(self.current, OPEN_PAREN, self.line_num))
             elif self.current == ")":
-                tokens.append(Token(self.current, CLOSED_PAREN))
+                tokens.append(Token(self.current, CLOSED_PAREN, self.line_num))
             elif self.current == "=":
                 if self.next_char == "=":
                     token = self.create_two_char_token(EQ)
                     tokens.append(token)
                 else:
-                    tokens.append(Token(self.current, ASSIGN))
+                    tokens.append(Token(self.current, ASSIGN, self.line_num))
             elif self.current == "!":
                 if self.next_char == "=":
                     token = self.create_two_char_token(NOT_EQ)
                     tokens.append(token)
                 else:
-                    tokens.append(Token(self.current, BANG))
+                    tokens.append(Token(self.current, BANG, self.line_num))
             elif self.current == ",":
-                tokens.append(Token(self.current, COMMA))
+                tokens.append(Token(self.current, COMMA, self.line_num))
             elif self.current == "{":
-                tokens.append(Token(self.current, OPEN_CURLY_BRACKET))
+                tokens.append(Token(self.current, OPEN_CURLY_BRACKET, self.line_num))
             elif self.current == "}":
-                tokens.append(Token(self.current, CLOSED_CURLY_BRACKET))
+                tokens.append(Token(self.current, CLOSED_CURLY_BRACKET, self.line_num))
             elif self.current == ">":
                 if self.next_char == "=":
                     token = self.create_two_char_token(GREATER_EQUAL)
                     tokens.append(token)
                 else:
-                    tokens.append(Token(self.current, GREATER))
+                    tokens.append(Token(self.current, GREATER, self.line_num))
             elif self.current == "<":
                 if self.next_char == "=":
                     token = self.create_two_char_token(LESS_EQ)
                     tokens.append(token)
                 else:
-                    tokens.append(Token(self.current, LESS))
+                    tokens.append(Token(self.current, LESS, self.line_num))
             elif self.is_digit():
                 number = self.read_number()
-                tokens.append(Token(number, NUMBER))
+                tokens.append(Token(number, NUMBER, self.line_num))
                 continue
             elif self.is_identifier():
                 letters = self.read_identifier()
@@ -124,12 +150,12 @@ class Tokenizer:
                 keyword = keywords.get(letters, None)
                 token_type = IDENTIFIER if keyword is None else keyword
 
-                tokens.append(Token(letters, token_type))
+                tokens.append(Token(letters, token_type, self.line_num))
                 continue
 
             self.advance()
 
-        tokens.append(Token("", EOF))  # Add end-of-file token
+        tokens.append(Token("", EOF, self.line_num))  # Add end-of-file token
         return tokens
 
     @property
@@ -146,6 +172,9 @@ class Tokenizer:
 
     def skip_whitespace(self):
         while self.current is not None and self.current.isspace():
+            if self.current == "\n":
+                self.line_num += 1
+
             self.advance()
 
     def skip_comment(self):
@@ -155,6 +184,9 @@ class Tokenizer:
 
     def skip_block_comment(self):
         while self.current != "*" or self.next_char != "/":
+            if self.current == "\n":
+                self.line_num += 1
+
             self.advance()
 
         self.advance()
@@ -192,6 +224,4 @@ class Tokenizer:
     def create_two_char_token(self, token_type):
         prev_char = self.current
         self.advance()
-        return Token(prev_char + self.current, token_type)
-
-
+        return Token(prev_char + self.current, token_type, self.line_num)

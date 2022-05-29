@@ -35,20 +35,22 @@ class Evaluator:
             elif expression.op.type == tokenizer.LESS_EQ:
                 return self.evaluate_expression(expression.left) <= self.evaluate_expression(expression.right)
             elif expression.op.type == tokenizer.LESS:
-                return self.evaluate_expression(expression.left) <  self.evaluate_expression(expression.right)
+                return self.evaluate_expression(expression.left) < self.evaluate_expression(expression.right)
             else:
-                raise Exception(f"Invalid binary operator: {expression.op}")
+                raise Exception(f"Invalid binary operator '{expression.op.value}' at line {expression.op.line_num}")
 
         elif type(expression) == _parser.UnaryOperation:
             if expression.op.type == tokenizer.PLUS:
                 return self.evaluate_expression(expression.expression)
             elif expression.op.type == tokenizer.MINUS:
                 return -self.evaluate_expression(expression.expression)
+            elif expression.op.type == tokenizer.BANG:
+                return not self.evaluate_expression(expression.expression)
             else:
                 raise Exception(f"Invalid unary operator: {expression.op.type} ({expression.op})")
 
         elif type(expression) == _parser.AssignVariable:
-            self.variables[expression.name] = self.evaluate_expression(expression.value)
+            self.variables[expression.name.value] = self.evaluate_expression(expression.value)
 
         elif type(expression) == _parser.AssignFunction:
             function_parameters = expression.parameters
@@ -57,9 +59,9 @@ class Evaluator:
                 self.variables[param] = param
 
         elif type(expression) == _parser.Identifier:
-            variable_value = self.variables.get(expression.name_token.value, None)
+            variable_value = self.variables.get(expression.value, None)
             if variable_value is None:
-                raise Exception(f"Undefined variable: {expression.name_token.value}")
+                raise Exception(f"Undefined variable '{expression.value}' at line {expression.line_num}")
             return variable_value
 
         elif type(expression) == _parser.FunctionCall:
@@ -92,10 +94,10 @@ class Evaluator:
             return "null"
 
         elif type(expression) == _parser.Number:
-            return int(expression.value_token.value)
+            return int(expression.value)
 
         elif type(expression) == _parser.Boolean:
-            return True if expression.value_token.type == tokenizer.TRUE else False
+            return True if expression.type == tokenizer.TRUE else False
 
         elif type(expression) == _parser.Return:
             return self.evaluate_expression(expression.expression)

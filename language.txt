@@ -1,20 +1,2 @@
-/*
-func noReturn() {
-   print(1 + 1);
-};
-
-func noReturn_2() {
-    1 + 1;
-    let a = 20;
-    return 3;
-};
-
-let y = noReturn();
-print(y);
-print(noReturn_2());
-let z = ((1 + (2 * 2)) / 5);
-print(z);
-print(1, 2, 3, 4);
-*/
-let a = 1 < 2 < 2;
-print(a);
+let x = 1 + 1 == 2 + 2;
+print(x);

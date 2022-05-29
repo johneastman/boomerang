@@ -1,20 +1,39 @@
 import tokenizer
 
 
-class Number:
-    def __init__(self, value_token):
-        self.value_token = value_token
+class TokenValue:
+    def __init__(self, token: tokenizer.Token):
+        self.token = token
+
+    @property
+    def value(self):
+        return self.token.value
+
+    @property
+    def type(self):
+        return self.token.type
+
+    @property
+    def line_num(self):
+        return self.token.line_num
 
     def __repr__(self):
-        return f"[{self.__class__.__name__}(value={self.value_token.value})]"
+        return f"[{self.__class__.__name__}(value={self.value})]"
 
 
-class Boolean:
-    def __init__(self, value_token):
-        self.value_token = value_token
+class Number(TokenValue):
+    def __init__(self, token: tokenizer.Token):
+        super().__init__(token)
 
-    def __repr__(self):
-        return f"[{self.__class__.__name__}(value={self.value_token.value})]"
+
+class Boolean(TokenValue):
+    def __init__(self, token: tokenizer.Token):
+        super().__init__(token)
+
+
+class Identifier(TokenValue):
+    def __init__(self, token: tokenizer.Token):
+        super().__init__(token)
 
 
 class Return:
@@ -37,21 +56,13 @@ class AssignFunction:
 
 
 class BuiltinFunction:
-    def __init__(self, name, params):
+    def __init__(self, name: tokenizer.Token, params):
         self.name = name
         self.parameters = params
 
     def __repr__(self):
         class_name = self.__class__.__name__
         return f"[{class_name}(name={self.name}, parameters={self.parameters})]"
-
-
-class Identifier:
-    def __init__(self, name_token):
-        self.name_token = name_token
-
-    def __repr__(self):
-        return f"[{self.__class__.__name__}(value={self.name_token.value})]"
 
 
 class FunctionCall:
@@ -64,7 +75,7 @@ class FunctionCall:
 
 
 class BinaryOperation:
-    def __init__(self, left, op, right):
+    def __init__(self, left, op: tokenizer.Token, right):
         self.left = left
         self.op = op
         self.right = right
@@ -75,7 +86,7 @@ class BinaryOperation:
 
 
 class AssignVariable:
-    def __init__(self, name, value):
+    def __init__(self, name: tokenizer.Token, value):
         self.name = name
         self.value = value
 
@@ -85,7 +96,7 @@ class AssignVariable:
 
 
 class UnaryOperation:
-    def __init__(self, op, expression):
+    def __init__(self, op: tokenizer.Token, expression):
         self.op = op
         self.expression = expression
 
@@ -187,7 +198,7 @@ class Parser:
         self.advance()
         if self.current.type != tokenizer.IDENTIFIER:
             self.raise_expected_token_error(tokenizer.IDENTIFIER)
-        variable_name = self.current.value
+        variable_name_token = self.current
 
         self.advance()
         if self.current.type != tokenizer.ASSIGN:
@@ -196,19 +207,13 @@ class Parser:
         self.advance()
         variable_value = self.expression()
 
-        return AssignVariable(variable_name, variable_value)
+        return AssignVariable(variable_name_token, variable_value)
 
     def expression(self):
         left = self.term()
         binary_operators = [
             tokenizer.PLUS,
-            tokenizer.MINUS,
-            tokenizer.EQ,
-            tokenizer.NOT_EQ,
-            tokenizer.GREATER_EQUAL,
-            tokenizer.GREATER,
-            tokenizer.LESS_EQ,
-            tokenizer.LESS
+            tokenizer.MINUS
         ]
 
         while True:
@@ -226,10 +231,21 @@ class Parser:
 
     def term(self):
         left = self.factor()
+        binary_operators = [
+            tokenizer.MULTIPLY,
+            tokenizer.DIVIDE,
+            tokenizer.EQ,
+            tokenizer.NOT_EQ,
+            tokenizer.GREATER_EQUAL,
+            tokenizer.GREATER,
+            tokenizer.LESS_EQ,
+            tokenizer.LESS
+        ]
+
         while True:
             if self.current is None:
                 return left
-            elif self.current.type in [tokenizer.MULTIPLY, tokenizer.DIVIDE]:
+            elif self.current.type in binary_operators:
                 op = self.current
                 self.advance()
                 right = self.factor()
@@ -240,7 +256,7 @@ class Parser:
         return left
 
     def factor(self):
-        if self.current.type == tokenizer.MINUS:
+        if self.current.type in [tokenizer.MINUS, tokenizer.BANG]:
             op = self.current
             self.advance()
             expression = self.expression()
@@ -289,10 +305,13 @@ class Parser:
 
                 self.advance()
 
-                # For built-in function calls, return a BuiltinFunction object.
-                if identifier_token.value == "print":
-                    return BuiltinFunction("print", parameters)
+                builtin_functions = [
+                    "print"
+                ]
 
+                # For built-in function calls, return a BuiltinFunction object.
+                if identifier_token.value in builtin_functions:
+                    return BuiltinFunction(identifier_token.value, parameters)
                 return FunctionCall(identifier_token.value, parameters)
             else:
                 self.advance()
