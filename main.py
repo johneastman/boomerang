@@ -1,23 +1,8 @@
-# from tokenizer import Tokenizer
-# import tokens
-#
-# PROMPT = ">> "
-#
-# while True:
-#     _input = input(PROMPT)
-#
-#     if _input.lower() == "exit":
-#         break
-#     else:
-#         t = Tokenizer(_input)
-#         tok = t.next_token()
-#
-#         while tok.type != tokens.EOF:
-#             print(f"TYPE: {tok.type}, LITERAL: {tok.literal}")
-#             tok = t.next_token()
 from tokenizer import Tokenizer
 from _parser import Parser
 from evaluator import Evaluator
+
+PROMPT = ">> "
 
 
 def get_source(filepath):
@@ -25,13 +10,36 @@ def get_source(filepath):
         return file.read()
 
 
-source = get_source("language.txt")
-t = Tokenizer(source)
-tokens = t.tokenize()
+def repl():
+    while True:
+        _input = input(PROMPT)
 
-p = Parser(tokens)
-ast = p.parse()
-print(ast)
+        if _input.lower() == "exit":
+            break
+        else:
+            try:
+                t = Tokenizer(_input)
+                tokens = t.tokenize()
 
-e = Evaluator(ast)
-e.evaluate()
+                p = Parser(tokens)
+                ast = p.parse()
+
+                e = Evaluator(ast)
+                result = e.evaluate()
+                print(result)
+            except Exception as e:
+                print(e)
+
+
+if __name__ == "__main__":
+    source = get_source("language.txt")
+    t = Tokenizer(source)
+    tokens = t.tokenize()
+    print(tokens)
+
+    p = Parser(tokens)
+    ast = p.parse()
+    print(ast)
+
+    e = Evaluator(ast)
+    e.evaluate()

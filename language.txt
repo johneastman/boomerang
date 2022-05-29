@@ -1,3 +1,4 @@
+/*
 func noReturn() {
    print(1 + 1);
 };
@@ -14,3 +15,6 @@ print(noReturn_2());
 let z = ((1 + (2 * 2)) / 5);
 print(z);
 print(1, 2, 3, 4);
+*/
+let a = 1 < 2 < 2;
+print(a);

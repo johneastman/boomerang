@@ -1,6 +1,9 @@
 import _parser
 import tokenizer
 
+# TODO: Return a Value object for values (numbers, booleans, etc.) instead of the raw value so we can check the type
+#  and throw errors for incompatible types in comparison operators.
+
 
 class Evaluator:
     def __init__(self, ast):
@@ -21,6 +24,18 @@ class Evaluator:
                 return self.evaluate_expression(expression.left) * self.evaluate_expression(expression.right)
             elif expression.op.type == tokenizer.DIVIDE:
                 return int(self.evaluate_expression(expression.left) / self.evaluate_expression(expression.right))
+            elif expression.op.type == tokenizer.EQ:
+                return self.evaluate_expression(expression.left) == self.evaluate_expression(expression.right)
+            elif expression.op.type == tokenizer.NOT_EQ:
+                return self.evaluate_expression(expression.left) != self.evaluate_expression(expression.right)
+            elif expression.op.type == tokenizer.GREATER_EQUAL:
+                return self.evaluate_expression(expression.left) >= self.evaluate_expression(expression.right)
+            elif expression.op.type == tokenizer.GREATER:
+                return self.evaluate_expression(expression.left) > self.evaluate_expression(expression.right)
+            elif expression.op.type == tokenizer.LESS_EQ:
+                return self.evaluate_expression(expression.left) <= self.evaluate_expression(expression.right)
+            elif expression.op.type == tokenizer.LESS:
+                return self.evaluate_expression(expression.left) <  self.evaluate_expression(expression.right)
             else:
                 raise Exception(f"Invalid binary operator: {expression.op}")
 
@@ -78,6 +93,9 @@ class Evaluator:
 
         elif type(expression) == _parser.Number:
             return int(expression.value_token.value)
+
+        elif type(expression) == _parser.Boolean:
+            return True if expression.value_token.type == tokenizer.TRUE else False
 
         elif type(expression) == _parser.Return:
             return self.evaluate_expression(expression.expression)

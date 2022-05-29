@@ -9,6 +9,14 @@ class Number:
         return f"[{self.__class__.__name__}(value={self.value_token.value})]"
 
 
+class Boolean:
+    def __init__(self, value_token):
+        self.value_token = value_token
+
+    def __repr__(self):
+        return f"[{self.__class__.__name__}(value={self.value_token.value})]"
+
+
 class Return:
     def __init__(self, expression):
         self.expression = expression
@@ -192,10 +200,21 @@ class Parser:
 
     def expression(self):
         left = self.term()
+        binary_operators = [
+            tokenizer.PLUS,
+            tokenizer.MINUS,
+            tokenizer.EQ,
+            tokenizer.NOT_EQ,
+            tokenizer.GREATER_EQUAL,
+            tokenizer.GREATER,
+            tokenizer.LESS_EQ,
+            tokenizer.LESS
+        ]
+
         while True:
             if self.current is None:
                 return left
-            elif self.current.type in [tokenizer.PLUS, tokenizer.MINUS]:
+            elif self.current.type in binary_operators:
                 op = self.current
                 self.advance()
                 right = self.term()
@@ -239,6 +258,11 @@ class Parser:
             number_token = self.current
             self.advance()
             return Number(number_token)
+
+        elif self.current.type in [tokenizer.TRUE, tokenizer.FALSE]:
+            bool_val_token = self.current
+            self.advance()
+            return Boolean(bool_val_token)
 
         elif self.current.type == tokenizer.IDENTIFIER:
             identifier_token = self.current

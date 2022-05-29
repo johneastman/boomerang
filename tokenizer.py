@@ -14,10 +14,21 @@ CLOSED_CURLY_BRACKET = "CLOSED_CURLY_BRACKET"
 COMMA = "COMMA"
 COMMENT = "COMMENT"
 
+# Comparison/Boolean Operators
+EQ = "EQ"
+NOT_EQ = "NOT_EQ"
+GREATER_EQUAL = "GREATER_EQUAL"
+LESS_EQ = "LESS_EQ"
+GREATER = "GREATER"
+LESS = "LESS"
+BANG = "BANG"
+
 # Keywords
 LET = "LET"
 RETURN = "RETURN"
 FUNCTION = "FUNCTION"
+TRUE = "TRUE"
+FALSE = "FALSE"
 
 # Misc
 EOF = "EOF"  # End of File
@@ -57,7 +68,10 @@ class Tokenizer:
             elif self.current == "*":
                 tokens.append(Token(self.current, MULTIPLY))
             elif self.current == "/":
-                tokens.append(Token(self.current, DIVIDE))
+                if self.next_char == "*":
+                    self.skip_block_comment()
+                else:
+                    tokens.append(Token(self.current, DIVIDE))
             elif self.current == ";":
                 tokens.append(Token(self.current, SEMICOLON))
             elif self.current == "(":
@@ -65,13 +79,35 @@ class Tokenizer:
             elif self.current == ")":
                 tokens.append(Token(self.current, CLOSED_PAREN))
             elif self.current == "=":
-                tokens.append(Token(self.current, ASSIGN))
+                if self.next_char == "=":
+                    token = self.create_two_char_token(EQ)
+                    tokens.append(token)
+                else:
+                    tokens.append(Token(self.current, ASSIGN))
+            elif self.current == "!":
+                if self.next_char == "=":
+                    token = self.create_two_char_token(NOT_EQ)
+                    tokens.append(token)
+                else:
+                    tokens.append(Token(self.current, BANG))
             elif self.current == ",":
                 tokens.append(Token(self.current, COMMA))
             elif self.current == "{":
                 tokens.append(Token(self.current, OPEN_CURLY_BRACKET))
             elif self.current == "}":
                 tokens.append(Token(self.current, CLOSED_CURLY_BRACKET))
+            elif self.current == ">":
+                if self.next_char == "=":
+                    token = self.create_two_char_token(GREATER_EQUAL)
+                    tokens.append(token)
+                else:
+                    tokens.append(Token(self.current, GREATER))
+            elif self.current == "<":
+                if self.next_char == "=":
+                    token = self.create_two_char_token(LESS_EQ)
+                    tokens.append(token)
+                else:
+                    tokens.append(Token(self.current, LESS))
             elif self.is_digit():
                 number = self.read_number()
                 tokens.append(Token(number, NUMBER))
@@ -81,7 +117,9 @@ class Tokenizer:
                 keywords = {
                     "let": LET,
                     "return": RETURN,
-                    "func": FUNCTION
+                    "func": FUNCTION,
+                    "true": TRUE,
+                    "false": FALSE
                 }
                 keyword = keywords.get(letters, None)
                 token_type = IDENTIFIER if keyword is None else keyword
@@ -98,6 +136,11 @@ class Tokenizer:
     def current(self):
         return self.source[self.index] if self.index < len(self.source) else None
 
+    @property
+    def next_char(self):
+        next_char_index = self.index + 1
+        return self.source[next_char_index] if next_char_index < len(self.source) else None
+
     def advance(self):
         self.index += 1
 
@@ -106,8 +149,16 @@ class Tokenizer:
             self.advance()
 
     def skip_comment(self):
-        while self.current is not None and self.current != ";":
+        # If a hash symbol is found, skip until the end of the line
+        while self.current is not None and self.current != "\n":
             self.advance()
+
+    def skip_block_comment(self):
+        while self.current != "*" or self.next_char != "/":
+            self.advance()
+
+        self.advance()
+        self.advance()
 
     def is_identifier(self, include_nums=False):
         """Determine if a character is valid for an identifier (a-z, A-Z, 0-9, _)
@@ -137,3 +188,10 @@ class Tokenizer:
         while self.is_identifier(include_nums=True):
             self.advance()
         return self.source[pos:self.index]
+
+    def create_two_char_token(self, token_type):
+        prev_char = self.current
+        self.advance()
+        return Token(prev_char + self.current, token_type)
+
+
