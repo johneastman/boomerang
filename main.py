@@ -39,7 +39,10 @@ if __name__ == "__main__":
 
     p = Parser(tokens)
     ast = p.parse()
-    print(ast)
+
+    e = Evaluator(ast)
+    results = e.evaluate()
+    print(results)
 
     # ast_obj = MyAST(ast)
     # ast_obj.visualize()

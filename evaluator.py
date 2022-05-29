@@ -51,6 +51,7 @@ class Evaluator:
 
         elif type(expression) == _parser.AssignVariable:
             self.variables[expression.name.value] = self.evaluate_expression(expression.value)
+            return "null"
 
         elif type(expression) == _parser.AssignFunction:
             function_parameters = expression.parameters

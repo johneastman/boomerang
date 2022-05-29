@@ -8,8 +8,10 @@ class MyAST:
         self.dot = graphviz.Digraph(comment="Abstract Syntax Tree (AST)")
 
     def visualize(self):
-        statememnt = self.ast[0]
-        self.__visualize(statememnt)
+
+        for statement in self.ast:
+            self.__visualize(statement)
+
         self.dot.render("graph.gv", view=True)
 
     def __visualize(self, expression):

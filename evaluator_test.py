@@ -6,29 +6,18 @@ import _parser
 
 class TestEvaluator(unittest.TestCase):
 
-    def test_evaluator_1(self):
-        source = "1 + 1;"
-        result = self.actual_result(source)
+    def test_evaluator(self):
 
-        self.assertEqual([2], result)
+        tests = [
+            ("1 + 1;", [2]),
+            ("1 + 2 * 2;", [5]),
+            ("(1 + 2) * 2;", [6]),
+            ("let x = (1 + 2) * 2;x;", ["null", 6])
+        ]
 
-    def test_evaluator_2(self):
-        source = "1 + 2 * 2;"
-        result = self.actual_result(source)
-
-        self.assertEqual([5], result)
-
-    def test_evaluator_3(self):
-        source = "(1 + 2) * 2;"
-        result = self.actual_result(source)
-
-        self.assertEqual([6], result)
-
-    def test_evaluator_variable(self):
-        source = "let x = (1 + 2) * 2;x;"
-        result = self.actual_result(source)
-
-        self.assertEqual([None, 6], result)
+        for source, expected_results in tests:
+            actual_results = self.actual_result(source)
+            self.assertEqual(expected_results, actual_results)
 
     def actual_result(self, source):
         t = tokenizer.Tokenizer(source)

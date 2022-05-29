@@ -210,10 +210,34 @@ class Parser:
         return AssignVariable(variable_name_token, variable_value)
 
     def expression(self):
+        left = self.addition()
+        binary_operators = [
+            tokenizer.EQ,
+            tokenizer.NOT_EQ,
+            tokenizer.GREATER_EQUAL,
+            tokenizer.GREATER,
+            tokenizer.LESS_EQ,
+            tokenizer.LESS
+        ]
+
+        while True:
+            if self.current is None:
+                return left
+            elif self.current.type in binary_operators:
+                op = self.current
+                self.advance()
+                right = self.addition()
+                left = BinaryOperation(left, op, right)
+            else:
+                break
+
+        return left
+
+    def addition(self):
         left = self.term()
         binary_operators = [
             tokenizer.PLUS,
-            tokenizer.MINUS
+            tokenizer.MINUS,
         ]
 
         while True:
@@ -233,13 +257,7 @@ class Parser:
         left = self.factor()
         binary_operators = [
             tokenizer.MULTIPLY,
-            tokenizer.DIVIDE,
-            tokenizer.EQ,
-            tokenizer.NOT_EQ,
-            tokenizer.GREATER_EQUAL,
-            tokenizer.GREATER,
-            tokenizer.LESS_EQ,
-            tokenizer.LESS
+            tokenizer.DIVIDE
         ]
 
         while True:
@@ -292,8 +310,6 @@ class Parser:
                 # the parser would expect a NUMBER after the open-paren of the function call and throw the error.
                 # in `if self.current.type != tokenizer.NUMBER`.
                 while self.current.type != tokenizer.CLOSED_PAREN:
-                    if self.current.type not in [tokenizer.NUMBER, tokenizer.IDENTIFIER]:
-                        self.raise_expected_token_error(tokenizer.IDENTIFIER)
                     parameters.append(self.expression())
 
                     if self.current.type == tokenizer.CLOSED_PAREN:
