@@ -2,6 +2,7 @@ import unittest
 import evaluator
 import tokenizer
 import _parser
+import _environment
 
 
 class TestEvaluator(unittest.TestCase):
@@ -26,7 +27,7 @@ class TestEvaluator(unittest.TestCase):
         p = _parser.Parser(tokens)
         ast = p.parse()
 
-        e = evaluator.Evaluator(ast)
+        e = evaluator.Evaluator(ast, _environment.Environment())
         return e.evaluate()
 
 

@@ -37,7 +37,7 @@ def repl():
 
 
 if __name__ == "__main__":
-    env = Environment(None)
+    env = Environment()
 
     source = get_source("language.txt")
     t = Tokenizer(source)

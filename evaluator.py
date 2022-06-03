@@ -93,18 +93,20 @@ class Evaluator:
                 error_msg += f"but {len(parameter_values)} given."
                 raise Exception(error_msg)
 
-            # Create a new environment for the function's variables
-            self.env = Environment(self.env)
-
             # Map the parameters to their values and set them in the variables dictionary
+            evaluated_param_values = {}
             for param_name, param_value in zip(parameter_identifiers, parameter_values):
-                self.evaluate_expression(_parser.AssignVariable(param_name, param_value))
+                evaluated_param_values[param_name.value] = self.evaluate_expression(param_value)
+
+            # Create a new environment for the function's variables
+            self.env = Environment(parent_env=self.env)
+            self.env.set_vars(evaluated_param_values)
 
             # Evaluate every expression in the function body
             statements = function.statements
             executed_expressions = [self.evaluate_expression(expression) for expression in statements]
 
-            # After the function is called, switch back to the parent environment
+            # After the function is called, switch to the parent environment
             self.env = self.env.parent_env
 
             return executed_expressions[-1] if type(statements[-1]) == _parser.Return else "null"
