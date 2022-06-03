@@ -3,28 +3,31 @@ import tokenizer
 
 # TODO: Return a Value object for values (numbers, booleans, etc.) instead of the raw value so we can check the type
 #  and throw errors for incompatible types in comparison operators.
-GLOBAL = "GLOBAL"
 
 
 class Environment:
     def __init__(self, parent_env):
         self.variables = {}
+        self.functions = {}
         self.parent_env = parent_env
+
+    def set_var(self, key, val):
+        self.variables[key] = val
+
+    def get_var(self, key):
+        return self.variables.get(key, None)
+
+    def set_func(self, key, val):
+        self.functions[key] = val
+
+    def get_func(self, key):
+        return self.functions.get(key, None)
 
 
 class Evaluator:
     def __init__(self, ast):
         self.ast = ast
-        self.variables = {}
-        self.functions = {}
-        self.current_scope = GLOBAL
-
-        self.env = {
-            GLOBAL: {}
-        }
-
-        # Global scope: functions and variables defined outside functions (in the main file)
-        # Each function has its own scope with its own variables
+        self.env = Environment(None)
 
     def evaluate(self):
         return [self.evaluate_expression(expression) for expression in self.ast]
@@ -38,7 +41,11 @@ class Evaluator:
             elif expression.op.type == tokenizer.MULTIPLY:
                 return self.evaluate_expression(expression.left) * self.evaluate_expression(expression.right)
             elif expression.op.type == tokenizer.DIVIDE:
-                return int(self.evaluate_expression(expression.left) / self.evaluate_expression(expression.right))
+                left = self.evaluate_expression(expression.left)
+                right = self.evaluate_expression(expression.right)
+                if right == 0:
+                    raise Exception("Division by Zero")
+                return left / right
             elif expression.op.type == tokenizer.EQ:
                 return self.evaluate_expression(expression.left) == self.evaluate_expression(expression.right)
             elif expression.op.type == tokenizer.NOT_EQ:
@@ -65,23 +72,29 @@ class Evaluator:
                 raise Exception(f"Invalid unary operator: {expression.op.type} ({expression.op})")
 
         elif type(expression) == _parser.AssignVariable:
-            self.env[self.current_scope][expression.name.value] = self.evaluate_expression(expression.value)
+            self.env.set_var(expression.name.value, self.evaluate_expression(expression.value))
             return "null"
 
         elif type(expression) == _parser.AssignFunction:
-            self.functions[expression.name.value] = expression
+            self.env.set_func(expression.name.value, expression)
             return "null"
 
         elif type(expression) == _parser.Identifier:
-            variables = self.env[self.current_scope]
-            variable_value = variables.get(expression.value, None)
-            if variable_value is None:
-                raise Exception(f"Undefined variable at line {expression.line_num}: {expression.value}")
-            return variable_value
+            # For variables, check the current environment. If it does not exist, check the parent environment.
+            # Continue doing this until there are no more parent variables. If the variable does not exist in all
+            # scopes, it does not exist anywhere in the code.
+            env = self.env
+            while env is not None:
+                variable_value = env.get_var(expression.value)
+                if variable_value is not None:
+                    return variable_value
+                env = env.parent_env
+
+            raise Exception(f"Undefined variable at line {expression.line_num}: {expression.value}")
 
         elif type(expression) == _parser.FunctionCall:
             function_name = expression.name.value
-            function = self.functions.get(function_name, None)
+            function = self.env.get_func(function_name)
 
             # If the function is not defined in the functions dictionary, throw an error saying the
             # function is undefined
@@ -98,8 +111,9 @@ class Evaluator:
                 error_msg += f"but {len(parameter_values)} given."
                 raise Exception(error_msg)
 
-            self.current_scope = function_name
-            self.env[self.current_scope] = {}
+            # Create a new environment for the function's variables
+            self.env = Environment(self.env)
+
             # Map the parameters to their values and set them in the variables dictionary
             for param_name, param_value in zip(parameter_identifiers, parameter_values):
                 self.evaluate_expression(_parser.AssignVariable(param_name, param_value))
@@ -108,7 +122,8 @@ class Evaluator:
             statements = function.statements
             executed_expressions = [self.evaluate_expression(expression) for expression in statements]
 
-            self.current_scope = GLOBAL
+            # After the function is called, switch back to the parent environment
+            self.env = self.env.parent_env
 
             return executed_expressions[-1] if type(statements[-1]) == _parser.Return else "null"
 
@@ -126,7 +141,7 @@ class Evaluator:
             return int(expression.value)
 
         elif type(expression) == _parser.Boolean:
-            return True if expression.type == tokenizer.TRUE else False
+            return "true" if expression.type == tokenizer.TRUE else "false"
 
         elif type(expression) == _parser.Return:
             return self.evaluate_expression(expression.expression)
