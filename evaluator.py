@@ -1,33 +1,15 @@
 import _parser
 import tokenizer
+from _environment import Environment
 
 # TODO: Return a Value object for values (numbers, booleans, etc.) instead of the raw value so we can check the type
 #  and throw errors for incompatible types in comparison operators.
 
 
-class Environment:
-    def __init__(self, parent_env):
-        self.variables = {}
-        self.functions = {}
-        self.parent_env = parent_env
-
-    def set_var(self, key, val):
-        self.variables[key] = val
-
-    def get_var(self, key):
-        return self.variables.get(key, None)
-
-    def set_func(self, key, val):
-        self.functions[key] = val
-
-    def get_func(self, key):
-        return self.functions.get(key, None)
-
-
 class Evaluator:
-    def __init__(self, ast):
+    def __init__(self, ast, env):
         self.ast = ast
-        self.env = Environment(None)
+        self.env = env
 
     def evaluate(self):
         return [self.evaluate_expression(expression) for expression in self.ast]

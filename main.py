@@ -1,6 +1,7 @@
 from tokenizer import Tokenizer
 from _parser import Parser
 from evaluator import Evaluator
+from _environment import Environment
 from my_ast import MyAST
 
 PROMPT = ">> "
@@ -12,6 +13,9 @@ def get_source(filepath):
 
 
 def repl():
+
+    env = Environment(None)
+
     while True:
         _input = input(PROMPT)
 
@@ -25,7 +29,7 @@ def repl():
                 p = Parser(tokens)
                 ast = p.parse()
 
-                e = Evaluator(ast)
+                e = Evaluator(ast, env)
                 result = e.evaluate()
                 print(result)
             except Exception as e:
@@ -33,6 +37,8 @@ def repl():
 
 
 if __name__ == "__main__":
+    env = Environment(None)
+
     source = get_source("language.txt")
     t = Tokenizer(source)
     tokens = t.tokenize()
@@ -40,8 +46,8 @@ if __name__ == "__main__":
     p = Parser(tokens)
     ast = p.parse()
 
-    e = Evaluator(ast)
+    e = Evaluator(ast, env)
     e.evaluate()
 
-    # ast_obj = MyAST(ast)
-    # ast_obj.visualize()
+    # # ast_obj = MyAST(ast)
+    # # ast_obj.visualize()
