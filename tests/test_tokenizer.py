@@ -34,6 +34,14 @@ class TestTokenizer(unittest.TestCase):
                 Token("2", NUMBER, 2),
                 Token(";", SEMICOLON, 2),
                 Token("", EOF, 2),
+            ]),
+            ("\n/*let x = 1;\nlet b = 2; */\nlet c = 3;", [
+                Token("let", LET, 4),
+                Token("c", IDENTIFIER, 4),
+                Token("=", ASSIGN, 4),
+                Token("3", NUMBER, 4),
+                Token(";", SEMICOLON, 4),
+                Token("", EOF, 4),
             ])
         ]
 

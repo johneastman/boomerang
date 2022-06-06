@@ -98,6 +98,7 @@ class Tokenizer:
                     self.skip_block_comment()
                 else:
                     tokens.append(Token(self.current, DIVIDE, self.line_num))
+                continue
             elif self.current == ";":
                 tokens.append(Token(self.current, SEMICOLON, self.line_num))
             elif self.current == "(":
@@ -184,7 +185,10 @@ class Tokenizer:
         self.line_num += 1
 
     def skip_block_comment(self):
-        while self.current != "*" or self.next_char != "/":
+        while True:
+            if self.current == "*" and self.next_char == "/":
+                break
+
             if self.current == "\n":
                 self.line_num += 1
 
