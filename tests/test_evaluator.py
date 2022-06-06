@@ -20,6 +20,25 @@ class TestEvaluator(unittest.TestCase):
             actual_results = self.actual_result(source)
             self.assertEqual(expected_results, actual_results)
 
+    def test_boolean_operators(self):
+        tests = [
+            ("1 == 1;", ["true"]),
+            ("1 != 1;", ["false"]),
+            ("1 != 2;", ["true"]),
+            ("1 >= 1;", ["true"]),
+            ("1 >= 2;", ["false"]),
+            ("1 > 1;",  ["false"]),
+            ("2 > 1;",  ["true"]),
+            ("1 <= 1;", ["true"]),
+            ("1 < 2;",  ["true"]),
+            ("2 < 1;",  ["false"]),
+            ("10 == (2 + 4 * 2) == true;",  ["true"]),
+        ]
+
+        for source, expected_results in tests:
+            actual_results = self.actual_result(source)
+            self.assertEqual(expected_results, actual_results)
+
     def actual_result(self, source):
         t = tokenizer.Tokenizer(source)
         tokens = t.tokenize()

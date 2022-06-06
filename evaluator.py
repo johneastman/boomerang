@@ -1,3 +1,5 @@
+import operator
+
 import _parser
 import tokenizer
 from _environment import Environment
@@ -14,8 +16,23 @@ class Evaluator:
     def evaluate(self):
         return [self.evaluate_expression(expression) for expression in self.ast]
 
+    def evaluate_boolean_expressions(self, expression: _parser.BinaryOperation, _operator):
+        """Evaluate a boolean expression and cast the result to a _parser.Boolean object so the expected value for
+        the language is returned (e.g., "true" => True in Python; "false" => False in Python).
+
+        :param expression: a binary operation
+        :param _operator: the operation being performed (less-than, greater-than-or-equal, not-equal, equal, etc.)
+        :return: evaluated _parser.Boolean object
+        """
+        left_value = self.evaluate_expression(expression.left)
+        right_value = self.evaluate_expression(expression.right)
+        result = _operator(left_value, right_value)
+        result_token = tokenizer.Token(result, tokenizer.TRUE if result else tokenizer.FALSE, 0)
+        return self.evaluate_expression(_parser.Boolean(result_token))
+
     def evaluate_expression(self, expression):
         if type(expression) == _parser.BinaryOperation:
+            # Math operators
             if expression.op.type == tokenizer.PLUS:
                 return self.evaluate_expression(expression.left) + self.evaluate_expression(expression.right)
             elif expression.op.type == tokenizer.MINUS:
@@ -28,18 +45,20 @@ class Evaluator:
                 if right == 0:
                     raise Exception("Division by Zero")
                 return left / right
+
+            # Boolean operators
             elif expression.op.type == tokenizer.EQ:
-                return self.evaluate_expression(expression.left) == self.evaluate_expression(expression.right)
+                return self.evaluate_boolean_expressions(expression, operator.eq)
             elif expression.op.type == tokenizer.NOT_EQ:
-                return self.evaluate_expression(expression.left) != self.evaluate_expression(expression.right)
+                return self.evaluate_boolean_expressions(expression, operator.ne)
             elif expression.op.type == tokenizer.GREATER_EQUAL:
-                return self.evaluate_expression(expression.left) >= self.evaluate_expression(expression.right)
+                return self.evaluate_boolean_expressions(expression, operator.ge)
             elif expression.op.type == tokenizer.GREATER:
-                return self.evaluate_expression(expression.left) > self.evaluate_expression(expression.right)
+                return self.evaluate_boolean_expressions(expression, operator.gt)
             elif expression.op.type == tokenizer.LESS_EQ:
-                return self.evaluate_expression(expression.left) <= self.evaluate_expression(expression.right)
+                return self.evaluate_boolean_expressions(expression, operator.le)
             elif expression.op.type == tokenizer.LESS:
-                return self.evaluate_expression(expression.left) < self.evaluate_expression(expression.right)
+                return self.evaluate_boolean_expressions(expression, operator.lt)
             else:
                 raise Exception(f"Invalid binary operator '{expression.op.value}' at line {expression.op.line_num}")
 
