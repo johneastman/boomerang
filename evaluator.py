@@ -14,7 +14,10 @@ class Evaluator:
         self.env = env
 
     def evaluate(self):
-        return [self.evaluate_expression(expression) for expression in self.ast]
+        return self.evaluate_statements(self.ast)
+
+    def evaluate_statements(self, statements):
+        return [self.evaluate_expression(expression) for expression in statements]
 
     def evaluate_boolean_expressions(self, expression: _parser.BinaryOperation, _operator):
         """Evaluate a boolean expression and cast the result to a _parser.Boolean object so the expected value for
@@ -72,6 +75,13 @@ class Evaluator:
             else:
                 raise Exception(f"Invalid unary operator: {expression.op.type} ({expression.op})")
 
+        elif type(expression) == _parser.IfStatement:
+            evaluated_comparison = self.evaluate_expression(expression.comparison)
+            if evaluated_comparison == "true":
+                self.evaluate_statements(expression.true_statements)
+            elif expression.false_statements is not None:
+                self.evaluate_statements(expression.false_statements)
+
         elif type(expression) == _parser.AssignVariable:
             self.env.set_var(expression.name.value, self.evaluate_expression(expression.value))
             return "null"
@@ -123,7 +133,7 @@ class Evaluator:
 
             # Evaluate every expression in the function body
             statements = function.statements
-            executed_expressions = [self.evaluate_expression(expression) for expression in statements]
+            executed_expressions = self.evaluate_statements(statements)
 
             # After the function is called, switch to the parent environment
             self.env = self.env.parent_env

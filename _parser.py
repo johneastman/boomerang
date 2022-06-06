@@ -60,6 +60,13 @@ class AssignFunction:
         return f"[{class_name}(name={self.name}, parameters={self.parameters}, statements={self.statements})]"
 
 
+class IfStatement:
+    def __init__(self, comparison, true_statements, false_statements):
+        self.comparison = comparison
+        self.true_statements = true_statements
+        self.false_statements = false_statements
+
+
 class BuiltinFunction:
     def __init__(self, name: tokenizer.Token, params):
         self.name = name
@@ -153,8 +160,55 @@ class Parser:
             return self.let_statement()
         elif self.current.type == tokenizer.FUNCTION:
             return self.function()
+        elif self.current.type == tokenizer.IF:
+            return self.if_statement()
         else:
             return self.expression()
+
+    def if_statement(self):
+        self.advance()
+
+        # Open parenthesis
+        if self.current.type != tokenizer.OPEN_PAREN:
+            self.raise_expected_token_error(tokenizer.OPEN_PAREN)
+        self.advance()
+
+        comparison = self.expression()
+
+        # Closed parenthesis
+        if self.current.type != tokenizer.CLOSED_PAREN:
+            self.raise_expected_token_error(tokenizer.CLOSED_PAREN)
+        self.advance()
+
+        # Open curly bracket
+        if self.current.type != tokenizer.OPEN_CURLY_BRACKET:
+            self.raise_expected_token_error(tokenizer.OPEN_CURLY_BRACKET)
+        self.advance()
+
+        if_statements = self.statements()
+
+        # Closed curly bracket
+        if self.current.type != tokenizer.CLOSED_CURLY_BRACKET:
+            self.raise_expected_token_error(tokenizer.CLOSED_CURLY_BRACKET)
+        self.advance()
+
+        else_statements = None
+        if self.current.type == tokenizer.ELSE:
+            self.advance()
+
+            # Open curly bracket
+            if self.current.type != tokenizer.OPEN_CURLY_BRACKET:
+                self.raise_expected_token_error(tokenizer.OPEN_CURLY_BRACKET)
+            self.advance()
+
+            else_statements = self.statements()
+
+            # Closed curly bracket
+            if self.current.type != tokenizer.CLOSED_CURLY_BRACKET:
+                self.raise_expected_token_error(tokenizer.CLOSED_CURLY_BRACKET)
+            self.advance()
+
+        return IfStatement(comparison, if_statements, else_statements)
 
     def function(self):
         self.advance()

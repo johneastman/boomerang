@@ -30,6 +30,8 @@ FUNCTION = "FUNCTION"
 TRUE = "TRUE"
 FALSE = "FALSE"
 NULL = "null"
+IF = "if"
+ELSE = "else"
 
 # Misc
 EOF = "EOF"  # End of File
@@ -60,7 +62,9 @@ KEYWORDS = {
     "func": FUNCTION,
     "true": TRUE,
     "false": FALSE,
-    "null": NULL
+    "null": NULL,
+    "if": IF,
+    "else": ELSE
 }
 
 
