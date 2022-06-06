@@ -38,11 +38,11 @@ def repl():
 
 if __name__ == "__main__":
     env = Environment()
+    visualize = False
 
     source = get_source("language.txt")
     t = Tokenizer(source)
     tokens = t.tokenize()
-    # print(tokens)
 
     p = Parser(tokens)
     ast = p.parse()
@@ -50,5 +50,5 @@ if __name__ == "__main__":
     e = Evaluator(ast, env)
     e.evaluate()
 
-    ast_obj = MyAST(ast)
-    ast_obj.visualize()
+    if visualize:
+        MyAST(ast).visualize()

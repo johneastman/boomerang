@@ -143,6 +143,9 @@ class Evaluator:
         elif type(expression) == _parser.Number:
             return int(expression.value)
 
+        elif type(expression) == _parser.Null:
+            return "null"
+
         elif type(expression) == _parser.Boolean:
             return "true" if expression.type == tokenizer.TRUE else "false"
 

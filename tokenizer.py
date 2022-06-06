@@ -29,6 +29,7 @@ RETURN = "RETURN"
 FUNCTION = "FUNCTION"
 TRUE = "TRUE"
 FALSE = "FALSE"
+NULL = "null"
 
 # Misc
 EOF = "EOF"  # End of File
@@ -51,6 +52,15 @@ token_literal_map = {
     "}": CLOSED_CURLY_BRACKET,
     "#": COMMENT,
     ",": COMMA
+}
+
+KEYWORDS = {
+    "let": LET,
+    "return": RETURN,
+    "func": FUNCTION,
+    "true": TRUE,
+    "false": FALSE,
+    "null": NULL
 }
 
 
@@ -141,14 +151,7 @@ class Tokenizer:
                 continue
             elif self.is_identifier():
                 letters = self.read_identifier()
-                keywords = {
-                    "let": LET,
-                    "return": RETURN,
-                    "func": FUNCTION,
-                    "true": TRUE,
-                    "false": FALSE
-                }
-                keyword = keywords.get(letters, None)
+                keyword = KEYWORDS.get(letters, None)
                 token_type = IDENTIFIER if keyword is None else keyword
 
                 tokens.append(Token(letters, token_type, self.line_num))

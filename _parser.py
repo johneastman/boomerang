@@ -31,6 +31,11 @@ class Boolean(TokenValue):
         super().__init__(token)
 
 
+class Null(TokenValue):
+    def __init__(self, token: tokenizer.Token):
+        super().__init__(token)
+
+
 class Identifier(TokenValue):
     def __init__(self, token: tokenizer.Token):
         super().__init__(token)
@@ -266,6 +271,11 @@ class Parser:
             number_token = self.current
             self.advance()
             return Number(number_token)
+
+        elif self.current.type == tokenizer.NULL:
+            null_token = self.current
+            self.advance()
+            return Null(null_token)
 
         elif self.current.type in [tokenizer.TRUE, tokenizer.FALSE]:
             bool_val_token = self.current

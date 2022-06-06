@@ -5,3 +5,5 @@
 *.gv
 *.gv.pdf
 
+# Language
+language.txt
