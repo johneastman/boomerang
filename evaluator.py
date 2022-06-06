@@ -63,7 +63,7 @@ class Evaluator:
 
         elif type(expression) == _parser.Identifier:
             # For variables, check the current environment. If it does not exist, check the parent environment.
-            # Continue doing this until there are no more parent variables. If the variable does not exist in all
+            # Continue doing this until there are no more parent environments. If the variable does not exist in all
             # scopes, it does not exist anywhere in the code.
             env = self.env
             while env is not None:

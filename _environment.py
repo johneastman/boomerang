@@ -2,6 +2,10 @@ class Environment:
     def __init__(self, parent_env=None):
         self.variables = {}
         self.functions = {}
+
+        # The parent environment is the scope above the current scope. New environments are created for functions, so
+        # variables defined within a function can't be accessed anywhere in the code. Additionally, this structure
+        # allows for using variables/functions in parent scopes (for example, a variable defined outside a function).
         self.parent_env = parent_env
 
     def set_var(self, key, val):

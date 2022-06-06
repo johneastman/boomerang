@@ -181,6 +181,7 @@ class Tokenizer:
         # If a hash symbol is found, skip until the end of the line
         while self.current is not None and self.current != "\n":
             self.advance()
+        self.line_num += 1
 
     def skip_block_comment(self):
         while self.current != "*" or self.next_char != "/":

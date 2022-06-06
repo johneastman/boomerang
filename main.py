@@ -42,6 +42,7 @@ if __name__ == "__main__":
     source = get_source("language.txt")
     t = Tokenizer(source)
     tokens = t.tokenize()
+    print(tokens)
 
     p = Parser(tokens)
     ast = p.parse()
