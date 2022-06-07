@@ -2,7 +2,7 @@ from tokenizer import Tokenizer
 from _parser import Parser
 from evaluator import Evaluator
 from _environment import Environment
-from my_ast import MyAST
+from _ast import AST
 
 PROMPT = ">> "
 
@@ -51,4 +51,4 @@ if __name__ == "__main__":
     e.evaluate()
 
     if visualize:
-        MyAST(ast).visualize()
+        AST(ast).visualize()
