@@ -155,9 +155,9 @@ class Tokenizer:
                 continue
             elif self.is_identifier():
                 letters = self.read_identifier()
-                keyword = KEYWORDS.get(letters, None)
-                token_type = IDENTIFIER if keyword is None else keyword
 
+                # Any string that is not a keywork is an identifier (variable, function, etc.)
+                token_type = KEYWORDS.get(letters, IDENTIFIER)
                 tokens.append(Token(letters, token_type, self.line_num))
                 continue
 
