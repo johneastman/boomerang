@@ -2,7 +2,7 @@ import graphviz
 import _parser
 
 
-class AST:
+class ASTVisualizer:
     def __init__(self, ast):
         self.ast = ast
         self.dot = graphviz.Digraph(comment="Abstract Syntax Tree (AST)")
