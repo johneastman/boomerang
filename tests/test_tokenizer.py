@@ -46,9 +46,10 @@ class TestTokenizer(unittest.TestCase):
         ]
 
         for source, expected_tokens in tests:
-            t = Tokenizer(source)
-            actual_tokens = t.tokenize()
-            self.assert_tokens_equal(expected_tokens, actual_tokens)
+            with self.subTest(source):
+                t = Tokenizer(source)
+                actual_tokens = t.tokenize()
+                self.assert_tokens_equal(expected_tokens, actual_tokens)
 
     def assert_tokens_equal(self, expected_tokens, actual_tokens):
         self.assertEqual(len(expected_tokens), len(actual_tokens))

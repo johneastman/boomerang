@@ -8,17 +8,13 @@ import _environment
 class TestEvaluator(unittest.TestCase):
 
     def test_evaluator(self):
-
         tests = [
             ("1 + 1;", [2]),
             ("1 + 2 * 2;", [5]),
             ("(1 + 2) * 2;", [6]),
             ("let x = (1 + 2) * 2;x;", ["null", 6])
         ]
-
-        for source, expected_results in tests:
-            actual_results = self.actual_result(source)
-            self.assertEqual(expected_results, actual_results)
+        self.run_tests(tests)
 
     def test_boolean_operators(self):
         tests = [
@@ -34,10 +30,13 @@ class TestEvaluator(unittest.TestCase):
             ("2 < 1;",  ["false"]),
             ("10 == (2 + 4 * 2) == true;",  ["true"]),
         ]
+        self.run_tests(tests)
 
+    def run_tests(self, tests):
         for source, expected_results in tests:
-            actual_results = self.actual_result(source)
-            self.assertEqual(expected_results, actual_results)
+            with self.subTest(source):
+                actual_results = self.actual_result(source)
+                self.assertEqual(expected_results, actual_results)
 
     def actual_result(self, source):
         t = tokenizer.Tokenizer(source)
