@@ -1,44 +1,44 @@
 from tokenizer import *
 
 
-# class TokenValue:
-#     def __init__(self, token: Token):
-#         self.token = token
-#
-#     @property
-#     def value(self):
-#         return self.token.value
-#
-#     @property
-#     def type(self):
-#         return self.token.type
-#
-#     @property
-#     def line_num(self):
-#         return self.token.line_num
-#
-#     def __repr__(self):
-#         return f"[{self.__class__.__name__}(value={self.value})]"
-
-
 class Number:
     def __init__(self, token: Token):
         self.token = token
+
+    def __eq__(self, other):
+        if not isinstance(other, Number):
+            return False
+        return self.token == other.token
 
 
 class Boolean:
     def __init__(self, token: Token):
         self.token = token
 
+    def __eq__(self, other):
+        if not isinstance(other, Number):
+            return False
+        return self == other
+
 
 class Null:
     def __init__(self, token: Token):
         self.token = token
 
+    def __eq__(self, other):
+        if not isinstance(other, Number):
+            return False
+        return self == other
+
 
 class Identifier:
     def __init__(self, token: Token):
         self.token = token
+
+    def __eq__(self, other):
+        if not isinstance(other, Number):
+            return False
+        return self == other
 
 
 class Return:
@@ -50,7 +50,7 @@ class Return:
 
 
 class AssignFunction:
-    def __init__(self, name, parameters, statements):
+    def __init__(self, name: Token, parameters, statements):
         self.name = name
         self.parameters = parameters
         self.statements = statements
@@ -61,7 +61,7 @@ class AssignFunction:
 
 
 class IfStatement:
-    def __init__(self, comparison, true_statements, false_statements):
+    def __init__(self, comparison: Token, true_statements, false_statements):
         self.comparison = comparison
         self.true_statements = true_statements
         self.false_statements = false_statements
@@ -95,6 +95,12 @@ class BinaryOperation:
     def __repr__(self):
         class_name = self.__class__.__name__
         return f"[{class_name}(left={self.left}, op={self.op}, right={self.right})]"
+
+    def __eq__(self, other):
+        if not isinstance(other, BinaryOperation):
+            return False
+
+        return self.left == other.left and self.op == other.op and self.right == other.right
 
 
 class AssignVariable:
@@ -387,4 +393,3 @@ class Parser:
 
     def raise_expected_token_error(self, expected_token_type):
         raise Exception(f"Expected {expected_token_type}, got {self.current.type} ({self.current.value})")
-
