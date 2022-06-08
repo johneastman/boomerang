@@ -1,7 +1,5 @@
-import operator
-
 import _parser
-import tokenizer
+from tokenizer import *
 from _environment import Environment
 
 # TODO: Return a Value object for values (numbers, booleans, etc.) instead of the raw value so we can check the type
@@ -16,25 +14,25 @@ class Evaluator:
         # Map operations to valid data types. This ensures expressions like "1 + true", "!1", "-true", "+false", etc.
         # are invalid.
         self.valid_operation_types = {
-            tokenizer.PLUS: [tokenizer.NUMBER],
-            tokenizer.MINUS: [tokenizer.NUMBER],
-            tokenizer.MULTIPLY: [tokenizer.NUMBER],
-            tokenizer.DIVIDE: [tokenizer.NUMBER],
-            tokenizer.EQ: [tokenizer.NUMBER, tokenizer.TRUE, tokenizer.FALSE],
-            tokenizer.NE: [tokenizer.NUMBER, tokenizer.TRUE, tokenizer.FALSE],
-            tokenizer.GT: [tokenizer.NUMBER],
-            tokenizer.GE: [tokenizer.NUMBER],
-            tokenizer.LT: [tokenizer.NUMBER],
-            tokenizer.LE: [tokenizer.NUMBER],
-            tokenizer.BANG: [tokenizer.TRUE, tokenizer.FALSE]
+            PLUS: [NUMBER],
+            MINUS: [NUMBER],
+            MULTIPLY: [NUMBER],
+            DIVIDE: [NUMBER],
+            EQ: [NUMBER, TRUE, FALSE],
+            NE: [NUMBER, TRUE, FALSE],
+            GT: [NUMBER],
+            GE: [NUMBER],
+            LT: [NUMBER],
+            LE: [NUMBER],
+            BANG: [TRUE, FALSE]
         }
 
         # How to convert token values to their Python values so the comparison can be performed
         # accurately. For example, "1" should be converted to an integer.
         self.convert_literal = {
-            tokenizer.NUMBER: int,
-            tokenizer.TRUE: lambda _: True,
-            tokenizer.FALSE: lambda _: False
+            NUMBER: int,
+            TRUE: lambda _: True,
+            FALSE: lambda _: False
         }
 
     def evaluate(self):
@@ -42,20 +40,6 @@ class Evaluator:
 
     def evaluate_statements(self, statements):
         return [self.evaluate_expression(expression) for expression in statements]
-
-    def evaluate_boolean_expressions(self, expression: _parser.BinaryOperation, _operator):
-        """Evaluate a boolean expression and cast the result to a _parser.Boolean object so the expected value for
-        the language is returned (e.g., "true" => True in Python; "false" => False in Python).
-
-        :param expression: a binary operation
-        :param _operator: the operation being performed (less-than, greater-than-or-equal, not-equal, equal, etc.)
-        :return: evaluated _parser.Boolean object
-        """
-        left_value = self.evaluate_expression(expression.left)
-        right_value = self.evaluate_expression(expression.right)
-        result = _operator(left_value, right_value)
-        result_token = tokenizer.Token(result, tokenizer.TRUE if result else tokenizer.FALSE, 0)
-        return self.evaluate_expression(_parser.Boolean(result_token))
 
     def evaluate_expression(self, expression):
         if type(expression) == _parser.BinaryOperation:
@@ -73,11 +57,11 @@ class Evaluator:
 
         elif type(expression) == _parser.AssignVariable:
             self.env.set_var(expression.name.value, self.evaluate_expression(expression.value))
-            return tokenizer.Token("null", tokenizer.NULL, expression.name.line_num)
+            return Token("null", NULL, expression.name.line_num)
 
         elif type(expression) == _parser.AssignFunction:
             self.env.set_func(expression.name.value, expression)
-            return tokenizer.Token("null", tokenizer.NULL, expression.name.line_num)
+            return Token("null", NULL, expression.name.line_num)
 
         elif type(expression) == _parser.Identifier:
             # For variables, check the current environment. If it does not exist, check the parent environment.
@@ -137,7 +121,7 @@ class Evaluator:
                     evaluated_params.append(result)
 
                 print(", ".join(map(lambda v: str(v.value), evaluated_params)))
-            return tokenizer.Token("null", tokenizer.NULL, expression.name.line_num)
+            return Token("null", NULL, expression.name.line_num)
 
         elif type(expression) == _parser.Number:
             return expression.token
@@ -161,13 +145,13 @@ class Evaluator:
 
         actual_value = self.convert_literal[expression_result.type](expression_result.value)
 
-        if op_type == tokenizer.PLUS:
-            return tokenizer.Token(actual_value, tokenizer.NUMBER, expression_result.line_num)
-        elif op_type == tokenizer.MINUS:
-            return tokenizer.Token(-actual_value, tokenizer.NUMBER, expression_result.line_num)
-        elif op_type == tokenizer.BANG:
-            value, _type = ("false", tokenizer.FALSE) if actual_value else ("true", tokenizer.TRUE)
-            return tokenizer.Token(value, _type, expression_result.line_num)
+        if op_type == PLUS:
+            return Token(actual_value, NUMBER, expression_result.line_num)
+        elif op_type == MINUS:
+            return Token(-actual_value, NUMBER, expression_result.line_num)
+        elif op_type == BANG:
+            value, _type = ("false", FALSE) if actual_value else ("true", TRUE)
+            return Token(value, _type, expression_result.line_num)
         else:
             raise Exception(f"Invalid unary operator: {op_type} ({expression_result.op})")
 
@@ -192,41 +176,41 @@ class Evaluator:
         right_val = self.convert_literal[right.type](right.value)
 
         # Math operations
-        if op_type == tokenizer.PLUS:
-            return tokenizer.Token(left_val + right_val, tokenizer.NUMBER, left.line_num)
-        elif op_type == tokenizer.MINUS:
-            return tokenizer.Token(left_val - right_val, tokenizer.NUMBER, left.line_num)
-        elif op_type == tokenizer.MULTIPLY:
-            return tokenizer.Token(left_val * right_val, tokenizer.NUMBER, left.line_num)
-        elif op_type == tokenizer.DIVIDE:
+        if op_type == PLUS:
+            return Token(left_val + right_val, NUMBER, left.line_num)
+        elif op_type == MINUS:
+            return Token(left_val - right_val, NUMBER, left.line_num)
+        elif op_type == MULTIPLY:
+            return Token(left_val * right_val, NUMBER, left.line_num)
+        elif op_type == DIVIDE:
             if right_val == 0:
                 raise Exception("Division by zero")
-            return tokenizer.Token(left_val + right_val, tokenizer.NUMBER, left.line_num)
+            return Token(left_val + right_val, NUMBER, left.line_num)
 
         # Binary comparisons
-        elif op_type == tokenizer.EQ:
+        elif op_type == EQ:
             result = left_val == right_val
-            value, _type = ("true", tokenizer.TRUE) if result else ("false", tokenizer.FALSE)
-            return tokenizer.Token(value, _type, left.line_num)
-        elif op_type == tokenizer.NE:
+            value, _type = ("true", TRUE) if result else ("false", FALSE)
+            return Token(value, _type, left.line_num)
+        elif op_type == NE:
             result = left_val != right_val
-            value, _type = ("true", tokenizer.TRUE) if result else ("false", tokenizer.FALSE)
-            return tokenizer.Token(value, _type, left.line_num)
-        elif op_type == tokenizer.GT:
+            value, _type = ("true", TRUE) if result else ("false", FALSE)
+            return Token(value, _type, left.line_num)
+        elif op_type == GT:
             result = left_val > right_val
-            value, _type = ("true", tokenizer.TRUE) if result else ("false", tokenizer.FALSE)
-            return tokenizer.Token(value, _type, left.line_num)
-        elif op_type == tokenizer.GE:
+            value, _type = ("true", TRUE) if result else ("false", FALSE)
+            return Token(value, _type, left.line_num)
+        elif op_type == GE:
             result = left_val >= right_val
-            value, _type = ("true", tokenizer.TRUE) if result else ("false", tokenizer.FALSE)
-            return tokenizer.Token(value, _type, left.line_num)
-        elif op_type == tokenizer.LT:
+            value, _type = ("true", TRUE) if result else ("false", FALSE)
+            return Token(value, _type, left.line_num)
+        elif op_type == LT:
             result = left_val < right_val
-            value, _type = ("true", tokenizer.TRUE) if result else ("false", tokenizer.FALSE)
-            return tokenizer.Token(value, _type, left.line_num)
-        elif op_type == tokenizer.LE:
+            value, _type = ("true", TRUE) if result else ("false", FALSE)
+            return Token(value, _type, left.line_num)
+        elif op_type == LE:
             result = left_val <= right_val
-            value, _type = ("true", tokenizer.TRUE) if result else ("false", tokenizer.FALSE)
-            return tokenizer.Token(value, _type, left.line_num)
+            value, _type = ("true", TRUE) if result else ("false", FALSE)
+            return Token(value, _type, left.line_num)
         else:
             raise Exception(f"Invalid binary operator '{binary_operation.op.value}' at line {binary_operation.op.line_num}")

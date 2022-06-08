@@ -12,10 +12,23 @@ def get_source(filepath):
         return file.read()
 
 
+def evaluate(source, environment, visualize=False):
+
+    t = Tokenizer(source)
+    tokens = t.tokenize()
+
+    p = Parser(tokens)
+    ast = p.parse()
+
+    if visualize:
+        ASTVisualizer(ast).visualize()
+
+    e = Evaluator(ast, environment)
+    return e.evaluate()
+
+
 def repl():
-
-    env = Environment(None)
-
+    env = Environment()
     while True:
         _input = input(PROMPT)
 
@@ -23,32 +36,12 @@ def repl():
             break
         else:
             try:
-                t = Tokenizer(_input)
-                tokens = t.tokenize()
-
-                p = Parser(tokens)
-                ast = p.parse()
-
-                e = Evaluator(ast, env)
-                result = e.evaluate()
+                result = evaluate(_input, env)
                 print(result)
             except Exception as e:
                 print(e)
 
 
 if __name__ == "__main__":
-    env = Environment()
-    visualize = False
-
     source = get_source("language.txt")
-    t = Tokenizer(source)
-    tokens = t.tokenize()
-
-    p = Parser(tokens)
-    ast = p.parse()
-
-    e = Evaluator(ast, env)
-    e.evaluate()
-
-    if visualize:
-        ASTVisualizer(ast).visualize()
+    evaluate(source, Environment())

@@ -1,8 +1,8 @@
 import unittest
-import evaluator
-import tokenizer
-import _parser
-import _environment
+from tokenizer import *
+from _parser import Parser
+from evaluator import Evaluator
+from _environment import Environment
 
 
 class TestEvaluator(unittest.TestCase):
@@ -10,33 +10,33 @@ class TestEvaluator(unittest.TestCase):
     def test_evaluator(self):
         tests = [
             ("1 + 1;", [
-                tokenizer.Token(2, tokenizer.NUMBER, 1)
+                Token(2, NUMBER, 1)
             ]),
             ("1 + 2 * 2;", [
-                tokenizer.Token(5, tokenizer.NUMBER, 1)]),
+                Token(5, NUMBER, 1)]),
             ("(1 + 2) * 2;", [
-                tokenizer.Token(6, tokenizer.NUMBER, 1)
+                Token(6, NUMBER, 1)
             ]),
             ("let x = (1 + 2) * 2;x;", [
-                tokenizer.Token("null", tokenizer.NULL, 1),
-                tokenizer.Token(6, tokenizer.NUMBER, 1)
+                Token("null", NULL, 1),
+                Token(6, NUMBER, 1)
             ])
         ]
         self.run_tests(tests)
 
     def test_boolean_operators(self):
         tests = [
-            ("1 == 1;", [tokenizer.Token("true", tokenizer.TRUE, 1)]),
-            ("1 != 1;", [tokenizer.Token("false", tokenizer.FALSE, 1)]),
-            ("1 != 2;", [tokenizer.Token("true", tokenizer.TRUE, 1)]),
-            ("1 >= 1;", [tokenizer.Token("true", tokenizer.TRUE, 1)]),
-            ("1 >= 2;", [tokenizer.Token("false", tokenizer.FALSE, 1)]),
-            ("1 > 1;",  [tokenizer.Token("false", tokenizer.FALSE, 1)]),
-            ("2 > 1;",  [tokenizer.Token("true", tokenizer.TRUE, 1)]),
-            ("1 <= 1;", [tokenizer.Token("true", tokenizer.TRUE, 1)]),
-            ("1 < 2;",  [tokenizer.Token("true", tokenizer.TRUE, 1)]),
-            ("2 < 1;",  [tokenizer.Token("false", tokenizer.FALSE, 1)]),
-            ("10 == (2 + 4 * 2) == true;",  [tokenizer.Token("true", tokenizer.TRUE, 1)]),
+            ("1 == 1;", [Token("true", TRUE, 1)]),
+            ("1 != 1;", [Token("false", FALSE, 1)]),
+            ("1 != 2;", [Token("true", TRUE, 1)]),
+            ("1 >= 1;", [Token("true", TRUE, 1)]),
+            ("1 >= 2;", [Token("false", FALSE, 1)]),
+            ("1 > 1;",  [Token("false", FALSE, 1)]),
+            ("2 > 1;",  [Token("true", TRUE, 1)]),
+            ("1 <= 1;", [Token("true", TRUE, 1)]),
+            ("1 < 2;",  [Token("true", TRUE, 1)]),
+            ("2 < 1;",  [Token("false", FALSE, 1)]),
+            ("10 == (2 + 4 * 2) == true;",  [Token("true", TRUE, 1)]),
         ]
         self.run_tests(tests)
 
@@ -46,7 +46,7 @@ class TestEvaluator(unittest.TestCase):
                 actual_results = self.actual_result(source)
                 self.assertEqual(expected_results, actual_results)
 
-    def test_comparison_disperate_types(self):
+    def test_invalid_boolean_operators(self):
         tests = [
             ("1 == true;", "NUMBER", "EQ", "TRUE"),
             ("1 != true;", "NUMBER", "NE", "TRUE"),
@@ -74,16 +74,16 @@ class TestEvaluator(unittest.TestCase):
     def test_valid_unary_operators(self):
         tests = [
             ("-1;", [
-                tokenizer.Token(-1, tokenizer.NUMBER, 1)
+                Token(-1, NUMBER, 1)
              ]),
             ("+1;", [
-                tokenizer.Token(1, tokenizer.NUMBER, 1)
+                Token(1, NUMBER, 1)
             ]),
             ("!true;", [
-                tokenizer.Token("false", tokenizer.FALSE, 1)
+                Token("false", FALSE, 1)
             ]),
             ("!false;", [
-                tokenizer.Token("true", tokenizer.TRUE, 1)
+                Token("true", TRUE, 1)
             ]),
         ]
 
@@ -111,13 +111,13 @@ class TestEvaluator(unittest.TestCase):
                 )
 
     def actual_result(self, source):
-        t = tokenizer.Tokenizer(source)
+        t = Tokenizer(source)
         tokens = t.tokenize()
 
-        p = _parser.Parser(tokens)
+        p = Parser(tokens)
         ast = p.parse()
 
-        e = evaluator.Evaluator(ast, _environment.Environment())
+        e = Evaluator(ast, Environment())
         return e.evaluate()
 
 

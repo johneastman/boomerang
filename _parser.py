@@ -1,8 +1,8 @@
-import tokenizer
+from tokenizer import *
 
 
 class TokenValue:
-    def __init__(self, token: tokenizer.Token):
+    def __init__(self, token: Token):
         self.token = token
 
     @property
@@ -22,22 +22,22 @@ class TokenValue:
 
 
 class Number(TokenValue):
-    def __init__(self, token: tokenizer.Token):
+    def __init__(self, token: Token):
         super().__init__(token)
 
 
 class Boolean(TokenValue):
-    def __init__(self, token: tokenizer.Token):
+    def __init__(self, token: Token):
         super().__init__(token)
 
 
 class Null(TokenValue):
-    def __init__(self, token: tokenizer.Token):
+    def __init__(self, token: Token):
         super().__init__(token)
 
 
 class Identifier(TokenValue):
-    def __init__(self, token: tokenizer.Token):
+    def __init__(self, token: Token):
         super().__init__(token)
 
 
@@ -68,7 +68,7 @@ class IfStatement:
 
 
 class BuiltinFunction:
-    def __init__(self, name: tokenizer.Token, params):
+    def __init__(self, name: Token, params):
         self.name = name
         self.parameters = params
 
@@ -78,7 +78,7 @@ class BuiltinFunction:
 
 
 class FunctionCall:
-    def __init__(self, name: tokenizer.Token, parameter_values):
+    def __init__(self, name: Token, parameter_values):
         self.name = name
         self.parameter_values = parameter_values
 
@@ -87,7 +87,7 @@ class FunctionCall:
 
 
 class BinaryOperation:
-    def __init__(self, left, op: tokenizer.Token, right):
+    def __init__(self, left, op: Token, right):
         self.left = left
         self.op = op
         self.right = right
@@ -98,7 +98,7 @@ class BinaryOperation:
 
 
 class AssignVariable:
-    def __init__(self, name: tokenizer.Token, value):
+    def __init__(self, name: Token, value):
         self.name = name
         self.value = value
 
@@ -108,7 +108,7 @@ class AssignVariable:
 
 
 class UnaryOperation:
-    def __init__(self, op: tokenizer.Token, expression):
+    def __init__(self, op: Token, expression):
         self.op = op
         self.expression = expression
 
@@ -140,15 +140,15 @@ class Parser:
 
     def statements(self):
         ast = []
-        while self.current.type != tokenizer.EOF:
+        while self.current.type != EOF:
 
-            if self.current.type == tokenizer.CLOSED_CURLY_BRACKET:
+            if self.current.type == CLOSED_CURLY_BRACKET:
                 # We've reached the end of a function
                 break
 
             result = self.statement()
-            if self.current.type != tokenizer.SEMICOLON:
-                self.raise_expected_token_error(tokenizer.SEMICOLON)
+            if self.current.type != SEMICOLON:
+                self.raise_expected_token_error(SEMICOLON)
 
             self.advance()
             ast.append(result)
@@ -156,11 +156,11 @@ class Parser:
         return ast
 
     def statement(self):
-        if self.current.type == tokenizer.LET:
+        if self.current.type == LET:
             return self.let_statement()
-        elif self.current.type == tokenizer.FUNCTION:
+        elif self.current.type == FUNCTION:
             return self.function()
-        elif self.current.type == tokenizer.IF:
+        elif self.current.type == IF:
             return self.if_statement()
         else:
             return self.expression()
@@ -169,43 +169,43 @@ class Parser:
         self.advance()
 
         # Open parenthesis
-        if self.current.type != tokenizer.OPEN_PAREN:
-            self.raise_expected_token_error(tokenizer.OPEN_PAREN)
+        if self.current.type != OPEN_PAREN:
+            self.raise_expected_token_error(OPEN_PAREN)
         self.advance()
 
         comparison = self.expression()
 
         # Closed parenthesis
-        if self.current.type != tokenizer.CLOSED_PAREN:
-            self.raise_expected_token_error(tokenizer.CLOSED_PAREN)
+        if self.current.type != CLOSED_PAREN:
+            self.raise_expected_token_error(CLOSED_PAREN)
         self.advance()
 
         # Open curly bracket
-        if self.current.type != tokenizer.OPEN_CURLY_BRACKET:
-            self.raise_expected_token_error(tokenizer.OPEN_CURLY_BRACKET)
+        if self.current.type != OPEN_CURLY_BRACKET:
+            self.raise_expected_token_error(OPEN_CURLY_BRACKET)
         self.advance()
 
         if_statements = self.statements()
 
         # Closed curly bracket
-        if self.current.type != tokenizer.CLOSED_CURLY_BRACKET:
-            self.raise_expected_token_error(tokenizer.CLOSED_CURLY_BRACKET)
+        if self.current.type != CLOSED_CURLY_BRACKET:
+            self.raise_expected_token_error(CLOSED_CURLY_BRACKET)
         self.advance()
 
         else_statements = None
-        if self.current.type == tokenizer.ELSE:
+        if self.current.type == ELSE:
             self.advance()
 
             # Open curly bracket
-            if self.current.type != tokenizer.OPEN_CURLY_BRACKET:
-                self.raise_expected_token_error(tokenizer.OPEN_CURLY_BRACKET)
+            if self.current.type != OPEN_CURLY_BRACKET:
+                self.raise_expected_token_error(OPEN_CURLY_BRACKET)
             self.advance()
 
             else_statements = self.statements()
 
             # Closed curly bracket
-            if self.current.type != tokenizer.CLOSED_CURLY_BRACKET:
-                self.raise_expected_token_error(tokenizer.CLOSED_CURLY_BRACKET)
+            if self.current.type != CLOSED_CURLY_BRACKET:
+                self.raise_expected_token_error(CLOSED_CURLY_BRACKET)
             self.advance()
 
         return IfStatement(comparison, if_statements, else_statements)
@@ -213,55 +213,55 @@ class Parser:
     def function(self):
         self.advance()
 
-        if self.current.type != tokenizer.IDENTIFIER:
-            self.raise_expected_token_error(tokenizer.IDENTIFIER)
+        if self.current.type != IDENTIFIER:
+            self.raise_expected_token_error(IDENTIFIER)
         function_name = self.current
         self.advance()
 
-        if self.current.type != tokenizer.OPEN_PAREN:
-            self.raise_expected_token_error(tokenizer.OPEN_PAREN)
+        if self.current.type != OPEN_PAREN:
+            self.raise_expected_token_error(OPEN_PAREN)
         self.advance()
 
         parameters = []
         # This condition in after 'while' handles functions with no parameters. If this was set to 'while True',
         # the parser would expect a NUMBER after the open-paren of the function call and throw the error
-        # in `if self.current.type != tokenizer.NUMBER`.
-        while self.current.type != tokenizer.CLOSED_PAREN:
-            if self.current.type != tokenizer.IDENTIFIER:
-                self.raise_expected_token_error(tokenizer.IDENTIFIER)
+        # in `if self.current.type != NUMBER`.
+        while self.current.type != CLOSED_PAREN:
+            if self.current.type != IDENTIFIER:
+                self.raise_expected_token_error(IDENTIFIER)
             parameters.append(self.current)
             self.advance()
 
-            if self.current.type == tokenizer.CLOSED_PAREN:
+            if self.current.type == CLOSED_PAREN:
                 break
 
-            if self.current.type != tokenizer.COMMA:
-                self.raise_expected_token_error(tokenizer.COMMA)
+            if self.current.type != COMMA:
+                self.raise_expected_token_error(COMMA)
             self.advance()
 
         self.advance()
 
-        if self.current.type != tokenizer.OPEN_CURLY_BRACKET:
-            self.raise_expected_token_error(tokenizer.OPEN_CURLY_BRACKET)
+        if self.current.type != OPEN_CURLY_BRACKET:
+            self.raise_expected_token_error(OPEN_CURLY_BRACKET)
         self.advance()
 
         function_statements = self.statements()
 
-        if self.current.type != tokenizer.CLOSED_CURLY_BRACKET:
-            self.raise_expected_token_error(tokenizer.CLOSED_CURLY_BRACKET)
+        if self.current.type != CLOSED_CURLY_BRACKET:
+            self.raise_expected_token_error(CLOSED_CURLY_BRACKET)
         self.advance()
 
         return AssignFunction(function_name, parameters, function_statements)
 
     def let_statement(self):
         self.advance()
-        if self.current.type != tokenizer.IDENTIFIER:
-            self.raise_expected_token_error(tokenizer.IDENTIFIER)
+        if self.current.type != IDENTIFIER:
+            self.raise_expected_token_error(IDENTIFIER)
         variable_name_token = self.current
 
         self.advance()
-        if self.current.type != tokenizer.ASSIGN:
-            self.raise_expected_token_error(tokenizer.ASSIGN)
+        if self.current.type != ASSIGN:
+            self.raise_expected_token_error(ASSIGN)
 
         self.advance()
         variable_value = self.expression()
@@ -286,65 +286,65 @@ class Parser:
 
     def expression(self):
         return self.binary_expression([
-            tokenizer.EQ,
-            tokenizer.NE,
-            tokenizer.GE,
-            tokenizer.GT,
-            tokenizer.LE,
-            tokenizer.LT
+            EQ,
+            NE,
+            GE,
+            GT,
+            LE,
+            LT
         ], self.addition)
 
     def addition(self):
         return self.binary_expression([
-            tokenizer.PLUS,
-            tokenizer.MINUS,
+            PLUS,
+            MINUS,
         ], self.term)
 
     def term(self):
         return self.binary_expression([
-            tokenizer.MULTIPLY,
-            tokenizer.DIVIDE
+            MULTIPLY,
+            DIVIDE
         ], self.factor)
 
     def factor(self):
-        if self.current.type in [tokenizer.MINUS, tokenizer.PLUS, tokenizer.BANG]:
+        if self.current.type in [MINUS, PLUS, BANG]:
             op = self.current
             self.advance()
             expression = self.expression()
             return UnaryOperation(op, expression)
 
-        elif self.current.type == tokenizer.OPEN_PAREN:
+        elif self.current.type == OPEN_PAREN:
             self.advance()
             expression = self.expression()
-            if self.current.type == tokenizer.CLOSED_PAREN:
+            if self.current.type == CLOSED_PAREN:
                 self.advance()
                 return expression
-            self.raise_expected_token_error(tokenizer.CLOSED_PAREN)
+            self.raise_expected_token_error(CLOSED_PAREN)
 
-        elif self.current.type == tokenizer.NUMBER:
+        elif self.current.type == NUMBER:
             number_token = self.current
             self.advance()
             return Number(number_token)
 
-        elif self.current.type == tokenizer.NULL:
+        elif self.current.type == NULL:
             null_token = self.current
             self.advance()
             return Null(null_token)
 
-        elif self.current.type in [tokenizer.TRUE, tokenizer.FALSE]:
+        elif self.current.type in [TRUE, FALSE]:
             bool_val_token = self.current
             self.advance()
             return Boolean(bool_val_token)
 
-        elif self.current.type == tokenizer.IDENTIFIER:
+        elif self.current.type == IDENTIFIER:
             identifier_token = self.current
-            if self.peek.type == tokenizer.OPEN_PAREN:
+            if self.peek.type == OPEN_PAREN:
                 return self.function_call(identifier_token)
             else:
                 self.advance()
                 return Identifier(identifier_token)
 
-        elif self.current.type == tokenizer.RETURN:
+        elif self.current.type == RETURN:
             self.advance()
             return Return(self.expression())
 
@@ -358,15 +358,15 @@ class Parser:
         parameters = []
         # This condition in after 'while' handles functions with no parameters. If this was set to 'while True',
         # the parser would expect a NUMBER after the open-paren of the function call and throw the error.
-        # in `if self.current.type != tokenizer.NUMBER`.
-        while self.current.type != tokenizer.CLOSED_PAREN:
+        # in `if self.current.type != NUMBER`.
+        while self.current.type != CLOSED_PAREN:
             parameters.append(self.expression())
 
-            if self.current.type == tokenizer.CLOSED_PAREN:
+            if self.current.type == CLOSED_PAREN:
                 break
 
-            if self.current.type != tokenizer.COMMA:
-                self.raise_expected_token_error(" or ".join([tokenizer.COMMA, tokenizer.CLOSED_PAREN]))
+            if self.current.type != COMMA:
+                self.raise_expected_token_error(" or ".join([COMMA, CLOSED_PAREN]))
             self.advance()
 
         self.advance()
