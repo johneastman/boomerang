@@ -18,21 +18,15 @@ class Evaluator:
             MINUS: [NUMBER],
             MULTIPLY: [NUMBER],
             DIVIDE: [NUMBER],
-            EQ: [NUMBER, TRUE, FALSE],
-            NE: [NUMBER, TRUE, FALSE],
+            EQ: [NUMBER, BOOLEAN],
+            NE: [NUMBER, BOOLEAN],
             GT: [NUMBER],
             GE: [NUMBER],
             LT: [NUMBER],
             LE: [NUMBER],
-            BANG: [TRUE, FALSE]
-        }
-
-        # How to convert token values to their Python values so the comparison can be performed
-        # accurately. For example, "1" should be converted to an integer.
-        self.convert_literal = {
-            NUMBER: int,
-            TRUE: lambda _: True,
-            FALSE: lambda _: False
+            BANG: [BOOLEAN],
+            AND: [BOOLEAN],
+            OR: [BOOLEAN]
         }
 
     def evaluate(self):
@@ -143,7 +137,7 @@ class Evaluator:
         if expression_result.type not in valid_type:
             raise Exception(f"Cannot perform {op_type} operation on {expression_result.type}")
 
-        actual_value = self.convert_literal[expression_result.type](expression_result.value)
+        actual_value = self.get_literal_value(expression_result)
 
         if op_type == PLUS:
             return Token(actual_value, NUMBER, expression_result.line_num)
@@ -172,8 +166,8 @@ class Evaluator:
         if left.type not in valid_type or right.type not in valid_type:
             raise Exception(f"Cannot perform {op_type} operation on {left.type} and {right.type}")
 
-        left_val = self.convert_literal[left.type](left.value)
-        right_val = self.convert_literal[right.type](right.value)
+        left_val = self.get_literal_value(left)
+        right_val = self.get_literal_value(right)
 
         # Math operations
         if op_type == PLUS:
@@ -190,27 +184,48 @@ class Evaluator:
         # Binary comparisons
         elif op_type == EQ:
             result = left_val == right_val
-            value, _type = ("true", TRUE) if result else ("false", FALSE)
-            return Token(value, _type, left.line_num)
+            value = "true" if result else "false"
+            return Token(value, BOOLEAN, left.line_num)
         elif op_type == NE:
             result = left_val != right_val
-            value, _type = ("true", TRUE) if result else ("false", FALSE)
-            return Token(value, _type, left.line_num)
+            value = "true" if result else "false"
+            return Token(value, BOOLEAN, left.line_num)
         elif op_type == GT:
             result = left_val > right_val
-            value, _type = ("true", TRUE) if result else ("false", FALSE)
-            return Token(value, _type, left.line_num)
+            value = "true" if result else "false"
+            return Token(value, BOOLEAN, left.line_num)
         elif op_type == GE:
             result = left_val >= right_val
-            value, _type = ("true", TRUE) if result else ("false", FALSE)
-            return Token(value, _type, left.line_num)
+            value = "true" if result else "false"
+            return Token(value, BOOLEAN, left.line_num)
         elif op_type == LT:
             result = left_val < right_val
-            value, _type = ("true", TRUE) if result else ("false", FALSE)
-            return Token(value, _type, left.line_num)
+            value = "true" if result else "false"
+            return Token(value, BOOLEAN, left.line_num)
         elif op_type == LE:
             result = left_val <= right_val
-            value, _type = ("true", TRUE) if result else ("false", FALSE)
-            return Token(value, _type, left.line_num)
+            value = "true" if result else "false"
+            return Token(value, BOOLEAN, left.line_num)
+        elif op_type == AND:
+            result = left_val and right_val
+            value = "true" if result else "false"
+            return Token(value, BOOLEAN, left.line_num)
+        elif op_type == OR:
+            result = left_val or right_val
+            value = "true" if result else "false"
+            return Token(value, BOOLEAN, left.line_num)
         else:
             raise Exception(f"Invalid binary operator '{binary_operation.op.value}' at line {binary_operation.op.line_num}")
+
+    def get_literal_value(self, token: Token):
+        """Convert token values to their Python values so the comparison can be performed. For example, "1" should be
+        converted to an integer, and "true" and "false" should be converted to booleans.
+        :param token: a Token object representing a literal (number, boolean, etc.)
+        :return: Python's representation of the token value
+        """
+        if token.type == NUMBER:
+            return int(token.value)
+        elif token.type == BOOLEAN:
+            return True if token.value == "true" else False
+
+        raise Exception(f"Unsupported type: {token.type}")

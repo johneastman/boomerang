@@ -22,13 +22,13 @@ LE = "LE"
 GT = "GT"
 LT = "LT"
 BANG = "BANG"
+AND = "AND"
+OR = "OR"
 
 # Keywords
 LET = "LET"
 RETURN = "RETURN"
 FUNCTION = "FUNCTION"
-TRUE = "TRUE"
-FALSE = "FALSE"
 NULL = "null"
 IF = "if"
 ELSE = "else"
@@ -36,32 +36,15 @@ ELSE = "else"
 # Misc
 EOF = "EOF"  # End of File
 NUMBER = "NUMBER"
+BOOLEAN = "BOOLEAN"
 IDENTIFIER = "IDENTIFIER"
-
-token_literal_map = {
-    "+": PLUS,
-    "-": MINUS,
-    "/": DIVIDE,
-    "*": MULTIPLY,
-    "=": ASSIGN,
-    "!": BANG,
-    ">": GT,
-    "<": LT,
-    ";": SEMICOLON,
-    "(": OPEN_PAREN,
-    ")": CLOSED_PAREN,
-    "{": OPEN_CURLY_BRACKET,
-    "}": CLOSED_CURLY_BRACKET,
-    "#": COMMENT,
-    ",": COMMA
-}
 
 KEYWORDS = {
     "let": LET,
     "return": RETURN,
     "func": FUNCTION,
-    "true": TRUE,
-    "false": FALSE,
+    "true": BOOLEAN,
+    "false": BOOLEAN,
     "null": NULL,
     "if": IF,
     "else": ELSE
@@ -149,6 +132,18 @@ class Tokenizer:
                     tokens.append(token)
                 else:
                     tokens.append(Token(self.current, LT, self.line_num))
+            elif self.current == "&":
+                if self.next_char == "&":
+                    token = self.create_two_char_token(AND)
+                    tokens.append(token)
+                else:
+                    self.raise_invalid_char(self.current)
+            elif self.current == "|":
+                if self.next_char == "|":
+                    token = self.create_two_char_token(OR)
+                    tokens.append(token)
+                else:
+                    self.raise_invalid_char(self.current)
             elif self.is_digit():
                 number = self.read_number()
                 tokens.append(Token(number, NUMBER, self.line_num))
@@ -160,11 +155,16 @@ class Tokenizer:
                 token_type = KEYWORDS.get(letters, IDENTIFIER)
                 tokens.append(Token(letters, token_type, self.line_num))
                 continue
+            else:
+                self.raise_invalid_char(self.current)
 
             self.advance()
 
         tokens.append(Token("", EOF, self.line_num))  # Add end-of-file token
         return tokens
+
+    def raise_invalid_char(self, char):
+        raise Exception(f"Invalid character: {char}")
 
     @property
     def current(self):

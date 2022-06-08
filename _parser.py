@@ -286,6 +286,11 @@ class Parser:
 
     def expression(self):
         return self.binary_expression([
+            AND, OR
+        ], self.boolean)
+
+    def boolean(self):
+        return self.binary_expression([
             EQ,
             NE,
             GE,
@@ -297,7 +302,7 @@ class Parser:
     def addition(self):
         return self.binary_expression([
             PLUS,
-            MINUS,
+            MINUS
         ], self.term)
 
     def term(self):
@@ -331,7 +336,7 @@ class Parser:
             self.advance()
             return Null(null_token)
 
-        elif self.current.type in [TRUE, FALSE]:
+        elif self.current.type == BOOLEAN:
             bool_val_token = self.current
             self.advance()
             return Boolean(bool_val_token)
