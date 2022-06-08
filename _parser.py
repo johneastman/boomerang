@@ -287,11 +287,11 @@ class Parser:
     def expression(self):
         return self.binary_expression([
             tokenizer.EQ,
-            tokenizer.NOT_EQ,
-            tokenizer.GREATER_EQUAL,
-            tokenizer.GREATER,
-            tokenizer.LESS_EQ,
-            tokenizer.LESS
+            tokenizer.NE,
+            tokenizer.GE,
+            tokenizer.GT,
+            tokenizer.LE,
+            tokenizer.LT
         ], self.addition)
 
     def addition(self):
@@ -377,7 +377,7 @@ class Parser:
 
         # For built-in function calls, return a BuiltinFunction object.
         if identifier_token.value in builtin_functions:
-            return BuiltinFunction(identifier_token.value, parameters)
+            return BuiltinFunction(identifier_token, parameters)
         return FunctionCall(identifier_token, parameters)
 
     def raise_expected_token_error(self, expected_token_type):

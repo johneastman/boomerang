@@ -16,11 +16,11 @@ COMMENT = "COMMENT"
 
 # Comparison/Boolean Operators
 EQ = "EQ"
-NOT_EQ = "NOT_EQ"
-GREATER_EQUAL = "GREATER_EQUAL"
-LESS_EQ = "LESS_EQ"
-GREATER = "GREATER"
-LESS = "LESS"
+NE = "NE"
+GE = "GE"
+LE = "LE"
+GT = "GT"
+LT = "LT"
 BANG = "BANG"
 
 # Keywords
@@ -45,8 +45,8 @@ token_literal_map = {
     "*": MULTIPLY,
     "=": ASSIGN,
     "!": BANG,
-    ">": GREATER,
-    "<": LESS,
+    ">": GT,
+    "<": LT,
     ";": SEMICOLON,
     "(": OPEN_PAREN,
     ")": CLOSED_PAREN,
@@ -127,7 +127,7 @@ class Tokenizer:
                     tokens.append(Token(self.current, ASSIGN, self.line_num))
             elif self.current == "!":
                 if self.next_char == "=":
-                    token = self.create_two_char_token(NOT_EQ)
+                    token = self.create_two_char_token(NE)
                     tokens.append(token)
                 else:
                     tokens.append(Token(self.current, BANG, self.line_num))
@@ -139,16 +139,16 @@ class Tokenizer:
                 tokens.append(Token(self.current, CLOSED_CURLY_BRACKET, self.line_num))
             elif self.current == ">":
                 if self.next_char == "=":
-                    token = self.create_two_char_token(GREATER_EQUAL)
+                    token = self.create_two_char_token(GE)
                     tokens.append(token)
                 else:
-                    tokens.append(Token(self.current, GREATER, self.line_num))
+                    tokens.append(Token(self.current, GT, self.line_num))
             elif self.current == "<":
                 if self.next_char == "=":
-                    token = self.create_two_char_token(LESS_EQ)
+                    token = self.create_two_char_token(LE)
                     tokens.append(token)
                 else:
-                    tokens.append(Token(self.current, LESS, self.line_num))
+                    tokens.append(Token(self.current, LT, self.line_num))
             elif self.is_digit():
                 number = self.read_number()
                 tokens.append(Token(number, NUMBER, self.line_num))
