@@ -63,12 +63,12 @@ class Evaluator:
             # scopes, it does not exist anywhere in the code.
             env = self.env
             while env is not None:
-                variable_value = env.get_var(expression.value)
+                variable_value = env.get_var(expression.token.value)
                 if variable_value is not None:
                     return variable_value
                 env = env.parent_env
 
-            raise Exception(f"Undefined variable at line {expression.line_num}: {expression.value}")
+            raise Exception(f"Undefined variable at line {expression.token.line_num}: {expression.token.value}")
 
         elif type(expression) == _parser.FunctionCall:
             function_name = expression.name.value
@@ -144,8 +144,8 @@ class Evaluator:
         elif op_type == MINUS:
             return Token(-actual_value, NUMBER, expression_result.line_num)
         elif op_type == BANG:
-            value, _type = ("false", FALSE) if actual_value else ("true", TRUE)
-            return Token(value, _type, expression_result.line_num)
+            value = "false" if actual_value else "true"
+            return Token(value, BOOLEAN, expression_result.line_num)
         else:
             raise Exception(f"Invalid unary operator: {op_type} ({expression_result.op})")
 

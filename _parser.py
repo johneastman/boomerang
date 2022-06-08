@@ -1,44 +1,44 @@
 from tokenizer import *
 
 
-class TokenValue:
+# class TokenValue:
+#     def __init__(self, token: Token):
+#         self.token = token
+#
+#     @property
+#     def value(self):
+#         return self.token.value
+#
+#     @property
+#     def type(self):
+#         return self.token.type
+#
+#     @property
+#     def line_num(self):
+#         return self.token.line_num
+#
+#     def __repr__(self):
+#         return f"[{self.__class__.__name__}(value={self.value})]"
+
+
+class Number:
     def __init__(self, token: Token):
         self.token = token
 
-    @property
-    def value(self):
-        return self.token.value
 
-    @property
-    def type(self):
-        return self.token.type
-
-    @property
-    def line_num(self):
-        return self.token.line_num
-
-    def __repr__(self):
-        return f"[{self.__class__.__name__}(value={self.value})]"
-
-
-class Number(TokenValue):
+class Boolean:
     def __init__(self, token: Token):
-        super().__init__(token)
+        self.token = token
 
 
-class Boolean(TokenValue):
+class Null:
     def __init__(self, token: Token):
-        super().__init__(token)
+        self.token = token
 
 
-class Null(TokenValue):
+class Identifier:
     def __init__(self, token: Token):
-        super().__init__(token)
-
-
-class Identifier(TokenValue):
-    def __init__(self, token: Token):
-        super().__init__(token)
+        self.token = token
 
 
 class Return:

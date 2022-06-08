@@ -26,17 +26,17 @@ class TestEvaluator(unittest.TestCase):
 
     def test_boolean_operators(self):
         tests = [
-            ("1 == 1;", [Token("true", TRUE, 1)]),
-            ("1 != 1;", [Token("false", FALSE, 1)]),
-            ("1 != 2;", [Token("true", TRUE, 1)]),
-            ("1 >= 1;", [Token("true", TRUE, 1)]),
-            ("1 >= 2;", [Token("false", FALSE, 1)]),
-            ("1 > 1;",  [Token("false", FALSE, 1)]),
-            ("2 > 1;",  [Token("true", TRUE, 1)]),
-            ("1 <= 1;", [Token("true", TRUE, 1)]),
-            ("1 < 2;",  [Token("true", TRUE, 1)]),
-            ("2 < 1;",  [Token("false", FALSE, 1)]),
-            ("10 == (2 + 4 * 2) == true;",  [Token("true", TRUE, 1)]),
+            ("1 == 1;", [Token("true", BOOLEAN, 1)]),
+            ("1 != 1;", [Token("false", BOOLEAN, 1)]),
+            ("1 != 2;", [Token("true", BOOLEAN, 1)]),
+            ("1 >= 1;", [Token("true", BOOLEAN, 1)]),
+            ("1 >= 2;", [Token("false", BOOLEAN, 1)]),
+            ("1 > 1;",  [Token("false", BOOLEAN, 1)]),
+            ("2 > 1;",  [Token("true", BOOLEAN, 1)]),
+            ("1 <= 1;", [Token("true", BOOLEAN, 1)]),
+            ("1 < 2;",  [Token("true", BOOLEAN, 1)]),
+            ("2 < 1;",  [Token("false", BOOLEAN, 1)]),
+            ("10 == (2 + 4 * 2) == true;",  [Token("true", BOOLEAN, 1)]),
         ]
         self.run_tests(tests)
 
@@ -48,19 +48,19 @@ class TestEvaluator(unittest.TestCase):
 
     def test_invalid_boolean_operators(self):
         tests = [
-            ("1 == true;", "NUMBER", "EQ", "TRUE"),
-            ("1 != true;", "NUMBER", "NE", "TRUE"),
-            ("1 > true;", "NUMBER", "GT", "TRUE"),
-            ("2 >= false;", "NUMBER", "GE", "FALSE"),
-            ("2 < false;", "NUMBER", "LT", "FALSE"),
-            ("2 <= false;", "NUMBER", "LE", "FALSE"),
+            ("1 == true;", "NUMBER", "EQ", "BOOLEAN"),
+            ("1 != true;", "NUMBER", "NE", "BOOLEAN"),
+            ("1 > true;", "NUMBER", "GT", "BOOLEAN"),
+            ("2 >= false;", "NUMBER", "GE", "BOOLEAN"),
+            ("2 < false;", "NUMBER", "LT", "BOOLEAN"),
+            ("2 <= false;", "NUMBER", "LE", "BOOLEAN"),
 
             # Check that we can't use boolean operators in less-than, greater-than, greater-than-or-equal, or
             # less-than-or-equal
-            ("true <= false;", "TRUE", "LE", "FALSE"),
-            ("true < false;", "TRUE", "LT", "FALSE"),
-            ("true >= false;", "TRUE", "GE", "FALSE"),
-            ("true > false;", "TRUE", "GT", "FALSE"),
+            ("true <= false;", "BOOLEAN", "LE", "BOOLEAN"),
+            ("true < false;", "BOOLEAN", "LT", "BOOLEAN"),
+            ("true >= false;", "BOOLEAN", "GE", "BOOLEAN"),
+            ("true > false;", "BOOLEAN", "GT", "BOOLEAN"),
         ]
 
         for source, left_type, operation_type, right_type in tests:
@@ -80,10 +80,10 @@ class TestEvaluator(unittest.TestCase):
                 Token(1, NUMBER, 1)
             ]),
             ("!true;", [
-                Token("false", FALSE, 1)
+                Token("false", BOOLEAN, 1)
             ]),
             ("!false;", [
-                Token("true", TRUE, 1)
+                Token("true", BOOLEAN, 1)
             ]),
         ]
 
@@ -95,10 +95,10 @@ class TestEvaluator(unittest.TestCase):
     def test_invalid_unary_operators(self):
         tests = [
             ("!1;", "BANG", "NUMBER"),
-            ("-true;", "MINUS", "TRUE"),
-            ("-false;", "MINUS", "FALSE"),
-            ("+true;", "PLUS", "TRUE"),
-            ("+false;", "PLUS", "FALSE"),
+            ("-true;", "MINUS", "BOOLEAN"),
+            ("-false;", "MINUS", "BOOLEAN"),
+            ("+true;", "PLUS", "BOOLEAN"),
+            ("+false;", "PLUS", "BOOLEAN"),
         ]
 
         for source, op, _type in tests:
