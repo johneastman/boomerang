@@ -52,6 +52,45 @@ class TestParser(unittest.TestCase):
         actual_ast = _parser.Parser(tokens).parse()
         self.assertEqual(expected_ast, actual_ast)
 
+    def test_precedence_and_or(self):
+        tests = [
+            ("AND", Token("&&", AND, 1)),
+            ("OR",  Token("||", OR, 1))
+        ]
+
+        for test_name, operator_token in tests:
+            with self.subTest(test_name):
+                tokens = [
+                    Token("1", NUMBER, 1),
+                    Token("==", EQ, 1),
+                    Token("1", NUMBER, 1),
+                    operator_token,
+                    Token("2", NUMBER, 1),
+                    Token("!=", NE, 1),
+                    Token("3", NUMBER, 1),
+                    Token(";", SEMICOLON, 1),
+                    Token("", EOF, 1)
+                ]
+
+                expected_ast = [
+                    _parser.BinaryOperation(
+                        _parser.BinaryOperation(
+                            _parser.Number(Token("1", NUMBER, 1)),
+                            Token("==", EQ, 1),
+                            _parser.Number(Token("1", NUMBER, 1))
+                        ),
+                        operator_token,
+                        _parser.BinaryOperation(
+                            _parser.Number(Token("2", NUMBER, 1)),
+                            Token("!=", NE, 1),
+                            _parser.Number(Token("3", NUMBER, 1)),
+                        )
+                    )
+                ]
+
+                actual_ast = _parser.Parser(tokens).parse()
+                self.assertEqual(expected_ast, actual_ast)
+
 
 if __name__ == '__main__':
     unittest.main()

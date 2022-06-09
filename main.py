@@ -43,5 +43,8 @@ def repl():
 
 
 if __name__ == "__main__":
-    source = get_source("language.txt")
-    evaluate(source, Environment())
+    # source = get_source("language.txt")
+    # evaluate(source, Environment())
+    t = Tokenizer("1 ==1 || 2 != 3;")
+    ast = Parser(t.tokenize()).parse()
+    print(ast)

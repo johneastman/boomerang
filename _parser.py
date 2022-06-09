@@ -10,6 +10,9 @@ class Number:
             return False
         return self.token == other.token
 
+    def __repr__(self):
+        return f"Number(token={self.token})"
+
 
 class Boolean:
     def __init__(self, token: Token):
@@ -18,7 +21,10 @@ class Boolean:
     def __eq__(self, other):
         if not isinstance(other, Number):
             return False
-        return self == other
+        return self.token == other.token
+
+    def __repr__(self):
+        return f"Boolean(token={self.token})"
 
 
 class Null:
@@ -28,7 +34,10 @@ class Null:
     def __eq__(self, other):
         if not isinstance(other, Number):
             return False
-        return self == other
+        return self.token == other.token
+
+    def __repr__(self):
+        return f"Null(token={self.token})"
 
 
 class Identifier:
@@ -38,7 +47,10 @@ class Identifier:
     def __eq__(self, other):
         if not isinstance(other, Number):
             return False
-        return self == other
+        return self.token == other.token
+
+    def __repr__(self):
+        return f"Identifier(token={self.token})"
 
 
 class Return:
