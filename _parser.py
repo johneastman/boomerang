@@ -267,6 +267,8 @@ class Parser:
         self.advance()
 
         function_statements = self.statements()
+        if len(function_statements) == 0:
+            raise Exception(f"No statements in function declaration at {function_name.line_num}.")
 
         if self.current.type != CLOSED_CURLY_BRACKET:
             self.raise_expected_token_error(CLOSED_CURLY_BRACKET)

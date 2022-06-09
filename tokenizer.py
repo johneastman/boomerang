@@ -93,9 +93,9 @@ class Tokenizer:
             elif self.current == "/":
                 if self.next_char == "*":
                     self.skip_block_comment()
+                    continue
                 else:
                     tokens.append(Token(self.current, DIVIDE, self.line_num))
-                continue
             elif self.current == ";":
                 tokens.append(Token(self.current, SEMICOLON, self.line_num))
             elif self.current == "(":

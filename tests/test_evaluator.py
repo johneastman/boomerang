@@ -9,18 +9,12 @@ class TestEvaluator(unittest.TestCase):
 
     def test_evaluator(self):
         tests = [
-            ("1 + 1;", [
-                Token(2, NUMBER, 1)
-            ]),
-            ("1 + 2 * 2;", [
-                Token(5, NUMBER, 1)]),
-            ("(1 + 2) * 2;", [
-                Token(6, NUMBER, 1)
-            ]),
-            ("let x = (1 + 2) * 2;x;", [
-                Token("null", NULL, 1),
-                Token(6, NUMBER, 1)
-            ])
+            ("1 + 1;", [Token(2, NUMBER, 1)]),
+            ("1 + 2 * 2;", [Token(5, NUMBER, 1)]),
+            ("(1 + 2) * 2;", [Token(6, NUMBER, 1)]),
+            ("let x = (1 + 2) * 2;x;", [Token("null", NULL, 1), Token(6, NUMBER, 1)]),
+            ("4 / 2;", [Token(2.0, NUMBER, 1)]),
+            ("7 / 2;", [Token(3.5, NUMBER, 1)])
         ]
         self.run_tests(tests)
 

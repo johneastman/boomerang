@@ -56,6 +56,8 @@ class Evaluator:
                 raise ReturnException(evaluated_expression)
 
         # TODO: Figure out how to handle returns for both REPL and regular code execution
+        if isinstance(evaluated_expressions[-1], _parser.Return):
+            return evaluated_expressions[-1]
         return evaluated_expressions
 
     def evaluate_expression(self, expression):
@@ -207,7 +209,7 @@ class Evaluator:
         elif op_type == DIVIDE:
             if right_val == 0:
                 raise Exception("Division by zero")
-            return Token(left_val + right_val, NUMBER, left.line_num)
+            return Token(left_val / right_val, NUMBER, left.line_num)
 
         # Binary comparisons
         elif op_type == EQ:

@@ -36,12 +36,13 @@ def repl():
             break
         else:
             try:
-                result = evaluate(_input, env)
-                print(result)
+                evaluated_expressions = evaluate(_input, env)
+                print(" ".join(map(str, [token.value for token in evaluated_expressions])))
             except Exception as e:
                 print(e)
 
 
 if __name__ == "__main__":
-    source = get_source("language.txt")
-    evaluate(source, Environment())
+    # source = get_source("language.txt")
+    # evaluate(source, Environment())
+    repl()

@@ -42,6 +42,16 @@ class TestTokenizer(unittest.TestCase):
                 Token("3", NUMBER, 4),
                 Token(";", SEMICOLON, 4),
                 Token("", EOF, 4),
+            ]),
+            ("/*func is_eq(a, b) {\n    return a == b;\n};\n*/print(1 / 1);", [
+                Token("print", IDENTIFIER, 4),
+                Token("(", OPEN_PAREN, 4),
+                Token("1", NUMBER, 4),
+                Token("/", DIVIDE, 4),
+                Token("1", NUMBER, 4),
+                Token(")", CLOSED_PAREN, 4),
+                Token(";", SEMICOLON, 4),
+                Token("", EOF, 4),
             ])
         ]
 
