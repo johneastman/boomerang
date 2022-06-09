@@ -6,6 +6,11 @@ from _environment import Environment
 #  and throw errors for incompatible types in comparison operators.
 
 
+class ReturnException(Exception):
+    def __init__(self, token: Token):
+        self.token = token
+
+
 class Evaluator:
     def __init__(self, ast, env):
         self.ast = ast
@@ -33,7 +38,25 @@ class Evaluator:
         return self.evaluate_statements(self.ast)
 
     def evaluate_statements(self, statements):
-        return [self.evaluate_expression(expression) for expression in statements]
+        evaluated_expressions = []
+        for expression in statements:
+            evaluated_expression = self.evaluate_expression(expression)
+            evaluated_expressions.append(evaluated_expression)
+
+            if isinstance(expression, _parser.Return):
+                # Raise an exception for returns so that in the case of early returns (e.g., a return in an if-else
+                # block), the rest of the AST below that return block is ignored. Without throwing an exception,
+                # the following code would return "false" instead of "true", which is the expected return value.
+                # ```
+                # if (1 == 1) {
+                #     return true;
+                # };
+                # return false;
+                # ```
+                raise ReturnException(evaluated_expression)
+
+        # TODO: Figure out how to handle returns for both REPL and regular code execution
+        return evaluated_expressions
 
     def evaluate_expression(self, expression):
         if type(expression) == _parser.BinaryOperation:
@@ -45,9 +68,10 @@ class Evaluator:
         elif type(expression) == _parser.IfStatement:
             evaluated_comparison = self.evaluate_expression(expression.comparison)
             if evaluated_comparison.value == "true":
-                self.evaluate_statements(expression.true_statements)
+                return self.evaluate_statements(expression.true_statements)
             elif expression.false_statements is not None:
-                self.evaluate_statements(expression.false_statements)
+                return self.evaluate_statements(expression.false_statements)
+            return Token("null", NULL, evaluated_comparison.line_num)
 
         elif type(expression) == _parser.AssignVariable:
             self.env.set_var(expression.name.value, self.evaluate_expression(expression.value))
@@ -100,12 +124,16 @@ class Evaluator:
 
             # Evaluate every expression in the function body
             statements = function.statements
-            executed_expressions = self.evaluate_statements(statements)
 
-            # After the function is called, switch to the parent environment
-            self.env = self.env.parent_env
-
-            return executed_expressions[-1] if type(statements[-1]) == _parser.Return else "null"
+            # If the function returns anything (i.e., "return <expression>", then a ReturnException is thrown.
+            # Otherwise, return null.
+            try:
+                return self.evaluate_statements(statements)
+            except ReturnException as return_exception:
+                return return_exception.token
+            finally:
+                # After the function is called, switch to the parent environment
+                self.env = self.env.parent_env
 
         elif type(expression) == _parser.BuiltinFunction:
             if expression.name.value == "print":

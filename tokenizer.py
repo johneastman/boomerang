@@ -29,7 +29,7 @@ OR = "OR"
 LET = "LET"
 RETURN = "RETURN"
 FUNCTION = "FUNCTION"
-NULL = "null"
+NULL = "NULL"
 IF = "if"
 ELSE = "else"
 

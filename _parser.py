@@ -180,6 +180,9 @@ class Parser:
             return self.function()
         elif self.current.type == IF:
             return self.if_statement()
+        elif self.current.type == RETURN:
+            self.advance()
+            return Return(self.expression())
         else:
             return self.expression()
 
@@ -367,9 +370,9 @@ class Parser:
                 self.advance()
                 return Identifier(identifier_token)
 
-        elif self.current.type == RETURN:
-            self.advance()
-            return Return(self.expression())
+        # elif self.current.type == RETURN:
+        #     self.advance()
+        #     return Return(self.expression())
 
         else:
             raise Exception(f"Invalid token: {self.current}")
