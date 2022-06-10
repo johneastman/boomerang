@@ -130,9 +130,11 @@ class Evaluator:
             # If the function returns anything (i.e., "return <expression>", then a ReturnException is thrown.
             # Otherwise, return null.
             try:
-                return self.evaluate_statements(statements)
+                return self.evaluate_statements(statements)[-1]
             except ReturnException as return_exception:
-                return return_exception.token
+                return_token = return_exception.token
+                return_token.line_num = expression.name.line_num
+                return return_token
             finally:
                 # After the function is called, switch to the parent environment
                 self.env = self.env.parent_env

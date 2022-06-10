@@ -104,6 +104,24 @@ class TestEvaluator(unittest.TestCase):
                     str(error.exception)
                 )
 
+    def test_function_return(self):
+        source = """
+        func is_equal(a, b) {
+            if (a == b) {
+                return true;
+            };
+        };
+        is_equal(1, 1);  # true
+        is_equal(1, 2);  # null
+        """
+        expected_results = [
+            Token("null", NULL, 2),
+            Token("true", BOOLEAN, 7),
+            Token("null", NULL, 8),
+        ]
+        actual_results = self.actual_result(source)
+        self.assertEqual(expected_results, actual_results)
+
     def actual_result(self, source):
         t = Tokenizer(source)
         tokens = t.tokenize()
