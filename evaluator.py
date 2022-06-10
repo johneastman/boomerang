@@ -137,15 +137,13 @@ class Evaluator:
                 # After the function is called, switch to the parent environment
                 self.env = self.env.parent_env
 
-        elif type(expression) == _parser.BuiltinFunction:
-            if expression.name.value == "print":
-                evaluated_params = []
-                for param in expression.parameters:
-                    result = self.evaluate_expression(param)
-                    evaluated_params.append(result)
-
-                print(", ".join(map(lambda v: str(v.value), evaluated_params)))
-            return Token("null", NULL, expression.name.line_num)
+        elif type(expression) == _parser.Print:
+            evaluated_params = []
+            for param in expression.params:
+                result = self.evaluate_expression(param)
+                evaluated_params.append(str(result.value))
+            print(", ".join(evaluated_params))
+            return expression.return_val
 
         elif type(expression) == _parser.Number:
             return expression.token

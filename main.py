@@ -43,6 +43,5 @@ def repl():
 
 
 if __name__ == "__main__":
-    # source = get_source("language.txt")
-    # evaluate(source, Environment())
-    repl()
+    source = get_source("language.txt")
+    evaluate(source, Environment())

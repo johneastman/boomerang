@@ -79,14 +79,13 @@ class IfStatement:
         self.false_statements = false_statements
 
 
-class BuiltinFunction:
-    def __init__(self, name: Token, params):
-        self.name = name
-        self.parameters = params
+class Print:
+    def __init__(self, params, return_val):
+        self.params = params
+        self.return_val = return_val
 
     def __repr__(self):
-        class_name = self.__class__.__name__
-        return f"[{class_name}(name={self.name}, parameters={self.parameters})]"
+        return f"print({', '.join(repr(expr) for expr in self.params)}"
 
 
 class FunctionCall:
@@ -399,14 +398,10 @@ class Parser:
 
         self.advance()
 
-        builtin_functions = [
-            "print"
-        ]
-
-        # For built-in function calls, return a BuiltinFunction object.
-        if identifier_token.value in builtin_functions:
-            return BuiltinFunction(identifier_token, parameters)
-        return FunctionCall(identifier_token, parameters)
+        builtin_functions = {
+            "print": Print(parameters, Token("null", NULL, identifier_token.line_num))
+        }
+        return builtin_functions.get(identifier_token.value, FunctionCall(identifier_token, parameters))
 
     def raise_expected_token_error(self, expected_token_type):
         raise Exception(f"Expected {expected_token_type}, got {self.current.type} ({self.current.value})")

@@ -26,8 +26,8 @@ class ASTVisualizer:
 
             self.__visualize(expression.left)
             self.__visualize(expression.right)
-        elif type(expression) == _parser.BuiltinFunction:
-            self.add_node(node_id, expression.name)
+        elif type(expression) == _parser.Print:
+            self.add_node(node_id, "print")
             for param in expression.parameters:
                 self.add_edge(node_id, id(param))
                 self.__visualize(param)
