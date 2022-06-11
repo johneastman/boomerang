@@ -98,7 +98,14 @@ class Evaluator:
 
         elif type(expression) == _parser.FunctionCall:
             function_name = expression.name.value
-            function = self.env.get_func(function_name)
+
+            function = None
+            env = self.env
+            while env is not None:
+                f = env.get_func(expression.name.value)
+                if f is not None:
+                    function = f
+                env = env.parent_env
 
             # If the function is not defined in the functions dictionary, throw an error saying the
             # function is undefined
