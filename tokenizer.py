@@ -13,6 +13,7 @@ OPEN_CURLY_BRACKET = "OPEN_CURLY_BRACKET"
 CLOSED_CURLY_BRACKET = "CLOSED_CURLY_BRACKET"
 COMMA = "COMMA"
 COMMENT = "COMMENT"
+BLOCK_COMMENT = "BLOCK_COMMENT"
 
 # Comparison/Boolean Operators
 EQ = "EQ"
@@ -40,7 +41,38 @@ NUMBER = "NUMBER"
 BOOLEAN = "BOOLEAN"
 IDENTIFIER = "IDENTIFIER"
 
-KEYWORDS = {
+
+# Map literals to token types
+tokens_dict = {
+    # Symbols
+    "=": ASSIGN,
+    "(": OPEN_PAREN,
+    ")": CLOSED_PAREN,
+    "{": OPEN_CURLY_BRACKET,
+    "}": CLOSED_CURLY_BRACKET,
+    ",": COMMA,
+    ";": SEMICOLON,
+    "#": COMMENT,
+    "/*": BLOCK_COMMENT,
+
+    # Math Operators
+    "+": PLUS,
+    "-": MINUS,
+    "*": MULTIPLY,
+    "/": DIVIDE,
+
+    # Boolean
+    "==": EQ,
+    "!=": NE,
+    ">=": GE,
+    "<=": LE,
+    ">": GT,
+    "<": LT,
+    "!": BANG,
+    "||": OR,
+    "&&": AND,
+
+    # Keywords:
     "let": LET,
     "return": RETURN,
     "func": FUNCTION,
@@ -84,83 +116,50 @@ class Tokenizer:
 
             if self.current is None:
                 break
-            elif self.current == "#":
-                self.skip_comment()
-            elif self.current == "+":
-                tokens.append(Token(self.current, PLUS, self.line_num))
-            elif self.current == "-":
-                tokens.append(Token(self.current, MINUS, self.line_num))
-            elif self.current == "*":
-                tokens.append(Token(self.current, MULTIPLY, self.line_num))
-            elif self.current == "/":
-                if self.next_char == "*":
-                    self.skip_block_comment()
-                    continue
-                else:
-                    tokens.append(Token(self.current, DIVIDE, self.line_num))
-            elif self.current == ";":
-                tokens.append(Token(self.current, SEMICOLON, self.line_num))
-            elif self.current == "(":
-                tokens.append(Token(self.current, OPEN_PAREN, self.line_num))
-            elif self.current == ")":
-                tokens.append(Token(self.current, CLOSED_PAREN, self.line_num))
-            elif self.current == "=":
-                if self.next_char == "=":
-                    token = self.create_two_char_token(EQ)
-                    tokens.append(token)
-                else:
-                    tokens.append(Token(self.current, ASSIGN, self.line_num))
-            elif self.current == "!":
-                if self.next_char == "=":
-                    token = self.create_two_char_token(NE)
-                    tokens.append(token)
-                else:
-                    tokens.append(Token(self.current, BANG, self.line_num))
-            elif self.current == ",":
-                tokens.append(Token(self.current, COMMA, self.line_num))
-            elif self.current == "{":
-                tokens.append(Token(self.current, OPEN_CURLY_BRACKET, self.line_num))
-            elif self.current == "}":
-                tokens.append(Token(self.current, CLOSED_CURLY_BRACKET, self.line_num))
-            elif self.current == ">":
-                if self.next_char == "=":
-                    token = self.create_two_char_token(GE)
-                    tokens.append(token)
-                else:
-                    tokens.append(Token(self.current, GT, self.line_num))
-            elif self.current == "<":
-                if self.next_char == "=":
-                    token = self.create_two_char_token(LE)
-                    tokens.append(token)
-                else:
-                    tokens.append(Token(self.current, LT, self.line_num))
-            elif self.current == "&":
-                if self.next_char == "&":
-                    token = self.create_two_char_token(AND)
-                    tokens.append(token)
-                else:
-                    self.raise_invalid_char(self.current)
-            elif self.current == "|":
-                if self.next_char == "|":
-                    token = self.create_two_char_token(OR)
-                    tokens.append(token)
-                else:
-                    self.raise_invalid_char(self.current)
+
             elif self.is_digit():
                 number = self.read_number()
                 tokens.append(Token(number, NUMBER, self.line_num))
                 continue
+
             elif self.is_identifier():
                 letters = self.read_identifier()
 
                 # Any string that is not a keyword is an identifier (variable, function, etc.)
-                token_type = KEYWORDS.get(letters, IDENTIFIER)
+                token_type = tokens_dict.get(letters, IDENTIFIER)
                 tokens.append(Token(letters, token_type, self.line_num))
                 continue
-            else:
-                self.raise_invalid_char(self.current)
 
-            self.advance()
+            else:
+                # Find all tokens starting with the current character. Sort by the length of each token in descending
+                # order. This ensures shorter tokens with similar characters to longer tokens are not mistakenly
+                # matched (for example, '==' might get confused as two '=' if the smaller tokens are ordered first).
+                matching_tokens = sorted(
+                    [(l, t, len(l)) for l, t in tokens_dict.items() if l.startswith(self.current)],
+                    key=lambda data: data[2], reverse=True
+                )
+
+                # If no tokens are found, then assume an invalid character
+                if len(matching_tokens) == 0:
+                    self.raise_invalid_char(self.current)
+
+                for literal, _type, literal_len in matching_tokens:
+                    matching_source = self.source[self.index:self.index + literal_len]
+                    if matching_source == literal:
+
+                        # Skip single-line and block comments
+                        if literal == "#":
+                            self.skip_comment()
+                        elif literal == "/*":
+                            self.skip_block_comment()
+                            break
+                        else:
+                            tokens.append(Token(literal, _type, self.line_num))
+
+                        # Advance past the number of characters in the matching token
+                        for _ in range(literal_len):
+                            self.advance()
+                        break
 
         tokens.append(Token("", EOF, self.line_num))  # Add end-of-file token
         return tokens

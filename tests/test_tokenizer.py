@@ -4,6 +4,9 @@ from tokenizer import *
 
 class TestTokenizer(unittest.TestCase):
 
+    def test_token_identification(self):
+        source = "let "
+
     def test_tokenizer(self):
 
         tests = [
