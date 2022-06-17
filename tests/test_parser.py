@@ -1,5 +1,6 @@
 import unittest
-from tokenizer import *
+from tokens.tokens import *
+from tokens.tokenizer import Token
 import _parser
 
 

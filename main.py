@@ -1,4 +1,4 @@
-from tokenizer import Tokenizer
+from tokens.tokenizer import Tokenizer
 from _parser import Parser
 from evaluator import Evaluator
 from _environment import Environment

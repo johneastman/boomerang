@@ -1,4 +1,5 @@
-from tokenizer import *
+from tokens.tokens import *
+from tokens.tokenizer import Token
 
 
 class Number:
@@ -22,9 +23,6 @@ class Boolean:
         if not isinstance(other, Number):
             return False
         return self.token == other.token
-
-    def __bool__(self):
-        return self.token.value == "true"
 
     def __repr__(self):
         return f"Boolean(token={self.token})"
@@ -393,10 +391,6 @@ class Parser:
             else:
                 self.advance()
                 return Identifier(identifier_token)
-
-        # elif self.current.type == RETURN:
-        #     self.advance()
-        #     return Return(self.expression())
 
         else:
             raise Exception(f"Invalid token: {self.current}")

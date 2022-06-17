@@ -1,5 +1,6 @@
 import _parser
-from tokenizer import *
+from tokens.tokens import *
+from tokens.tokenizer import Token
 from _environment import Environment
 
 # TODO: Return a Value object for values (numbers, booleans, etc.) instead of the raw value so we can check the type
