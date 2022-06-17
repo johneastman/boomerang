@@ -211,7 +211,6 @@ class Tokenizer:
         :param include_nums: Set if digits are allowed in the valid identifier characters. Identifiers can't start
         with numbers, but can include numbers.
         :return:
-        :rtype:
         """
         valid_chars = string.ascii_letters + "_"
         if include_nums:
@@ -233,8 +232,3 @@ class Tokenizer:
         while self.is_identifier(include_nums=True):
             self.advance()
         return self.source[pos:self.index]
-
-    def create_two_char_token(self, token_type):
-        prev_char = self.current
-        self.advance()
-        return Token(prev_char + self.current, token_type, self.line_num)
