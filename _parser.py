@@ -23,6 +23,9 @@ class Boolean:
             return False
         return self.token == other.token
 
+    def __bool__(self):
+        return self.token.value == "true"
+
     def __repr__(self):
         return f"Boolean(token={self.token})"
 

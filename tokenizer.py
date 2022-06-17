@@ -148,9 +148,9 @@ class Tokenizer:
                     if matching_source == literal:
 
                         # Skip single-line and block comments
-                        if literal == "#":
+                        if _type == COMMENT:
                             self.skip_comment()
-                        elif literal == "/*":
+                        elif _type == BLOCK_COMMENT:
                             self.skip_block_comment()
                             break
                         else:
@@ -195,15 +195,15 @@ class Tokenizer:
     def skip_block_comment(self):
         while True:
             if self.current == "*" and self.next_char == "/":
+                # Advance past two characters that close the block comment
+                self.advance()
+                self.advance()
                 break
 
             if self.current == "\n":
                 self.line_num += 1
 
             self.advance()
-
-        self.advance()
-        self.advance()
 
     def is_identifier(self, include_nums=False):
         """Determine if a character is valid for an identifier (a-z, A-Z, 0-9, _)
