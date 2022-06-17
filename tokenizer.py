@@ -30,8 +30,9 @@ LET = "LET"
 RETURN = "RETURN"
 FUNCTION = "FUNCTION"
 NULL = "NULL"
-IF = "if"
-ELSE = "else"
+IF = "IF"
+ELSE = "ELSE"
+WHILE = "WHILE"
 
 # Misc
 EOF = "EOF"  # End of File
@@ -47,7 +48,8 @@ KEYWORDS = {
     "false": BOOLEAN,
     "null": NULL,
     "if": IF,
-    "else": ELSE
+    "else": ELSE,
+    "while": WHILE
 }
 
 

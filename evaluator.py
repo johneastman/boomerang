@@ -146,6 +146,11 @@ class Evaluator:
                 # After the function is called, switch to the parent environment
                 self.env = self.env.parent_env
 
+        elif type(expression) == _parser.Loop:
+            while self.evaluate_expression(expression.condition).value == "true":
+                self.evaluate_statements(expression.statements)
+            return Token("null", NULL, -1)
+
         elif type(expression) == _parser.Print:
             evaluated_params = []
             for param in expression.params:
@@ -165,6 +170,8 @@ class Evaluator:
 
         elif type(expression) == _parser.Return:
             return self.evaluate_expression(expression.expression)
+        else:
+            raise Exception(f"Unsupported type: {type(expression)}")
 
     def evaluate_unary_expression(self, unary_expression):
         expression_result = self.evaluate_expression(unary_expression.expression)

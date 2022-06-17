@@ -61,6 +61,15 @@ class Return:
         return f"[{self.__class__.__name__}(value={self.expression})]"
 
 
+class Loop:
+    def __init__(self, condition, statements):
+        self.condition = condition
+        self.statements = statements
+
+    def __repr__(self):
+        return f"[{self.__class__.__name__}(condition: {self.condition}, statements: {self.statements})]"
+
+
 class AssignFunction:
     def __init__(self, name: Token, parameters, statements):
         self.name = name
@@ -182,23 +191,34 @@ class Parser:
         elif self.current.type == RETURN:
             self.advance()
             return Return(self.expression())
+        elif self.current.type == WHILE:
+            return self.loop()
         else:
             return self.expression()
 
-    def if_statement(self):
-        self.advance()
-
-        # Open parenthesis
-        if self.current.type != OPEN_PAREN:
-            self.raise_expected_token_error(OPEN_PAREN)
+    def loop(self):
         self.advance()
 
         comparison = self.expression()
 
-        # Closed parenthesis
-        if self.current.type != CLOSED_PAREN:
-            self.raise_expected_token_error(CLOSED_PAREN)
+        # Open curly bracket
+        if self.current.type != OPEN_CURLY_BRACKET:
+            self.raise_expected_token_error(OPEN_CURLY_BRACKET)
         self.advance()
+
+        loop_statements = self.statements()
+
+        # Closed curly bracket
+        if self.current.type != CLOSED_CURLY_BRACKET:
+            self.raise_expected_token_error(CLOSED_CURLY_BRACKET)
+        self.advance()
+
+        return Loop(comparison, loop_statements)
+
+    def if_statement(self):
+        self.advance()
+
+        comparison = self.expression()
 
         # Open curly bracket
         if self.current.type != OPEN_CURLY_BRACKET:
