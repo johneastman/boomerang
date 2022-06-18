@@ -313,8 +313,13 @@ class Parser:
         variable_name_token = self.current
 
         self.advance()
-        if self.current.type not in [ASSIGN, ASSIGN_ADD]:
-            self.raise_expected_token_error(", ".join([ASSIGN, ASSIGN_ADD]))
+        valid_assignment_operators = [
+            ASSIGN,
+            ASSIGN_ADD,
+            ASSIGN_SUB
+        ]
+        if self.current.type not in valid_assignment_operators:
+            self.raise_expected_token_error(", ".join(valid_assignment_operators))
 
         assignment_operator = self.current
 
@@ -329,6 +334,15 @@ class Parser:
                 BinaryOperation(
                     Identifier(variable_name_token),
                     Token(get_token_literal("PLUS"), PLUS, variable_name_token.line_num),
+                    variable_value
+                )
+            )
+        elif assignment_operator.type == ASSIGN_SUB:
+            return AssignVariable(
+                variable_name_token,
+                BinaryOperation(
+                    Identifier(variable_name_token),
+                    Token(get_token_literal("MINUS"), MINUS, variable_name_token.line_num),
                     variable_value
                 )
             )

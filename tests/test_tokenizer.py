@@ -54,11 +54,14 @@ class TestTokenizer(unittest.TestCase):
                 Token(";", SEMICOLON, 4),
                 Token("", EOF, 4),
             ]),
-            ("i += 3;", [
+            ("i += 3; j -= 4", [
                 Token("i", IDENTIFIER, 1),
                 Token("+=", ASSIGN_ADD, 1),
                 Token("3", NUMBER, 1),
                 Token(";", SEMICOLON, 1),
+                Token("j", IDENTIFIER, 1),
+                Token("-=", ASSIGN_SUB, 1),
+                Token("4", NUMBER, 1),
                 Token("", EOF, 1),
             ])
         ]
