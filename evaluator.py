@@ -160,6 +160,10 @@ class Evaluator:
             print(", ".join(evaluated_params))
             return expression.return_val
 
+        elif type(expression) == _parser.Type:
+            result = self.evaluate_expression(expression.value)
+            return Token(result.type, result.type, result.line_num)
+
         elif type(expression) == _parser.Number:
             return expression.token
 

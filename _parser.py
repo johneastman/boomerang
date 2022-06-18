@@ -98,6 +98,14 @@ class Print:
         return f"print({', '.join(repr(expr) for expr in self.params)}"
 
 
+class Type:
+    def __init__(self, value: Token):
+        self.value = value
+
+    def __repr__(self):
+        return f"Type({self.value})"
+
+
 class FunctionCall:
     def __init__(self, name: Token, parameter_values):
         self.name = name
@@ -134,16 +142,6 @@ class AssignVariable:
         return f"[{class_name}(name={self.name}, value={self.value})]"
 
 
-class AddAssign:
-    def __init__(self, name: Token, value):
-        self.name = name
-        self.value = value
-
-    def __repr__(self):
-        class_name = self.__class__.__name__
-        return f"[{class_name}(name={self.name}, value={self.value})]"
-
-
 class UnaryOperation:
     def __init__(self, op: Token, expression):
         self.op = op
@@ -159,6 +157,14 @@ class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
         self.index = 0
+
+        self.assignment_operators = [
+            ASSIGN,
+            ASSIGN_ADD,
+            ASSIGN_SUB,
+            ASSIGN_MUL,
+            ASSIGN_DIV
+        ]
 
     def advance(self):
         self.index += 1
@@ -194,30 +200,31 @@ class Parser:
 
     def statement(self):
         if self.current.type == LET:
-            return self.let_statement()
+            self.advance()
+            if self.current.type != IDENTIFIER:
+                self.raise_expected_token_error(IDENTIFIER)
+            return self.assign(self.current)
+
         elif self.current.type == FUNCTION:
             return self.function()
+
         elif self.current.type == IF:
             return self.if_statement()
+
         elif self.current.type == RETURN:
             self.advance()
             return Return(self.expression())
+
         elif self.current.type == WHILE:
             return self.loop()
+
         else:
             return self.expression()
 
     def assign(self, variable_name_token):
         self.advance()
-        valid_assignment_operators = [
-            ASSIGN,
-            ASSIGN_ADD,
-            ASSIGN_SUB,
-            ASSIGN_MUL,
-            ASSIGN_DIV
-        ]
-        if self.current.type not in valid_assignment_operators:
-            self.raise_expected_token_error(", ".join(valid_assignment_operators))
+        if self.current.type not in self.assignment_operators:
+            self.raise_expected_token_error(", ".join(self.assignment_operators))
 
         assignment_operator = self.current
 
@@ -342,12 +349,6 @@ class Parser:
 
         return AssignFunction(function_name, parameters, function_statements)
 
-    def let_statement(self):
-        self.advance()
-        if self.current.type != IDENTIFIER:
-            self.raise_expected_token_error(IDENTIFIER)
-        return self.assign(self.current)
-
     def binary_expression(self, binary_operators: list, next_method):
         left = next_method()
 
@@ -425,6 +426,8 @@ class Parser:
             identifier_token = self.current
             if self.peek.type == OPEN_PAREN:
                 return self.function_call(identifier_token)
+            elif self.peek.type in self.assignment_operators:
+                return self.assign(identifier_token)
             else:
                 self.advance()
                 return Identifier(identifier_token)
@@ -453,7 +456,8 @@ class Parser:
         self.advance()
 
         builtin_functions = {
-            "print": Print(parameters, Token("null", NULL, identifier_token.line_num))
+            "print": Print(parameters, Token("null", NULL, identifier_token.line_num)),
+            "type": Type(parameters[0])
         }
         return builtin_functions.get(identifier_token.value, FunctionCall(identifier_token, parameters))
 
