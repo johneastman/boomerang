@@ -161,7 +161,12 @@ class Evaluator:
             return expression.return_val
 
         elif type(expression) == _parser.Type:
-            result = self.evaluate_expression(expression.value)
+
+            num_args = len(expression.value)
+            if num_args != 1:
+                raise Exception(f"Expected 1 argument; got {num_args}")
+
+            result = self.evaluate_expression(expression.value[0])
             return Token(result.type, result.type, result.line_num)
 
         elif type(expression) == _parser.Number:

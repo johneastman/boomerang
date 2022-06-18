@@ -457,7 +457,7 @@ class Parser:
 
         builtin_functions = {
             "print": Print(parameters, Token("null", NULL, identifier_token.line_num)),
-            "type": Type(parameters[0])
+            "type": Type(parameters)
         }
         return builtin_functions.get(identifier_token.value, FunctionCall(identifier_token, parameters))
 
