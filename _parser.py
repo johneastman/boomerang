@@ -207,6 +207,42 @@ class Parser:
         else:
             return self.expression()
 
+    def assign(self, variable_name_token):
+        self.advance()
+        valid_assignment_operators = [
+            ASSIGN,
+            ASSIGN_ADD,
+            ASSIGN_SUB,
+            ASSIGN_MUL,
+            ASSIGN_DIV
+        ]
+        if self.current.type not in valid_assignment_operators:
+            self.raise_expected_token_error(", ".join(valid_assignment_operators))
+
+        assignment_operator = self.current
+
+        self.advance()
+        variable_value = self.expression()
+
+        if assignment_operator.type == ASSIGN:
+            return AssignVariable(variable_name_token, variable_value)
+        else:
+            operator_token = {
+                ASSIGN_ADD: Token(get_token_literal("PLUS"), PLUS, variable_name_token.line_num),
+                ASSIGN_SUB: Token(get_token_literal("MINUS"), MINUS, variable_name_token.line_num),
+                ASSIGN_MUL: Token(get_token_literal("MULTIPLY"), MULTIPLY, variable_name_token.line_num),
+                ASSIGN_DIV: Token(get_token_literal("DIVIDE"), DIVIDE, variable_name_token.line_num)
+            }
+
+            return AssignVariable(
+                variable_name_token,
+                BinaryOperation(
+                    Identifier(variable_name_token),
+                    operator_token.get(assignment_operator.type),
+                    variable_value
+                )
+            )
+
     def loop(self):
         self.advance()
 
@@ -310,40 +346,7 @@ class Parser:
         self.advance()
         if self.current.type != IDENTIFIER:
             self.raise_expected_token_error(IDENTIFIER)
-        variable_name_token = self.current
-
-        self.advance()
-        valid_assignment_operators = [
-            ASSIGN,
-            ASSIGN_ADD,
-            ASSIGN_SUB
-        ]
-        if self.current.type not in valid_assignment_operators:
-            self.raise_expected_token_error(", ".join(valid_assignment_operators))
-
-        assignment_operator = self.current
-
-        self.advance()
-        variable_value = self.expression()
-
-        if assignment_operator.type == ASSIGN:
-            return AssignVariable(variable_name_token, variable_value)
-        else:
-            operator_token = {
-                ASSIGN_ADD: Token(get_token_literal("PLUS"), PLUS, variable_name_token.line_num),
-                ASSIGN_SUB: Token(get_token_literal("MINUS"), MINUS, variable_name_token.line_num),
-                ASSIGN_MUL: Token(get_token_literal("MULTIPLY"), MULTIPLY, variable_name_token.line_num),
-                ASSIGN_DIV: Token(get_token_literal("DIVIDE"), DIVIDE, variable_name_token.line_num)
-            }
-
-            return AssignVariable(
-                variable_name_token,
-                BinaryOperation(
-                    Identifier(variable_name_token),
-                    operator_token.get(assignment_operator.type),
-                    variable_value
-                )
-            )
+        return self.assign(self.current)
 
     def binary_expression(self, binary_operators: list, next_method):
         left = next_method()
@@ -455,4 +458,4 @@ class Parser:
         return builtin_functions.get(identifier_token.value, FunctionCall(identifier_token, parameters))
 
     def raise_expected_token_error(self, expected_token_type):
-        raise Exception(f"Expected {expected_token_type}, got {self.current.type} ({self.current.value})")
+        raise Exception(f"Expected {expected_token_type}, got {self.current.type} ('{self.current.value}') on line {self.current.line_num}")
