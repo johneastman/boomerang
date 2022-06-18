@@ -53,6 +53,13 @@ class TestTokenizer(unittest.TestCase):
                 Token(")", CLOSED_PAREN, 4),
                 Token(";", SEMICOLON, 4),
                 Token("", EOF, 4),
+            ]),
+            ("i += 3;", [
+                Token("i", IDENTIFIER, 1),
+                Token("+=", ASSIGN_ADD, 1),
+                Token("3", NUMBER, 1),
+                Token(";", SEMICOLON, 1),
+                Token("", EOF, 1),
             ])
         ]
 

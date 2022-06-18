@@ -134,6 +134,16 @@ class AssignVariable:
         return f"[{class_name}(name={self.name}, value={self.value})]"
 
 
+class AddAssign:
+    def __init__(self, name: Token, value):
+        self.name = name
+        self.value = value
+
+    def __repr__(self):
+        class_name = self.__class__.__name__
+        return f"[{class_name}(name={self.name}, value={self.value})]"
+
+
 class UnaryOperation:
     def __init__(self, op: Token, expression):
         self.op = op
@@ -303,13 +313,25 @@ class Parser:
         variable_name_token = self.current
 
         self.advance()
-        if self.current.type != ASSIGN:
-            self.raise_expected_token_error(ASSIGN)
+        if self.current.type not in [ASSIGN, ASSIGN_ADD]:
+            self.raise_expected_token_error(", ".join([ASSIGN, ASSIGN_ADD]))
+
+        assignment_operator = self.current
 
         self.advance()
         variable_value = self.expression()
 
-        return AssignVariable(variable_name_token, variable_value)
+        if assignment_operator.type == ASSIGN:
+            return AssignVariable(variable_name_token, variable_value)
+        elif assignment_operator.type == ASSIGN_ADD:
+            return AssignVariable(
+                variable_name_token,
+                BinaryOperation(
+                    Identifier(variable_name_token),
+                    Token(get_token_literal("PLUS"), PLUS, variable_name_token.line_num),
+                    variable_value
+                )
+            )
 
     def binary_expression(self, binary_operators: list, next_method):
         left = next_method()
