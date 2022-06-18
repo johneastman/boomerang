@@ -35,12 +35,6 @@ class TestEvaluator(unittest.TestCase):
         ]
         self.run_tests(tests)
 
-    def run_tests(self, tests):
-        for source, expected_results in tests:
-            with self.subTest(source):
-                actual_results = self.actual_result(source)
-                self.assertEqual(expected_results, actual_results)
-
     def test_invalid_boolean_operators(self):
         tests = [
             ("1 == true;", "NUMBER", "EQ", "BOOLEAN"),
@@ -81,11 +75,7 @@ class TestEvaluator(unittest.TestCase):
                 Token("true", BOOLEAN, 1)
             ]),
         ]
-
-        for source, expected in tests:
-            with self.subTest(source):
-                actual = self.actual_result(source)
-                self.assertEqual(expected, actual)
+        self.run_tests(tests)
 
     def test_invalid_unary_operators(self):
         tests = [
@@ -121,7 +111,46 @@ class TestEvaluator(unittest.TestCase):
             Token("null", NULL, 8),
         ]
         actual_results = self.actual_result(source)
-        self.assertEqual(expected_results, actual_results)
+        self.assert_tokens_equal(expected_results, actual_results)
+
+    def test_variable_assignment(self):
+        tests = [
+            ("let a = 2; a += 2; a;", [
+                Token("null", NULL, 1),
+                Token("null", NULL, 1),
+                Token(4, NUMBER, 1)
+            ]),
+            ("let a = 2; a -= 2; a;", [
+                Token("null", NULL, 1),
+                Token("null", NULL, 1),
+                Token(0, NUMBER, 1)
+            ]),
+            ("let a = 2; a *= 2; a;", [
+                Token("null", NULL, 1),
+                Token("null", NULL, 1),
+                Token(4, NUMBER, 1)
+            ]),
+            ("let a = 2; a /= 2; a;", [
+                Token("null", NULL, 1),
+                Token("null", NULL, 1),
+                Token(1, NUMBER, 1)
+            ])
+        ]
+        self.run_tests(tests)
+
+    def run_tests(self, tests):
+        for source, expected_results in tests:
+            with self.subTest(source):
+                actual_results = self.actual_result(source)
+                self.assert_tokens_equal(expected_results, actual_results)
+
+    def assert_tokens_equal(self, expected_results, actual_results):
+        self.assertEqual(len(expected_results), len(actual_results))
+
+        for expected, actual in zip(expected_results, actual_results):
+            self.assertEqual(expected.value, actual.value)
+            self.assertEqual(expected.type, actual.type)
+            self.assertEqual(expected.line_num, actual.line_num)
 
     def actual_result(self, source):
         t = Tokenizer(source)
