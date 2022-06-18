@@ -54,7 +54,7 @@ class TestTokenizer(unittest.TestCase):
                 Token(";", SEMICOLON, 4),
                 Token("", EOF, 4),
             ]),
-            ("i += 3; j -= 4", [
+            ("i += 3; j -= 4;\nk *= 5; l /= 6;", [
                 Token("i", IDENTIFIER, 1),
                 Token("+=", ASSIGN_ADD, 1),
                 Token("3", NUMBER, 1),
@@ -62,7 +62,16 @@ class TestTokenizer(unittest.TestCase):
                 Token("j", IDENTIFIER, 1),
                 Token("-=", ASSIGN_SUB, 1),
                 Token("4", NUMBER, 1),
-                Token("", EOF, 1),
+                Token(";", SEMICOLON, 1),
+                Token("k", IDENTIFIER, 2),
+                Token("*=", ASSIGN_MUL, 2),
+                Token("5", NUMBER, 2),
+                Token(";", SEMICOLON, 2),
+                Token("l", IDENTIFIER, 2),
+                Token("/=", ASSIGN_DIV, 2),
+                Token("6", NUMBER, 2),
+                Token(";", SEMICOLON, 2),
+                Token("", EOF, 2),
             ])
         ]
 

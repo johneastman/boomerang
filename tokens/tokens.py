@@ -2,6 +2,8 @@ language_tokens = {
     "ASSIGN": ("=", "ASSIGN"),
     "ASSIGN_ADD": ("+=", "ASSIGN_ADD"),
     "ASSIGN_SUB": ("-=", "ASSIGN_SUB"),
+    "ASSIGN_MUL": ("*=", "ASSIGN_MUL"),
+    "ASSIGN_DIV": ("/=", "ASSIGN_DIV"),
     "PLUS": ("+", "PLUS"),
     "MINUS": ("-", "MINUS"),
     "MULTIPLY": ("*", "MULTIPLY"),
@@ -64,6 +66,8 @@ def get_token_literal(name):
 ASSIGN = get_token_type("ASSIGN")
 ASSIGN_ADD = get_token_type("ASSIGN_ADD")
 ASSIGN_SUB = get_token_type("ASSIGN_SUB")
+ASSIGN_MUL = get_token_type("ASSIGN_MUL")
+ASSIGN_DIV = get_token_type("ASSIGN_DIV")
 PLUS = get_token_type("PLUS")
 MINUS = get_token_type("MINUS")
 MULTIPLY = get_token_type("MULTIPLY")

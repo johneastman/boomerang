@@ -328,21 +328,19 @@ class Parser:
 
         if assignment_operator.type == ASSIGN:
             return AssignVariable(variable_name_token, variable_value)
-        elif assignment_operator.type == ASSIGN_ADD:
+        else:
+            operator_token = {
+                ASSIGN_ADD: Token(get_token_literal("PLUS"), PLUS, variable_name_token.line_num),
+                ASSIGN_SUB: Token(get_token_literal("MINUS"), MINUS, variable_name_token.line_num),
+                ASSIGN_MUL: Token(get_token_literal("MULTIPLY"), MULTIPLY, variable_name_token.line_num),
+                ASSIGN_DIV: Token(get_token_literal("DIVIDE"), DIVIDE, variable_name_token.line_num)
+            }
+
             return AssignVariable(
                 variable_name_token,
                 BinaryOperation(
                     Identifier(variable_name_token),
-                    Token(get_token_literal("PLUS"), PLUS, variable_name_token.line_num),
-                    variable_value
-                )
-            )
-        elif assignment_operator.type == ASSIGN_SUB:
-            return AssignVariable(
-                variable_name_token,
-                BinaryOperation(
-                    Identifier(variable_name_token),
-                    Token(get_token_literal("MINUS"), MINUS, variable_name_token.line_num),
+                    operator_token.get(assignment_operator.type),
                     variable_value
                 )
             )
