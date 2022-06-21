@@ -24,8 +24,8 @@ class Evaluator:
             MINUS: [NUMBER],
             MULTIPLY: [NUMBER],
             DIVIDE: [NUMBER],
-            EQ: [NUMBER, BOOLEAN, NULL],
-            NE: [NUMBER, BOOLEAN, NULL],
+            EQ: [NUMBER, BOOLEAN],
+            NE: [NUMBER, BOOLEAN],
             GT: [NUMBER],
             GE: [NUMBER],
             LT: [NUMBER],
@@ -74,15 +74,18 @@ class Evaluator:
                 return self.evaluate_statements(expression.true_statements)
             elif expression.false_statements is not None:
                 return self.evaluate_statements(expression.false_statements)
-            return Token("null", NULL, evaluated_comparison.line_num)
+            return _parser.NoReturn()
 
         elif type(expression) == _parser.AssignVariable:
-            self.env.set_var(expression.name.value, self.evaluate_expression(expression.value))
-            return Token("null", NULL, expression.name.line_num)
+            result = self.evaluate_expression(expression.value)
+            if isinstance(result, _parser.NoReturn):
+                raise Exception(f"Cannot assign variable to expression that returns nothing")
+            self.env.set_var(expression.name.value, result)
+            return _parser.NoReturn()
 
         elif type(expression) == _parser.AssignFunction:
             self.env.set_func(expression.name.value, expression)
-            return Token("null", NULL, expression.name.line_num)
+            return _parser.NoReturn()
 
         elif type(expression) == _parser.Identifier:
             # For variables, check the current environment. If it does not exist, check the parent environment.
@@ -150,7 +153,7 @@ class Evaluator:
         elif type(expression) == _parser.Loop:
             while self.evaluate_expression(expression.condition).value == "true":
                 self.evaluate_statements(expression.statements)
-            return Token("null", NULL, -1)
+            return _parser.NoReturn()
 
         elif type(expression) == _parser.Print:
             evaluated_params = []
@@ -170,9 +173,6 @@ class Evaluator:
             return Token(result.type, result.type, result.line_num)
 
         elif type(expression) == _parser.Number:
-            return expression.token
-
-        elif type(expression) == _parser.Null:
             return expression.token
 
         elif type(expression) == _parser.Boolean:

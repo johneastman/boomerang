@@ -28,17 +28,9 @@ class Boolean:
         return f"Boolean(token={self.token})"
 
 
-class Null:
-    def __init__(self, token: Token):
-        self.token = token
-
-    def __eq__(self, other):
-        if not isinstance(other, Number):
-            return False
-        return self.token == other.token
-
-    def __repr__(self):
-        return f"Null(token={self.token})"
+class NoReturn(Token):
+    def __init__(self):
+        super().__init__(None, None, 0)
 
 
 class Identifier:
@@ -412,11 +404,6 @@ class Parser:
             self.advance()
             return Number(number_token)
 
-        elif self.current.type == NULL:
-            null_token = self.current
-            self.advance()
-            return Null(null_token)
-
         elif self.current.type == BOOLEAN:
             bool_val_token = self.current
             self.advance()
@@ -456,7 +443,7 @@ class Parser:
         self.advance()
 
         builtin_functions = {
-            "print": Print(parameters, Token("null", NULL, identifier_token.line_num)),
+            "print": Print(parameters, NoReturn()),
             "type": Type(parameters)
         }
         return builtin_functions.get(identifier_token.value, FunctionCall(identifier_token, parameters))

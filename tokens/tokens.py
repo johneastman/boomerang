@@ -28,7 +28,6 @@ language_tokens = {
     "LET": ("let", "LET"),
     "RETURN": ("return", "RETURN"),
     "FUNCTION": ("func", "FUNCTION"),
-    "NULL": ("null", "NULL"),
     "IF": ("if", "IF"),
     "ELSE": ("else", "ELSE"),
     "WHILE": ("while", "WHILE"),
@@ -96,7 +95,6 @@ OR = get_token_type("OR")
 LET = get_token_type("LET")
 RETURN = get_token_type("RETURN")
 FUNCTION = get_token_type("FUNCTION")
-NULL = get_token_type("NULL")
 IF = get_token_type("IF")
 ELSE = get_token_type("ELSE")
 WHILE = get_token_type("WHILE")

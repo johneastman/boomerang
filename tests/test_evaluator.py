@@ -1,7 +1,7 @@
 import unittest
 from tokens.tokens import *
 from tokens.tokenizer import Token, Tokenizer
-from _parser import Parser
+from _parser import Parser, NoReturn
 from evaluator import Evaluator
 from _environment import Environment
 
@@ -13,7 +13,7 @@ class TestEvaluator(unittest.TestCase):
             ("1 + 1;", [Token(2, NUMBER, 1)]),
             ("1 + 2 * 2;", [Token(5, NUMBER, 1)]),
             ("(1 + 2) * 2;", [Token(6, NUMBER, 1)]),
-            ("let x = (1 + 2) * 2;x;", [Token("null", NULL, 1), Token(6, NUMBER, 1)]),
+            ("let x = (1 + 2) * 2;x;", [NoReturn(), Token(6, NUMBER, 1)]),
             ("4 / 2;", [Token(2.0, NUMBER, 1)]),
             ("7 / 2;", [Token(3.5, NUMBER, 1)])
         ]
@@ -103,12 +103,12 @@ class TestEvaluator(unittest.TestCase):
             };
         };
         is_equal(1, 1);  # true
-        is_equal(1, 2);  # null
+        is_equal(1, 2);  # No return
         """
         expected_results = [
-            Token("null", NULL, 2),
+            NoReturn(),
             Token("true", BOOLEAN, 7),
-            Token("null", NULL, 8),
+            NoReturn(),
         ]
         actual_results = self.actual_result(source)
         self.assert_tokens_equal(expected_results, actual_results)
@@ -116,23 +116,23 @@ class TestEvaluator(unittest.TestCase):
     def test_variable_assignment(self):
         tests = [
             ("let a = 2; a += 2; a;", [
-                Token("null", NULL, 1),
-                Token("null", NULL, 1),
+                NoReturn(),
+                NoReturn(),
                 Token(4, NUMBER, 1)
             ]),
             ("let a = 2; a -= 2; a;", [
-                Token("null", NULL, 1),
-                Token("null", NULL, 1),
+                NoReturn(),
+                NoReturn(),
                 Token(0, NUMBER, 1)
             ]),
             ("let a = 2; a *= 2; a;", [
-                Token("null", NULL, 1),
-                Token("null", NULL, 1),
+                NoReturn(),
+                NoReturn(),
                 Token(4, NUMBER, 1)
             ]),
             ("let a = 2; a /= 2; a;", [
-                Token("null", NULL, 1),
-                Token("null", NULL, 1),
+                NoReturn(),
+                NoReturn(),
                 Token(1, NUMBER, 1)
             ])
         ]
