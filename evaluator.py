@@ -24,8 +24,8 @@ class Evaluator:
             MINUS: [NUMBER],
             MULTIPLY: [NUMBER],
             DIVIDE: [NUMBER],
-            EQ: [NUMBER, BOOLEAN],
-            NE: [NUMBER, BOOLEAN],
+            EQ: [NUMBER, BOOLEAN, NULL],
+            NE: [NUMBER, BOOLEAN, NULL],
             GT: [NUMBER],
             GE: [NUMBER],
             LT: [NUMBER],
@@ -281,5 +281,7 @@ class Evaluator:
             return int(token.value)
         elif token.type == BOOLEAN:
             return True if token.value == "true" else False
+        elif token.type == NULL:
+            return token.value
 
         raise Exception(f"Unsupported type: {token.type}")
