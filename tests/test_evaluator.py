@@ -1,7 +1,7 @@
 import unittest
 from tokens.tokens import *
 from tokens.tokenizer import Token, Tokenizer
-from _parser import Parser, NoReturn
+from _parser._parser import Parser, NoReturn
 from evaluator import Evaluator
 from _environment import Environment
 

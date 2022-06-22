@@ -1,4 +1,4 @@
-import _parser
+from _parser import _parser
 import tokens.tokens
 from tokens.tokens import *
 from tokens.tokenizer import Token

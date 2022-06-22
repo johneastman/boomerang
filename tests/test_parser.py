@@ -1,7 +1,7 @@
 import unittest
 from tokens.tokens import *
 from tokens.tokenizer import Token
-import _parser
+from _parser import _parser
 
 
 class TestParser(unittest.TestCase):
