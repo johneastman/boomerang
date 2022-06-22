@@ -97,7 +97,7 @@ class TestEvaluator(unittest.TestCase):
 
     def test_function_no_return(self):
         source = """
-        func no_return() {
+        let no_return = func() {
             let x = 1;
         };
         
@@ -113,7 +113,7 @@ class TestEvaluator(unittest.TestCase):
 
     def test_function_return(self):
         source = """
-        func is_equal(a, b) {
+        let is_equal = func(a, b) {
             if (a == b) {
                 return true;
             };

@@ -64,14 +64,13 @@ class Loop:
 
 
 class AssignFunction:
-    def __init__(self, name: Token, parameters, statements):
-        self.name = name
+    def __init__(self, parameters, statements):
         self.parameters = parameters
         self.statements = statements
 
     def __repr__(self):
         class_name = self.__class__.__name__
-        return f"[{class_name}(name={self.name}, parameters={self.parameters}, statements={self.statements})]"
+        return f"[{class_name}(parameters={self.parameters}, statements={self.statements})]"
 
 
 class IfStatement:
@@ -197,9 +196,6 @@ class Parser:
                 self.raise_expected_token_error(IDENTIFIER)
             return self.assign(self.current)
 
-        elif self.current.type == FUNCTION:
-            return self.function()
-
         elif self.current.type == IF:
             return self.if_statement()
 
@@ -299,19 +295,16 @@ class Parser:
     def function(self):
         self.advance()
 
-        if self.current.type != IDENTIFIER:
-            self.raise_expected_token_error(IDENTIFIER)
-        function_name = self.current
-        self.advance()
+        # if self.current.type != IDENTIFIER:
+        #     self.raise_expected_token_error(IDENTIFIER)
+        # function_name = self.current
+        # self.advance()
 
         if self.current.type != OPEN_PAREN:
             self.raise_expected_token_error(OPEN_PAREN)
         self.advance()
 
         parameters = []
-        # This condition in after 'while' handles functions with no parameters. If this was set to 'while True',
-        # the parser would expect a NUMBER after the open-paren of the function call and throw the error
-        # in `if self.current.type != NUMBER`.
         while self.current.type != CLOSED_PAREN:
             if self.current.type != IDENTIFIER:
                 self.raise_expected_token_error(IDENTIFIER)
@@ -332,14 +325,12 @@ class Parser:
         self.advance()
 
         function_statements = self.statements()
-        if len(function_statements) == 0:
-            raise Exception(f"No statements in function declaration at {function_name.line_num}.")
 
         if self.current.type != CLOSED_CURLY_BRACKET:
             self.raise_expected_token_error(CLOSED_CURLY_BRACKET)
         self.advance()
 
-        return AssignFunction(function_name, parameters, function_statements)
+        return AssignFunction(parameters, function_statements)
 
     def binary_expression(self, binary_operators: list, next_method):
         left = next_method()
@@ -408,6 +399,9 @@ class Parser:
             bool_val_token = self.current
             self.advance()
             return Boolean(bool_val_token)
+
+        elif self.current.type == FUNCTION:
+            return self.function()
 
         elif self.current.type == IDENTIFIER:
             identifier_token = self.current
