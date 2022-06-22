@@ -1,6 +1,5 @@
 statement:
     let IDENTIFIER = expression
-    func IDENTIFIER (expression, expression, ...) { statement; statement; ... };
     if (expression) { statement; statement; ... } else { statement; statement; ... };
     expression
 
@@ -34,6 +33,7 @@ factor:
     ( expression )
     statement
     return expression
+    func(expression, expression, ...) { statement; statement; ... };
 
 number:
     0 - 9
