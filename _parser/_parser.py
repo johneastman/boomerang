@@ -154,11 +154,6 @@ class Parser:
     def function(self):
         self.advance()
 
-        # if self.current.type != IDENTIFIER:
-        #     self.raise_expected_token_error(IDENTIFIER)
-        # function_name = self.current
-        # self.advance()
-
         if self.current.type != OPEN_PAREN:
             self.raise_expected_token_error(OPEN_PAREN)
         self.advance()
