@@ -142,6 +142,29 @@ class TestEvaluator(unittest.TestCase):
         actual_results = self.actual_result(source)
         self.assert_tokens_equal(expected_results, actual_results)
 
+    def test_function_calls(self):
+        tests = [
+            (1, 1, 2),
+            (1, 2, 3),
+            (12, 5, 17),
+            (2, 3, 5)
+        ]
+
+        for first, second, result in tests:
+            source = f"""
+            let add = func(a, b) {{
+                return a + b;
+            }};
+            add({first}, {second});
+            """
+            with self.subTest(f"add({first}, {second}) == {result}"):
+                actual_results = self.actual_result(source)
+                expected_results = [
+                    NoReturn(line_num=2),
+                    Token(result, NUMBER, 5)
+                ]
+                self.assert_tokens_equal(expected_results, actual_results)
+
     def test_variable_assignment(self):
         tests = [
             ("let a = 2; a += 2; a;", [
