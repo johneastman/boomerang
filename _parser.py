@@ -29,8 +29,8 @@ class Boolean:
 
 
 class NoReturn(Token):
-    def __init__(self):
-        super().__init__(None, None, 0)
+    def __init__(self, line_num=0):
+        super().__init__(None, None, line_num)
 
 
 class Identifier:
@@ -82,9 +82,9 @@ class IfStatement:
 
 
 class Print:
-    def __init__(self, params, return_val):
+    def __init__(self, params, line_num):
         self.params = params
-        self.return_val = return_val
+        self.line_num = line_num
 
     def __repr__(self):
         return f"print({', '.join(repr(expr) for expr in self.params)}"
@@ -443,7 +443,7 @@ class Parser:
         self.advance()
 
         builtin_functions = {
-            "print": Print(parameters, NoReturn()),
+            "print": Print(parameters, identifier_token.line_num),
             "type": Type(parameters)
         }
         return builtin_functions.get(identifier_token.value, FunctionCall(identifier_token, parameters))

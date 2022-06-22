@@ -61,6 +61,12 @@ class Evaluator:
             return evaluated_expressions[-1]
         return evaluated_expressions
 
+    def validate_expression(self, expression):
+        value = self.evaluate_expression(expression)
+        if isinstance(value, _parser.NoReturn):
+            raise Exception(f"Error at line {value.line_num}: cannot evaluate expression that returns no value")
+        return value
+
     def evaluate_expression(self, expression):
         if type(expression) == _parser.BinaryOperation:
             return self.evaluate_binary_expression(expression)
@@ -69,7 +75,7 @@ class Evaluator:
             return self.evaluate_unary_expression(expression)
 
         elif type(expression) == _parser.IfStatement:
-            evaluated_comparison = self.evaluate_expression(expression.comparison)
+            evaluated_comparison = self.validate_expression(expression.comparison)
             if evaluated_comparison.value == "true":
                 return self.evaluate_statements(expression.true_statements)
             elif expression.false_statements is not None:
@@ -77,15 +83,12 @@ class Evaluator:
             return _parser.NoReturn()
 
         elif type(expression) == _parser.AssignVariable:
-            result = self.evaluate_expression(expression.value)
-            if isinstance(result, _parser.NoReturn):
-                raise Exception(f"Cannot assign variable to expression that returns nothing")
-            self.env.set_var(expression.name.value, result)
-            return _parser.NoReturn()
+            self.env.set_var(expression.name.value, self.validate_expression(expression.value))
+            return _parser.NoReturn(line_num=expression.name.line_num)
 
         elif type(expression) == _parser.AssignFunction:
             self.env.set_func(expression.name.value, expression)
-            return _parser.NoReturn()
+            return _parser.NoReturn(line_num=expression.name.line_num)
 
         elif type(expression) == _parser.Identifier:
             # For variables, check the current environment. If it does not exist, check the parent environment.
@@ -129,7 +132,7 @@ class Evaluator:
             # Map the parameters to their values and set them in the variables dictionary
             evaluated_param_values = {}
             for param_name, param_value in zip(parameter_identifiers, parameter_values):
-                evaluated_param_values[param_name.value] = self.evaluate_expression(param_value)
+                evaluated_param_values[param_name.value] = self.validate_expression(param_value)
 
             # Create a new environment for the function's variables
             self.env = Environment(parent_env=self.env)
@@ -141,7 +144,14 @@ class Evaluator:
             # If the function returns anything (i.e., "return <expression>", then a ReturnException is thrown.
             # Otherwise, return null.
             try:
-                return self.evaluate_statements(statements)[-1]
+                result = self.evaluate_statements(statements)[-1]
+
+                # Reassign the line number to the function call's line number. This ensures errors indicate the proper
+                # line number. For example, if assigning a variable to a function that returns nothing, the error is
+                # assuming the function returns a value, not necessarily the function itself or the content of that
+                # function.
+                result.line_num = expression.name.line_num
+                return result
             except ReturnException as return_exception:
                 return_token = return_exception.token
                 return_token.line_num = expression.name.line_num
@@ -151,17 +161,17 @@ class Evaluator:
                 self.env = self.env.parent_env
 
         elif type(expression) == _parser.Loop:
-            while self.evaluate_expression(expression.condition).value == "true":
+            while self.validate_expression(expression.condition).value == "true":
                 self.evaluate_statements(expression.statements)
             return _parser.NoReturn()
 
         elif type(expression) == _parser.Print:
             evaluated_params = []
             for param in expression.params:
-                result = self.evaluate_expression(param)
+                result = self.validate_expression(param)
                 evaluated_params.append(str(result.value))
             print(", ".join(evaluated_params))
-            return expression.return_val
+            return _parser.NoReturn(line_num=expression.line_num)
 
         elif type(expression) == _parser.Type:
 
@@ -169,7 +179,7 @@ class Evaluator:
             if num_args != 1:
                 raise Exception(f"Expected 1 argument; got {num_args}")
 
-            result = self.evaluate_expression(expression.value[0])
+            result = self.validate_expression(expression.value[0])
             return Token(result.type, result.type, result.line_num)
 
         elif type(expression) == _parser.Number:
@@ -179,12 +189,12 @@ class Evaluator:
             return expression.token
 
         elif type(expression) == _parser.Return:
-            return self.evaluate_expression(expression.expression)
+            return self.validate_expression(expression.expression)
         else:
             raise Exception(f"Unsupported type: {type(expression)}")
 
     def evaluate_unary_expression(self, unary_expression):
-        expression_result = self.evaluate_expression(unary_expression.expression)
+        expression_result = self.validate_expression(unary_expression.expression)
         op_type = unary_expression.op.type
 
         valid_type = self.valid_operation_types.get(op_type, [])
@@ -204,8 +214,8 @@ class Evaluator:
             raise Exception(f"Invalid unary operator: {op_type} ({expression_result.op})")
 
     def evaluate_binary_expression(self, binary_operation):
-        left = self.evaluate_expression(binary_operation.left)
-        right = self.evaluate_expression(binary_operation.right)
+        left = self.validate_expression(binary_operation.left)
+        right = self.validate_expression(binary_operation.right)
         op_type = binary_operation.op.type
 
         # Check that the types are the same. If they are not, the operation cannot be performed. This is for operations
@@ -281,7 +291,5 @@ class Evaluator:
             return int(token.value)
         elif token.type == BOOLEAN:
             return True if token.value == "true" else False
-        elif token.type == NULL:
-            return token.value
 
         raise Exception(f"Unsupported type: {token.type}")

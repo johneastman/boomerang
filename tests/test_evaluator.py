@@ -13,7 +13,7 @@ class TestEvaluator(unittest.TestCase):
             ("1 + 1;", [Token(2, NUMBER, 1)]),
             ("1 + 2 * 2;", [Token(5, NUMBER, 1)]),
             ("(1 + 2) * 2;", [Token(6, NUMBER, 1)]),
-            ("let x = (1 + 2) * 2;x;", [NoReturn(), Token(6, NUMBER, 1)]),
+            ("let x = (1 + 2) * 2;x;", [NoReturn(line_num=1), Token(6, NUMBER, 1)]),
             ("4 / 2;", [Token(2.0, NUMBER, 1)]),
             ("7 / 2;", [Token(3.5, NUMBER, 1)])
         ]
@@ -95,6 +95,22 @@ class TestEvaluator(unittest.TestCase):
                     str(error.exception)
                 )
 
+    def test_function_no_return(self):
+        source = """
+        func no_return() {
+            let x = 1;
+        };
+        
+        let var = no_return();
+        """
+
+        with self.assertRaises(Exception) as error:
+            self.actual_result(source)
+        self.assertEqual(
+            f"Error at line 6: cannot evaluate expression that returns no value",
+            str(error.exception)
+        )
+
     def test_function_return(self):
         source = """
         func is_equal(a, b) {
@@ -106,9 +122,9 @@ class TestEvaluator(unittest.TestCase):
         is_equal(1, 2);  # No return
         """
         expected_results = [
-            NoReturn(),
+            NoReturn(line_num=2),
             Token("true", BOOLEAN, 7),
-            NoReturn(),
+            NoReturn(line_num=8),
         ]
         actual_results = self.actual_result(source)
         self.assert_tokens_equal(expected_results, actual_results)
@@ -116,23 +132,23 @@ class TestEvaluator(unittest.TestCase):
     def test_variable_assignment(self):
         tests = [
             ("let a = 2; a += 2; a;", [
-                NoReturn(),
-                NoReturn(),
+                NoReturn(line_num=1),
+                NoReturn(line_num=1),
                 Token(4, NUMBER, 1)
             ]),
             ("let a = 2; a -= 2; a;", [
-                NoReturn(),
-                NoReturn(),
+                NoReturn(line_num=1),
+                NoReturn(line_num=1),
                 Token(0, NUMBER, 1)
             ]),
             ("let a = 2; a *= 2; a;", [
-                NoReturn(),
-                NoReturn(),
+                NoReturn(line_num=1),
+                NoReturn(line_num=1),
                 Token(4, NUMBER, 1)
             ]),
             ("let a = 2; a /= 2; a;", [
-                NoReturn(),
-                NoReturn(),
+                NoReturn(line_num=1),
+                NoReturn(line_num=1),
                 Token(1, NUMBER, 1)
             ])
         ]
