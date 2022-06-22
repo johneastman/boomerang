@@ -111,6 +111,19 @@ class TestEvaluator(unittest.TestCase):
             str(error.exception)
         )
 
+    def test_function_empty_body_no_return(self):
+        source = """
+        let no_return = func() {};
+        let var = no_return();
+        """
+
+        with self.assertRaises(Exception) as error:
+            self.actual_result(source)
+        self.assertEqual(
+            f"Error at line 3: cannot evaluate expression that returns no value",
+            str(error.exception)
+        )
+
     def test_function_return(self):
         source = """
         let is_equal = func(a, b) {

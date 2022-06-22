@@ -1,4 +1,5 @@
 import _parser
+import tokens.tokens
 from tokens.tokens import *
 from tokens.tokenizer import Token
 from _environment import Environment
@@ -49,7 +50,7 @@ class Evaluator:
                 # block), the rest of the AST below that return block is ignored. Without throwing an exception,
                 # the following code would return "false" instead of "true", which is the expected return value.
                 # ```
-                # if (1 == 1) {
+                # if 1 == 1 {
                 #     return true;
                 # };
                 # return false;
@@ -59,8 +60,6 @@ class Evaluator:
         # TODO: Figure out how to handle returns for both REPL and regular code execution
         if len(evaluated_expressions) == 0:
             return _parser.NoReturn()
-        elif isinstance(evaluated_expressions[-1], _parser.Return):
-            return evaluated_expressions[-1]
         return evaluated_expressions
 
     def validate_expression(self, expression):
@@ -129,18 +128,12 @@ class Evaluator:
             # Evaluate every expression in the function body
             statements = function.statements
 
-            # If the function returns anything (i.e., "return <expression>", then a ReturnException is thrown.
-            # Otherwise, return null.
             try:
-                result = self.evaluate_statements(statements)[-1]
-
-                # Reassign the line number to the function call's line number. This ensures errors indicate the proper
-                # line number. For example, if assigning a variable to a function that returns nothing, the error is
-                # assuming the function returns a value, not necessarily the function itself or the content of that
-                # function.
-                result.line_num = expression.name.line_num
-                return result
+                # If a ReturnException is never thrown, then the function does not return anything.
+                self.evaluate_statements(statements)
+                return _parser.NoReturn(line_num=expression.name.line_num)
             except ReturnException as return_exception:
+                # If a ReturnException is thrown, return the value of the evaluated expression in the return statement
                 return_token = return_exception.token
                 return_token.line_num = expression.name.line_num
                 return return_token
@@ -195,7 +188,7 @@ class Evaluator:
         elif op_type == MINUS:
             return Token(-actual_value, NUMBER, expression_result.line_num)
         elif op_type == BANG:
-            value = "false" if actual_value else "true"
+            value = get_token_literal("FALSE") if actual_value else get_token_literal("TRUE")
             return Token(value, BOOLEAN, expression_result.line_num)
         else:
             raise Exception(f"Invalid unary operator: {op_type} ({expression_result.op})")
@@ -235,35 +228,35 @@ class Evaluator:
         # Binary comparisons
         elif op_type == EQ:
             result = left_val == right_val
-            value = "true" if result else "false"
+            value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
             return Token(value, BOOLEAN, left.line_num)
         elif op_type == NE:
             result = left_val != right_val
-            value = "true" if result else "false"
+            value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
             return Token(value, BOOLEAN, left.line_num)
         elif op_type == GT:
             result = left_val > right_val
-            value = "true" if result else "false"
+            value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
             return Token(value, BOOLEAN, left.line_num)
         elif op_type == GE:
             result = left_val >= right_val
-            value = "true" if result else "false"
+            value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
             return Token(value, BOOLEAN, left.line_num)
         elif op_type == LT:
             result = left_val < right_val
-            value = "true" if result else "false"
+            value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
             return Token(value, BOOLEAN, left.line_num)
         elif op_type == LE:
             result = left_val <= right_val
-            value = "true" if result else "false"
+            value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
             return Token(value, BOOLEAN, left.line_num)
         elif op_type == AND:
             result = left_val and right_val
-            value = "true" if result else "false"
+            value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
             return Token(value, BOOLEAN, left.line_num)
         elif op_type == OR:
             result = left_val or right_val
-            value = "true" if result else "false"
+            value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
             return Token(value, BOOLEAN, left.line_num)
         else:
             raise Exception(f"Invalid binary operator '{binary_operation.op.value}' at line {binary_operation.op.line_num}")
