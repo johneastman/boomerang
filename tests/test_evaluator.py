@@ -97,7 +97,7 @@ class TestEvaluator(unittest.TestCase):
 
     def test_function_no_return(self):
         source = """
-        let no_return = func() {
+        func no_return() {
             let x = 1;
         };
         
@@ -113,7 +113,7 @@ class TestEvaluator(unittest.TestCase):
 
     def test_function_empty_body_no_return(self):
         source = """
-        let no_return = func() {};
+        func no_return() {};
         let var = no_return();
         """
 
@@ -126,7 +126,7 @@ class TestEvaluator(unittest.TestCase):
 
     def test_function_return(self):
         source = """
-        let is_equal = func(a, b) {
+        func is_equal(a, b) {
             if (a == b) {
                 return true;
             };
@@ -152,7 +152,7 @@ class TestEvaluator(unittest.TestCase):
 
         for first, second, result in tests:
             source = f"""
-            let add = func(a, b) {{
+            func add(a, b) {{
                 return a + b;
             }};
             add({first}, {second});

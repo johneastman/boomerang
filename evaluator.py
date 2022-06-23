@@ -87,19 +87,36 @@ class Evaluator:
             self.env.set_var(expression.name.value, self.validate_expression(expression.value))
             return _parser.NoReturn(line_num=expression.name.line_num)
 
+        elif type(expression) == _parser.AssignFunction:
+            self.env.set_func(expression.name.value, expression)
+            return _parser.NoReturn(line_num=expression.name.line_num)
+
         elif type(expression) == _parser.Identifier:
-            variable_value = self.get_variable(expression.token.value)
-            if variable_value is None:
-                raise Exception(f"Undefined variable at line {expression.token.line_num}: {expression.token.value}")
-            return variable_value
+            # For variables, check the current environment. If it does not exist, check the parent environment.
+            # Continue doing this until there are no more parent environments. If the variable does not exist in all
+            # scopes, it does not exist anywhere in the code.
+            env = self.env
+            while env is not None:
+                variable_value = env.get_var(expression.token.value)
+                if variable_value is not None:
+                    return variable_value
+                env = env.parent_env
+
+            raise Exception(f"Undefined variable at line {expression.token.line_num}: {expression.token.value}")
 
         elif type(expression) == _parser.FunctionCall:
             function_name = expression.name.value
 
-            function = self.get_variable(function_name)
+            function = None
+            env = self.env
+            while env is not None:
+                f = env.get_func(expression.name.value)
+                if f is not None:
+                    function = f
+                env = env.parent_env
 
-            # If the function is not defined in the environment variables, throw an error saying the
-            # function is undefined.
+            # If the function is not defined in the functions dictionary, throw an error saying the
+            # function is undefined
             if function is None:
                 raise Exception(f"Undefined function at line {expression.name.line_num}: {function_name}")
 
@@ -152,6 +169,7 @@ class Evaluator:
             return _parser.NoReturn(line_num=expression.line_num)
 
         elif type(expression) == _parser.Type:
+
             num_args = len(expression.value)
             if num_args != 1:
                 raise Exception(f"Expected 1 argument; got {num_args}")
@@ -164,9 +182,6 @@ class Evaluator:
 
         elif type(expression) == _parser.Boolean:
             return expression.token
-
-        elif type(expression) == _parser.Function:
-            return expression
 
         elif type(expression) == _parser.Return:
             return self.validate_expression(expression.expression)
@@ -273,15 +288,3 @@ class Evaluator:
             return True if token.value == "true" else False
 
         raise Exception(f"Unsupported type: {token.type}")
-
-    def get_variable(self, var_name):
-        # For variables, check the current environment. If it does not exist, check the parent environment.
-        # Continue doing this until there are no more parent environments. If the variable does not exist in all
-        # scopes, it does not exist anywhere in the code.
-        env = self.env
-        while env is not None:
-            variable_value = env.get_var(var_name)
-            if variable_value is not None:
-                return variable_value
-            env = env.parent_env
-        return None

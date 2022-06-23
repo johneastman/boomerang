@@ -1,6 +1,7 @@
 class Environment:
     def __init__(self, parent_env=None):
         self.variables = {}
+        self.functions = {}
 
         # The parent environment is the scope above the current scope. New environments are created for functions, so
         # variables defined within a function can't be accessed anywhere in the code. Additionally, this structure
@@ -15,3 +16,9 @@ class Environment:
 
     def get_var(self, key):
         return self.variables.get(key, None)
+
+    def set_func(self, key, val):
+        self.functions[key] = val
+
+    def get_func(self, key):
+        return self.functions.get(key, None)
