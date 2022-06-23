@@ -87,9 +87,6 @@ class Evaluator:
             self.env.set_var(expression.name.value, self.validate_expression(expression.value))
             return _parser.NoReturn(line_num=expression.name.line_num)
 
-        elif type(expression) == _parser.AssignFunction:
-            return expression
-
         elif type(expression) == _parser.Identifier:
             variable_value = self.get_variable(expression.token.value)
             if variable_value is None:
@@ -167,6 +164,9 @@ class Evaluator:
 
         elif type(expression) == _parser.Boolean:
             return expression.token
+
+        elif type(expression) == _parser.Function:
+            return expression
 
         elif type(expression) == _parser.Return:
             return self.validate_expression(expression.expression)

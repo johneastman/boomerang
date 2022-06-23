@@ -152,6 +152,7 @@ class Parser:
         return IfStatement(comparison, if_statements, else_statements)
 
     def function(self):
+        func_token = self.current
         self.advance()
 
         if self.current.type != OPEN_PAREN:
@@ -184,7 +185,7 @@ class Parser:
             self.raise_expected_token_error(CLOSED_CURLY_BRACKET)
         self.advance()
 
-        return AssignFunction(parameters, function_statements)
+        return Function(func_token, parameters, function_statements)
 
     def binary_expression(self, binary_operators: list, next_method):
         left = next_method()

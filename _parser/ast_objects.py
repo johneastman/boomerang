@@ -61,8 +61,9 @@ class Loop:
         return f"[{self.__class__.__name__}(condition: {self.condition}, statements: {self.statements})]"
 
 
-class AssignFunction:
-    def __init__(self, parameters, statements):
+class Function(Token):
+    def __init__(self, token: Token, parameters, statements):
+        super().__init__(token.value, token.type, token.line_num)
         self.parameters = parameters
         self.statements = statements
 
