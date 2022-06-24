@@ -1,5 +1,6 @@
 from tokens.tokenizer import Token
 
+
 class Number:
     def __init__(self, token: Token):
         self.token = token
@@ -24,6 +25,19 @@ class Boolean:
 
     def __repr__(self):
         return f"Boolean(token={self.token})"
+
+
+class String:
+    def __init__(self, token: Token):
+        self.token = token
+
+    def __eq__(self, other):
+        if not isinstance(other, Number):
+            return False
+        return self.token == other.token
+
+    def __repr__(self):
+        return f"String(token={self.token})"
 
 
 class NoReturn(Token):
@@ -61,9 +75,9 @@ class Loop:
         return f"[{self.__class__.__name__}(condition: {self.condition}, statements: {self.statements})]"
 
 
-class Function(Token):
-    def __init__(self, token: Token, parameters, statements):
-        super().__init__(token.value, token.type, token.line_num)
+class AssignFunction(Token):
+    def __init__(self, name: Token, parameters, statements):
+        self.name = name
         self.parameters = parameters
         self.statements = statements
 

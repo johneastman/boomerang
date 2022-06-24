@@ -5,6 +5,34 @@ from tokens.tokenizer import Token, Tokenizer
 
 class TestTokenizer(unittest.TestCase):
 
+    def test_data_types(self):
+        tests = [
+            ("\"hello, world!\"", [
+                Token("hello, world!", STRING, 1),
+                Token("", EOF, 1),
+            ]),
+            ("true", [
+                Token("true", BOOLEAN, 1),
+                Token("", EOF, 1),
+            ]),
+            ("false", [
+                Token("false", BOOLEAN, 1),
+                Token("", EOF, 1),
+            ]),
+        ]
+
+        # Create scenarios for numbers and append them to the tests
+        for i in range(101):
+            tests.append((f"{i}", [
+                Token(f"{i}", NUMBER, 1),
+                Token("", EOF, 1)
+            ]))
+
+        for source, expected_tokens in tests:
+            with self.subTest(source):
+                actual_tokens = Tokenizer(source).tokenize()
+                self.assert_tokens_equal(expected_tokens, actual_tokens)
+
     def test_tokenizer(self):
 
         tests = [
@@ -77,8 +105,7 @@ class TestTokenizer(unittest.TestCase):
 
         for source, expected_tokens in tests:
             with self.subTest(source):
-                t = Tokenizer(source)
-                actual_tokens = t.tokenize()
+                actual_tokens = Tokenizer(source).tokenize()
                 self.assert_tokens_equal(expected_tokens, actual_tokens)
 
     def assert_tokens_equal(self, expected_tokens, actual_tokens):

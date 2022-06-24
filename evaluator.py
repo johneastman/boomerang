@@ -21,7 +21,7 @@ class Evaluator:
         # Map operations to valid data types. This ensures expressions like "1 + true", "!1", "-true", "+false", etc.
         # are invalid.
         self.valid_operation_types = {
-            PLUS: [NUMBER],
+            PLUS: [NUMBER, STRING],
             MINUS: [NUMBER],
             MULTIPLY: [NUMBER],
             DIVIDE: [NUMBER],
@@ -183,6 +183,9 @@ class Evaluator:
         elif type(expression) == _parser.Boolean:
             return expression.token
 
+        elif type(expression) == _parser.String:
+            return expression.token
+
         elif type(expression) == _parser.Return:
             return self.validate_expression(expression.expression)
         else:
@@ -230,7 +233,7 @@ class Evaluator:
 
         # Math operations
         if op_type == PLUS:
-            return Token(left_val + right_val, NUMBER, left.line_num)
+            return Token(left_val + right_val, left.type, left.line_num)
         elif op_type == MINUS:
             return Token(left_val - right_val, NUMBER, left.line_num)
         elif op_type == MULTIPLY:
@@ -285,6 +288,8 @@ class Evaluator:
         if token.type == NUMBER:
             return int(token.value)
         elif token.type == BOOLEAN:
-            return True if token.value == "true" else False
+            return True if token.value == get_token_literal("TRUE") else False
+        elif token.type == STRING:
+            return token.value
 
         raise Exception(f"Unsupported type: {token.type}")

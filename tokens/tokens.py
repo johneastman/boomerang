@@ -33,10 +33,12 @@ language_tokens = {
     "WHILE": ("while", "WHILE"),
     "TRUE": ("true", "BOOLEAN"),
     "FALSE": ("false", "BOOLEAN"),
+    "DOUBLE_QUOTE": ("\"", "DOUBLE_QUOTE"),
     "EOF": ("", "EOF"),
     "NUMBER": ("", "NUMBER"),
     "IDENTIFIER": ("", "IDENTIFIER"),
-    "BOOLEAN": ("", "BOOLEAN")
+    "BOOLEAN": ("", "BOOLEAN"),
+    "STRING": ("", "STRING")
 }
 
 
@@ -79,6 +81,7 @@ CLOSED_CURLY_BRACKET = get_token_type("CLOSED_CURLY_BRACKET")
 COMMA = get_token_type("COMMA")
 COMMENT = get_token_type("COMMENT")
 BLOCK_COMMENT = get_token_type("BLOCK_COMMENT")
+DOUBLE_QUOTE = get_token_type("DOUBLE_QUOTE")
 
 # Comparison/Boolean Operators
 EQ = get_token_type("EQ")
@@ -104,3 +107,4 @@ EOF = get_token_type("EOF")  # End of File
 NUMBER = get_token_type("NUMBER")
 BOOLEAN = get_token_type("BOOLEAN")
 IDENTIFIER = get_token_type("IDENTIFIER")
+STRING = get_token_type("STRING")

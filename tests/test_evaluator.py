@@ -32,6 +32,7 @@ class TestEvaluator(unittest.TestCase):
             ("1 < 2;",  [Token("true", BOOLEAN, 1)]),
             ("2 < 1;",  [Token("false", BOOLEAN, 1)]),
             ("10 == (2 + 4 * 2) == true;",  [Token("true", BOOLEAN, 1)]),
+            ("\"hello \" + \"world!\";",  [Token("hello world!", STRING, 1)]),
         ]
         self.run_tests(tests)
 

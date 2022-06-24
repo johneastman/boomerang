@@ -49,6 +49,12 @@ class Tokenizer:
                 tokens.append(Token(letters, token_type, self.line_num))
                 continue
 
+            elif self.is_string():
+                self.advance()
+                string_literal = self.read_string()
+                tokens.append(Token(string_literal, STRING, self.line_num))
+                self.advance()
+
             else:
                 # Find all tokens starting with the current character. Sort by the length of each token in descending
                 # order. This ensures shorter tokens with similar characters to longer tokens are not mistakenly
@@ -124,6 +130,9 @@ class Tokenizer:
 
             self.advance()
 
+    def is_string(self):
+        return self.current is not None and self.current == get_token_literal("DOUBLE_QUOTE")
+
     def is_identifier(self, include_nums=False):
         """Determine if a character is valid for an identifier (a-z, A-Z, 0-9, _)
 
@@ -143,6 +152,12 @@ class Tokenizer:
     def read_number(self):
         pos = self.index
         while self.is_digit():
+            self.advance()
+        return self.source[pos:self.index]
+
+    def read_string(self):
+        pos = self.index
+        while not self.is_string():
             self.advance()
         return self.source[pos:self.index]
 
