@@ -165,7 +165,7 @@ class Evaluator:
             for param in expression.params:
                 result = self.validate_expression(param)
                 evaluated_params.append(str(result.value))
-            print(", ".join(evaluated_params))
+            print(" ".join(evaluated_params))
             return _parser.NoReturn(line_num=expression.line_num)
 
         elif type(expression) == _parser.Type:
