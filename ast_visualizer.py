@@ -1,5 +1,5 @@
 import graphviz
-import _parser
+from _parser.ast_objects import *
 
 
 class ASTVisualizer:
@@ -15,28 +15,28 @@ class ASTVisualizer:
 
     def __visualize(self, expression):
         node_id = id(expression)
-        if type(expression) == _parser.BinaryOperation:
+        if type(expression) == BinaryOperation:
             self.add_node(node_id, expression.op.value)
 
-            if expression.left not in [_parser.Number, _parser.Boolean]:
+            if expression.left not in [Number, Boolean]:
                 self.add_edge(node_id, id(expression.left))
 
-            if expression.right not in [_parser.Number, _parser.Boolean]:
+            if expression.right not in [Number, Boolean]:
                 self.add_edge(node_id, id(expression.right))
 
             self.__visualize(expression.left)
             self.__visualize(expression.right)
-        elif type(expression) == _parser.Print:
+        elif type(expression) == Print:
             self.add_node(node_id, "print")
             for param in expression.parameters:
                 self.add_edge(node_id, id(param))
                 self.__visualize(param)
-        elif type(expression) == _parser.AssignVariable:
+        elif type(expression) == AssignVariable:
             self.add_node(node_id, f"let {expression.name.value} =")
             self.add_edge(node_id, id(expression.value))
             self.__visualize(expression.value)
         else:
-            self.add_node(id(expression), expression.value)
+            self.add_node(id(expression), expression.token.value)
 
     def add_node(self, _id, label):
         self.dot.node(str(_id), str(label))

@@ -35,10 +35,11 @@ language_tokens = {
     "FALSE": ("false", "BOOLEAN"),
     "DOUBLE_QUOTE": ("\"", "DOUBLE_QUOTE"),
     "EOF": ("", "EOF"),
-    "NUMBER": ("", "NUMBER"),
+    "INTEGER": ("", "INTEGER"),
     "IDENTIFIER": ("", "IDENTIFIER"),
     "BOOLEAN": ("", "BOOLEAN"),
-    "STRING": ("", "STRING")
+    "STRING": ("", "STRING"),
+    "FLOAT": ("", "FLOAT")
 }
 
 
@@ -104,7 +105,10 @@ WHILE = get_token_type("WHILE")
 
 # Misc
 EOF = get_token_type("EOF")  # End of File
-NUMBER = get_token_type("NUMBER")
-BOOLEAN = get_token_type("BOOLEAN")
 IDENTIFIER = get_token_type("IDENTIFIER")
+
+# Data Types
 STRING = get_token_type("STRING")
+INTEGER = get_token_type("INTEGER")
+BOOLEAN = get_token_type("BOOLEAN")
+FLOAT = get_token_type("FLOAT")

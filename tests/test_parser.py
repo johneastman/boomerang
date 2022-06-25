@@ -9,18 +9,18 @@ class TestParser(unittest.TestCase):
     def test_precedence_add(self):
 
         tokens = [
-            Token("1", NUMBER, 1),
+            Token("1", INTEGER, 1),
             Token("+", PLUS, 1),
-            Token("1", NUMBER, 1),
+            Token("1", INTEGER, 1),
             Token(";", SEMICOLON, 1),
             Token("", EOF, 1)
         ]
 
         expected_ast = [
             _parser.BinaryOperation(
-                _parser.Number(Token("1", NUMBER, 1)),
+                _parser.Number(Token("1", INTEGER, 1)),
                 Token("+", PLUS, 1),
-                _parser.Number(Token("1", NUMBER, 1))
+                _parser.Number(Token("1", INTEGER, 1))
             )
         ]
 
@@ -29,23 +29,23 @@ class TestParser(unittest.TestCase):
 
     def test_precedence_multiply(self):
         tokens = [
-            Token("1", NUMBER, 1),
+            Token("1", INTEGER, 1),
             Token("+", PLUS, 1),
-            Token("2", NUMBER, 1),
+            Token("2", INTEGER, 1),
             Token("*", MULTIPLY, 1),
-            Token("4", NUMBER, 1),
+            Token("4", INTEGER, 1),
             Token(";", SEMICOLON, 1),
             Token("", EOF, 1)
         ]
 
         expected_ast = [
             _parser.BinaryOperation(
-                _parser.Number(Token("1", NUMBER, 1)),
+                _parser.Number(Token("1", INTEGER, 1)),
                 Token("+", PLUS, 1),
                 _parser.BinaryOperation(
-                    _parser.Number(Token("2", NUMBER, 1)),
+                    _parser.Number(Token("2", INTEGER, 1)),
                     Token("*", MULTIPLY, 1),
-                    _parser.Number(Token("4", NUMBER, 1))
+                    _parser.Number(Token("4", INTEGER, 1))
                 )
             )
         ]
@@ -62,13 +62,13 @@ class TestParser(unittest.TestCase):
         for test_name, operator_token in tests:
             with self.subTest(test_name):
                 tokens = [
-                    Token("1", NUMBER, 1),
+                    Token("1", INTEGER, 1),
                     Token("==", EQ, 1),
-                    Token("1", NUMBER, 1),
+                    Token("1", INTEGER, 1),
                     operator_token,
-                    Token("2", NUMBER, 1),
+                    Token("2", INTEGER, 1),
                     Token("!=", NE, 1),
-                    Token("3", NUMBER, 1),
+                    Token("3", INTEGER, 1),
                     Token(";", SEMICOLON, 1),
                     Token("", EOF, 1)
                 ]
@@ -76,15 +76,15 @@ class TestParser(unittest.TestCase):
                 expected_ast = [
                     _parser.BinaryOperation(
                         _parser.BinaryOperation(
-                            _parser.Number(Token("1", NUMBER, 1)),
+                            _parser.Number(Token("1", INTEGER, 1)),
                             Token("==", EQ, 1),
-                            _parser.Number(Token("1", NUMBER, 1))
+                            _parser.Number(Token("1", INTEGER, 1))
                         ),
                         operator_token,
                         _parser.BinaryOperation(
-                            _parser.Number(Token("2", NUMBER, 1)),
+                            _parser.Number(Token("2", INTEGER, 1)),
                             Token("!=", NE, 1),
-                            _parser.Number(Token("3", NUMBER, 1)),
+                            _parser.Number(Token("3", INTEGER, 1)),
                         )
                     )
                 ]

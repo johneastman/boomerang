@@ -21,16 +21,16 @@ class Evaluator:
         # Map operations to valid data types. This ensures expressions like "1 + true", "!1", "-true", "+false", etc.
         # are invalid.
         self.valid_operation_types = {
-            PLUS: [NUMBER, STRING],
-            MINUS: [NUMBER],
-            MULTIPLY: [NUMBER],
-            DIVIDE: [NUMBER],
-            EQ: [NUMBER, BOOLEAN],
-            NE: [NUMBER, BOOLEAN],
-            GT: [NUMBER],
-            GE: [NUMBER],
-            LT: [NUMBER],
-            LE: [NUMBER],
+            PLUS: [INTEGER, STRING, FLOAT],
+            MINUS: [INTEGER, FLOAT],
+            MULTIPLY: [INTEGER, FLOAT],
+            DIVIDE: [INTEGER, FLOAT],
+            EQ: [INTEGER, BOOLEAN, FLOAT],
+            NE: [INTEGER, BOOLEAN, FLOAT],
+            GT: [INTEGER, FLOAT],
+            GE: [INTEGER, FLOAT],
+            LT: [INTEGER, FLOAT],
+            LE: [INTEGER, FLOAT],
             BANG: [BOOLEAN],
             AND: [BOOLEAN],
             OR: [BOOLEAN]
@@ -180,6 +180,9 @@ class Evaluator:
         elif type(expression) == _parser.Number:
             return expression.token
 
+        elif type(expression) == _parser.Float:
+            return expression.token
+
         elif type(expression) == _parser.Boolean:
             return expression.token
 
@@ -202,9 +205,9 @@ class Evaluator:
         actual_value = self.get_literal_value(expression_result)
 
         if op_type == PLUS:
-            return Token(actual_value, NUMBER, expression_result.line_num)
+            return Token(actual_value, INTEGER, expression_result.line_num)
         elif op_type == MINUS:
-            return Token(-actual_value, NUMBER, expression_result.line_num)
+            return Token(-actual_value, INTEGER, expression_result.line_num)
         elif op_type == BANG:
             value = get_token_literal("FALSE") if actual_value else get_token_literal("TRUE")
             return Token(value, BOOLEAN, expression_result.line_num)
@@ -235,13 +238,13 @@ class Evaluator:
         if op_type == PLUS:
             return Token(left_val + right_val, left.type, left.line_num)
         elif op_type == MINUS:
-            return Token(left_val - right_val, NUMBER, left.line_num)
+            return Token(left_val - right_val, INTEGER, left.line_num)
         elif op_type == MULTIPLY:
-            return Token(left_val * right_val, NUMBER, left.line_num)
+            return Token(left_val * right_val, INTEGER, left.line_num)
         elif op_type == DIVIDE:
             if right_val == 0:
                 raise Exception("Division by zero")
-            return Token(left_val / right_val, NUMBER, left.line_num)
+            return Token(left_val / right_val, INTEGER, left.line_num)
 
         # Binary comparisons
         elif op_type == EQ:
@@ -285,8 +288,10 @@ class Evaluator:
         :param token: a Token object representing a literal (number, boolean, etc.)
         :return: Python's representation of the token value
         """
-        if token.type == NUMBER:
+        if token.type == INTEGER:
             return int(token.value)
+        elif token.type == FLOAT:
+            return float(token.value)
         elif token.type == BOOLEAN:
             return True if token.value == get_token_literal("TRUE") else False
         elif token.type == STRING:

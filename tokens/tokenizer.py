@@ -38,7 +38,8 @@ class Tokenizer:
 
             elif self.is_digit():
                 number = self.read_number()
-                tokens.append(Token(number, NUMBER, self.line_num))
+                token_type = FLOAT if "." in number else INTEGER
+                tokens.append(Token(number, token_type, self.line_num))
                 continue
 
             elif self.is_identifier():
@@ -147,7 +148,7 @@ class Tokenizer:
         return self.current is not None and self.current in valid_chars
 
     def is_digit(self):
-        return self.current is not None and self.current.isdigit()
+        return self.current is not None and (self.current.isdigit() or self.current == ".")
 
     def read_number(self):
         pos = self.index

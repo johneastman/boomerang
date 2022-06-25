@@ -262,10 +262,15 @@ class Parser:
                 return expression
             self.raise_expected_token_error(CLOSED_PAREN)
 
-        elif self.current.type == NUMBER:
+        elif self.current.type == INTEGER:
             number_token = self.current
             self.advance()
             return Number(number_token)
+
+        elif self.current.type == FLOAT:
+            float_token = self.current
+            self.advance()
+            return Float(float_token)
 
         elif self.current.type == BOOLEAN:
             bool_val_token = self.current

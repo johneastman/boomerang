@@ -14,6 +14,19 @@ class Number:
         return f"Number(token={self.token})"
 
 
+class Float:
+    def __init__(self, token: Token):
+        self.token = token
+
+    def __eq__(self, other):
+        if not isinstance(other, Number):
+            return False
+        return self.token == other.token
+
+    def __repr__(self):
+        return f"Float(token={self.token})"
+
+
 class Boolean:
     def __init__(self, token: Token):
         self.token = token

@@ -10,12 +10,12 @@ class TestEvaluator(unittest.TestCase):
 
     def test_evaluator(self):
         tests = [
-            ("1 + 1;", [Token(2, NUMBER, 1)]),
-            ("1 + 2 * 2;", [Token(5, NUMBER, 1)]),
-            ("(1 + 2) * 2;", [Token(6, NUMBER, 1)]),
-            ("let x = (1 + 2) * 2;x;", [NoReturn(line_num=1), Token(6, NUMBER, 1)]),
-            ("4 / 2;", [Token(2.0, NUMBER, 1)]),
-            ("7 / 2;", [Token(3.5, NUMBER, 1)])
+            ("1 + 1;", [Token(2, INTEGER, 1)]),
+            ("1 + 2 * 2;", [Token(5, INTEGER, 1)]),
+            ("(1 + 2) * 2;", [Token(6, INTEGER, 1)]),
+            ("let x = (1 + 2) * 2;x;", [NoReturn(line_num=1), Token(6, INTEGER, 1)]),
+            ("4 / 2;", [Token(2.0, INTEGER, 1)]),
+            ("7 / 2;", [Token(3.5, INTEGER, 1)])
         ]
         self.run_tests(tests)
 
@@ -38,12 +38,12 @@ class TestEvaluator(unittest.TestCase):
 
     def test_invalid_boolean_operators(self):
         tests = [
-            ("1 == true;", "NUMBER", "EQ", "BOOLEAN"),
-            ("1 != true;", "NUMBER", "NE", "BOOLEAN"),
-            ("1 > true;", "NUMBER", "GT", "BOOLEAN"),
-            ("2 >= false;", "NUMBER", "GE", "BOOLEAN"),
-            ("2 < false;", "NUMBER", "LT", "BOOLEAN"),
-            ("2 <= false;", "NUMBER", "LE", "BOOLEAN"),
+            ("1 == true;", "INTEGER", "EQ", "BOOLEAN"),
+            ("1 != true;", "INTEGER", "NE", "BOOLEAN"),
+            ("1 > true;", "INTEGER", "GT", "BOOLEAN"),
+            ("2 >= false;", "INTEGER", "GE", "BOOLEAN"),
+            ("2 < false;", "INTEGER", "LT", "BOOLEAN"),
+            ("2 <= false;", "INTEGER", "LE", "BOOLEAN"),
 
             # Check that we can't use boolean operators in less-than, greater-than, greater-than-or-equal, or
             # less-than-or-equal
@@ -64,10 +64,10 @@ class TestEvaluator(unittest.TestCase):
     def test_valid_unary_operators(self):
         tests = [
             ("-1;", [
-                Token(-1, NUMBER, 1)
+                Token(-1, INTEGER, 1)
              ]),
             ("+1;", [
-                Token(1, NUMBER, 1)
+                Token(1, INTEGER, 1)
             ]),
             ("!true;", [
                 Token("false", BOOLEAN, 1)
@@ -80,7 +80,7 @@ class TestEvaluator(unittest.TestCase):
 
     def test_invalid_unary_operators(self):
         tests = [
-            ("!1;", "BANG", "NUMBER"),
+            ("!1;", "BANG", "INTEGER"),
             ("-true;", "MINUS", "BOOLEAN"),
             ("-false;", "MINUS", "BOOLEAN"),
             ("+true;", "PLUS", "BOOLEAN"),
@@ -162,7 +162,7 @@ class TestEvaluator(unittest.TestCase):
                 actual_results = self.actual_result(source)
                 expected_results = [
                     NoReturn(line_num=2),
-                    Token(result, NUMBER, 5)
+                    Token(result, INTEGER, 5)
                 ]
                 self.assert_tokens_equal(expected_results, actual_results)
 
@@ -171,22 +171,22 @@ class TestEvaluator(unittest.TestCase):
             ("let a = 2; a += 2; a;", [
                 NoReturn(line_num=1),
                 NoReturn(line_num=1),
-                Token(4, NUMBER, 1)
+                Token(4, INTEGER, 1)
             ]),
             ("let a = 2; a -= 2; a;", [
                 NoReturn(line_num=1),
                 NoReturn(line_num=1),
-                Token(0, NUMBER, 1)
+                Token(0, INTEGER, 1)
             ]),
             ("let a = 2; a *= 2; a;", [
                 NoReturn(line_num=1),
                 NoReturn(line_num=1),
-                Token(4, NUMBER, 1)
+                Token(4, INTEGER, 1)
             ]),
             ("let a = 2; a /= 2; a;", [
                 NoReturn(line_num=1),
                 NoReturn(line_num=1),
-                Token(1, NUMBER, 1)
+                Token(1, INTEGER, 1)
             ])
         ]
         self.run_tests(tests)
