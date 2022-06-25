@@ -117,6 +117,9 @@ class Parser:
             self.raise_expected_token_error(CLOSED_CURLY_BRACKET)
         self.advance()
 
+        # Add a semicolon so users don't have to add one in the code
+        self.add_semicolon()
+
         return Loop(comparison, loop_statements)
 
     def if_statement(self):
@@ -152,10 +155,11 @@ class Parser:
                 self.raise_expected_token_error(CLOSED_CURLY_BRACKET)
             self.advance()
 
+        self.add_semicolon()
+
         return IfStatement(comparison, if_statements, else_statements)
 
     def function(self):
-        func_token = self.current
         self.advance()
 
         if self.current.type != IDENTIFIER:
@@ -195,6 +199,8 @@ class Parser:
         if self.current.type != CLOSED_CURLY_BRACKET:
             self.raise_expected_token_error(CLOSED_CURLY_BRACKET)
         self.advance()
+
+        self.add_semicolon()
 
         return AssignFunction(function_name, parameters, function_statements)
 
@@ -311,4 +317,12 @@ class Parser:
         return builtin_functions.get(identifier_token.value, FunctionCall(identifier_token, parameters))
 
     def raise_expected_token_error(self, expected_token_type):
-        raise Exception(f"Expected {expected_token_type}, got {self.current.type} ('{self.current.value}') on line {self.current.line_num}")
+        raise Exception(
+            f"Expected {expected_token_type}, got {self.current.type} ('{self.current.value}') on line {self.current.line_num}")
+
+    def add_semicolon(self):
+        semicolon_label = "SEMICOLON"
+        self.tokens.insert(
+            self.index,
+            Token(get_token_literal(semicolon_label), get_token_type(semicolon_label), self.current.line_num)
+        )
