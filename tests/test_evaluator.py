@@ -14,8 +14,9 @@ class TestEvaluator(unittest.TestCase):
             ("1 + 2 * 2;", [Token(5, INTEGER, 1)]),
             ("(1 + 2) * 2;", [Token(6, INTEGER, 1)]),
             ("let x = (1 + 2) * 2;x;", [NoReturn(line_num=1), Token(6, INTEGER, 1)]),
-            ("4 / 2;", [Token(2.0, INTEGER, 1)]),
-            ("7 / 2;", [Token(3.5, INTEGER, 1)])
+            ("4 / 2;", [Token(2.0, FLOAT, 1)]),
+            ("7 / 2;", [Token(3.5, FLOAT, 1)]),
+            ("1 + 1 * 2 + 3 / 4;", [Token(3.75, FLOAT, 1)])
         ]
         self.run_tests(tests)
 
@@ -186,7 +187,7 @@ class TestEvaluator(unittest.TestCase):
             ("let a = 2; a /= 2; a;", [
                 NoReturn(line_num=1),
                 NoReturn(line_num=1),
-                Token(1, INTEGER, 1)
+                Token(1.0, FLOAT, 1)
             ])
         ]
         self.run_tests(tests)

@@ -25,8 +25,8 @@ class Evaluator:
             MINUS: [INTEGER, FLOAT],
             MULTIPLY: [INTEGER, FLOAT],
             DIVIDE: [INTEGER, FLOAT],
-            EQ: [INTEGER, BOOLEAN, FLOAT],
-            NE: [INTEGER, BOOLEAN, FLOAT],
+            EQ: [INTEGER, BOOLEAN, FLOAT, STRING],
+            NE: [INTEGER, BOOLEAN, FLOAT, STRING],
             GT: [INTEGER, FLOAT],
             GE: [INTEGER, FLOAT],
             LT: [INTEGER, FLOAT],
@@ -34,6 +34,13 @@ class Evaluator:
             BANG: [BOOLEAN],
             AND: [BOOLEAN],
             OR: [BOOLEAN]
+        }
+
+        self.compatible_types_for_operations = {
+            FLOAT: [FLOAT, INTEGER],
+            INTEGER: [INTEGER, FLOAT],
+            STRING: [STRING],
+            BOOLEAN: [BOOLEAN]
         }
 
     def evaluate(self):
@@ -219,11 +226,17 @@ class Evaluator:
         right = self.validate_expression(binary_operation.right)
         op_type = binary_operation.op.type
 
-        # Check that the types are the same. If they are not, the operation cannot be performed. This is for operations
-        # that can be performed on all types (NUMBER, TRUE, FALSE, etc.). Without this check, someone could run
-        # "1 == true" or "false != 2". Both checks are technically valid, but this is invalid because the data types
-        # for the left and right expressions are not the same.
-        if left.type != right.type:
+        # Check that the types are compatible. If they are not, the operation cannot be performed.
+        #
+        # Without this check, someone could run "1 == true" or "false != 2". Both checks are technically valid, but
+        # this is invalid because the data types for the left and right expressions are not compatible. However,
+        # to account for the fact that some expressions can result in different data types (e.g., two integers resulting
+        # in a float, like 3 / 4), we need to allow operations to happen on compatible data types, like floats and
+        # integers.
+        left_compatible_types = self.compatible_types_for_operations.get(left.type, [])
+        right_compatible_types = self.compatible_types_for_operations.get(right.type, [])
+
+        if left.type not in right_compatible_types or right.type not in left_compatible_types:
             raise Exception(f"Cannot perform {op_type} operation on {left.type} and {right.type}")
 
         # Check that the operation can be performed on the given types. For example, "true > false" is not valid
@@ -236,15 +249,19 @@ class Evaluator:
 
         # Math operations
         if op_type == PLUS:
-            return Token(left_val + right_val, left.type, left.line_num)
+            result = left_val + right_val
+            return Token(result, self.get_type(result), left.line_num)
         elif op_type == MINUS:
-            return Token(left_val - right_val, INTEGER, left.line_num)
+            result = left_val - right_val
+            return Token(result, self.get_type(result), left.line_num)
         elif op_type == MULTIPLY:
-            return Token(left_val * right_val, INTEGER, left.line_num)
+            result = left_val * right_val
+            return Token(result, self.get_type(result), left.line_num)
         elif op_type == DIVIDE:
             if right_val == 0:
                 raise Exception("Division by zero")
-            return Token(left_val / right_val, INTEGER, left.line_num)
+            result = left_val / right_val
+            return Token(left_val / right_val, self.get_type(result), left.line_num)
 
         # Binary comparisons
         elif op_type == EQ:
@@ -298,3 +315,11 @@ class Evaluator:
             return token.value
 
         raise Exception(f"Unsupported type: {token.type}")
+
+    def get_type(self, value):
+        if isinstance(value, float):
+            return FLOAT
+        elif isinstance(value, int):
+            return INTEGER
+        else:
+            return STRING
