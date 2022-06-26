@@ -196,8 +196,33 @@ class Evaluator:
         elif type(expression) == _parser.String:
             return expression.token
 
+        elif type(expression) == _parser.Dictionary:
+            dictionary = {}
+            for key, value in zip(expression.keys, expression.values):
+                eval_key = self.validate_expression(key)
+                eval_value = self.validate_expression(value)
+                dictionary[self.get_literal_value(eval_key)] = self.get_literal_value(eval_value)
+
+            return Token(dictionary, DICTIONARY, expression.line_num)
+
+        elif type(expression) == _parser.DictionaryGet:
+            dictionary = self.env.get_var(expression.name.value)
+            if dictionary.type != DICTIONARY:
+                self.raise_error(dictionary.line_num, f"Expected {DICTIONARY}, got {dictionary.type}")
+
+            evaluated_value = self.validate_expression(expression.value)
+            line_num = evaluated_value.line_num
+
+            value = dictionary.value.get(evaluated_value.value, None)
+            if value is None:
+                self.raise_error(
+                    line_num,
+                    f"No key in dictionary '{expression.name.value}': {evaluated_value.value}")
+            return Token(value, self.get_type(value), line_num)
+
         elif type(expression) == _parser.Return:
             return self.validate_expression(expression.expression)
+
         else:
             raise Exception(f"Unsupported type: {type(expression)}")
 
@@ -314,7 +339,7 @@ class Evaluator:
         elif token.type == STRING:
             return token.value
 
-        raise Exception(f"Unsupported type: {token.type}")
+        self.raise_error(token.line_num, f"Unsupported type: {token.type}")
 
     def get_type(self, value):
         if isinstance(value, float):
@@ -323,3 +348,6 @@ class Evaluator:
             return INTEGER
         else:
             return STRING
+
+    def raise_error(self, line_num, description):
+        raise Exception(f"Error at line {line_num}: {description}")

@@ -288,12 +288,51 @@ class Parser:
                 return self.function_call(identifier_token)
             elif self.peek.type in self.assignment_operators:
                 return self.assign(identifier_token)
+            elif self.peek.type == OPEN_BRACKET:
+                return self.dictionary_get(identifier_token)
             else:
                 self.advance()
                 return Identifier(identifier_token)
 
+        elif self.current.type == OPEN_CURLY_BRACKET:
+            line_num = self.current.line_num
+            self.advance()
+            keys = []
+            values = []
+            while self.current.type != CLOSED_CURLY_BRACKET:
+                keys.append(self.expression())
+
+                if self.current.type != COLON:
+                    self.raise_expected_token_error(COLON)
+                self.advance()
+
+                values.append(self.expression())
+
+                if self.current.type == CLOSED_CURLY_BRACKET:
+                    self.advance()
+                    break
+
+                if self.current.type != COMMA:
+                    self.raise_expected_token_error(COMMA)
+                self.advance()
+
+            return Dictionary(keys, values, line_num)
+
+        elif self.current.type == OPEN_BRACKET:
+            self.advance()
+            return None
+
         else:
             raise Exception(f"Invalid token: {self.current}")
+
+    def dictionary_get(self, identifier_token):
+        self.advance()
+        self.advance()
+        value = self.expression()
+        if self.current.type != CLOSED_BRACKET:
+            self.raise_expected_token_error(CLOSED_BRACKET)
+        self.advance()
+        return DictionaryGet(identifier_token, value)
 
     def function_call(self, identifier_token):
         self.advance()

@@ -16,7 +16,9 @@ class TestEvaluator(unittest.TestCase):
             ("let x = (1 + 2) * 2;x;", [NoReturn(line_num=1), Token(6, INTEGER, 1)]),
             ("4 / 2;", [Token(2.0, FLOAT, 1)]),
             ("7 / 2;", [Token(3.5, FLOAT, 1)]),
-            ("1 + 1 * 2 + 3 / 4;", [Token(3.75, FLOAT, 1)])
+            ("1 + 1 * 2 + 3 / 4;", [Token(3.75, FLOAT, 1)]),
+            ("\"hello \" + \"world!\";",  [Token("hello world!", STRING, 1)]),
+            ("{\"a\": 1 + 1, \"b\": 3 + (2 * 2 + 1), \"c\": 55};", [Token({"a": 2, "b": 8, "c": 55}, DICTIONARY, 1)]),
         ]
         self.run_tests(tests)
 
@@ -32,8 +34,7 @@ class TestEvaluator(unittest.TestCase):
             ("1 <= 1;", [Token("true", BOOLEAN, 1)]),
             ("1 < 2;",  [Token("true", BOOLEAN, 1)]),
             ("2 < 1;",  [Token("false", BOOLEAN, 1)]),
-            ("10 == (2 + 4 * 2) == true;",  [Token("true", BOOLEAN, 1)]),
-            ("\"hello \" + \"world!\";",  [Token("hello world!", STRING, 1)]),
+            ("10 == (2 + 4 * 2) == true;",  [Token("true", BOOLEAN, 1)])
         ]
         self.run_tests(tests)
 
@@ -191,6 +192,37 @@ class TestEvaluator(unittest.TestCase):
             ])
         ]
         self.run_tests(tests)
+
+    def test_dictionary_get(self):
+        source = """
+        let d = {"a": 1, "b": 2, "c": 3};
+        d["a"];
+        d["b"];
+        d["c"];
+        """
+
+        expected_values = [
+            NoReturn(line_num=2),
+            Token(1, INTEGER, 3),
+            Token(2, INTEGER, 4),
+            Token(3, INTEGER, 5),
+        ]
+        actual_values = self.actual_result(source)
+        self.assertEqual(expected_values, actual_values)
+
+    def test_dictionary_get_invalid_key(self):
+        source = """
+        let d = {"a": 1, "b": 2, "c": 3};
+        d["d"];
+        """
+
+        with self.assertRaises(Exception) as error:
+            self.actual_result(source)
+
+        self.assertEqual(
+            "Error at line 3: No key in dictionary 'd': d",
+            str(error.exception)
+        )
 
     def run_tests(self, tests):
         for source, expected_results in tests:

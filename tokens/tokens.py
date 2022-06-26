@@ -39,7 +39,11 @@ language_tokens = {
     "IDENTIFIER": ("", "IDENTIFIER"),
     "BOOLEAN": ("", "BOOLEAN"),
     "STRING": ("", "STRING"),
-    "FLOAT": ("", "FLOAT")
+    "FLOAT": ("", "FLOAT"),
+    "DICTIONARY": ("", "DICTIONARY"),
+    "COLON": (":", "COLON"),
+    "OPEN_BRACKET": ("[", "OPEN_BRACKET"),
+    "CLOSED_BRACKET": ("]", "CLOSED_BRACKET"),
 }
 
 
@@ -83,6 +87,9 @@ COMMA = get_token_type("COMMA")
 COMMENT = get_token_type("COMMENT")
 BLOCK_COMMENT = get_token_type("BLOCK_COMMENT")
 DOUBLE_QUOTE = get_token_type("DOUBLE_QUOTE")
+COLON = get_token_type("COLON")
+OPEN_BRACKET = get_token_type("OPEN_BRACKET")
+CLOSED_BRACKET = get_token_type("CLOSED_BRACKET")
 
 # Comparison/Boolean Operators
 EQ = get_token_type("EQ")
@@ -112,3 +119,4 @@ STRING = get_token_type("STRING")
 INTEGER = get_token_type("INTEGER")
 BOOLEAN = get_token_type("BOOLEAN")
 FLOAT = get_token_type("FLOAT")
+DICTIONARY = get_token_type("DICTIONARY")

@@ -19,7 +19,7 @@ class Float:
         self.token = token
 
     def __eq__(self, other):
-        if not isinstance(other, Number):
+        if not isinstance(other, Float):
             return False
         return self.token == other.token
 
@@ -27,12 +27,42 @@ class Float:
         return f"Float(token={self.token})"
 
 
+class Dictionary:
+    def __init__(self, keys, values, line_num):
+        self.keys = keys
+        self.values = values
+        self.line_num = line_num
+
+    def __eq__(self, other):
+        if not isinstance(other, Dictionary):
+            return False
+        return self.keys == other.keys and self.values == other.values
+
+    def __repr__(self):
+        return f"Dictionary(keys={self.keys}, values={self.values})"
+
+
+class DictionaryGet:
+    def __init__(self, name: Token, value):
+        self.name = name
+        self.value = value
+
+    def __eq__(self, other):
+        if not isinstance(other, DictionaryGet):
+            return False
+        return self.name == other.name and self.value == other.value
+
+    def __repr__(self):
+        return f"DictionaryGet(name={self.name}, value={self.value})"
+
+
+
 class Boolean:
     def __init__(self, token: Token):
         self.token = token
 
     def __eq__(self, other):
-        if not isinstance(other, Number):
+        if not isinstance(other, Boolean):
             return False
         return self.token == other.token
 
@@ -45,7 +75,7 @@ class String:
         self.token = token
 
     def __eq__(self, other):
-        if not isinstance(other, Number):
+        if not isinstance(other, String):
             return False
         return self.token == other.token
 
@@ -63,7 +93,7 @@ class Identifier:
         self.token = token
 
     def __eq__(self, other):
-        if not isinstance(other, Number):
+        if not isinstance(other, Identifier):
             return False
         return self.token == other.token
 

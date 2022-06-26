@@ -92,6 +92,27 @@ class TestParser(unittest.TestCase):
                 actual_ast = _parser.Parser(tokens).parse()
                 self.assertEqual(expected_ast, actual_ast)
 
+    def test_dictionary(self):
+        # source: dict["a"];
+        tokens = [
+            Token("dict", IDENTIFIER, 1),
+            Token("[", OPEN_BRACKET, 1),
+            Token("a", STRING, 1),
+            Token("]", CLOSED_BRACKET, 1),
+            Token(";", SEMICOLON, 1),
+            Token("", EOF, 1),
+        ]
+
+        expected_ast = [
+            _parser.DictionaryGet(
+                Token("dict", IDENTIFIER, 1),
+                _parser.String(Token("a", STRING, 1))
+            )
+        ]
+
+        actual_ast = _parser.Parser(tokens).parse()
+        self.assertEqual(expected_ast, actual_ast)
+
 
 if __name__ == '__main__':
     unittest.main()
