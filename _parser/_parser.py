@@ -29,15 +29,8 @@ class Parser:
         return self.tokens[next_token_index] if next_token_index < len(self.tokens) else None
 
     def parse(self):
-        return self.statements()
-
-    def statements(self):
         ast = []
         while self.current.type != EOF:
-
-            if self.current.type == CLOSED_CURLY_BRACKET:
-                # We've reached the end of a function
-                break
 
             result = self.statement()
             if self.current.type != SEMICOLON:
@@ -47,6 +40,17 @@ class Parser:
             ast.append(result)
 
         return ast
+
+    def block_statement(self):
+        """Statements between two curly brackets (functions, if-statements, loops, etc.)"""
+        statements = []
+        while self.current.type != CLOSED_CURLY_BRACKET:
+            statements.append(self.statement())
+
+            if self.current.type != SEMICOLON:
+                self.raise_expected_token_error(SEMICOLON)
+            self.advance()
+        return statements
 
     def statement(self):
         if self.current.type == LET:
@@ -110,7 +114,7 @@ class Parser:
             self.raise_expected_token_error(OPEN_CURLY_BRACKET)
         self.advance()
 
-        loop_statements = self.statements()
+        loop_statements = self.block_statement()
 
         # Closed curly bracket
         if self.current.type != CLOSED_CURLY_BRACKET:
@@ -132,7 +136,7 @@ class Parser:
             self.raise_expected_token_error(OPEN_CURLY_BRACKET)
         self.advance()
 
-        if_statements = self.statements()
+        if_statements = self.block_statement()
 
         # Closed curly bracket
         if self.current.type != CLOSED_CURLY_BRACKET:
@@ -148,7 +152,7 @@ class Parser:
                 self.raise_expected_token_error(OPEN_CURLY_BRACKET)
             self.advance()
 
-            else_statements = self.statements()
+            else_statements = self.block_statement()
 
             # Closed curly bracket
             if self.current.type != CLOSED_CURLY_BRACKET:
@@ -194,7 +198,7 @@ class Parser:
             self.raise_expected_token_error(OPEN_CURLY_BRACKET)
         self.advance()
 
-        function_statements = self.statements()
+        function_statements = self.block_statement()
 
         if self.current.type != CLOSED_CURLY_BRACKET:
             self.raise_expected_token_error(CLOSED_CURLY_BRACKET)

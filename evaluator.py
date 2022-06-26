@@ -338,6 +338,8 @@ class Evaluator:
             return True if token.value == get_token_literal("TRUE") else False
         elif token.type == STRING:
             return token.value
+        elif token.type == DICTIONARY:
+            return token.value
 
         self.raise_error(token.line_num, f"Unsupported type: {token.type}")
 
