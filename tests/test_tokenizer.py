@@ -43,29 +43,25 @@ class TestTokenizer(unittest.TestCase):
                 Token(";", SEMICOLON, 1),
                 Token("", EOF, 1)
             ]),
-            ("let a = 1;\nlet b = 2;", [
-                Token("let", LET, 1),
+            ("a = 1;\nb = 2;", [
                 Token("a", IDENTIFIER, 1),
                 Token("=", ASSIGN, 1),
                 Token("1", INTEGER, 1),
                 Token(";", SEMICOLON, 1),
-                Token("let", LET, 2),
                 Token("b", IDENTIFIER, 2),
                 Token("=", ASSIGN, 2),
                 Token("2", INTEGER, 2),
                 Token(";", SEMICOLON, 2),
                 Token("", EOF, 2),
             ]),
-            ("# let a = 1;\nlet b = 2;", [
-                Token("let", LET, 2),
+            ("# a = 1;\nb = 2;", [
                 Token("b", IDENTIFIER, 2),
                 Token("=", ASSIGN, 2),
                 Token("2", INTEGER, 2),
                 Token(";", SEMICOLON, 2),
                 Token("", EOF, 2),
             ]),
-            ("\n/*let x = 1;\nlet b = 2; */\nlet c = 3;", [
-                Token("let", LET, 4),
+            ("\n/*x = 1;\nb = 2; */\nc = 3;", [
                 Token("c", IDENTIFIER, 4),
                 Token("=", ASSIGN, 4),
                 Token("3", INTEGER, 4),

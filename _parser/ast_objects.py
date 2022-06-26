@@ -2,6 +2,10 @@ from tokens.tokenizer import Token
 
 
 class Base:
+    """Base class for lowest-level objects in the abstract syntax tree.
+
+    Data types line integers, floats, booleans, strings, etc., but also identifiers (variables, functions, etc.)
+    """
     def __init__(self, token: Token):
         self.token = token
 
@@ -59,6 +63,11 @@ class NoReturn(Token):
     def __init__(self, line_num=0):
         super().__init__(None, None, line_num)
 
+    def __eq__(self, other):
+        if not isinstance(other, NoReturn):
+            return False
+        return self.value == other.value and self.type == other.type and self.line_num == other.line_num
+
 
 class Index:
     def __init__(self, left, index):
@@ -91,7 +100,7 @@ class Loop:
         return f"[{self.__class__.__name__}(condition: {self.condition}, statements: {self.statements})]"
 
 
-class AssignFunction(Token):
+class AssignFunction:
     def __init__(self, name: Token, parameters, statements):
         self.name = name
         self.parameters = parameters
@@ -121,6 +130,11 @@ class Print:
 class Type:
     def __init__(self, value: Token):
         self.value = value
+
+    def __eq__(self, other):
+        if not isinstance(other, Type):
+            return False
+        return self.value == other.value
 
     def __repr__(self):
         return f"Type({self.value})"
@@ -159,7 +173,7 @@ class AssignVariable:
 
     def __repr__(self):
         class_name = self.__class__.__name__
-        return f"[{class_name}(name={self.name}, value={self.value})]"
+        return f"{class_name}(name={self.name}, value={self.value})"
 
 
 class UnaryOperation:

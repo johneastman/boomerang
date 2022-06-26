@@ -53,13 +53,7 @@ class Parser:
         return statements
 
     def statement(self):
-        if self.current.type == LET:
-            self.advance()
-            if self.current.type != IDENTIFIER:
-                self.raise_expected_token_error(IDENTIFIER)
-            return self.assign(self.current)
-
-        elif self.current.type == FUNCTION:
+        if self.current.type == FUNCTION:
             return self.function()
 
         elif self.current.type == IF:
@@ -75,32 +69,27 @@ class Parser:
         else:
             return self.expression()
 
-    def assign(self, variable_name_token):
-        self.advance()
-        if self.current.type not in self.assignment_operators:
-            self.raise_expected_token_error(", ".join(self.assignment_operators))
-
+    def assign(self, left):
         assignment_operator = self.current
-
         self.advance()
-        variable_value = self.expression()
+        right = self.expression()
 
         if assignment_operator.type == ASSIGN:
-            return AssignVariable(variable_name_token, variable_value)
+            return AssignVariable(left, right)
         else:
             operator_token = {
-                ASSIGN_ADD: Token(get_token_literal("PLUS"), PLUS, variable_name_token.line_num),
-                ASSIGN_SUB: Token(get_token_literal("MINUS"), MINUS, variable_name_token.line_num),
-                ASSIGN_MUL: Token(get_token_literal("MULTIPLY"), MULTIPLY, variable_name_token.line_num),
-                ASSIGN_DIV: Token(get_token_literal("DIVIDE"), DIVIDE, variable_name_token.line_num)
+                ASSIGN_ADD: Token(get_token_literal("PLUS"), PLUS, assignment_operator.line_num),
+                ASSIGN_SUB: Token(get_token_literal("MINUS"), MINUS, assignment_operator.line_num),
+                ASSIGN_MUL: Token(get_token_literal("MULTIPLY"), MULTIPLY, assignment_operator.line_num),
+                ASSIGN_DIV: Token(get_token_literal("DIVIDE"), DIVIDE, assignment_operator.line_num)
             }
 
             return AssignVariable(
-                variable_name_token,
+                left,
                 BinaryOperation(
-                    Identifier(variable_name_token),
+                    left,
                     operator_token.get(assignment_operator.type),
-                    variable_value
+                    right
                 )
             )
 
@@ -226,6 +215,8 @@ class Parser:
                     self.raise_expected_token_error(CLOSED_BRACKET)
                 self.advance()
                 return Index(left, value)
+            elif self.current.type in self.assignment_operators:
+                return self.assign(left)
             else:
                 break
 
@@ -297,8 +288,6 @@ class Parser:
             identifier_token = self.current
             if self.peek.type == OPEN_PAREN:
                 return self.function_call(identifier_token)
-            elif self.peek.type in self.assignment_operators:
-                return self.assign(identifier_token)
             else:
                 self.advance()
                 return Identifier(identifier_token)
@@ -318,13 +307,13 @@ class Parser:
                 values.append(self.expression())
 
                 if self.current.type == CLOSED_CURLY_BRACKET:
-                    self.advance()
                     break
 
                 if self.current.type != COMMA:
                     self.raise_expected_token_error(COMMA)
                 self.advance()
 
+            self.advance()
             return Dictionary(keys, values, line_num)
 
         else:

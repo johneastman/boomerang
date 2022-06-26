@@ -25,7 +25,6 @@ language_tokens = {
     "BANG": ("!", "BANG"),
     "AND": ("&&", "AND"),
     "OR": ("||", "OR"),
-    "LET": ("let", "LET"),
     "RETURN": ("return", "RETURN"),
     "FUNCTION": ("func", "FUNCTION"),
     "IF": ("if", "IF"),
@@ -103,7 +102,6 @@ AND = get_token_type("AND")
 OR = get_token_type("OR")
 
 # Keywords
-LET = get_token_type("LET")
 RETURN = get_token_type("RETURN")
 FUNCTION = get_token_type("FUNCTION")
 IF = get_token_type("IF")

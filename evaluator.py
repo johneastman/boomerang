@@ -91,8 +91,25 @@ class Evaluator:
             return _parser.NoReturn()
 
         elif type(expression) == _parser.AssignVariable:
-            self.env.set_var(expression.name.value, self.validate_expression(expression.value))
-            return _parser.NoReturn(line_num=expression.name.line_num)
+            variable = expression.name
+
+            if isinstance(variable, _parser.Identifier):
+                var_value = self.validate_expression(expression.value)
+                self.env.set_var(variable.token.value, var_value)
+                return _parser.NoReturn(line_num=variable.token.line_num)
+            elif isinstance(variable, _parser.Index):
+                dictionary = self.validate_expression(variable.left)
+                if dictionary.type != DICTIONARY:
+                    self.raise_error(dictionary.line_num, f"Expected {DICTIONARY}, got {dictionary.type}")
+
+                key = self.validate_expression(variable.index)
+                value = self.evaluate_expression(expression.value)
+                dictionary.value[key.value] = self.get_literal_value(value)
+                return _parser.NoReturn(line_num=variable.index.token.line_num)
+            else:
+                variable_type = expression.name.token.type
+                error_msg = f"Cannot assign value to type {variable_type}"
+                self.raise_error(expression.name.token.line_num, error_msg)
 
         elif type(expression) == _parser.AssignFunction:
             self.env.set_func(expression.name.value, expression)
@@ -201,7 +218,7 @@ class Evaluator:
             for key, value in zip(expression.keys, expression.values):
                 eval_key = self.validate_expression(key)
                 eval_value = self.validate_expression(value)
-                dictionary[self.get_literal_value(eval_key)] = self.get_literal_value(eval_value)
+                dictionary[eval_key.value] = self.get_literal_value(eval_value)
 
             return Token(dictionary, DICTIONARY, expression.line_num)
 

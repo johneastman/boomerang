@@ -13,7 +13,7 @@ class TestEvaluator(unittest.TestCase):
             ("1 + 1;", [Token(2, INTEGER, 1)]),
             ("1 + 2 * 2;", [Token(5, INTEGER, 1)]),
             ("(1 + 2) * 2;", [Token(6, INTEGER, 1)]),
-            ("let x = (1 + 2) * 2;x;", [NoReturn(line_num=1), Token(6, INTEGER, 1)]),
+            ("x = (1 + 2) * 2;x;", [NoReturn(line_num=1), Token(6, INTEGER, 1)]),
             ("4 / 2;", [Token(2.0, FLOAT, 1)]),
             ("7 / 2;", [Token(3.5, FLOAT, 1)]),
             ("1 + 1 * 2 + 3 / 4;", [Token(3.75, FLOAT, 1)]),
@@ -101,10 +101,10 @@ class TestEvaluator(unittest.TestCase):
     def test_function_no_return(self):
         source = """
         func no_return() {
-            let x = 1;
+            x = 1;
         }
         
-        let var = no_return();
+        var = no_return();
         """
 
         with self.assertRaises(Exception) as error:
@@ -117,7 +117,7 @@ class TestEvaluator(unittest.TestCase):
     def test_function_empty_body_no_return(self):
         source = """
         func no_return() {}
-        let var = no_return();
+        var = no_return();
         """
 
         with self.assertRaises(Exception) as error:
@@ -168,34 +168,59 @@ class TestEvaluator(unittest.TestCase):
                 ]
                 self.assert_tokens_equal(expected_results, actual_results)
 
-    def test_variable_assignment(self):
+    def test_assignment(self):
         tests = [
-            ("let a = 2; a += 2; a;", [
+            ("a = 2; a += 2; a;", [
                 NoReturn(line_num=1),
                 NoReturn(line_num=1),
                 Token(4, INTEGER, 1)
             ]),
-            ("let a = 2; a -= 2; a;", [
+            ("a = 2; a -= 2; a;", [
                 NoReturn(line_num=1),
                 NoReturn(line_num=1),
                 Token(0, INTEGER, 1)
             ]),
-            ("let a = 2; a *= 2; a;", [
+            ("a = 2; a *= 2; a;", [
                 NoReturn(line_num=1),
                 NoReturn(line_num=1),
                 Token(4, INTEGER, 1)
             ]),
-            ("let a = 2; a /= 2; a;", [
+            ("a = 2; a /= 2; a;", [
                 NoReturn(line_num=1),
                 NoReturn(line_num=1),
                 Token(1.0, FLOAT, 1)
+            ]),
+            ("d = {\"a\": 2}; d[\"a\"] += 2; d[\"a\"];", [
+                NoReturn(line_num=1),
+                NoReturn(line_num=1),
+                Token(4, INTEGER, 1)
+            ]),
+            ("d = {\"a\": 2}; d[\"a\"] -= 2; d[\"a\"];", [
+                NoReturn(line_num=1),
+                NoReturn(line_num=1),
+                Token(0, INTEGER, 1)
+            ]),
+            ("d = {\"a\": 2}; d[\"a\"] *= 2; d[\"a\"];", [
+                NoReturn(line_num=1),
+                NoReturn(line_num=1),
+                Token(4, INTEGER, 1)
+            ]),
+            ("d = {\"a\": 2}; d[\"a\"] /= 2; d[\"a\"];", [
+                NoReturn(line_num=1),
+                NoReturn(line_num=1),
+                Token(1.0, FLOAT, 1)
+            ]),
+            ("d = {\"a\": 2}; d[\"a\"] = 5; d[\"a\"];", [
+                NoReturn(line_num=1),
+                NoReturn(line_num=1),
+                Token(5, INTEGER, 1)
             ])
         ]
         self.run_tests(tests)
 
     def test_dictionary_get(self):
         source = """
-        let d = {"a": 1, "b": 2, "c": 3};
+        d = {"a": 1, "b": 2, "c": 3};
         d["a"];
         d["b"];
         d["c"];
@@ -212,7 +237,7 @@ class TestEvaluator(unittest.TestCase):
 
     def test_dictionary_get_invalid_key(self):
         source = """
-        let d = {"a": 1, "b": 2, "c": 3};
+        d = {"a": 1, "b": 2, "c": 3};
         d["d"];
         """
 
