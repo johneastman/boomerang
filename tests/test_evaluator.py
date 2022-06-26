@@ -220,7 +220,7 @@ class TestEvaluator(unittest.TestCase):
             self.actual_result(source)
 
         self.assertEqual(
-            "Error at line 3: No key in dictionary 'd': d",
+            "Error at line 3: No key in dictionary: d",
             str(error.exception)
         )
 

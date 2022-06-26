@@ -1,30 +1,43 @@
 from tokens.tokenizer import Token
 
 
-class Number:
+class Base:
     def __init__(self, token: Token):
         self.token = token
 
     def __eq__(self, other):
-        if not isinstance(other, Number):
+        if not isinstance(other, self.__class__):
             return False
         return self.token == other.token
 
     def __repr__(self):
-        return f"Number(token={self.token})"
+        class_name = self.__class__.__name__
+        return f"{class_name}(token={self.token})"
 
 
-class Float:
+class Number(Base):
     def __init__(self, token: Token):
-        self.token = token
+        super().__init__(token)
 
-    def __eq__(self, other):
-        if not isinstance(other, Float):
-            return False
-        return self.token == other.token
 
-    def __repr__(self):
-        return f"Float(token={self.token})"
+class Float(Base):
+    def __init__(self, token: Token):
+        super().__init__(token)
+
+
+class Boolean(Base):
+    def __init__(self, token: Token):
+        super().__init__(token)
+
+
+class String(Base):
+    def __init__(self, token: Token):
+        super().__init__(token)
+
+
+class Identifier(Base):
+    def __init__(self, token: Token):
+        super().__init__(token)
 
 
 class Dictionary:
@@ -42,63 +55,23 @@ class Dictionary:
         return f"Dictionary(keys={self.keys}, values={self.values})"
 
 
-class DictionaryGet:
-    def __init__(self, name: Token, value):
-        self.name = name
-        self.value = value
-
-    def __eq__(self, other):
-        if not isinstance(other, DictionaryGet):
-            return False
-        return self.name == other.name and self.value == other.value
-
-    def __repr__(self):
-        return f"DictionaryGet(name={self.name}, value={self.value})"
-
-
-
-class Boolean:
-    def __init__(self, token: Token):
-        self.token = token
-
-    def __eq__(self, other):
-        if not isinstance(other, Boolean):
-            return False
-        return self.token == other.token
-
-    def __repr__(self):
-        return f"Boolean(token={self.token})"
-
-
-class String:
-    def __init__(self, token: Token):
-        self.token = token
-
-    def __eq__(self, other):
-        if not isinstance(other, String):
-            return False
-        return self.token == other.token
-
-    def __repr__(self):
-        return f"String(token={self.token})"
-
-
 class NoReturn(Token):
     def __init__(self, line_num=0):
         super().__init__(None, None, line_num)
 
 
-class Identifier:
-    def __init__(self, token: Token):
-        self.token = token
+class Index:
+    def __init__(self, left, index):
+        self.left = left
+        self.index = index
 
     def __eq__(self, other):
-        if not isinstance(other, Identifier):
+        if not isinstance(other, Index):
             return False
-        return self.token == other.token
+        return self.left == other.left and self.index == other.index
 
     def __repr__(self):
-        return f"Identifier(token={self.token})"
+        return f"Index(left={self.left}, index={self.index})"
 
 
 class Return:

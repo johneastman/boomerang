@@ -205,23 +205,20 @@ class Evaluator:
 
             return Token(dictionary, DICTIONARY, expression.line_num)
 
-        elif type(expression) == _parser.DictionaryGet:
-            dictionary = self.env.get_var(expression.name.value)
+        elif type(expression) == _parser.Return:
+            return self.validate_expression(expression.expression)
+
+        elif type(expression) == _parser.Index:
+            dictionary = self.validate_expression(expression.left)
             if dictionary.type != DICTIONARY:
                 self.raise_error(dictionary.line_num, f"Expected {DICTIONARY}, got {dictionary.type}")
 
-            evaluated_value = self.validate_expression(expression.value)
-            line_num = evaluated_value.line_num
-
-            value = dictionary.value.get(evaluated_value.value, None)
+            key = self.validate_expression(expression.index)
+            value = dictionary.value.get(key.value, None)
             if value is None:
-                self.raise_error(
-                    line_num,
-                    f"No key in dictionary '{expression.name.value}': {evaluated_value.value}")
-            return Token(value, self.get_type(value), line_num)
+                self.raise_error(key.line_num, f"No key in dictionary: {key.value}")
 
-        elif type(expression) == _parser.Return:
-            return self.validate_expression(expression.expression)
+            return Token(value, self.get_type(value), key.line_num)
 
         else:
             raise Exception(f"Unsupported type: {type(expression)}")
@@ -348,6 +345,8 @@ class Evaluator:
             return FLOAT
         elif isinstance(value, int):
             return INTEGER
+        elif isinstance(value, dict):
+            return DICTIONARY
         else:
             return STRING
 

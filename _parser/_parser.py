@@ -219,6 +219,13 @@ class Parser:
                 self.advance()
                 right = next_method()
                 left = BinaryOperation(left, op, right)
+            elif self.current.type == OPEN_BRACKET:
+                self.advance()
+                value = self.expression()
+                if self.current.type != CLOSED_BRACKET:
+                    self.raise_expected_token_error(CLOSED_BRACKET)
+                self.advance()
+                return Index(left, value)
             else:
                 break
 
@@ -292,8 +299,6 @@ class Parser:
                 return self.function_call(identifier_token)
             elif self.peek.type in self.assignment_operators:
                 return self.assign(identifier_token)
-            elif self.peek.type == OPEN_BRACKET:
-                return self.dictionary_get(identifier_token)
             else:
                 self.advance()
                 return Identifier(identifier_token)
@@ -324,15 +329,6 @@ class Parser:
 
         else:
             raise Exception(f"Invalid token: {self.current}")
-
-    def dictionary_get(self, identifier_token):
-        self.advance()
-        self.advance()
-        value = self.expression()
-        if self.current.type != CLOSED_BRACKET:
-            self.raise_expected_token_error(CLOSED_BRACKET)
-        self.advance()
-        return DictionaryGet(identifier_token, value)
 
     def function_call(self, identifier_token):
         self.advance()
