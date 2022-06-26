@@ -1,5 +1,4 @@
 statement:
-    let IDENTIFIER = expression
     if (expression) { statement; statement; ... } else { statement; statement; ... };
     expression
 
@@ -34,6 +33,7 @@ factor:
     statement
     return expression
     func(expression, expression, ...) { statement; statement; ... };
+    IDENTIFIER = expression
 
 number:
     0 - 9

@@ -1,11 +1,8 @@
 from _parser import _parser
-import tokens.tokens
 from tokens.tokens import *
 from tokens.tokenizer import Token
 from _environment import Environment
-
-# TODO: Return a Value object for values (numbers, booleans, etc.) instead of the raw value so we can check the type
-#  and throw errors for incompatible types in comparison operators.
+from utils import raise_error
 
 
 class ReturnException(Exception):
@@ -36,6 +33,8 @@ class Evaluator:
             OR: [BOOLEAN]
         }
 
+        # Map what types are compatible with others when performing operations (for example, addition can be performed
+        # on floats and integers).
         self.compatible_types_for_operations = {
             FLOAT: [FLOAT, INTEGER],
             INTEGER: [INTEGER, FLOAT],
@@ -72,7 +71,7 @@ class Evaluator:
     def validate_expression(self, expression):
         value = self.evaluate_expression(expression)
         if isinstance(value, _parser.NoReturn):
-            raise Exception(f"Error at line {value.line_num}: cannot evaluate expression that returns no value")
+            raise_error(value.line_num, "cannot evaluate expression that returns no value")
         return value
 
     def evaluate_expression(self, expression):
@@ -100,7 +99,7 @@ class Evaluator:
             elif isinstance(variable, _parser.Index):
                 dictionary = self.validate_expression(variable.left)
                 if dictionary.type != DICTIONARY:
-                    self.raise_error(dictionary.line_num, f"Expected {DICTIONARY}, got {dictionary.type}")
+                    raise_error(dictionary.line_num, f"Expected {DICTIONARY}, got {dictionary.type}")
 
                 key = self.validate_expression(variable.index)
                 value = self.evaluate_expression(expression.value)
@@ -108,8 +107,7 @@ class Evaluator:
                 return _parser.NoReturn(line_num=variable.index.token.line_num)
             else:
                 variable_type = expression.name.token.type
-                error_msg = f"Cannot assign value to type {variable_type}"
-                self.raise_error(expression.name.token.line_num, error_msg)
+                raise_error(expression.name.token.line_num, f"Cannot assign value to type {variable_type}")
 
         elif type(expression) == _parser.AssignFunction:
             self.env.set_func(expression.name.value, expression)
@@ -126,7 +124,7 @@ class Evaluator:
                     return variable_value
                 env = env.parent_env
 
-            raise Exception(f"Undefined variable at line {expression.token.line_num}: {expression.token.value}")
+            raise_error(expression.token.line_num, r"Undefined variable: {expression.token.value}")
 
         elif type(expression) == _parser.FunctionCall:
             function_name = expression.name.value
@@ -142,7 +140,7 @@ class Evaluator:
             # If the function is not defined in the functions dictionary, throw an error saying the
             # function is undefined
             if function is None:
-                raise Exception(f"Undefined function at line {expression.name.line_num}: {function_name}")
+                raise_error(expression.name.line_num, f"Undefined function: {function_name}")
 
             parameter_identifiers = function.parameters
             parameter_values = expression.parameter_values
@@ -152,7 +150,7 @@ class Evaluator:
                 error_msg += f"Function '{function_name}' defined with {len(parameter_identifiers)} parameters "
                 error_msg += f"({', '.join(map(lambda t: t.value, parameter_identifiers))}), "
                 error_msg += f"but {len(parameter_values)} given."
-                raise Exception(error_msg)
+                raise_error(expression.name.line_num, error_msg)
 
             # Map the parameters to their values and set them in the variables dictionary
             evaluated_param_values = {}
@@ -196,7 +194,7 @@ class Evaluator:
 
             num_args = len(expression.value)
             if num_args != 1:
-                raise Exception(f"Expected 1 argument; got {num_args}")
+                raise_error(expression.value.line_num, f"Expected 1 argument; got {num_args}")
 
             result = self.validate_expression(expression.value[0])
             return Token(result.type, result.type, result.line_num)
@@ -228,12 +226,12 @@ class Evaluator:
         elif type(expression) == _parser.Index:
             dictionary = self.validate_expression(expression.left)
             if dictionary.type != DICTIONARY:
-                self.raise_error(dictionary.line_num, f"Expected {DICTIONARY}, got {dictionary.type}")
+                raise_error(dictionary.line_num, f"Expected {DICTIONARY}, got {dictionary.type}")
 
             key = self.validate_expression(expression.index)
             value = dictionary.value.get(key.value, None)
             if value is None:
-                self.raise_error(key.line_num, f"No key in dictionary: {key.value}")
+                raise_error(key.line_num, f"No key in dictionary: {key.value}")
 
             return Token(value, self.get_type(value), key.line_num)
 
@@ -355,7 +353,7 @@ class Evaluator:
         elif token.type == DICTIONARY:
             return token.value
 
-        self.raise_error(token.line_num, f"Unsupported type: {token.type}")
+        raise_error(token.line_num, f"Unsupported type: {token.type}")
 
     def get_type(self, value):
         if isinstance(value, float):
@@ -366,6 +364,3 @@ class Evaluator:
             return DICTIONARY
         else:
             return STRING
-
-    def raise_error(self, line_num, description):
-        raise Exception(f"Error at line {line_num}: {description}")

@@ -1,5 +1,6 @@
 from tokens.tokens import *
 from .ast_objects import *
+from utils import raise_error
 
 
 class Parser:
@@ -33,8 +34,7 @@ class Parser:
         while self.current.type != EOF:
 
             result = self.statement()
-            if self.current.type != SEMICOLON:
-                self.raise_expected_token_error(SEMICOLON)
+            self.is_expected_token(SEMICOLON)
 
             self.advance()
             ast.append(result)
@@ -46,9 +46,7 @@ class Parser:
         statements = []
         while self.current.type != CLOSED_CURLY_BRACKET:
             statements.append(self.statement())
-
-            if self.current.type != SEMICOLON:
-                self.raise_expected_token_error(SEMICOLON)
+            self.is_expected_token(SEMICOLON)
             self.advance()
         return statements
 
@@ -99,15 +97,13 @@ class Parser:
         comparison = self.expression()
 
         # Open curly bracket
-        if self.current.type != OPEN_CURLY_BRACKET:
-            self.raise_expected_token_error(OPEN_CURLY_BRACKET)
+        self.is_expected_token(OPEN_CURLY_BRACKET)
         self.advance()
 
         loop_statements = self.block_statement()
 
         # Closed curly bracket
-        if self.current.type != CLOSED_CURLY_BRACKET:
-            self.raise_expected_token_error(CLOSED_CURLY_BRACKET)
+        self.is_expected_token(CLOSED_CURLY_BRACKET)
         self.advance()
 
         # Add a semicolon so users don't have to add one in the code
@@ -121,15 +117,13 @@ class Parser:
         comparison = self.expression()
 
         # Open curly bracket
-        if self.current.type != OPEN_CURLY_BRACKET:
-            self.raise_expected_token_error(OPEN_CURLY_BRACKET)
+        self.is_expected_token(OPEN_CURLY_BRACKET)
         self.advance()
 
         if_statements = self.block_statement()
 
         # Closed curly bracket
-        if self.current.type != CLOSED_CURLY_BRACKET:
-            self.raise_expected_token_error(CLOSED_CURLY_BRACKET)
+        self.is_expected_token(CLOSED_CURLY_BRACKET)
         self.advance()
 
         else_statements = None
@@ -137,15 +131,13 @@ class Parser:
             self.advance()
 
             # Open curly bracket
-            if self.current.type != OPEN_CURLY_BRACKET:
-                self.raise_expected_token_error(OPEN_CURLY_BRACKET)
+            self.is_expected_token(OPEN_CURLY_BRACKET)
             self.advance()
 
             else_statements = self.block_statement()
 
             # Closed curly bracket
-            if self.current.type != CLOSED_CURLY_BRACKET:
-                self.raise_expected_token_error(CLOSED_CURLY_BRACKET)
+            self.is_expected_token(CLOSED_CURLY_BRACKET)
             self.advance()
 
         self.add_semicolon()
@@ -155,13 +147,11 @@ class Parser:
     def function(self):
         self.advance()
 
-        if self.current.type != IDENTIFIER:
-            self.raise_expected_token_error(IDENTIFIER)
+        self.is_expected_token(IDENTIFIER)
         function_name = self.current
         self.advance()
 
-        if self.current.type != OPEN_PAREN:
-            self.raise_expected_token_error(OPEN_PAREN)
+        self.is_expected_token(OPEN_PAREN)
         self.advance()
 
         parameters = []
@@ -169,28 +159,24 @@ class Parser:
         # the parser would expect a NUMBER after the open-paren of the function call and throw the error
         # in `if self.current.type != NUMBER`.
         while self.current.type != CLOSED_PAREN:
-            if self.current.type != IDENTIFIER:
-                self.raise_expected_token_error(IDENTIFIER)
+            self.is_expected_token(IDENTIFIER)
             parameters.append(self.current)
             self.advance()
 
             if self.current.type == CLOSED_PAREN:
                 break
 
-            if self.current.type != COMMA:
-                self.raise_expected_token_error(COMMA)
+            self.is_expected_token(COMMA)
             self.advance()
 
         self.advance()
 
-        if self.current.type != OPEN_CURLY_BRACKET:
-            self.raise_expected_token_error(OPEN_CURLY_BRACKET)
+        self.is_expected_token(OPEN_CURLY_BRACKET)
         self.advance()
 
         function_statements = self.block_statement()
 
-        if self.current.type != CLOSED_CURLY_BRACKET:
-            self.raise_expected_token_error(CLOSED_CURLY_BRACKET)
+        self.is_expected_token(CLOSED_CURLY_BRACKET)
         self.advance()
 
         self.add_semicolon()
@@ -211,8 +197,7 @@ class Parser:
             elif self.current.type == OPEN_BRACKET:
                 self.advance()
                 value = self.expression()
-                if self.current.type != CLOSED_BRACKET:
-                    self.raise_expected_token_error(CLOSED_BRACKET)
+                self.is_expected_token(CLOSED_BRACKET)
                 self.advance()
                 return Index(left, value)
             elif self.current.type in self.assignment_operators:
@@ -262,7 +247,8 @@ class Parser:
             if self.current.type == CLOSED_PAREN:
                 self.advance()
                 return expression
-            self.raise_expected_token_error(CLOSED_PAREN)
+            self.is_expected_token(CLOSED_PAREN)
+            # self.raise_expected_token_error(CLOSED_PAREN)
 
         elif self.current.type == INTEGER:
             number_token = self.current
@@ -300,8 +286,7 @@ class Parser:
             while self.current.type != CLOSED_CURLY_BRACKET:
                 keys.append(self.expression())
 
-                if self.current.type != COLON:
-                    self.raise_expected_token_error(COLON)
+                self.is_expected_token(COLON)
                 self.advance()
 
                 values.append(self.expression())
@@ -309,15 +294,14 @@ class Parser:
                 if self.current.type == CLOSED_CURLY_BRACKET:
                     break
 
-                if self.current.type != COMMA:
-                    self.raise_expected_token_error(COMMA)
+                self.is_expected_token(COMMA)
                 self.advance()
 
             self.advance()
             return Dictionary(keys, values, line_num)
 
         else:
-            raise Exception(f"Invalid token: {self.current}")
+            raise_error(self.current.line_num, f"Invalid token: {self.current.type} ({self.current.value})")
 
     def function_call(self, identifier_token):
         self.advance()
@@ -333,8 +317,8 @@ class Parser:
             if self.current.type == CLOSED_PAREN:
                 break
 
-            if self.current.type != COMMA:
-                self.raise_expected_token_error(" or ".join([COMMA, CLOSED_PAREN]))
+            # Expect comma or closed paren
+            self.is_expected_token(COMMA)
             self.advance()
 
         self.advance()
@@ -345,9 +329,11 @@ class Parser:
         }
         return builtin_functions.get(identifier_token.value, FunctionCall(identifier_token, parameters))
 
-    def raise_expected_token_error(self, expected_token_type):
-        raise Exception(
-            f"Expected {expected_token_type}, got {self.current.type} ('{self.current.value}') on line {self.current.line_num}")
+    def is_expected_token(self, expected_token_type):
+        if self.current.type != expected_token_type:
+            raise_error(
+                self.current.line_num,
+                f"Expected {expected_token_type}, got {self.current.type} ('{self.current.value}')")
 
     def add_semicolon(self):
         semicolon_label = "SEMICOLON"
