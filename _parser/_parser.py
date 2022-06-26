@@ -322,10 +322,6 @@ class Parser:
 
             return Dictionary(keys, values, line_num)
 
-        elif self.current.type == OPEN_BRACKET:
-            self.advance()
-            return None
-
         else:
             raise Exception(f"Invalid token: {self.current}")
 
