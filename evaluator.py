@@ -3,6 +3,7 @@ from tokens.tokens import *
 from tokens.tokenizer import Token
 from _environment import Environment
 from utils import raise_error, ReturnException
+import copy
 
 
 class Evaluator:
@@ -44,7 +45,9 @@ class Evaluator:
         evaluated_expressions = []
         for expression in statements:
             evaluated_expression = self.evaluate_expression(expression)
-            evaluated_expressions.append(evaluated_expression)
+            # `copy.deepcopy` ensures each evaluated expression in `evaluated_expressions` is accurate to the state of
+            # the program during the evaluation of that particular expression.
+            evaluated_expressions.append(copy.deepcopy(evaluated_expression))
 
             if isinstance(expression, _parser.Return):
                 # Raise an exception for returns so that in the case of early returns (e.g., a return in an if-else
@@ -90,7 +93,7 @@ class Evaluator:
             if isinstance(variable, _parser.Identifier):
                 var_value = self.validate_expression(expression.value)
                 self.env.set_var(variable.token.value, var_value)
-                return _parser.NoReturn(line_num=variable.token.line_num)
+                return var_value
             elif isinstance(variable, _parser.Index):
                 dictionary = self.validate_expression(variable.left)
                 if dictionary.type != DICTIONARY:
