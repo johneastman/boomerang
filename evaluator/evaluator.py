@@ -1,3 +1,5 @@
+import typing
+
 from _parser import _parser
 from tokens.tokens import *
 from tokens.tokenizer import Token
@@ -105,8 +107,8 @@ class Evaluator:
                 dictionary.value[key.value] = self.get_literal_value(value)
                 return _parser.NoReturn(line_num=variable.index.token.line_num)
             else:
-                variable_type = expression.name.token.type
-                raise_error(expression.name.token.line_num, f"Cannot assign value to type {variable_type}")
+                variable_type = expression.name.type
+                raise_error(expression.name.line_num, f"Cannot assign value to type {variable_type}")
 
         elif type(expression) == _parser.AssignFunction:
             self.env.set_func(expression.name.value, expression)
@@ -128,7 +130,7 @@ class Evaluator:
         elif type(expression) == _parser.FunctionCall:
             function_name = expression.name.value
 
-            function = None
+            function: typing.Optional[_parser.AssignFunction] = None
             env = self.env
             while env is not None:
                 f = env.get_func(expression.name.value)
@@ -141,7 +143,7 @@ class Evaluator:
             if function is None:
                 raise_error(expression.name.line_num, f"Undefined function: {function_name}")
 
-            parameter_identifiers = function.parameters
+            parameter_identifiers = function.parameters  # type: ignore
             parameter_values = expression.parameter_values
 
             if len(parameter_identifiers) != len(parameter_values):
@@ -161,7 +163,7 @@ class Evaluator:
             self.env.set_vars(evaluated_param_values)
 
             # Evaluate every expression in the function body
-            statements = function.statements
+            statements = function.statements  # type: ignore
 
             try:
                 # If a ReturnException is never thrown, then the function does not return anything.

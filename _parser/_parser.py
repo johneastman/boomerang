@@ -326,7 +326,7 @@ class Parser:
         builtin_functions = {
             "print": Print(parameters, identifier_token.line_num),
             "type": Type(parameters, identifier_token.line_num),
-            "random": Random(identifier_token.line_num)
+            "random": Random(parameters, identifier_token.line_num)
         }
         return builtin_functions.get(identifier_token.value, FunctionCall(identifier_token, parameters))
 

@@ -19,6 +19,37 @@ class Base:
         return f"{class_name}(token={self.token})"
 
 
+class BuiltinFunction:
+
+    def __init__(self, params: list[Token], line_num: int):
+        self.params = params
+        self.line_num = line_num
+
+    def __eq__(self, other: object):
+        if not isinstance(other, BuiltinFunction):
+            return False
+        return self.params == other.params and self.line_num == other.line_num
+
+    def __repr__(self):
+        class_name = self.__class__.__name__
+        return f"{class_name}({self.params}, {self.line_num})"
+
+
+class Print(BuiltinFunction):
+    def __init__(self, params: list[Token], line_num: int):
+        super().__init__(params, line_num)
+
+
+class Type(BuiltinFunction):
+    def __init__(self, params: list[Token], line_num: int):
+        super().__init__(params, line_num)
+
+
+class Random(BuiltinFunction):
+    def __init__(self, params: list[Token], line_num: int):
+        super().__init__(params, line_num)
+
+
 class Number(Base):
     def __init__(self, token: Token):
         super().__init__(token)
@@ -108,7 +139,7 @@ class AssignFunction:
 
     def __repr__(self):
         class_name = self.__class__.__name__
-        return f"[{class_name}(parameters={self.parameters}, statements={self.statements})]"
+        return f"{class_name}(parameters={self.parameters}, statements={self.statements})"
 
 
 class IfStatement:
@@ -116,44 +147,6 @@ class IfStatement:
         self.comparison = comparison
         self.true_statements = true_statements
         self.false_statements = false_statements
-
-
-class Print:
-    def __init__(self, params, line_num):
-        self.params = params
-        self.line_num = line_num
-
-    def __repr__(self):
-        return f"print({', '.join(repr(expr) for expr in self.params)}"
-
-
-class Type:
-    def __init__(self, params: list[Token], line_num: int):
-        self.params = params
-        self.line_num = line_num
-
-    def __eq__(self, other):
-        if not isinstance(other, Type):
-            return False
-        return self.params == other.params and self.line_num == other.line_num
-
-    def __repr__(self):
-        return f"Type({self.params}, {self.line_num})"
-
-
-class Random:
-
-    def __init__(self, line_num):
-        self.line_num = line_num
-
-    def __eq__(self, other):
-        if not isinstance(other, Type):
-            return False
-        return True
-
-    def __repr__(self):
-        return f"{self.__class__.__name__}({self.line_num})"
-
 
 
 class FunctionCall:
