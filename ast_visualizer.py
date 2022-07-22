@@ -1,4 +1,4 @@
-import graphviz
+import graphviz  # type: ignore
 from _parser.ast_objects import *
 
 

@@ -1,12 +1,13 @@
 from .tokens import *
 import string
+from typing import Union
 
 tokens_dict = get_keyword_dict()
 
 
 class Token:
 
-    def __init__(self, value: object, _type: str, line_num: int):
+    def __init__(self, value: Union[str], _type: str, line_num: int):
         self.value = value
         self.type = _type
         self.line_num = line_num

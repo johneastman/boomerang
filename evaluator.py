@@ -353,7 +353,7 @@ class Evaluator:
 
         raise_error(token.line_num, f"Unsupported type: {token.type}")
 
-    def get_type(self, value):
+    def get_type(self, value: object):
         if isinstance(value, float):
             return FLOAT
         elif isinstance(value, int):

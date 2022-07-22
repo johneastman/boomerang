@@ -7,12 +7,12 @@ from ast_visualizer import ASTVisualizer
 PROMPT = ">> "
 
 
-def get_source(filepath):
+def get_source(filepath: str):
     with open(filepath, "r") as file:
         return file.read()
 
 
-def evaluate(source, environment, visualize=False):
+def evaluate(source: str, environment: Environment, visualize: bool = False):
 
     t = Tokenizer(source)
     tokens = t.tokenize()
@@ -43,5 +43,4 @@ def repl():
 
 
 if __name__ == "__main__":
-    source = get_source("language.txt")
-    evaluate(source, Environment())
+    evaluate(get_source("language.txt"), Environment())
