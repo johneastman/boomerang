@@ -1,7 +1,7 @@
 from _parser import _parser
 from tokens.tokens import *
 from tokens.tokenizer import Token
-from _environment import Environment
+from evaluator._environment import Environment
 from utils import raise_error, ReturnException
 import copy
 

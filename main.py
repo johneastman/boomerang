@@ -1,7 +1,7 @@
 from tokens.tokenizer import Tokenizer
 from _parser._parser import Parser
-from evaluator import Evaluator
-from _environment import Environment
+from evaluator.evaluator import Evaluator
+from evaluator._environment import Environment
 from ast_visualizer import ASTVisualizer
 
 PROMPT = ">> "

@@ -9,7 +9,7 @@ class Base:
     def __init__(self, token: Token):
         self.token = token
 
-    def __eq__(self, other):
+    def __eq__(self, other: object):
         if not isinstance(other, self.__class__):
             return False
         return self.token == other.token

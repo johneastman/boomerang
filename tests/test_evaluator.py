@@ -2,8 +2,8 @@ import unittest
 from tokens.tokens import *
 from tokens.tokenizer import Token, Tokenizer
 from _parser._parser import Parser, NoReturn
-from evaluator import Evaluator
-from _environment import Environment
+from evaluator.evaluator import Evaluator
+from evaluator._environment import Environment
 
 
 class TestEvaluator(unittest.TestCase):
