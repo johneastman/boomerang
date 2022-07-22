@@ -50,19 +50,19 @@ def get_keyword_dict():
     return {literal: _type for literal, _type in language_tokens.values()}
 
 
-def get_token(name):
+def get_token(name: str):
     token = language_tokens.get(name, None)
     if token is None:
         raise Exception(f"No token for name: {name}")
     return token
 
 
-def get_token_type(name):
+def get_token_type(name: str):
     _, _type = get_token(name)
     return _type
 
 
-def get_token_literal(name):
+def get_token_literal(name: str):
     literal, _ = get_token(name)
     return literal
 

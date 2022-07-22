@@ -6,7 +6,7 @@ tokens_dict = get_keyword_dict()
 
 class Token:
 
-    def __init__(self, value, _type, line_num):
+    def __init__(self, value: object, _type: str, line_num: int):
         self.value = value
         self.type = _type
         self.line_num = line_num
@@ -14,14 +14,14 @@ class Token:
     def __repr__(self):
         return f"{self.__class__.__name__}(value: {self.value}, type: {self.type}, line_num: {self.line_num})"
 
-    def __eq__(self, other):
+    def __eq__(self, other: object):
         if not isinstance(other, Token):
             return False
         return self.value == other.value and self.type == other.type and self.line_num == other.line_num
 
 
 class Tokenizer:
-    def __init__(self, source):
+    def __init__(self, source: str):
         self.source = source
         self.index = 0
         self.line_num = 1
@@ -90,7 +90,7 @@ class Tokenizer:
         tokens.append(Token("", EOF, self.line_num))  # Add end-of-file token
         return tokens
 
-    def raise_invalid_char(self, char):
+    def raise_invalid_char(self, char: str):
         raise Exception(f"Invalid character: {char}")
 
     @property
@@ -134,7 +134,7 @@ class Tokenizer:
     def is_string(self):
         return self.current is not None and self.current == get_token_literal("DOUBLE_QUOTE")
 
-    def is_identifier(self, include_nums=False):
+    def is_identifier(self, include_nums: bool = False):
         """Determine if a character is valid for an identifier (a-z, A-Z, 0-9, _)
 
         :param include_nums: Set if digits are allowed in the valid identifier characters. Identifiers can't start
