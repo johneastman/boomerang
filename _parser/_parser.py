@@ -86,7 +86,7 @@ class Parser:
                 left,
                 BinaryOperation(
                     left,
-                    operator_token.get(assignment_operator.type),
+                    operator_token[assignment_operator.type],
                     right
                 )
             )
@@ -325,7 +325,8 @@ class Parser:
 
         builtin_functions = {
             "print": Print(parameters, identifier_token.line_num),
-            "type": Type(parameters)
+            "type": Type(parameters, identifier_token.line_num),
+            "random": Random(identifier_token.line_num)
         }
         return builtin_functions.get(identifier_token.value, FunctionCall(identifier_token, parameters))
 

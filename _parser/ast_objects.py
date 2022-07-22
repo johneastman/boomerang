@@ -60,8 +60,8 @@ class Dictionary:
 
 
 class NoReturn(Token):
-    def __init__(self, line_num=0):
-        super().__init__(None, None, line_num)
+    def __init__(self, line_num: int = 0):
+        super().__init__("", "", line_num)
 
     def __eq__(self, other):
         if not isinstance(other, NoReturn):
@@ -128,16 +128,32 @@ class Print:
 
 
 class Type:
-    def __init__(self, value: Token):
-        self.value = value
+    def __init__(self, params: list[Token], line_num: int):
+        self.params = params
+        self.line_num = line_num
 
     def __eq__(self, other):
         if not isinstance(other, Type):
             return False
-        return self.value == other.value
+        return self.params == other.params and self.line_num == other.line_num
 
     def __repr__(self):
-        return f"Type({self.value})"
+        return f"Type({self.params}, {self.line_num})"
+
+
+class Random:
+
+    def __init__(self, line_num):
+        self.line_num = line_num
+
+    def __eq__(self, other):
+        if not isinstance(other, Type):
+            return False
+        return True
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({self.line_num})"
+
 
 
 class FunctionCall:

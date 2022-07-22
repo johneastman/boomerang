@@ -28,7 +28,7 @@ class ASTVisualizer:
             self.__visualize(expression.right)
         elif type(expression) == Print:
             self.add_node(node_id, "print")
-            for param in expression.parameters:
+            for param in expression.params:
                 self.add_edge(node_id, id(param))
                 self.__visualize(param)
         elif type(expression) == AssignVariable:

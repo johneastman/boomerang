@@ -4,6 +4,7 @@ from tokens.tokenizer import Token
 from evaluator._environment import Environment
 from utils import raise_error, ReturnException
 import copy
+import random
 
 
 class Evaluator:
@@ -189,13 +190,15 @@ class Evaluator:
             return _parser.NoReturn(line_num=expression.line_num)
 
         elif type(expression) == _parser.Type:
-
-            num_args = len(expression.value)
+            num_args = len(expression.params)
             if num_args != 1:
-                raise_error(expression.value.line_num, f"Expected 1 argument; got {num_args}")
+                raise_error(expression.line_num, f"Expected 1 argument; got {num_args}")
 
-            result = self.validate_expression(expression.value[0])
-            return Token(result.type, result.type, result.line_num)
+            result = self.validate_expression(expression.params[0])
+            return Token(result.type, result.type, expression.line_num)
+
+        elif type(expression) == _parser.Random:
+            return Token(str(random.random()), FLOAT, expression.line_num)
 
         elif type(expression) == _parser.Number:
             return expression.token
