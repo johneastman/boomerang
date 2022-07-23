@@ -1,11 +1,12 @@
 from tokens.tokens import *
 from .ast_objects import *
 from utils import raise_error
+from typing import Callable
 
 
 class Parser:
 
-    def __init__(self, tokens):
+    def __init__(self, tokens: list[Token]):
         self.tokens = tokens
         self.index = 0
 
@@ -17,31 +18,35 @@ class Parser:
             ASSIGN_DIV
         ]
 
-    def advance(self):
+    def advance(self) -> None:
         self.index += 1
 
     @property
-    def current(self):
-        return self.tokens[self.index] if self.index < len(self.tokens) else None
+    def current(self) -> Token:
+        current = self.tokens[self.index] if self.index < len(self.tokens) else None
+        if current is None:
+            raise Exception(f"from {self.__class__.__name__}.current: token is None")
+        return current
 
     @property
-    def peek(self):
+    def peek(self) -> Token:
         next_token_index = self.index + 1
-        return self.tokens[next_token_index] if next_token_index < len(self.tokens) else None
+        next_token = self.tokens[next_token_index] if next_token_index < len(self.tokens) else None
+        if next_token is None:
+            raise Exception(f"from {self.__class__.__name__}.peek: token is None")
+        return next_token
 
-    def parse(self):
+    def parse(self) -> list[Statement]:
         ast = []
-        while self.current.type != EOF:
-
+        while self.current is not None and self.current.type != EOF:
             result = self.statement()
             self.is_expected_token(SEMICOLON)
 
             self.advance()
             ast.append(result)
-
         return ast
 
-    def block_statement(self):
+    def block_statement(self) -> list[Statement]:
         """Statements between two curly brackets (functions, if-statements, loops, etc.)"""
         statements = []
         while self.current.type != CLOSED_CURLY_BRACKET:
@@ -50,7 +55,7 @@ class Parser:
             self.advance()
         return statements
 
-    def statement(self):
+    def statement(self) -> Statement:
         if self.current.type == FUNCTION:
             return self.function()
 
@@ -67,7 +72,7 @@ class Parser:
         else:
             return self.expression()
 
-    def assign(self, left):
+    def assign(self, left: Expression) -> Expression:
         assignment_operator = self.current
         self.advance()
         right = self.expression()
@@ -91,7 +96,7 @@ class Parser:
                 )
             )
 
-    def loop(self):
+    def loop(self) -> Statement:
         self.advance()
 
         comparison = self.expression()
@@ -111,7 +116,7 @@ class Parser:
 
         return Loop(comparison, loop_statements)
 
-    def if_statement(self):
+    def if_statement(self) -> Statement:
         self.advance()
 
         comparison = self.expression()
@@ -144,7 +149,7 @@ class Parser:
 
         return IfStatement(comparison, if_statements, else_statements)
 
-    def function(self):
+    def function(self) -> Statement:
         self.advance()
 
         self.is_expected_token(IDENTIFIER)
@@ -183,7 +188,11 @@ class Parser:
 
         return AssignFunction(function_name, parameters, function_statements)
 
-    def binary_expression(self, binary_operators: list, next_method):
+    def binary_expression(
+            self,
+            binary_operators: list[str],
+            next_method: Callable[[], Expression]) -> Expression:
+
         left = next_method()
 
         while True:
@@ -207,12 +216,12 @@ class Parser:
 
         return left
 
-    def expression(self):
+    def expression(self) -> Expression:
         return self.binary_expression([
             AND, OR
         ], self.boolean)
 
-    def boolean(self):
+    def boolean(self) -> Expression:
         return self.binary_expression([
             EQ,
             NE,
@@ -222,19 +231,20 @@ class Parser:
             LT
         ], self.addition)
 
-    def addition(self):
+    def addition(self) -> Expression:
         return self.binary_expression([
             PLUS,
             MINUS
         ], self.term)
 
-    def term(self):
+    def term(self) -> Expression:
         return self.binary_expression([
             MULTIPLY,
             DIVIDE
         ], self.factor)
 
-    def factor(self):
+    def factor(self) -> Expression:  # type: ignore
+        # Missing return statement
         if self.current.type in [MINUS, PLUS, BANG]:
             op = self.current
             self.advance()
@@ -248,7 +258,6 @@ class Parser:
                 self.advance()
                 return expression
             self.is_expected_token(CLOSED_PAREN)
-            # self.raise_expected_token_error(CLOSED_PAREN)
 
         elif self.current.type == INTEGER:
             number_token = self.current
@@ -303,7 +312,7 @@ class Parser:
         else:
             raise_error(self.current.line_num, f"Invalid token: {self.current.type} ({self.current.value})")
 
-    def function_call(self, identifier_token):
+    def function_call(self, identifier_token: Token) -> Factor:
         self.advance()
         self.advance()
 
@@ -330,13 +339,13 @@ class Parser:
         }
         return builtin_functions.get(identifier_token.value, FunctionCall(identifier_token, parameters))
 
-    def is_expected_token(self, expected_token_type):
+    def is_expected_token(self, expected_token_type: str) -> None:
         if self.current.type != expected_token_type:
             raise_error(
                 self.current.line_num,
                 f"Expected {expected_token_type}, got {self.current.type} ('{self.current.value}')")
 
-    def add_semicolon(self):
+    def add_semicolon(self) -> None:
         semicolon_label = "SEMICOLON"
         self.tokens.insert(
             self.index,

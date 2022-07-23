@@ -1,5 +1,10 @@
+program:
+    list[statement]
+
 statement:
-    if (expression) { statement; statement; ... } else { statement; statement; ... };
+    if-else
+    while
+    func
     expression
 
 expression:
@@ -28,12 +33,10 @@ factor:
     - expression
     number
     boolean
-    IDENTIFIER
+    identifier
     ( expression )
-    statement
     return expression
-    func(expression, expression, ...) { statement; statement; ... };
-    IDENTIFIER = expression
+    identifier = expression
 
 number:
     0 - 9
@@ -41,4 +44,3 @@ number:
 boolean:
     true
     false
-

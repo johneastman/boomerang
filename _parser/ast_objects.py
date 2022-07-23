@@ -1,4 +1,29 @@
 from tokens.tokenizer import Token
+from typing import Optional
+
+
+class Statement:
+    pass
+
+
+class Expression(Statement):
+    pass
+
+
+class BooleanExpression(Expression):
+    pass
+
+
+class AdditionExpression(BooleanExpression):
+    pass
+
+
+class Term(AdditionExpression):
+    pass
+
+
+class Factor(Term):
+    pass
 
 
 class Base:
@@ -19,9 +44,9 @@ class Base:
         return f"{class_name}(token={self.token})"
 
 
-class BuiltinFunction:
+class BuiltinFunction(Factor):
 
-    def __init__(self, params: list[Token], line_num: int):
+    def __init__(self, params: list[Expression], line_num: int):
         self.params = params
         self.line_num = line_num
 
@@ -36,46 +61,46 @@ class BuiltinFunction:
 
 
 class Print(BuiltinFunction):
-    def __init__(self, params: list[Token], line_num: int):
+    def __init__(self, params: list[Expression], line_num: int):
         super().__init__(params, line_num)
 
 
 class Type(BuiltinFunction):
-    def __init__(self, params: list[Token], line_num: int):
+    def __init__(self, params: list[Expression], line_num: int):
         super().__init__(params, line_num)
 
 
 class Random(BuiltinFunction):
-    def __init__(self, params: list[Token], line_num: int):
+    def __init__(self, params: list[Expression], line_num: int):
         super().__init__(params, line_num)
 
 
-class Number(Base):
+class Number(Base, Factor):
     def __init__(self, token: Token):
         super().__init__(token)
 
 
-class Float(Base):
+class Float(Base, Factor):
     def __init__(self, token: Token):
         super().__init__(token)
 
 
-class Boolean(Base):
+class Boolean(Base, Factor):
     def __init__(self, token: Token):
         super().__init__(token)
 
 
-class String(Base):
+class String(Base, Factor):
     def __init__(self, token: Token):
         super().__init__(token)
 
 
-class Identifier(Base):
+class Identifier(Base, Factor):
     def __init__(self, token: Token):
         super().__init__(token)
 
 
-class Dictionary:
+class Dictionary(Factor):
     def __init__(self, keys, values, line_num):
         self.keys = keys
         self.values = values
@@ -100,7 +125,7 @@ class NoReturn(Token):
         return self.value == other.value and self.type == other.type and self.line_num == other.line_num
 
 
-class Index:
+class Index(Expression):
     def __init__(self, left, index):
         self.left = left
         self.index = index
@@ -114,15 +139,15 @@ class Index:
         return f"Index(left={self.left}, index={self.index})"
 
 
-class Return:
-    def __init__(self, expression):
+class Return(Statement):
+    def __init__(self, expression: Expression):
         self.expression = expression
 
     def __repr__(self):
         return f"[{self.__class__.__name__}(value={self.expression})]"
 
 
-class Loop:
+class Loop(Statement):
     def __init__(self, condition, statements):
         self.condition = condition
         self.statements = statements
@@ -131,7 +156,7 @@ class Loop:
         return f"[{self.__class__.__name__}(condition: {self.condition}, statements: {self.statements})]"
 
 
-class AssignFunction:
+class AssignFunction(Statement):
     def __init__(self, name: Token, parameters, statements):
         self.name = name
         self.parameters = parameters
@@ -142,14 +167,18 @@ class AssignFunction:
         return f"{class_name}(parameters={self.parameters}, statements={self.statements})"
 
 
-class IfStatement:
-    def __init__(self, comparison: Token, true_statements, false_statements):
+class IfStatement(Statement):
+    def __init__(self,
+                 comparison: Expression,
+                 true_statements: list[Statement],
+                 false_statements: Optional[list[Statement]]):
+
         self.comparison = comparison
         self.true_statements = true_statements
         self.false_statements = false_statements
 
 
-class FunctionCall:
+class FunctionCall(Factor):
     def __init__(self, name: Token, parameter_values):
         self.name = name
         self.parameter_values = parameter_values
@@ -158,8 +187,8 @@ class FunctionCall:
         return f"[{self.__class__.__name__}(name={self.name}, parameter_values={self.parameter_values})]"
 
 
-class BinaryOperation:
-    def __init__(self, left, op: Token, right):
+class BinaryOperation(Expression):
+    def __init__(self, left: Expression, op: Token, right: Expression):
         self.left = left
         self.op = op
         self.right = right
@@ -175,8 +204,8 @@ class BinaryOperation:
         return self.left == other.left and self.op == other.op and self.right == other.right
 
 
-class AssignVariable:
-    def __init__(self, name: Token, value):
+class AssignVariable(Expression):
+    def __init__(self, name: Expression, value: Expression):
         self.name = name
         self.value = value
 
@@ -185,7 +214,7 @@ class AssignVariable:
         return f"{class_name}(name={self.name}, value={self.value})"
 
 
-class UnaryOperation:
+class UnaryOperation(Factor):
     def __init__(self, op: Token, expression):
         self.op = op
         self.expression = expression
