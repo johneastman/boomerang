@@ -10,15 +10,15 @@ class TestEvaluator(unittest.TestCase):
 
     def test_evaluator(self):
         tests = [
-            ("1 + 1;", [Token(2, INTEGER, 1)]),
-            ("1 + 2 * 2;", [Token(5, INTEGER, 1)]),
-            ("(1 + 2) * 2;", [Token(6, INTEGER, 1)]),
-            ("x = (1 + 2) * 2;x;", [Token(6, INTEGER, 1), Token(6, INTEGER, 1)]),
-            ("4 / 2;", [Token(2.0, FLOAT, 1)]),
-            ("7 / 2;", [Token(3.5, FLOAT, 1)]),
-            ("1 + 1 * 2 + 3 / 4;", [Token(3.75, FLOAT, 1)]),
+            ("1 + 1;", [Token("2", INTEGER, 1)]),
+            ("1 + 2 * 2;", [Token("5", INTEGER, 1)]),
+            ("(1 + 2) * 2;", [Token("6", INTEGER, 1)]),
+            ("x = (1 + 2) * 2;x;", [Token("6", INTEGER, 1), Token("6", INTEGER, 1)]),
+            ("4 / 2;", [Token("2.0", FLOAT, 1)]),
+            ("7 / 2;", [Token("3.5", FLOAT, 1)]),
+            ("1 + 1 * 2 + 3 / 4;", [Token("3.75", FLOAT, 1)]),
             ("\"hello \" + \"world!\";",  [Token("hello world!", STRING, 1)]),
-            ("{\"a\": 1 + 1, \"b\": 3 + (2 * 2 + 1), \"c\": 55};", [Token({"a": 2, "b": 8, "c": 55}, DICTIONARY, 1)]),
+            ("{\"a\": 1 + 1, \"b\": 3 + (2 * 2 + 1), \"c\": 55};", [Token('{"a": 2, "b": 8, "c": 55}', DICTIONARY, 1)]),
         ]
         self.run_tests(tests)
 
@@ -66,10 +66,10 @@ class TestEvaluator(unittest.TestCase):
     def test_valid_unary_operators(self):
         tests = [
             ("-1;", [
-                Token(-1, INTEGER, 1)
+                Token("-1", INTEGER, 1)
              ]),
             ("+1;", [
-                Token(1, INTEGER, 1)
+                Token("1", INTEGER, 1)
             ]),
             ("!true;", [
                 Token("false", BOOLEAN, 1)
@@ -147,10 +147,10 @@ class TestEvaluator(unittest.TestCase):
 
     def test_function_calls(self):
         tests = [
-            (1, 1, 2),
-            (1, 2, 3),
-            (12, 5, 17),
-            (2, 3, 5)
+            (1, 1, "2"),
+            (1, 2, "3"),
+            (12, 5, "17"),
+            (2, 3, "5")
         ]
 
         for first, second, result in tests:
@@ -172,48 +172,48 @@ class TestEvaluator(unittest.TestCase):
         tests = [
             ("a = 2; a += 2; a;", [
                 Token("2", INTEGER, 1),
-                Token(4, INTEGER, 1),
-                Token(4, INTEGER, 1)
+                Token("4", INTEGER, 1),
+                Token("4", INTEGER, 1)
             ]),
             ("a = 2; a -= 2; a;", [
                 Token("2", INTEGER, 1),
-                Token(0, INTEGER, 1),
-                Token(0, INTEGER, 1)
+                Token("0", INTEGER, 1),
+                Token("0", INTEGER, 1)
             ]),
             ("a = 2; a *= 2; a;", [
                 Token("2", INTEGER, 1),
-                Token(4, INTEGER, 1),
-                Token(4, INTEGER, 1)
+                Token("4", INTEGER, 1),
+                Token("4", INTEGER, 1)
             ]),
             ("a = 2; a /= 2; a;", [
                 Token("2", INTEGER, 1),
-                Token(1.0, FLOAT, 1),
-                Token(1.0, FLOAT, 1)
+                Token("1.0", FLOAT, 1),
+                Token("1.0", FLOAT, 1)
             ]),
             ("d = {\"a\": 2}; d[\"a\"] += 2; d[\"a\"];", [
-                Token({"a": 2}, DICTIONARY, 1),
+                Token('{"a": 2}', DICTIONARY, 1),
                 NoReturn(line_num=1),
-                Token(4, INTEGER, 1)
+                Token("4", INTEGER, 1)
             ]),
             ("d = {\"a\": 2}; d[\"a\"] -= 2; d[\"a\"];", [
-                Token({"a": 2}, DICTIONARY, 1),
+                Token('{"a": 2}', DICTIONARY, 1),
                 NoReturn(line_num=1),
-                Token(0, INTEGER, 1)
+                Token("0", INTEGER, 1)
             ]),
             ("d = {\"a\": 2}; d[\"a\"] *= 2; d[\"a\"];", [
-                Token({"a": 2}, DICTIONARY, 1),
+                Token('{"a": 2}', DICTIONARY, 1),
                 NoReturn(line_num=1),
-                Token(4, INTEGER, 1)
+                Token("4", INTEGER, 1)
             ]),
             ("d = {\"a\": 2}; d[\"a\"] /= 2; d[\"a\"];", [
-                Token({"a": 2}, DICTIONARY, 1),
+                Token('{"a": 2}', DICTIONARY, 1),
                 NoReturn(line_num=1),
-                Token(1.0, FLOAT, 1)
+                Token("1.0", FLOAT, 1)
             ]),
             ("d = {\"a\": 2}; d[\"a\"] = 5; d[\"a\"];", [
-                Token({"a": 2}, DICTIONARY, 1),
+                Token('{"a": 2}', DICTIONARY, 1),
                 NoReturn(line_num=1),
-                Token(5, INTEGER, 1)
+                Token("5", INTEGER, 1)
             ])
         ]
         self.run_tests(tests)
@@ -227,10 +227,10 @@ class TestEvaluator(unittest.TestCase):
         """
 
         expected_values = [
-            Token({"a": 1, "b": 2, "c": 3}, DICTIONARY, 2),
-            Token(1, INTEGER, 3),
-            Token(2, INTEGER, 4),
-            Token(3, INTEGER, 5),
+            Token("{\"a\": 1, \"b\": 2, \"c\": 3}", DICTIONARY, 2),
+            Token("1", INTEGER, 3),
+            Token("2", INTEGER, 4),
+            Token("3", INTEGER, 5),
         ]
         actual_values = self.actual_result(source)
         self.assertEqual(expected_values, actual_values)

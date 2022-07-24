@@ -1,4 +1,5 @@
 import typing
+import ast
 
 from _parser import _parser
 from tokens.tokens import *
@@ -102,9 +103,11 @@ class Evaluator:
                 if dictionary.type != DICTIONARY:
                     raise_error(dictionary.line_num, f"Expected {DICTIONARY}, got {dictionary.type}")
 
+                actual_dict = self.get_literal_value(dictionary)
                 key = self.validate_expression(variable.index)
                 value = self.evaluate_expression(expression.value)
-                dictionary.value[key.value] = self.get_literal_value(value)
+                actual_dict[key.value] = self.get_literal_value(value)
+                dictionary.value = str(actual_dict)
                 return _parser.NoReturn(line_num=variable.index.token.line_num)
             else:
                 variable_type = expression.name.type
@@ -221,22 +224,23 @@ class Evaluator:
                 eval_value = self.validate_expression(value)
                 dictionary[eval_key.value] = self.get_literal_value(eval_value)
 
-            return Token(dictionary, DICTIONARY, expression.line_num)
+            return Token(str(dictionary).replace("'", '"'), DICTIONARY, expression.line_num)
 
         elif type(expression) == _parser.Return:
             return self.validate_expression(expression.expression)
 
         elif type(expression) == _parser.Index:
             dictionary = self.validate_expression(expression.left)
+            actual_dict = self.get_literal_value(dictionary)
             if dictionary.type != DICTIONARY:
                 raise_error(dictionary.line_num, f"Expected {DICTIONARY}, got {dictionary.type}")
 
             key = self.validate_expression(expression.index)
-            value = dictionary.value.get(key.value, None)
+            value = actual_dict.get(key.value, None)
             if value is None:
                 raise_error(key.line_num, f"No key in dictionary: {key.value}")
 
-            return Token(value, self.get_type(value), key.line_num)
+            return Token(str(value), self.get_type(value), key.line_num)
 
         else:
             raise Exception(f"Unsupported type: {type(expression)}")
@@ -252,12 +256,12 @@ class Evaluator:
         actual_value = self.get_literal_value(expression_result)
 
         if op_type == PLUS:
-            return Token(actual_value, INTEGER, expression_result.line_num)
+            return Token(str(actual_value), INTEGER, expression_result.line_num)
         elif op_type == MINUS:
-            return Token(-actual_value, INTEGER, expression_result.line_num)
+            return Token(str(-actual_value), INTEGER, expression_result.line_num)
         elif op_type == BANG:
             value = get_token_literal("FALSE") if actual_value else get_token_literal("TRUE")
-            return Token(value, BOOLEAN, expression_result.line_num)
+            return Token(str(value), BOOLEAN, expression_result.line_num)
         else:
             raise Exception(f"Invalid unary operator: {op_type} ({expression_result.op})")
 
@@ -290,52 +294,52 @@ class Evaluator:
         # Math operations
         if op_type == PLUS:
             result = left_val + right_val
-            return Token(result, self.get_type(result), left.line_num)
+            return Token(str(result), self.get_type(result), left.line_num)
         elif op_type == MINUS:
             result = left_val - right_val
-            return Token(result, self.get_type(result), left.line_num)
+            return Token(str(result), self.get_type(result), left.line_num)
         elif op_type == MULTIPLY:
             result = left_val * right_val
-            return Token(result, self.get_type(result), left.line_num)
+            return Token(str(result), self.get_type(result), left.line_num)
         elif op_type == DIVIDE:
             if right_val == 0:
                 raise Exception("Division by zero")
             result = left_val / right_val
-            return Token(left_val / right_val, self.get_type(result), left.line_num)
+            return Token(str(left_val / right_val), self.get_type(result), left.line_num)
 
         # Binary comparisons
         elif op_type == EQ:
             result = left_val == right_val
             value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
-            return Token(value, BOOLEAN, left.line_num)
+            return Token(str(value), BOOLEAN, left.line_num)
         elif op_type == NE:
             result = left_val != right_val
             value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
-            return Token(value, BOOLEAN, left.line_num)
+            return Token(str(value), BOOLEAN, left.line_num)
         elif op_type == GT:
             result = left_val > right_val
             value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
-            return Token(value, BOOLEAN, left.line_num)
+            return Token(str(value), BOOLEAN, left.line_num)
         elif op_type == GE:
             result = left_val >= right_val
             value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
-            return Token(value, BOOLEAN, left.line_num)
+            return Token(str(value), BOOLEAN, left.line_num)
         elif op_type == LT:
             result = left_val < right_val
             value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
-            return Token(value, BOOLEAN, left.line_num)
+            return Token(str(value), BOOLEAN, left.line_num)
         elif op_type == LE:
             result = left_val <= right_val
             value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
-            return Token(value, BOOLEAN, left.line_num)
+            return Token(str(value), BOOLEAN, left.line_num)
         elif op_type == AND:
             result = left_val and right_val
             value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
-            return Token(value, BOOLEAN, left.line_num)
+            return Token(str(value), BOOLEAN, left.line_num)
         elif op_type == OR:
             result = left_val or right_val
             value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
-            return Token(value, BOOLEAN, left.line_num)
+            return Token(str(value), BOOLEAN, left.line_num)
         else:
             raise Exception(f"Invalid binary operator '{binary_operation.op.value}' at line {binary_operation.op.line_num}")
 
@@ -354,7 +358,9 @@ class Evaluator:
         elif token.type == STRING:
             return token.value
         elif token.type == DICTIONARY:
-            return token.value
+            # All token values are stored as strings, so to get the actual dictionary, the Python interpreter
+            # needs to evaluate the string.
+            return ast.literal_eval(token.value)
 
         raise_error(token.line_num, f"Unsupported type: {token.type}")
 
