@@ -1,6 +1,5 @@
 from .tokens import *
 import string
-from typing import Union, Optional
 
 tokens_dict = get_keyword_dict()
 

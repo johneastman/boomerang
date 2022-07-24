@@ -1,4 +1,5 @@
 language_tokens = {
+    "LET": ("let", "LET"),
     "ASSIGN": ("=", "ASSIGN"),
     "ASSIGN_ADD": ("+=", "ASSIGN_ADD"),
     "ASSIGN_SUB": ("-=", "ASSIGN_SUB"),
@@ -107,6 +108,7 @@ FUNCTION = get_token_type("FUNCTION")
 IF = get_token_type("IF")
 ELSE = get_token_type("ELSE")
 WHILE = get_token_type("WHILE")
+LET = get_token_type("LET")
 
 # Misc
 EOF = get_token_type("EOF")  # End of File

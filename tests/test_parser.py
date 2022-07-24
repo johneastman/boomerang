@@ -15,10 +15,12 @@ def test_precedence_add():
     ]
 
     expected_ast = [
-        _parser.BinaryOperation(
-            _parser.Number(Token("1", INTEGER, 1)),
-            Token("+", PLUS, 1),
-            _parser.Number(Token("1", INTEGER, 1))
+        _parser.ExpressionStatement(
+            _parser.BinaryOperation(
+                _parser.Number(Token("1", INTEGER, 1)),
+                Token("+", PLUS, 1),
+                _parser.Number(Token("1", INTEGER, 1))
+            )
         )
     ]
 
@@ -38,13 +40,15 @@ def test_precedence_multiply():
     ]
 
     expected_ast = [
-        _parser.BinaryOperation(
-            _parser.Number(Token("1", INTEGER, 1)),
-            Token("+", PLUS, 1),
+        _parser.ExpressionStatement(
             _parser.BinaryOperation(
-                _parser.Number(Token("2", INTEGER, 1)),
-                Token("*", MULTIPLY, 1),
-                _parser.Number(Token("4", INTEGER, 1))
+                _parser.Number(Token("1", INTEGER, 1)),
+                Token("+", PLUS, 1),
+                _parser.BinaryOperation(
+                    _parser.Number(Token("2", INTEGER, 1)),
+                    Token("*", MULTIPLY, 1),
+                    _parser.Number(Token("4", INTEGER, 1))
+                )
             )
         )
     ]
@@ -74,17 +78,19 @@ def test_precedence_and_or(test_name, operator_token):
     ]
 
     expected_ast = [
-        _parser.BinaryOperation(
+        _parser.ExpressionStatement(
             _parser.BinaryOperation(
-                _parser.Number(Token("1", INTEGER, 1)),
-                Token("==", EQ, 1),
-                _parser.Number(Token("1", INTEGER, 1))
-            ),
-            operator_token,
-            _parser.BinaryOperation(
-                _parser.Number(Token("2", INTEGER, 1)),
-                Token("!=", NE, 1),
-                _parser.Number(Token("3", INTEGER, 1)),
+                _parser.BinaryOperation(
+                    _parser.Number(Token("1", INTEGER, 1)),
+                    Token("==", EQ, 1),
+                    _parser.Number(Token("1", INTEGER, 1))
+                ),
+                operator_token,
+                _parser.BinaryOperation(
+                    _parser.Number(Token("2", INTEGER, 1)),
+                    Token("!=", NE, 1),
+                    _parser.Number(Token("3", INTEGER, 1)),
+                )
             )
         )
     ]
@@ -105,9 +111,11 @@ def test_dictionary():
     ]
 
     expected_ast = [
-        _parser.Index(
-            _parser.Identifier(Token("dict", IDENTIFIER, 1)),
-            _parser.String(Token("a", STRING, 1))
+        _parser.ExpressionStatement(
+            _parser.Index(
+                _parser.Identifier(Token("dict", IDENTIFIER, 1)),
+                _parser.String(Token("a", STRING, 1))
+            )
         )
     ]
 

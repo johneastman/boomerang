@@ -1,3 +1,5 @@
+import typing
+
 from tokens.tokens import *
 from .ast_objects import *
 from utils import raise_error
@@ -69,32 +71,51 @@ class Parser:
         elif self.current.type == WHILE:
             return self.loop()
 
-        else:
-            return self.expression()
+        elif self.current.type == LET:
+            return self.assign()
 
-    def assign(self, left: Expression) -> Expression:
+        elif self.current.type == IDENTIFIER and self.peek.type in self.assignment_operators:
+            return self.operate_and_assign(self.current)
+
+        else:
+            return ExpressionStatement(self.expression())
+
+    def operate_and_assign(self, variable_name: Token) -> Statement:
+        self.advance()
+
         assignment_operator = self.current
+        self.advance()
+
+        right = self.expression()
+
+        operator_token = {
+            ASSIGN_ADD: Token(get_token_literal("PLUS"), PLUS, assignment_operator.line_num),
+            ASSIGN_SUB: Token(get_token_literal("MINUS"), MINUS, assignment_operator.line_num),
+            ASSIGN_MUL: Token(get_token_literal("MULTIPLY"), MULTIPLY, assignment_operator.line_num),
+            ASSIGN_DIV: Token(get_token_literal("DIVIDE"), DIVIDE, assignment_operator.line_num)
+        }
+
+        return AssignVariable(
+            variable_name,
+            BinaryOperation(
+                Identifier(variable_name),
+                operator_token[assignment_operator.type],
+                right
+            )
+        )
+
+    def assign(self) -> Statement:
+        self.advance()
+        self.is_expected_token(IDENTIFIER)
+        variable_name = self.current
+
+        self.advance()
+        self.is_expected_token(ASSIGN)
+
         self.advance()
         right = self.expression()
 
-        if assignment_operator.type == ASSIGN:
-            return AssignVariable(left, right)
-        else:
-            operator_token = {
-                ASSIGN_ADD: Token(get_token_literal("PLUS"), PLUS, assignment_operator.line_num),
-                ASSIGN_SUB: Token(get_token_literal("MINUS"), MINUS, assignment_operator.line_num),
-                ASSIGN_MUL: Token(get_token_literal("MULTIPLY"), MULTIPLY, assignment_operator.line_num),
-                ASSIGN_DIV: Token(get_token_literal("DIVIDE"), DIVIDE, assignment_operator.line_num)
-            }
-
-            return AssignVariable(
-                left,
-                BinaryOperation(
-                    left,
-                    operator_token[assignment_operator.type],
-                    right
-                )
-            )
+        return AssignVariable(variable_name, right)
 
     def loop(self) -> Statement:
         self.advance()
@@ -209,8 +230,6 @@ class Parser:
                 self.is_expected_token(CLOSED_BRACKET)
                 self.advance()
                 return Index(left, value)
-            elif self.current.type in self.assignment_operators:
-                return self.assign(left)
             else:
                 break
 

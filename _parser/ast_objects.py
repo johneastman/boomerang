@@ -26,6 +26,16 @@ class Factor(Term):
     pass
 
 
+class ExpressionStatement(Statement):
+    def __init__(self, expr: Expression):
+        self.expr = expr
+
+    def __eq__(self, other: object):
+        if not isinstance(other, ExpressionStatement):
+            return False
+        return self.expr == other.expr
+
+
 class Base:
     """Base class for lowest-level objects in the abstract syntax tree.
 
@@ -126,11 +136,11 @@ class NoReturn(Token):
 
 
 class Index(Expression):
-    def __init__(self, left, index):
+    def __init__(self, left: Expression, index: Expression):
         self.left = left
         self.index = index
 
-    def __eq__(self, other):
+    def __eq__(self, other: object):
         if not isinstance(other, Index):
             return False
         return self.left == other.left and self.index == other.index
@@ -140,15 +150,15 @@ class Index(Expression):
 
 
 class Return(Statement):
-    def __init__(self, expression: Expression):
-        self.expression = expression
+    def __init__(self, expr: Expression):
+        self.expr = expr
 
     def __repr__(self):
-        return f"[{self.__class__.__name__}(value={self.expression})]"
+        return f"[{self.__class__.__name__}(value={self.expr})]"
 
 
 class Loop(Statement):
-    def __init__(self, condition, statements):
+    def __init__(self, condition: Expression, statements: list[Statement]):
         self.condition = condition
         self.statements = statements
 
@@ -204,8 +214,8 @@ class BinaryOperation(Expression):
         return self.left == other.left and self.op == other.op and self.right == other.right
 
 
-class AssignVariable(Expression):
-    def __init__(self, name: Expression, value: Expression):
+class AssignVariable(Statement):
+    def __init__(self, name: Token, value: Expression):
         self.name = name
         self.value = value
 
