@@ -48,7 +48,7 @@ class Tokenizer:
                 letters: str = self.read_identifier()
 
                 # Any string that is not a keyword is an identifier (variable, function, etc.)
-                token_type: str = tokens_dict.get(letters, IDENTIFIER)
+                token_type = tokens_dict.get(letters, IDENTIFIER)
                 tokens.append(Token(letters, token_type, self.line_num))
                 continue
 
