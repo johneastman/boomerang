@@ -274,15 +274,12 @@ class Evaluator:
         return value  # type: ignore
 
     def evaluate_dictionary_expression(self, dictionary: _parser.Dictionary) -> _parser.DictionaryToken:
-        keys = []
-        vals = []
+        data = {}
         for key, value in zip(dictionary.keys, dictionary.values):
             eval_key = self.validate_expression(key)
-            keys.append(eval_key)
-
             eval_value = self.validate_expression(value)
-            vals.append(eval_value)
-        return _parser.DictionaryToken(keys, vals, dictionary.line_num)
+            data[eval_key] = eval_value
+        return _parser.DictionaryToken(data, dictionary.line_num)
 
     def evaluate_unary_expression(self, unary_expression):
         expression_result = self.validate_expression(unary_expression.expression)

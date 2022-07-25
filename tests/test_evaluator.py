@@ -6,6 +6,7 @@ from tokens.tokenizer import Token, Tokenizer
 from _parser._parser import Parser, NoReturn
 from evaluator.evaluator import Evaluator
 from evaluator._environment import Environment
+import tests.testing_utils as utils
 
 
 evaluator_tests = [
@@ -19,9 +20,11 @@ evaluator_tests = [
     ("\"hello \" + \"world!\";",  [Token("hello world!", STRING, 1)]),
     ("{\"a\": 1 + 1, \"b\": 3 + (2 * 2 + 1), \"c\": 55};", [
         _parser.ast_objects.DictionaryToken(
-            [Token("a", STRING, 1), Token("b", STRING, 1), Token("c", STRING, 1)],
-            [Token("2", INTEGER, 1), Token("8", INTEGER, 1), Token("55", INTEGER, 1)],
-            1
+            {
+                Token("a", STRING, 1): Token("2", INTEGER, 1),
+                Token("b", STRING, 1): Token("8", INTEGER, 1),
+                Token("c", STRING, 1): Token("55", INTEGER, 1),
+            }, 1
         )
     ]),
 ]
@@ -30,7 +33,7 @@ evaluator_tests = [
 @pytest.mark.parametrize("source,expected_results", evaluator_tests)
 def test_evaluator(source, expected_results):
     actual_results = actual_result(source)
-    assert_tokens_equal(expected_results, actual_results)
+    utils.assert_tokens_equal(expected_results, actual_results)
 
 
 valid_boolean_operations_tests = [
@@ -51,7 +54,7 @@ valid_boolean_operations_tests = [
 @pytest.mark.parametrize("source,expected_results", valid_boolean_operations_tests)
 def test_valid_boolean_operations(source, expected_results):
     actual_results = actual_result(source)
-    assert_tokens_equal(expected_results, actual_results)
+    utils.assert_tokens_equal(expected_results, actual_results)
 
 
 invalid_boolean_operations_tests = [
@@ -97,7 +100,7 @@ valid_unary_operations_tests = [
 @pytest.mark.parametrize("source,expected_results", valid_unary_operations_tests)
 def test_valid_unary_operations(source, expected_results):
     actual_results = actual_result(source)
-    assert_tokens_equal(expected_results, actual_results)
+    utils.assert_tokens_equal(expected_results, actual_results)
 
 
 invalid_unary_operations_tests = [
@@ -157,7 +160,7 @@ def test_function_return():
         NoReturn(line_num=8),
     ]
     actual_results = actual_result(source)
-    assert_tokens_equal(expected_results, actual_results)
+    utils.assert_tokens_equal(expected_results, actual_results)
 
 
 function_calls_tests = [
@@ -182,7 +185,7 @@ def test_function_calls(first_param, second_param, return_val):
         NoReturn(line_num=2),
         Token(return_val, INTEGER, 5)
     ]
-    assert_tokens_equal(expected_results, actual_results)
+    utils.assert_tokens_equal(expected_results, actual_results)
 
 
 assignment_tests = [
@@ -237,7 +240,7 @@ assignment_tests = [
 @pytest.mark.parametrize("source,expected_results", assignment_tests)
 def test_assignment(source, expected_results):
     actual_results = actual_result(source)
-    assert_tokens_equal(expected_results, actual_results)
+    utils.assert_tokens_equal(expected_results, actual_results)
 
 
 def test_dictionary_get():
@@ -249,11 +252,11 @@ def test_dictionary_get():
     """
 
     dict_line_num = 2
-    expected_dictionary_token = _parser.ast_objects.DictionaryToken(
-        [Token("a", STRING, dict_line_num), Token("b", STRING, dict_line_num), Token("c", STRING, dict_line_num)],
-        [Token("1", INTEGER, dict_line_num), Token("2", INTEGER, dict_line_num), Token("3", INTEGER, dict_line_num)],
-        dict_line_num
-    )
+    expected_dictionary_token = _parser.ast_objects.DictionaryToken({
+        Token("a", STRING, dict_line_num): Token("1", INTEGER, dict_line_num),
+        Token("b", STRING, dict_line_num): Token("2", INTEGER, dict_line_num),
+        Token("c", STRING, dict_line_num): Token("3", INTEGER, dict_line_num),
+    }, dict_line_num)
 
     expected_values = [
         expected_dictionary_token,
@@ -274,15 +277,6 @@ def test_dictionary_get_invalid_key():
     with pytest.raises(Exception) as error:
         actual_result(source)
     assert "Error at line 3: No key in dictionary: d" == str(error.value)
-
-
-def assert_tokens_equal(expected_results, actual_results):
-    assert len(expected_results) == len(actual_results)
-
-    for expected, actual in zip(expected_results, actual_results):
-        assert expected.value == actual.value
-        assert expected.type == actual.type
-        assert expected.line_num == actual.line_num
 
 
 def actual_result(source):

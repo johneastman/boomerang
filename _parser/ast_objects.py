@@ -146,21 +146,15 @@ class DictionaryToken(Token):
     Python data type.
     """
 
-    def __init__(self, keys: list[Token], vals: list[Token], line_num: int) -> None:
-        self.keys = keys
-        self.vals = vals
+    def __init__(self, data: dict[Token, Token], line_num: int) -> None:
+        self.data = data
         super().__init__(self.string(), tokens.tokens.DICTIONARY, line_num)
 
     def string(self) -> str:
-        return str({k.value: v.value for k, v in zip(self.keys, self.vals)})
+        return str({k.value: v.value for k, v in self.data.items()})
 
     def get(self, key: Token) -> Optional[Token]:
-        for k, v in zip(self.keys, self.vals):
-            if k.value == key.value and k.type == key.type:
-                # Can't simply compare 'k == key' because the line numbers may not match
-                v.line_num = key.line_num
-                return v
-        return None
+        return self.data.get(key, None)
 
     def __str__(self) -> str:
         return self.string()
@@ -170,7 +164,7 @@ class DictionaryToken(Token):
             return False
 
         return self.value == other.value and self.type == other.type and self.line_num == other.line_num \
-               and self.keys == other.keys and self.vals == other.vals
+               and self.data == other.data
 
 
 class Index(Expression):

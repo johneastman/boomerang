@@ -1,4 +1,5 @@
 import pytest
+import tests.testing_utils as utils
 from tokens.tokens import *
 from tokens.tokenizer import Token, Tokenizer
 
@@ -37,7 +38,7 @@ data_types_tests = [
 @pytest.mark.parametrize("source,expected_tokens", data_types_tests)
 def test_data_types(source, expected_tokens):
     actual_tokens = Tokenizer(source).tokenize()
-    assert_tokens_equal(expected_tokens, actual_tokens)
+    utils.assert_tokens_equal(expected_tokens, actual_tokens)
 
 
 tokenizer_tests = [
@@ -108,10 +109,4 @@ tokenizer_tests = [
 @pytest.mark.parametrize("source, expected_tokens", tokenizer_tests)
 def test_tokenizer(source, expected_tokens):
     actual_tokens = Tokenizer(source).tokenize()
-    assert_tokens_equal(expected_tokens, actual_tokens)
-
-
-def assert_tokens_equal(expected_tokens, actual_tokens):
-    assert len(expected_tokens) == len(actual_tokens)
-    for expected, actual in zip(expected_tokens, actual_tokens):
-        assert expected == actual
+    utils.assert_tokens_equal(expected_tokens, actual_tokens)
