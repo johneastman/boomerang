@@ -13,6 +13,11 @@ class Token:
         self.type = _type
         self.line_num = line_num
 
+    def __str__(self):
+        if self.type == STRING:
+            return f'"{self.value}"'
+        return str(self.value)
+
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}(value: {self.value}, type: {self.type}, line_num: {self.line_num})"
 

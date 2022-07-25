@@ -71,7 +71,7 @@ class Evaluator:
         return evaluated_expressions
 
     def validate_expression(self, expression):
-        value = self.evaluate_expression(expression)
+        value: Token = self.evaluate_expression(expression)
         if isinstance(value, _parser.NoReturn):
             raise_error(value.line_num, "cannot evaluate expression that returns no value")
         return value
@@ -84,126 +84,28 @@ class Evaluator:
             return self.evaluate_unary_expression(expression)
 
         elif type(expression) == _parser.IfStatement:
-            evaluated_comparison = self.validate_expression(expression.comparison)
-            if evaluated_comparison.value == "true":
-                return self.evaluate_statements(expression.true_statements)
-            elif expression.false_statements is not None:
-                return self.evaluate_statements(expression.false_statements)
-            return _parser.NoReturn()
+            return self.evaluate_if_statement(expression)
 
         elif type(expression) == _parser.AssignVariable:
-            # variable = expression.name
-            var_value = self.validate_expression(expression.value)
-            self.env.set_var(expression.name.value, var_value)
-            return var_value
-
-            # if isinstance(variable, _parser.Identifier):
-            #     var_value = self.validate_expression(expression.value)
-            #     self.env.set_var(variable.token.value, var_value)
-            #     return var_value
-            # elif isinstance(variable, _parser.Index):
-            #     dictionary = self.validate_expression(variable.left)
-            #     if dictionary.type != DICTIONARY:
-            #         raise_error(dictionary.line_num, f"Expected {DICTIONARY}, got {dictionary.type}")
-            #
-            #     actual_dict = self.get_literal_value(dictionary)
-            #     key = self.validate_expression(variable.index)
-            #     value = self.evaluate_expression(expression.value)
-            #     actual_dict[key.value] = self.get_literal_value(value)
-            #     dictionary.value = str(actual_dict)
-            #     return _parser.NoReturn(line_num=variable.index.token.line_num)
-            # else:
-            #     variable_type = expression.name.type
-            #     raise_error(expression.name.line_num, f"Cannot assign value to type {variable_type}")
+            return self.evaluate_assign_variable(expression)
 
         elif type(expression) == _parser.AssignFunction:
-            self.env.set_func(expression.name.value, expression)
-            return _parser.NoReturn(line_num=expression.name.line_num)
+            return self.evaluate_assign_function(expression)
 
         elif type(expression) == _parser.Identifier:
-            # For variables, check the current environment. If it does not exist, check the parent environment.
-            # Continue doing this until there are no more parent environments. If the variable does not exist in all
-            # scopes, it does not exist anywhere in the code.
-            env = self.env
-            while env is not None:
-                variable_value = env.get_var(expression.token.value)
-                if variable_value is not None:
-                    return variable_value
-                env = env.parent_env
-
-            raise_error(expression.token.line_num, r"Undefined variable: {expression.token.value}")
+            return self.evaluate_identifier(expression)
 
         elif type(expression) == _parser.FunctionCall:
-            function_name = expression.name.value
-
-            function: typing.Optional[_parser.AssignFunction] = None
-            env = self.env
-            while env is not None:
-                f = env.get_func(expression.name.value)
-                if f is not None:
-                    function = f
-                env = env.parent_env
-
-            # If the function is not defined in the functions dictionary, throw an error saying the
-            # function is undefined
-            if function is None:
-                raise_error(expression.name.line_num, f"Undefined function: {function_name}")
-
-            parameter_identifiers = function.parameters  # type: ignore
-            parameter_values = expression.parameter_values
-
-            if len(parameter_identifiers) != len(parameter_values):
-                error_msg = "Incorrect number of arguments. "
-                error_msg += f"Function '{function_name}' defined with {len(parameter_identifiers)} parameters "
-                error_msg += f"({', '.join(map(lambda t: t.value, parameter_identifiers))}), "
-                error_msg += f"but {len(parameter_values)} given."
-                raise_error(expression.name.line_num, error_msg)
-
-            # Map the parameters to their values and set them in the variables dictionary
-            evaluated_param_values = {}
-            for param_name, param_value in zip(parameter_identifiers, parameter_values):
-                evaluated_param_values[param_name.value] = self.validate_expression(param_value)
-
-            # Create a new environment for the function's variables
-            self.env = Environment(parent_env=self.env)
-            self.env.set_vars(evaluated_param_values)
-
-            # Evaluate every expression in the function body
-            statements = function.statements  # type: ignore
-
-            try:
-                # If a ReturnException is never thrown, then the function does not return anything.
-                self.evaluate_statements(statements)
-                return _parser.NoReturn(line_num=expression.name.line_num)
-            except ReturnException as return_exception:
-                # If a ReturnException is thrown, return the value of the evaluated expression in the return statement
-                return_token = return_exception.token
-                return_token.line_num = expression.name.line_num
-                return return_token
-            finally:
-                # After the function is called, switch to the parent environment
-                self.env = self.env.parent_env
+            return self.evaluate_function_call(expression)
 
         elif type(expression) == _parser.Loop:
-            while self.validate_expression(expression.condition).value == "true":
-                self.evaluate_statements(expression.statements)
-            return _parser.NoReturn()
+            return self.evaluate_loop_statement(expression)
 
         elif type(expression) == _parser.Print:
-            evaluated_params = []
-            for param in expression.params:
-                result = self.validate_expression(param)
-                evaluated_params.append(str(result.value))
-            print(" ".join(evaluated_params))
-            return _parser.NoReturn(line_num=expression.line_num)
+            return self.evaluate_print_statement(expression)
 
         elif type(expression) == _parser.Type:
-            num_args = len(expression.params)
-            if num_args != 1:
-                raise_error(expression.line_num, f"Expected 1 argument; got {num_args}")
-
-            result = self.validate_expression(expression.params[0])
-            return Token(result.type, result.type, expression.line_num)
+            return self.evaluate_type_expression(expression)
 
         elif type(expression) == _parser.Random:
             return Token(str(random.random()), FLOAT, expression.line_num)
@@ -221,35 +123,166 @@ class Evaluator:
             return expression.token
 
         elif type(expression) == _parser.Dictionary:
-            dictionary = {}
-            for key, value in zip(expression.keys, expression.values):
-                eval_key = self.validate_expression(key)
-                eval_value = self.validate_expression(value)
-                dictionary[eval_key.value] = self.get_literal_value(eval_value)
-
-            return Token(str(dictionary).replace("'", '"'), DICTIONARY, expression.line_num)
+            return self.evaluate_dictionary_expression(expression)
 
         elif type(expression) == _parser.Return:
             return self.validate_expression(expression.expr)
 
         elif type(expression) == _parser.Index:
-            dictionary = self.validate_expression(expression.left)
-            actual_dict = self.get_literal_value(dictionary)
-            if dictionary.type != DICTIONARY:
-                raise_error(dictionary.line_num, f"Expected {DICTIONARY}, got {dictionary.type}")
-
-            key = self.validate_expression(expression.index)
-            value = actual_dict.get(key.value, None)
-            if value is None:
-                raise_error(key.line_num, f"No key in dictionary: {key.value}")
-
-            return Token(str(value), self.get_type(value), key.line_num)
+            return self.evaluate_index_expression(expression)
 
         elif type(expression) == _parser.ExpressionStatement:
             return self.evaluate_expression(expression.expr)
 
         else:
             raise Exception(f"Unsupported type: {type(expression)}")
+
+    def evaluate_assign_variable(self, variable_assignment: _parser.AssignVariable) -> Token:
+        # variable = expression.name
+        var_value = self.validate_expression(variable_assignment.value)
+        self.env.set_var(variable_assignment.name.value, var_value)
+        return var_value
+
+        # if isinstance(variable, _parser.Identifier):
+        #     var_value = self.validate_expression(expression.value)
+        #     self.env.set_var(variable.token.value, var_value)
+        #     return var_value
+        # elif isinstance(variable, _parser.Index):
+        #     dictionary = self.validate_expression(variable.left)
+        #     if dictionary.type != DICTIONARY:
+        #         raise_error(dictionary.line_num, f"Expected {DICTIONARY}, got {dictionary.type}")
+        #
+        #     actual_dict = self.get_literal_value(dictionary)
+        #     key = self.validate_expression(variable.index)
+        #     value = self.evaluate_expression(expression.value)
+        #     actual_dict[key.value] = self.get_literal_value(value)
+        #     dictionary.value = str(actual_dict)
+        #     return _parser.NoReturn(line_num=variable.index.token.line_num)
+        # else:
+        #     variable_type = expression.name.type
+        #     raise_error(expression.name.line_num, f"Cannot assign value to type {variable_type}")
+
+    def evaluate_assign_function(self, function_definition: _parser.AssignFunction) -> Token:
+        self.env.set_func(function_definition.name.value, function_definition)
+        return _parser.NoReturn(line_num=function_definition.name.line_num)
+
+    def evaluate_identifier(self, identifier: _parser.Identifier) -> Token:  # type: ignore
+        # For variables, check the current environment. If it does not exist, check the parent environment.
+        # Continue doing this until there are no more parent environments. If the variable does not exist in all
+        # scopes, it does not exist anywhere in the code.
+        env = self.env
+        while env is not None:
+            variable_value = env.get_var(identifier.token.value)
+            if variable_value is not None:
+                return variable_value
+            env = env.parent_env
+
+        raise_error(identifier.token.line_num, r"Undefined variable: {expression.token.value}")
+
+    def evaluate_function_call(self, function_call: _parser.FunctionCall) -> Token:
+        function_name = function_call.name.value
+
+        function: typing.Optional[_parser.AssignFunction] = None
+        env = self.env
+        while env is not None:
+            f = env.get_func(function_call.name.value)
+            if f is not None:
+                function = f
+            env = env.parent_env
+
+        # If the function is not defined in the functions dictionary, throw an error saying the
+        # function is undefined
+        if function is None:
+            raise_error(function_call.name.line_num, f"Undefined function: {function_name}")
+
+        parameter_identifiers = function.parameters  # type: ignore
+        parameter_values = function_call.parameter_values
+
+        if len(parameter_identifiers) != len(parameter_values):
+            error_msg = "Incorrect number of arguments. "
+            error_msg += f"Function '{function_name}' defined with {len(parameter_identifiers)} parameters "
+            error_msg += f"({', '.join(map(lambda t: t.value, parameter_identifiers))}), "
+            error_msg += f"but {len(parameter_values)} given."
+            raise_error(function_call.name.line_num, error_msg)
+
+        # Map the parameters to their values and set them in the variables dictionary
+        evaluated_param_values = {}
+        for param_name, param_value in zip(parameter_identifiers, parameter_values):
+            evaluated_param_values[param_name.value] = self.validate_expression(param_value)
+
+        # Create a new environment for the function's variables
+        self.env = Environment(parent_env=self.env)
+        self.env.set_vars(evaluated_param_values)
+
+        # Evaluate every expression in the function body
+        statements = function.statements  # type: ignore
+
+        try:
+            # If a ReturnException is never thrown, then the function does not return anything.
+            self.evaluate_statements(statements)
+            return _parser.NoReturn(line_num=function_call.name.line_num)
+        except ReturnException as return_exception:
+            # If a ReturnException is thrown, return the value of the evaluated expression in the return statement
+            return_token = return_exception.token
+            return_token.line_num = function_call.name.line_num
+            return return_token
+        finally:
+            # After the function is called, switch to the parent environment
+            self.env = self.env.parent_env
+
+    def evaluate_loop_statement(self, loop: _parser.Loop) -> Token:
+        while self.validate_expression(loop.condition).value == "true":
+            self.evaluate_statements(loop.statements)
+        return _parser.NoReturn()
+
+    def evaluate_if_statement(self, if_statement: _parser.IfStatement) -> Token:
+        evaluated_comparison = self.validate_expression(if_statement.comparison)
+        if evaluated_comparison.value == get_token_literal("TRUE"):
+            return self.evaluate_statements(if_statement.true_statements)
+        elif if_statement.false_statements is not None:
+            return self.evaluate_statements(if_statement.false_statements)
+        return _parser.NoReturn()
+
+    def evaluate_print_statement(self, _print: _parser.Print) -> Token:
+        evaluated_params = []
+        for param in _print.params:
+            result = self.validate_expression(param)
+            evaluated_params.append(str(result))
+        print(" ".join(evaluated_params))
+        return _parser.NoReturn(line_num=_print.line_num)
+
+    def evaluate_type_expression(self, _type: _parser.Type) -> Token:
+        num_args = len(_type.params)
+        if num_args != 1:
+            raise_error(_type.line_num, f"Expected 1 argument; got {num_args}")
+
+        result = self.validate_expression(_type.params[0])
+        return Token(result.type, result.type, _type.line_num)
+
+    def evaluate_index_expression(self, index: _parser.Index) -> Token:
+        dictionary_token: _parser.DictionaryToken = self.evaluate_expression(index.left)
+        if dictionary_token.type != DICTIONARY:
+            raise_error(dictionary_token.line_num, f"Expected {DICTIONARY}, got {dictionary_token.type}")
+
+        key = self.validate_expression(index.index)
+        value = dictionary_token.get(key)
+        if value is None:
+            raise_error(key.line_num, f"No key in dictionary: {key.value}")
+
+        # mypy expects an Optional[Token] because 'value' can be None. However, an exception is throws if 'value'
+        # is None, so the return type will always be a Token.
+        return value  # type: ignore
+
+    def evaluate_dictionary_expression(self, dictionary: _parser.Dictionary) -> _parser.DictionaryToken:
+        keys = []
+        vals = []
+        for key, value in zip(dictionary.keys, dictionary.values):
+            eval_key = self.validate_expression(key)
+            keys.append(eval_key)
+
+            eval_value = self.validate_expression(value)
+            vals.append(eval_value)
+        return _parser.DictionaryToken(keys, vals, dictionary.line_num)
 
     def evaluate_unary_expression(self, unary_expression):
         expression_result = self.validate_expression(unary_expression.expression)
@@ -370,7 +403,7 @@ class Evaluator:
 
         raise_error(token.line_num, f"Unsupported type: {token.type}")
 
-    def get_type(self, value: object):
+    def get_type(self, value: object) -> str:
         if isinstance(value, float):
             return FLOAT
         elif isinstance(value, int):

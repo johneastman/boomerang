@@ -1,4 +1,6 @@
 import pytest
+
+import _parser.ast_objects
 from tokens.tokens import *
 from tokens.tokenizer import Token, Tokenizer
 from _parser._parser import Parser, NoReturn
@@ -15,7 +17,13 @@ evaluator_tests = [
     ("7 / 2;", [Token("3.5", FLOAT, 1)]),
     ("1 + 1 * 2 + 3 / 4;", [Token("3.75", FLOAT, 1)]),
     ("\"hello \" + \"world!\";",  [Token("hello world!", STRING, 1)]),
-    ("{\"a\": 1 + 1, \"b\": 3 + (2 * 2 + 1), \"c\": 55};", [Token('{"a": 2, "b": 8, "c": 55}', DICTIONARY, 1)]),
+    ("{\"a\": 1 + 1, \"b\": 3 + (2 * 2 + 1), \"c\": 55};", [
+        _parser.ast_objects.DictionaryToken(
+            [Token("a", STRING, 1), Token("b", STRING, 1), Token("c", STRING, 1)],
+            [Token("2", INTEGER, 1), Token("8", INTEGER, 1), Token("55", INTEGER, 1)],
+            1
+        )
+    ]),
 ]
 
 
@@ -240,8 +248,15 @@ def test_dictionary_get():
     d["c"];
     """
 
+    dict_line_num = 2
+    expected_dictionary_token = _parser.ast_objects.DictionaryToken(
+        [Token("a", STRING, dict_line_num), Token("b", STRING, dict_line_num), Token("c", STRING, dict_line_num)],
+        [Token("1", INTEGER, dict_line_num), Token("2", INTEGER, dict_line_num), Token("3", INTEGER, dict_line_num)],
+        dict_line_num
+    )
+
     expected_values = [
-        Token("{\"a\": 1, \"b\": 2, \"c\": 3}", DICTIONARY, 2),
+        expected_dictionary_token,
         Token("1", INTEGER, 3),
         Token("2", INTEGER, 4),
         Token("3", INTEGER, 5),

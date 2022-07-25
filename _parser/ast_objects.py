@@ -1,3 +1,4 @@
+import tokens.tokens
 from tokens.tokenizer import Token
 from typing import Optional
 
@@ -41,6 +42,7 @@ class Base:
 
     Data types line integers, floats, booleans, strings, etc., but also identifiers (variables, functions, etc.)
     """
+
     def __init__(self, token: Token):
         self.token = token
 
@@ -135,6 +137,42 @@ class NoReturn(Token):
         return self.value == other.value and self.type == other.type and self.line_num == other.line_num
 
 
+class DictionaryToken(Token):
+    """Token object for storing dictionaries.
+
+    We could use a Python dictionary as the internal structure--that would probably be more efficient. However,
+    this implementation allows for storing the keys and values as full token. This implementations means we don't have
+    to recreate the token after fetching the literal value from the dictionary or interpret the token type from the
+    Python data type.
+    """
+
+    def __init__(self, keys: list[Token], vals: list[Token], line_num: int) -> None:
+        self.keys = keys
+        self.vals = vals
+        super().__init__(self.string(), tokens.tokens.DICTIONARY, line_num)
+
+    def string(self) -> str:
+        return str({k.value: v.value for k, v in zip(self.keys, self.vals)})
+
+    def get(self, key: Token) -> Optional[Token]:
+        for k, v in zip(self.keys, self.vals):
+            if k.value == key.value and k.type == key.type:
+                # Can't simply compare 'k == key' because the line numbers may not match
+                v.line_num = key.line_num
+                return v
+        return None
+
+    def __str__(self) -> str:
+        return self.string()
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, DictionaryToken):
+            return False
+
+        return self.value == other.value and self.type == other.type and self.line_num == other.line_num \
+               and self.keys == other.keys and self.vals == other.vals
+
+
 class Index(Expression):
     def __init__(self, left: Expression, index: Expression):
         self.left = left
@@ -182,7 +220,6 @@ class IfStatement(Statement):
                  comparison: Expression,
                  true_statements: list[Statement],
                  false_statements: Optional[list[Statement]]):
-
         self.comparison = comparison
         self.true_statements = true_statements
         self.false_statements = false_statements
