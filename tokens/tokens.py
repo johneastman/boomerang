@@ -1,4 +1,6 @@
-language_tokens = {
+from typing import Tuple
+
+language_tokens: dict[str, Tuple[str, str]] = {
     "LET": ("let", "LET"),
     "ASSIGN": ("=", "ASSIGN"),
     "ASSIGN_ADD": ("+=", "ASSIGN_ADD"),
@@ -47,76 +49,76 @@ language_tokens = {
 }
 
 
-def get_keyword_dict():
+def get_keyword_dict() -> dict[str, str]:
     return {literal: _type for literal, _type in language_tokens.values()}
 
 
-def get_token(name: str):
+def get_token(name: str) -> Tuple[str, str]:
     token = language_tokens.get(name, None)
     if token is None:
         raise Exception(f"No token for name: {name}")
     return token
 
 
-def get_token_type(name: str):
+def get_token_type(name: str) -> str:
     _, _type = get_token(name)
     return _type
 
 
-def get_token_literal(name: str):
+def get_token_literal(name: str) -> str:
     literal, _ = get_token(name)
     return literal
 
 
 # Symbols
-ASSIGN = get_token_type("ASSIGN")
-ASSIGN_ADD = get_token_type("ASSIGN_ADD")
-ASSIGN_SUB = get_token_type("ASSIGN_SUB")
-ASSIGN_MUL = get_token_type("ASSIGN_MUL")
-ASSIGN_DIV = get_token_type("ASSIGN_DIV")
-PLUS = get_token_type("PLUS")
-MINUS = get_token_type("MINUS")
-MULTIPLY = get_token_type("MULTIPLY")
-DIVIDE = get_token_type("DIVIDE")
-SEMICOLON = get_token_type("SEMICOLON")
-OPEN_PAREN = get_token_type("OPEN_PAREN")
-CLOSED_PAREN = get_token_type("CLOSED_PAREN")
-OPEN_CURLY_BRACKET = get_token_type("OPEN_CURLY_BRACKET")
-CLOSED_CURLY_BRACKET = get_token_type("CLOSED_CURLY_BRACKET")
-COMMA = get_token_type("COMMA")
-COMMENT = get_token_type("COMMENT")
-BLOCK_COMMENT = get_token_type("BLOCK_COMMENT")
-DOUBLE_QUOTE = get_token_type("DOUBLE_QUOTE")
-COLON = get_token_type("COLON")
-OPEN_BRACKET = get_token_type("OPEN_BRACKET")
-CLOSED_BRACKET = get_token_type("CLOSED_BRACKET")
+ASSIGN: str = get_token_type("ASSIGN")
+ASSIGN_ADD: str = get_token_type("ASSIGN_ADD")
+ASSIGN_SUB: str = get_token_type("ASSIGN_SUB")
+ASSIGN_MUL: str = get_token_type("ASSIGN_MUL")
+ASSIGN_DIV: str = get_token_type("ASSIGN_DIV")
+PLUS: str = get_token_type("PLUS")
+MINUS: str = get_token_type("MINUS")
+MULTIPLY: str = get_token_type("MULTIPLY")
+DIVIDE: str = get_token_type("DIVIDE")
+SEMICOLON: str = get_token_type("SEMICOLON")
+OPEN_PAREN: str = get_token_type("OPEN_PAREN")
+CLOSED_PAREN: str = get_token_type("CLOSED_PAREN")
+OPEN_CURLY_BRACKET: str = get_token_type("OPEN_CURLY_BRACKET")
+CLOSED_CURLY_BRACKET: str = get_token_type("CLOSED_CURLY_BRACKET")
+COMMA: str = get_token_type("COMMA")
+COMMENT: str = get_token_type("COMMENT")
+BLOCK_COMMENT: str = get_token_type("BLOCK_COMMENT")
+DOUBLE_QUOTE: str = get_token_type("DOUBLE_QUOTE")
+COLON: str = get_token_type("COLON")
+OPEN_BRACKET: str = get_token_type("OPEN_BRACKET")
+CLOSED_BRACKET: str = get_token_type("CLOSED_BRACKET")
 
 # Comparison/Boolean Operators
-EQ = get_token_type("EQ")
-NE = get_token_type("NE")
-GE = get_token_type("GE")
-LE = get_token_type("LE")
-GT = get_token_type("GT")
-LT = get_token_type("LT")
-BANG = get_token_type("BANG")
-AND = get_token_type("AND")
-OR = get_token_type("OR")
+EQ: str = get_token_type("EQ")
+NE: str = get_token_type("NE")
+GE: str = get_token_type("GE")
+LE: str = get_token_type("LE")
+GT: str = get_token_type("GT")
+LT: str = get_token_type("LT")
+BANG: str = get_token_type("BANG")
+AND: str = get_token_type("AND")
+OR: str = get_token_type("OR")
 
 # Keywords
-RETURN = get_token_type("RETURN")
-FUNCTION = get_token_type("FUNCTION")
-IF = get_token_type("IF")
-ELSE = get_token_type("ELSE")
-WHILE = get_token_type("WHILE")
-LET = get_token_type("LET")
+RETURN: str = get_token_type("RETURN")
+FUNCTION: str = get_token_type("FUNCTION")
+IF: str = get_token_type("IF")
+ELSE: str = get_token_type("ELSE")
+WHILE: str = get_token_type("WHILE")
+LET: str = get_token_type("LET")
 
 # Misc
-EOF = get_token_type("EOF")  # End of File
-IDENTIFIER = get_token_type("IDENTIFIER")
+EOF: str = get_token_type("EOF")  # End of File
+IDENTIFIER: str = get_token_type("IDENTIFIER")
 
 # Data Types
-STRING = get_token_type("STRING")
-INTEGER = get_token_type("INTEGER")
-BOOLEAN = get_token_type("BOOLEAN")
-FLOAT = get_token_type("FLOAT")
-DICTIONARY = get_token_type("DICTIONARY")
+STRING: str = get_token_type("STRING")
+INTEGER: str = get_token_type("INTEGER")
+BOOLEAN: str = get_token_type("BOOLEAN")
+FLOAT: str = get_token_type("FLOAT")
+DICTIONARY: str = get_token_type("DICTIONARY")

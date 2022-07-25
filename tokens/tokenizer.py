@@ -1,3 +1,5 @@
+from typing import Optional, Callable, Tuple
+
 from .tokens import *
 import string
 
@@ -6,29 +8,29 @@ tokens_dict = get_keyword_dict()
 
 class Token:
 
-    def __init__(self, value: str, _type: str, line_num: int):
+    def __init__(self, value: str, _type: str, line_num: int) -> None:
         self.value = value
         self.type = _type
         self.line_num = line_num
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"{self.__class__.__name__}(value: {self.value}, type: {self.type}, line_num: {self.line_num})"
 
-    def __eq__(self, other: object):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Token):
             return False
         return self.value == other.value and self.type == other.type and self.line_num == other.line_num
 
 
 class Tokenizer:
-    def __init__(self, source: str):
-        self.source = source
-        self.index = 0
-        self.line_num = 1
-        self.line_col = 1
+    def __init__(self, source: str) -> None:
+        self.source: str = source
+        self.index: int = 0
+        self.line_num: int = 1
+        self.line_col: int = 1
 
-    def tokenize(self):
-        tokens = []
+    def tokenize(self) -> list[Token]:
+        tokens: list[Token] = []
 
         while True:
             self.skip_whitespace()
@@ -37,22 +39,22 @@ class Tokenizer:
                 break
 
             elif self.is_digit():
-                number = self.read_number()
-                token_type = FLOAT if "." in number else INTEGER
+                number: str = self.read_number()
+                token_type: str = FLOAT if "." in number else INTEGER
                 tokens.append(Token(number, token_type, self.line_num))
                 continue
 
             elif self.is_identifier():
-                letters = self.read_identifier()
+                letters: str = self.read_identifier()
 
                 # Any string that is not a keyword is an identifier (variable, function, etc.)
-                token_type = tokens_dict.get(letters, IDENTIFIER)
+                token_type: str = tokens_dict.get(letters, IDENTIFIER)
                 tokens.append(Token(letters, token_type, self.line_num))
                 continue
 
             elif self.is_string():
                 self.advance()
-                string_literal = self.read_string()
+                string_literal: str = self.read_string()
                 tokens.append(Token(string_literal, STRING, self.line_num))
                 self.advance()
 
@@ -60,9 +62,13 @@ class Tokenizer:
                 # Find all tokens starting with the current character. Sort by the length of each token in descending
                 # order. This ensures shorter tokens with similar characters to longer tokens are not mistakenly
                 # matched (for example, '==' might get confused as two '=' if the smaller tokens are ordered first).
-                matching_tokens = sorted(
+                #
+                # l = literal
+                # t = type
+                key_sort: Callable[[Tuple[str, str, int]], int] = lambda data: data[2]
+                matching_tokens: list[Tuple[str, str, int]] = sorted(
                     [(l, t, len(l)) for l, t in tokens_dict.items() if l.startswith(self.current)],
-                    key=lambda data: data[2], reverse=True
+                    key=key_sort, reverse=True
                 )
 
                 # If no tokens are found, then assume an invalid character
@@ -70,7 +76,7 @@ class Tokenizer:
                     self.raise_invalid_char(self.current)
 
                 for literal, _type, literal_len in matching_tokens:
-                    matching_source = self.source[self.index:self.index + literal_len]
+                    matching_source: str = self.source[self.index:self.index + literal_len]
                     if matching_source == literal:
 
                         # Skip single-line and block comments
@@ -90,35 +96,35 @@ class Tokenizer:
         tokens.append(Token("", EOF, self.line_num))  # Add end-of-file token
         return tokens
 
-    def raise_invalid_char(self, char: str):
+    def raise_invalid_char(self, char: str) -> None:
         raise Exception(f"Invalid character: {char}")
 
     @property
-    def current(self):
+    def current(self) -> Optional[str]:
         return self.source[self.index] if self.index < len(self.source) else None
 
     @property
-    def next_char(self):
-        next_char_index = self.index + 1
+    def next_char(self) -> Optional[str]:
+        next_char_index: int = self.index + 1
         return self.source[next_char_index] if next_char_index < len(self.source) else None
 
-    def advance(self):
+    def advance(self) -> None:
         self.index += 1
 
-    def skip_whitespace(self):
+    def skip_whitespace(self) -> None:
         while self.current is not None and self.current.isspace():
             if self.current == "\n":
                 self.line_num += 1
 
             self.advance()
 
-    def skip_comment(self):
+    def skip_comment(self) -> None:
         # If a hash symbol is found, skip until the end of the line
         while self.current is not None and self.current != "\n":
             self.advance()
         self.line_num += 1
 
-    def skip_block_comment(self):
+    def skip_block_comment(self) -> None:
         while True:
             if self.current == "*" and self.next_char == "/":
                 # Advance past two characters that close the block comment
@@ -131,39 +137,39 @@ class Tokenizer:
 
             self.advance()
 
-    def is_string(self):
+    def is_string(self) -> bool:
         return self.current is not None and self.current == get_token_literal("DOUBLE_QUOTE")
 
-    def is_identifier(self, include_nums: bool = False):
+    def is_identifier(self, include_nums: bool = False) -> bool:
         """Determine if a character is valid for an identifier (a-z, A-Z, 0-9, _)
 
         :param include_nums: Set if digits are allowed in the valid identifier characters. Identifiers can't start
         with numbers, but can include numbers.
         :return:
         """
-        valid_chars = string.ascii_letters + "_"
+        valid_chars: str = string.ascii_letters + "_"
         if include_nums:
             valid_chars += string.digits
 
         return self.current is not None and self.current in valid_chars
 
-    def is_digit(self):
+    def is_digit(self) -> bool:
         return self.current is not None and (self.current.isdigit() or self.current == ".")
 
-    def read_number(self):
-        pos = self.index
+    def read_number(self) -> str:
+        pos: int = self.index
         while self.is_digit():
             self.advance()
         return self.source[pos:self.index]
 
-    def read_string(self):
-        pos = self.index
+    def read_string(self) -> str:
+        pos: int = self.index
         while not self.is_string():
             self.advance()
         return self.source[pos:self.index]
 
-    def read_identifier(self):
-        pos = self.index
+    def read_identifier(self) -> str:
+        pos: int = self.index
         while self.is_identifier(include_nums=True):
             self.advance()
         return self.source[pos:self.index]
