@@ -145,13 +145,13 @@ class Evaluator:
             self.env.set_var(variable.token.value, var_value)
             return var_value
         elif isinstance(variable, _parser.Index):
-            dictionary = self.validate_expression(variable.left)
+            dictionary: _parser.DictionaryToken = self.validate_expression(variable.left)
             if dictionary.type != DICTIONARY:
                 raise_error(dictionary.line_num, f"Expected {DICTIONARY}, got {dictionary.type}")
 
             key = self.validate_expression(variable.index)
             value = self.evaluate_expression(variable_assignment.value)
-            dictionary.data[key] = value
+            dictionary.set(key, value)
             return _parser.NoReturn(line_num=dictionary.line_num)
         else:
             variable_type = variable_assignment.name.type  # type: ignore
@@ -226,7 +226,7 @@ class Evaluator:
             self.env = self.env.parent_env
 
     def evaluate_loop_statement(self, loop: _parser.Loop) -> Token:
-        while self.validate_expression(loop.condition).value == "true":
+        while self.validate_expression(loop.condition).value == get_token_literal("TRUE"):
             self.evaluate_statements(loop.statements)
         return _parser.NoReturn()
 

@@ -233,6 +233,15 @@ assignment_tests = [
         DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
         NoReturn(line_num=1),
         Token("5", INTEGER, 1)
+    ]),
+    ("let d = {\"a\": {1: 1, 2: 2}}; let d[\"a\"][1] += 20; d[\"a\"][1];", [
+        DictionaryToken({
+            Token("a", STRING, 1): DictionaryToken({
+                Token("1", INTEGER, 1): Token("1", INTEGER, 1),
+                Token("2", INTEGER, 1): Token("2", INTEGER, 1)}, 1)
+        }, 1),
+        NoReturn(line_num=1),
+        Token("21", INTEGER, 1)
     ])
 ]
 

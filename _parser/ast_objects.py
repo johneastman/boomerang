@@ -1,5 +1,6 @@
 import tokens.tokens
 from tokens.tokenizer import Token
+from tokens.tokens import *
 from typing import Optional
 
 
@@ -150,8 +151,31 @@ class DictionaryToken(Token):
         self.data = data
         super().__init__(self.string(), tokens.tokens.DICTIONARY, line_num)
 
+    def set(self, key: Token, value: Token) -> None:
+        self.data[key] = value
+        self.value = self.string()
+
     def string(self) -> str:
-        return str({k.value: v.value for k, v in self.data.items()})
+        def traverse(d: dict[Token, Token]):
+            s = "{"
+            for i, (k, v) in enumerate(d.items()):
+                if isinstance(v, dict):
+                    s += f"{display_val(k)}: {traverse(v)}"
+                else:
+                    s += f"{display_val(k)}: {display_val(v)}"
+
+                # Don't add a comma after the last element in the list of key-pair values
+                if i < len(d.items()) - 1:
+                    s += ", "
+            s += "}"
+            return s
+
+        def display_val(t: Token) -> str:
+            if t.type == STRING:
+                return f"\"{t.value}\""
+            return t.value
+
+        return traverse(self.data)
 
     def get(self, key: Token) -> Optional[Token]:
         return self.data.get(key, None)
