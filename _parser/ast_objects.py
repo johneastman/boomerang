@@ -246,7 +246,7 @@ class BinaryOperation(Expression):
 
 
 class AssignVariable(Statement):
-    def __init__(self, name: Token, value: Expression):
+    def __init__(self, name: Expression, value: Expression):
         self.name = name
         self.value = value
 

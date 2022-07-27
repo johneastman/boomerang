@@ -32,7 +32,7 @@ class ASTVisualizer:
                 self.add_edge(node_id, id(param))
                 self.__visualize(param)
         elif type(expression) == AssignVariable:
-            self.add_node(node_id, f"{expression.name.value} =")
+            self.add_node(node_id, f"{expression.name.value} =")  # type: ignore
             self.add_edge(node_id, id(expression.value))
             self.__visualize(expression.value)
         else:
