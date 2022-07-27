@@ -189,22 +189,22 @@ def test_function_calls(first_param, second_param, return_val):
 
 
 assignment_tests = [
-    ("let a = 2; a += 2; a;", [
+    ("let a = 2; let a += 2; a;", [
         Token("2", INTEGER, 1),
         Token("4", INTEGER, 1),
         Token("4", INTEGER, 1)
     ]),
-    ("let a = 2; a -= 2; a;", [
+    ("let a = 2; let a -= 2; a;", [
         Token("2", INTEGER, 1),
         Token("0", INTEGER, 1),
         Token("0", INTEGER, 1)
     ]),
-    ("let a = 2; a *= 2; a;", [
+    ("let a = 2; let a *= 2; a;", [
         Token("2", INTEGER, 1),
         Token("4", INTEGER, 1),
         Token("4", INTEGER, 1)
     ]),
-    ("let a = 2; a /= 2; a;", [
+    ("let a = 2; let a /= 2; a;", [
         Token("2", INTEGER, 1),
         Token("1.0", FLOAT, 1),
         Token("1.0", FLOAT, 1)
