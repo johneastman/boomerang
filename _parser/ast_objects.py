@@ -89,7 +89,7 @@ class Random(BuiltinFunction):
         super().__init__(params, line_num)
 
 
-class Number(Base, Factor):
+class Integer(Base, Factor):
     def __init__(self, token: Token):
         super().__init__(token)
 

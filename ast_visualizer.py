@@ -18,10 +18,10 @@ class ASTVisualizer:
         if type(expression) == BinaryOperation:
             self.add_node(node_id, expression.op.value)
 
-            if expression.left not in [Number, Boolean]:
+            if expression.left not in [Integer, Boolean]:
                 self.add_edge(node_id, id(expression.left))
 
-            if expression.right not in [Number, Boolean]:
+            if expression.right not in [Integer, Boolean]:
                 self.add_edge(node_id, id(expression.right))
 
             self.__visualize(expression.left)

@@ -17,9 +17,9 @@ def test_precedence_add():
     expected_ast = [
         _parser.ExpressionStatement(
             _parser.BinaryOperation(
-                _parser.Number(Token("1", INTEGER, 1)),
+                _parser.Integer(Token("1", INTEGER, 1)),
                 Token("+", PLUS, 1),
-                _parser.Number(Token("1", INTEGER, 1))
+                _parser.Integer(Token("1", INTEGER, 1))
             )
         )
     ]
@@ -42,12 +42,12 @@ def test_precedence_multiply():
     expected_ast = [
         _parser.ExpressionStatement(
             _parser.BinaryOperation(
-                _parser.Number(Token("1", INTEGER, 1)),
+                _parser.Integer(Token("1", INTEGER, 1)),
                 Token("+", PLUS, 1),
                 _parser.BinaryOperation(
-                    _parser.Number(Token("2", INTEGER, 1)),
+                    _parser.Integer(Token("2", INTEGER, 1)),
                     Token("*", MULTIPLY, 1),
-                    _parser.Number(Token("4", INTEGER, 1))
+                    _parser.Integer(Token("4", INTEGER, 1))
                 )
             )
         )
@@ -81,15 +81,15 @@ def test_precedence_and_or(test_name, operator_token):
         _parser.ExpressionStatement(
             _parser.BinaryOperation(
                 _parser.BinaryOperation(
-                    _parser.Number(Token("1", INTEGER, 1)),
+                    _parser.Integer(Token("1", INTEGER, 1)),
                     Token("==", EQ, 1),
-                    _parser.Number(Token("1", INTEGER, 1))
+                    _parser.Integer(Token("1", INTEGER, 1))
                 ),
                 operator_token,
                 _parser.BinaryOperation(
-                    _parser.Number(Token("2", INTEGER, 1)),
+                    _parser.Integer(Token("2", INTEGER, 1)),
                     Token("!=", NE, 1),
-                    _parser.Number(Token("3", INTEGER, 1)),
+                    _parser.Integer(Token("3", INTEGER, 1)),
                 )
             )
         )

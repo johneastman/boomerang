@@ -110,7 +110,7 @@ class Evaluator:
         elif type(expression) == _parser.Random:
             return Token(str(random.random()), FLOAT, expression.line_num)
 
-        elif type(expression) == _parser.Number:
+        elif type(expression) == _parser.Integer:
             return expression.token
 
         elif type(expression) == _parser.Float:

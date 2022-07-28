@@ -303,7 +303,7 @@ class Parser:
         elif self.current.type == INTEGER:
             number_token = self.current
             self.advance()
-            return Number(number_token)
+            return Integer(number_token)
 
         elif self.current.type == FLOAT:
             float_token = self.current
