@@ -209,40 +209,40 @@ assignment_tests = [
         Token("1.0", FLOAT, 1),
         Token("1.0", FLOAT, 1)
     ]),
-    ("let d = {\"a\": 2}; let d[\"a\"] += 2; d[\"a\"];", [
-        DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
-        NoReturn(line_num=1),
-        Token("4", INTEGER, 1)
-    ]),
-    ("let d = {\"a\": 2}; let d[\"a\"] -= 2; d[\"a\"];", [
-        DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
-        NoReturn(line_num=1),
-        Token("0", INTEGER, 1)
-    ]),
-    ("let d = {\"a\": 2}; let d[\"a\"] *= 2; d[\"a\"];", [
-        DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
-        NoReturn(line_num=1),
-        Token("4", INTEGER, 1)
-    ]),
-    ("let d = {\"a\": 2}; let d[\"a\"] /= 2; d[\"a\"];", [
-        DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
-        NoReturn(line_num=1),
-        Token("1.0", FLOAT, 1)
-    ]),
+    # ("let d = {\"a\": 2}; let d[\"a\"] += 2; d[\"a\"];", [
+    #     DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
+    #     NoReturn(line_num=1),
+    #     Token("4", INTEGER, 1)
+    # ]),
+    # ("let d = {\"a\": 2}; let d[\"a\"] -= 2; d[\"a\"];", [
+    #     DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
+    #     NoReturn(line_num=1),
+    #     Token("0", INTEGER, 1)
+    # ]),
+    # ("let d = {\"a\": 2}; let d[\"a\"] *= 2; d[\"a\"];", [
+    #     DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
+    #     NoReturn(line_num=1),
+    #     Token("4", INTEGER, 1)
+    # ]),
+    # ("let d = {\"a\": 2}; let d[\"a\"] /= 2; d[\"a\"];", [
+    #     DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
+    #     NoReturn(line_num=1),
+    #     Token("1.0", FLOAT, 1)
+    # ]),
     ("let d = {\"a\": 2}; let d[\"a\"] = 5; d[\"a\"];", [
         DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
         NoReturn(line_num=1),
         Token("5", INTEGER, 1)
     ]),
-    ("let d = {\"a\": {1: 1, 2: 2}}; let d[\"a\"][1] += 20; d[\"a\"][1];", [
-        DictionaryToken({
-            Token("a", STRING, 1): DictionaryToken({
-                Token("1", INTEGER, 1): Token("1", INTEGER, 1),
-                Token("2", INTEGER, 1): Token("2", INTEGER, 1)}, 1)
-        }, 1),
-        NoReturn(line_num=1),
-        Token("21", INTEGER, 1)
-    ])
+    # ("let d = {\"a\": {1: 1, 2: 2}}; let d[\"a\"][1] += 20; d[\"a\"][1];", [
+    #     DictionaryToken({
+    #         Token("a", STRING, 1): DictionaryToken({
+    #             Token("1", INTEGER, 1): Token("1", INTEGER, 1),
+    #             Token("2", INTEGER, 1): Token("2", INTEGER, 1)}, 1)
+    #     }, 1),
+    #     NoReturn(line_num=1),
+    #     Token("21", INTEGER, 1)
+    # ])
 ]
 
 
@@ -250,6 +250,37 @@ assignment_tests = [
 def test_assignment(source, expected_results):
     actual_results = actual_result(source)
     utils.assert_tokens_equal(expected_results, actual_results)
+
+
+def test_embedded_dictionary_set():
+    source = """
+    let dict = {
+        "a": {
+            "b": {
+                "c": 1,
+                "d": 2
+            }
+        }
+    };
+    let dict["a"]["b"]["d"] = 3;
+    dict["a"]["b"]["d"];
+    """
+    actual_tokens = actual_result(source)
+    expected_tokens = [
+        DictionaryToken({
+            Token("a", STRING, 3): DictionaryToken({
+                Token("b", STRING, 4): DictionaryToken({
+                    Token("c", STRING, 5): Token("1", INTEGER, 5),
+                    Token("d", STRING, 6): Token("2", INTEGER, 6),
+                }, 4)
+            }, 3)
+        }, 2),
+        NoReturn(2),
+        Token("3", INTEGER, 12)
+    ]
+    assert len(expected_tokens) == len(actual_tokens)
+    for expected, actual in zip(expected_tokens, actual_tokens):
+        assert expected == actual
 
 
 def test_dictionary_get():
@@ -285,7 +316,7 @@ def test_dictionary_get_invalid_key():
 
     with pytest.raises(Exception) as error:
         actual_result(source)
-    assert "Error at line 3: No key in dictionary: d" == str(error.value)
+    assert "Error at line 3: No key in dictionary: \"d\"" == str(error.value)
 
 
 def actual_result(source):

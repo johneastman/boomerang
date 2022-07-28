@@ -83,37 +83,57 @@ class Parser:
         self.is_expected_token(IDENTIFIER)
         variable_name = self.current
 
-        # Left will either be an Index or an Identifier object
-        left = self.expression()
+        self.advance()
+        if self.current.type == OPEN_BRACKET:
+            # Dictionary or array (any indexable data type)
+            self.advance()
+            keys = []
+            while True:
+                key = self.expression()
+                keys.append(key)
+                self.is_expected_token(CLOSED_BRACKET)
+                self.advance()
 
-        if self.current.type == ASSIGN:
+                if self.current.type == OPEN_BRACKET:
+                    self.advance()
+                else:
+                    break
+
+            # TODO: Allow operation-assignment operators (+=, -=, etc.)
+            self.is_expected_token(ASSIGN)
             self.advance()
             right = self.expression()
-            return AssignVariable(left, right)
+            return AssignVariable(Index(Identifier(variable_name), keys), right)
 
-        elif self.current.type in self.assignment_operators:
-            assignment_operator = self.current
-
-            self.advance()
-            right = self.expression()
-
-            operator_token = {
-                ASSIGN_ADD: Token(get_token_literal("PLUS"), PLUS, assignment_operator.line_num),
-                ASSIGN_SUB: Token(get_token_literal("MINUS"), MINUS, assignment_operator.line_num),
-                ASSIGN_MUL: Token(get_token_literal("MULTIPLY"), MULTIPLY, assignment_operator.line_num),
-                ASSIGN_DIV: Token(get_token_literal("DIVIDE"), DIVIDE, assignment_operator.line_num)
-            }
-
-            return AssignVariable(
-                left,
-                BinaryOperation(
-                    left,
-                    operator_token[assignment_operator.type],
-                    right
-                )
-            )
         else:
-            raise_error(variable_name.line_num, f"Invalid assignment operator: {self.current.type}")
+            if self.current.type == ASSIGN:
+                self.advance()
+                right = self.expression()
+                return AssignVariable(Identifier(variable_name), right)
+
+            elif self.current.type in self.assignment_operators:
+                assignment_operator = self.current
+
+                self.advance()
+                right = self.expression()
+
+                operator_token = {
+                    ASSIGN_ADD: Token(get_token_literal("PLUS"), PLUS, assignment_operator.line_num),
+                    ASSIGN_SUB: Token(get_token_literal("MINUS"), MINUS, assignment_operator.line_num),
+                    ASSIGN_MUL: Token(get_token_literal("MULTIPLY"), MULTIPLY, assignment_operator.line_num),
+                    ASSIGN_DIV: Token(get_token_literal("DIVIDE"), DIVIDE, assignment_operator.line_num)
+                }
+
+                return AssignVariable(
+                    Identifier(variable_name),
+                    BinaryOperation(
+                        Identifier(variable_name),
+                        operator_token[assignment_operator.type],
+                        right
+                    )
+                )
+            else:
+                raise_error(variable_name.line_num, f"Invalid assignment operator: {self.current.type}")
 
     def loop(self) -> Statement:
         self.advance()
@@ -227,7 +247,11 @@ class Parser:
                 value = self.expression()
                 self.is_expected_token(CLOSED_BRACKET)
                 self.advance()
-                return Index(left, value)
+
+                # mypy error: Argument 2 to "Index" has incompatible type "Expression"; expected "List[Expression]"
+                # TODO: fix type of 'value' to be a list of Expressions or create a separate object type for setting
+                #  dictionaries.
+                return Index(left, value)  # type: ignore
             else:
                 break
 

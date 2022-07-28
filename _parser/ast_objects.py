@@ -2,6 +2,7 @@ import tokens.tokens
 from tokens.tokenizer import Token
 from tokens.tokens import *
 from typing import Optional
+from utils import raise_error
 
 
 class Statement:
@@ -155,6 +156,30 @@ class DictionaryToken(Token):
         self.data[key] = value
         self.value = self.string()
 
+    def update(self, keys: list[Token], value: Token) -> None:
+        self.data = self._update(self.data, keys, value)
+
+    def _update(self, dictionary: dict[Token, Token], keys: list[Token], value: Token, index: int = 0) -> dict[Token, Token]:
+        key: Token = keys[index]
+
+        if index == len(keys) - 1:
+            # Set the variable
+            dictionary[key] = value
+            return dictionary
+
+        # mypy error: error: Incompatible types in assignment (expression has type "Optional[Token]", variable has type "Optional[DictionaryToken]"
+        # Reason for ignore: DictionaryToken is a subclass of Token
+        next_dict: Optional[DictionaryToken] = dictionary.get(key, None)  # type: ignore
+        if next_dict is None:
+            raise_error(key.line_num, f"No key in dictionary: {str(key)}")
+
+        # Update the parent key with the new values of the child dictionary
+        #
+        # mypy error: error: Item "None" of "Optional[DictionaryToken]" has no attribute "data"
+        # Reason for ignore: 'next_dict' will never be None because an exception is thrown when that value is None
+        dictionary[key] = DictionaryToken(self._update(next_dict.data, keys, value, index=index + 1), key.line_num)  # type: ignore
+        return dictionary
+
     def string(self) -> str:
         def traverse(d: dict[Token, Token]):
             s = "{"
@@ -183,6 +208,9 @@ class DictionaryToken(Token):
     def __str__(self) -> str:
         return self.string()
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}(data={self.data}, value={self.value}, type={self.type}, line_num={self.line_num})"
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, DictionaryToken):
             return False
@@ -192,9 +220,9 @@ class DictionaryToken(Token):
 
 
 class Index(Expression):
-    def __init__(self, left: Expression, index: Expression):
+    def __init__(self, left: Expression, indices: list[Expression]):
         self.left = left
-        self.index = index
+        self.index = indices
 
     def __eq__(self, other: object):
         if not isinstance(other, Index):

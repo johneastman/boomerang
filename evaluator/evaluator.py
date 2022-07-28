@@ -149,9 +149,11 @@ class Evaluator:
             if dictionary.type != DICTIONARY:
                 raise_error(dictionary.line_num, f"Expected {DICTIONARY}, got {dictionary.type}")
 
-            key = self.validate_expression(variable.index)
+            # Evaluate each key in the list of unevaluated
+            evaluated_keys = [self.evaluate_expression(key) for key in variable.index]
             value = self.evaluate_expression(variable_assignment.value)
-            dictionary.set(key, value)
+            dictionary.update(evaluated_keys, value)
+
             return _parser.NoReturn(line_num=dictionary.line_num)
         else:
             variable_type = variable_assignment.name.type  # type: ignore
@@ -262,7 +264,11 @@ class Evaluator:
         key = self.validate_expression(index.index)
         value = dictionary_token.get(key)
         if value is None:
-            raise_error(key.line_num, f"No key in dictionary: {key.value}")
+            raise_error(key.line_num, f"No key in dictionary: {str(key)}")
+
+        # mypy error: Argument 2 to "set" of "DictionaryToken" has incompatible type "Optional[Token]"; expected "Token"
+        # Reason for ignore: 'value' will never be None because an exception is thrown when that value is None
+        dictionary_token.set(key, value)  # type: ignore
 
         # mypy expects an Optional[Token] because 'value' can be None. However, an exception is throws if 'value'
         # is None, so the return type will always be a Token.
