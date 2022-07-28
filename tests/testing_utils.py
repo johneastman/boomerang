@@ -38,8 +38,6 @@ def assert_dictionary_tokens_equal(expected: DictionaryToken, actual: Dictionary
         if isinstance(expected_val, DictionaryToken) and isinstance(actual_val, DictionaryToken):
             assert_dictionary_tokens_equal(expected_val, actual_val)
         elif isinstance(expected_val, Token) and isinstance(actual_val, Token):
-            assert expected_val.value == actual_val.value
-            assert expected_val.type == actual_val.type
-            assert expected_val.line_num == actual_val.line_num
+            assert_token_equal(expected_val, actual_val)
         else:
             pytest.fail(f"expected type: {type(expected_val)} != actual type: {type(actual_val)}")
