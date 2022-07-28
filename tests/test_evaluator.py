@@ -1,6 +1,7 @@
 import pytest
 
 import _parser.ast_objects
+import tokens.tokenizer
 from tokens.tokens import *
 from tokens.tokenizer import Token, Tokenizer
 from _parser._parser import Parser, NoReturn, DictionaryToken
@@ -262,8 +263,8 @@ def test_embedded_dictionary_set():
             }
         }
     };
-    let dict["a"]["b"]["d"] = 3;
-    dict["a"]["b"]["d"];
+    let dict["a"]["b"]["e"] = 3;
+    dict;
     """
     actual_tokens = actual_result(source)
     expected_tokens = [
@@ -276,11 +277,18 @@ def test_embedded_dictionary_set():
             }, 3)
         }, 2),
         NoReturn(2),
-        Token("3", INTEGER, 12)
+        DictionaryToken({
+            Token("a", STRING, 3): DictionaryToken({
+                Token("b", STRING, 4): DictionaryToken({
+                    Token("c", STRING, 5): Token("1", INTEGER, 5),
+                    Token("d", STRING, 6): Token("2", INTEGER, 6),
+                    Token("e", STRING, 10): Token("3", INTEGER, 10),
+                }, 4)
+            }, 3)
+        }, 2),
     ]
     assert len(expected_tokens) == len(actual_tokens)
-    for expected, actual in zip(expected_tokens, actual_tokens):
-        assert expected == actual
+    utils.assert_tokens_equal(expected_tokens, actual_tokens)
 
 
 def test_dictionary_get():

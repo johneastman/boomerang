@@ -29,7 +29,7 @@ jobs:
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Type Checking with mypy
-      run: mypy tokens _parser main.py --check-untyped-defs  # REMOVED: evaluator main.py
+      run: mypy tokens _parser evaluator main.py --check-untyped-defs  # REMOVED: evaluator main.py
     - name: Lint with flake8
       run: |
         # stop the build if there are Python syntax errors or undefined names

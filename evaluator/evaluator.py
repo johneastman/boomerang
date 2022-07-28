@@ -145,6 +145,37 @@ class Evaluator:
             self.env.set_var(variable.token.value, var_value)
             return var_value
         elif isinstance(variable, _parser.Index):
+
+            # TODO: 'update' makes more sense as part of the DictionaryToken object, but I wasn't able to figure
+            #  out how to update the item in-place. Figure out how to do that so we can move this method.
+            def update(
+                    dictionary: _parser.DictionaryToken,
+                    keys: list[Token],
+                    value: Token,
+                    index: int = 0
+            ) -> _parser.DictionaryToken:
+                key: Token = keys[index]
+
+                if index == len(keys) - 1:
+                    # Set the variable
+                    dictionary.set(key, value)
+                    return dictionary
+
+                # mypy error: error: Incompatible types in assignment (expression has type "Optional[Token]", variable
+                # has type "Optional[DictionaryToken]"
+                # Reason for ignore: DictionaryToken is a subclass of Token
+                next_dict: Optional[DictionaryToken] = dictionary.get(key)  # type: ignore
+                if next_dict is None:
+                    raise_error(key.line_num, f"No key in dictionary: {str(key)}")
+
+                # Update the parent key with the new values of the child dictionary
+                #
+                # mypy error: error: Item "None" of "Optional[DictionaryToken]" has no attribute "data"
+                # Reason for ignore: 'next_dict' will never be None because an exception is thrown when that value is
+                # None
+                dictionary.set(key, update(next_dict, keys, value, index=index + 1))  # type: ignore
+                return dictionary
+
             dictionary: _parser.DictionaryToken = self.validate_expression(variable.left)
             if dictionary.type != DICTIONARY:
                 raise_error(dictionary.line_num, f"Expected {DICTIONARY}, got {dictionary.type}")
@@ -152,7 +183,7 @@ class Evaluator:
             # Evaluate each key in the list of unevaluated
             evaluated_keys = [self.evaluate_expression(key) for key in variable.index]
             value = self.evaluate_expression(variable_assignment.value)
-            dictionary.update(evaluated_keys, value)
+            dictionary = update(dictionary, evaluated_keys, value)
 
             return _parser.NoReturn(line_num=dictionary.line_num)
         else:
