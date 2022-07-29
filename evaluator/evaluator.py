@@ -288,7 +288,8 @@ class Evaluator:
         return Token(result.type, result.type, _type.line_num)
 
     def evaluate_index_expression(self, index: _parser.Index) -> Token:
-        # mypy error:  Incompatible types in assignment (expression has type "Token", variable has type "DictionaryToken")
+        # mypy error:  Incompatible types in assignment (expression has type "Token", variable has type
+        # "DictionaryToken")
         # Reason for ignore: DictionaryToken is a subclass of Token
         dictionary_token: _parser.DictionaryToken = self.evaluate_expression(index.left)  # type: ignore
         if dictionary_token.type != DICTIONARY:

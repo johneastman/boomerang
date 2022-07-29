@@ -1,7 +1,6 @@
 import pytest
 
 import _parser.ast_objects
-import tokens.tokenizer
 from tokens.tokens import *
 from tokens.tokenizer import Token, Tokenizer
 from _parser._parser import Parser, NoReturn, DictionaryToken
