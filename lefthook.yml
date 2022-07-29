@@ -33,8 +33,8 @@
 #       runner: node
 #     "any.go":
 #       runner: go run
- pre-commit:
-   parallel: true
-   commands:
-     mypy:
-       run: mypy tokens _parser evaluator main.py --check-untyped-defs
+pre-commit:
+  parallel: true
+  commands:
+    mypy:
+      run: mypy tokens _parser evaluator main.py --check-untyped-defs
