@@ -6,6 +6,7 @@ This is a custom interpreted language written in Python.
     * May need to run `python3 -m pip install -r requirements.txt`
 2. Install graphviz:
     * Mac: `brew install graphviz`
+3. This project uses lefthook for pre-commit and pre-push verification. Follow the installation and setup process [here](https://github.com/evilmartians/lefthook/blob/master/docs/full_guide.md)
 
 # Language Specs
 
