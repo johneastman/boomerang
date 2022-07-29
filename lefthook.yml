@@ -38,3 +38,5 @@ pre-commit:
   commands:
     mypy:
       run: mypy tokens _parser evaluator main.py --check-untyped-defs
+    tests:
+      run pytest tests/
