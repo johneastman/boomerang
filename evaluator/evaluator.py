@@ -76,7 +76,7 @@ class Evaluator:
             raise_error(value.line_num, "cannot evaluate expression that returns no value")
         return value
 
-    def evaluate_expression(self, expression):
+    def evaluate_expression(self, expression: typing.Union[_parser.Expression, _parser.Statement]) -> Token:
         if type(expression) == _parser.BinaryOperation:
             return self.evaluate_binary_expression(expression)
 
@@ -288,7 +288,9 @@ class Evaluator:
         return Token(result.type, result.type, _type.line_num)
 
     def evaluate_index_expression(self, index: _parser.Index) -> Token:
-        dictionary_token: _parser.DictionaryToken = self.evaluate_expression(index.left)
+        # mypy error:  Incompatible types in assignment (expression has type "Token", variable has type "DictionaryToken")
+        # Reason for ignore: DictionaryToken is a subclass of Token
+        dictionary_token: _parser.DictionaryToken = self.evaluate_expression(index.left)  # type: ignore
         if dictionary_token.type != DICTIONARY:
             raise_error(dictionary_token.line_num, f"Expected {DICTIONARY}, got {dictionary_token.type}")
 
@@ -313,7 +315,7 @@ class Evaluator:
             data[eval_key] = eval_value
         return _parser.DictionaryToken(data, dictionary.line_num)
 
-    def evaluate_unary_expression(self, unary_expression):
+    def evaluate_unary_expression(self, unary_expression: _parser.UnaryOperation) -> Token:
         expression_result = self.validate_expression(unary_expression.expression)
         op_type = unary_expression.op.type
 
@@ -331,9 +333,9 @@ class Evaluator:
             value = get_token_literal("FALSE") if actual_value else get_token_literal("TRUE")
             return Token(str(value), BOOLEAN, expression_result.line_num)
         else:
-            raise Exception(f"Invalid unary operator: {op_type} ({expression_result.op})")
+            raise Exception(f"Invalid unary operator: {op_type} ({unary_expression.op.value})")
 
-    def evaluate_binary_expression(self, binary_operation):
+    def evaluate_binary_expression(self, binary_operation: _parser.BinaryOperation) -> Token:
         left = self.validate_expression(binary_operation.left)
         right = self.validate_expression(binary_operation.right)
         op_type = binary_operation.op.type
@@ -411,7 +413,7 @@ class Evaluator:
         else:
             raise Exception(f"Invalid binary operator '{binary_operation.op.value}' at line {binary_operation.op.line_num}")
 
-    def get_literal_value(self, token: Token):
+    def get_literal_value(self, token: Token) -> typing.Any:
         """Convert token values to their Python values so the comparison can be performed. For example, "1" should be
         converted to an integer, and "true" and "false" should be converted to booleans.
         :param token: a Token object representing a literal (number, boolean, etc.)
