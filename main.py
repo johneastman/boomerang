@@ -1,3 +1,5 @@
+import yaml
+
 from tokens.tokenizer import Tokenizer
 from _parser._parser import Parser
 from evaluator.evaluator import Evaluator
@@ -44,3 +46,5 @@ def repl():
 
 if __name__ == "__main__":
     evaluate(get_source("language.txt"), Environment())
+
+

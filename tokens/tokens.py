@@ -1,52 +1,26 @@
 from typing import Tuple
+import yaml
+import os
 
-language_tokens: dict[str, Tuple[str, str]] = {
-    "LET": ("let", "LET"),
-    "ASSIGN": ("=", "ASSIGN"),
-    "ASSIGN_ADD": ("+=", "ASSIGN_ADD"),
-    "ASSIGN_SUB": ("-=", "ASSIGN_SUB"),
-    "ASSIGN_MUL": ("*=", "ASSIGN_MUL"),
-    "ASSIGN_DIV": ("/=", "ASSIGN_DIV"),
-    "PLUS": ("+", "PLUS"),
-    "MINUS": ("-", "MINUS"),
-    "MULTIPLY": ("*", "MULTIPLY"),
-    "DIVIDE": ("/", "DIVIDE"),
-    "SEMICOLON": (";", "SEMICOLON"),
-    "OPEN_PAREN": ("(", "OPEN_PAREN"),
-    "CLOSED_PAREN": (")", "CLOSED_PAREN"),
-    "OPEN_CURLY_BRACKET": ("{", "OPEN_CURLY_BRACKET"),
-    "CLOSED_CURLY_BRACKET": ("}", "CLOSED_CURLY_BRACKET"),
-    "COMMA": (",", "COMMA"),
-    "COMMENT": ("#", "COMMENT"),
-    "BLOCK_COMMENT": ("/*", "BLOCK_COMMENT"),
-    "EQ": ("==", "EQ"),
-    "NE": ("!=", "NE"),
-    "GE": (">=", "GE"),
-    "LE": ("<=", "LE"),
-    "GT": (">", "GT"),
-    "LT": ("<", "LT"),
-    "BANG": ("!", "BANG"),
-    "AND": ("&&", "AND"),
-    "OR": ("||", "OR"),
-    "RETURN": ("return", "RETURN"),
-    "FUNCTION": ("func", "FUNCTION"),
-    "IF": ("if", "IF"),
-    "ELSE": ("else", "ELSE"),
-    "WHILE": ("while", "WHILE"),
-    "TRUE": ("true", "BOOLEAN"),
-    "FALSE": ("false", "BOOLEAN"),
-    "DOUBLE_QUOTE": ("\"", "DOUBLE_QUOTE"),
-    "EOF": ("", "EOF"),
-    "INTEGER": ("", "INTEGER"),
-    "IDENTIFIER": ("", "IDENTIFIER"),
-    "BOOLEAN": ("", "BOOLEAN"),
-    "STRING": ("", "STRING"),
-    "FLOAT": ("", "FLOAT"),
-    "DICTIONARY": ("", "DICTIONARY"),
-    "COLON": (":", "COLON"),
-    "OPEN_BRACKET": ("[", "OPEN_BRACKET"),
-    "CLOSED_BRACKET": ("]", "CLOSED_BRACKET"),
-}
+TOKENS_FILE_PATH = f"{os.path.dirname(__file__)}/tokens.yaml"
+
+
+def load_tokens():
+    with open(TOKENS_FILE_PATH, "r") as file:
+        content = yaml.safe_load(file)
+
+    tokens: dict[str, Tuple[str, str]] = {}
+    for token in content["tokens"]:
+        name = token["name"]
+        literal = token["literal"]
+        _type = token["type"]
+
+        tokens[name] = (literal, _type)
+
+    return tokens
+
+
+language_tokens: dict[str, Tuple[str, str]] = load_tokens()
 
 
 def get_keyword_dict() -> dict[str, str]:
