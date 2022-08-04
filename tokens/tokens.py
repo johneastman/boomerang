@@ -1,8 +1,8 @@
 from typing import Tuple
-import yaml
+import yaml  # type: ignore
 import os
 
-TOKENS_FILE_PATH = f"{os.path.dirname(__file__)}/tokens.yaml"
+TOKENS_FILE_PATH = os.path.join(os.path.dirname(__file__), "tokens.yaml")
 
 
 def load_tokens():

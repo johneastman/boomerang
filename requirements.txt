@@ -1,2 +1,4 @@
 graphviz~=0.20
 mypy~=0.971
+pytest~=6.2.5
+PyYAML~=6.0

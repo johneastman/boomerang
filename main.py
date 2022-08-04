@@ -1,5 +1,3 @@
-import yaml
-
 from tokens.tokenizer import Tokenizer
 from _parser._parser import Parser
 from evaluator.evaluator import Evaluator
