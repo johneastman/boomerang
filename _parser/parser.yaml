@@ -1,0 +1,38 @@
+program:
+  statements:
+    - name: LetStatement
+      tokens:
+        - type: LET
+          required: false
+        - type: IDENTIFIER
+          required: true
+        - type: ASSIGN
+          required: false
+        - type: expressions
+          required: true
+    - name: ExpressionStatement
+      tokens:
+        - type: expressions
+          required: true
+  expressions:
+    - name: BinaryExpression
+      tokens:
+        - type: factors
+          required: true
+        - type: PLUS
+          required: true
+        - type: factors
+          required: true
+    - name: Factor
+      tokens:
+        - type: factors
+          required: true
+  factors:
+    - name: Integer
+      tokens:
+      - type: INTEGER
+        required: true
+    - name: Float
+      tokens:
+      - type: FLOAT
+        required: true

@@ -1,4 +1,10 @@
 from tokens.tokenizer import Token
+import yaml
+
+
+def read_yaml_file(path):
+    with open(path, "r") as file:
+        return yaml.safe_load(file)
 
 
 def raise_error(line_num: int, description: str) -> None:
