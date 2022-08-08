@@ -1,4 +1,8 @@
 program:
+  precedence:
+    - statements
+    - expressions
+    - factors
   statements:
     - name: LetStatement
       tokens:
@@ -8,25 +12,44 @@ program:
           required: true
         - type: ASSIGN
           required: false
-        - type: expressions
+        - type: factors
           required: true
-    - name: ExpressionStatement
+    - name: PrintStatement
       tokens:
-        - type: expressions
+        - type: IDENTIFIER
+          literal: print
+          required: false
+        - type: OPEN_PAREN
+          required: false
+        - type: factors
           required: true
-  expressions:
-    - name: BinaryExpression
+        - type: COMMA
+          required: false
+        - type: factors
+          required: true
+        - type: CLOSED_PAREN
+          required: false
+    - name: FactorStatement
+      # This entry MUST be the last item in the list as a catch-all for non-statements to be valid
       tokens:
         - type: factors
           required: true
-        - type: PLUS
-          required: true
-        - type: factors
-          required: true
-    - name: Factor
-      tokens:
-        - type: factors
-          required: true
+#  expressions:
+#    - name: BinaryExpression
+#      tokens:
+#        - name: left
+#          type: expressions
+#          required: true
+#        - name: operator
+#          type: PLUS
+#          required: true
+#        - name: right
+#          type: expressions
+#          required: true
+#    - name: Factor
+#      tokens:
+#        - type: factors
+#          required: true
   factors:
     - name: Integer
       tokens:
@@ -35,4 +58,8 @@ program:
     - name: Float
       tokens:
       - type: FLOAT
+        required: true
+    - name: Identifier
+      tokens:
+      - type: IDENTIFIER
         required: true

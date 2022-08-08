@@ -1,5 +1,6 @@
-import tokens.tokenizer as t
+import tokens.tokenizer as tokenizer
 import utils
+from tokens.tokens import EOF, SEMICOLON, PLUS
 
 
 class Parser2:
@@ -16,14 +17,23 @@ class Parser2:
     @property
     def current(self):
         current = self.tokens[self.index] if self.index < len(self.tokens) else None
-        # if current is None:
-        #     raise Exception(f"from {self.__class__.__name__}.current: token is None")
+        if current is None:
+            raise Exception(f"from {self.__class__.__name__}.current: token is None")
         return current
 
-    def advance(self) -> None:
-        self.index += 1
+    def advance(self, amount=1) -> None:
+        self.index += amount
 
-    def parse(self, ast={}, precedence="statements"):
+    def parse(self):
+        ast = []
+        while self.current is not None and self.current.type != EOF:
+            result = self._parse()
+            ast.append(result)
+            self.is_expected_token(SEMICOLON)
+            self.advance()
+        return ast
+
+    def _parse(self, precedence="statements"):
 
         if precedence == "factors":
             return self.current
@@ -34,46 +44,25 @@ class Parser2:
             object_name = pd["name"]
             tokens = pd["tokens"]
 
-            failed = False
-            for expected_token_type, actual_token_type in zip(
-                    [t["type"] for t in tokens],
-                    [t.type for t in self.tokens[self.index:self.index + len(tokens)]]
-            ):
-                if expected_token_type in self.precedences:
-                    precedence_data = self.get_precedence("factors")
-                    types = [t["type"] for pd in precedence_data for t in pd["tokens"]]
-                    if actual_token_type not in types:
-                        failed = True
-                        break
-                elif expected_token_type != actual_token_type:
-                    failed = True
-                    break
-
+            failed = self.do_tokens_match(tokens)
             if not failed:
                 values = []
                 for token in tokens:
                     _type, required = token["type"], token["required"]
 
-                    value = self.parse(ast=ast, precedence=_type) if _type in self.precedences else self.current
+                    value = self.current.value
+                    if _type in self.precedences:
+                        value = self._parse(precedence=_type).value
+
                     if required:
                         values.append(value)
 
                     self.advance()
 
-                ast[object_name] = values
-                return ast
-
-        return ast
+                return {object_name: values}
 
     def get_precedence(self, precedence="statements"):
         return self.data["program"][precedence]
-
-    def find_precedence(self, precedence_data):
-        for pd in precedence_data:
-            _type = pd["tokens"][0]["type"]
-            if _type == self.current.type:
-                return pd["name"], pd["tokens"]
-
         # TODO: Error handling when token is not found
 
     def is_expected_token(self, expected_token_type):
@@ -82,11 +71,30 @@ class Parser2:
                 self.current.line_num,
                 f"Expected {expected_token_type}, got {self.current.type} ('{self.current.value}')")
 
+    def do_tokens_match(self, expected_tokens):
+        actual_tokens = [token for token in self.tokens[self.index:self.index + len(tokens)]]
+
+        for expected_token, actual_token in zip(expected_tokens, actual_tokens):
+            expected_type = expected_token["type"]
+
+            # Specifying a literal value helps clear up requirements for tokens (e.g., a PrintStatement object
+            # is an Identifier token where the literal value is "print", not just any identifier token
+            expected_literal = expected_token.get("literal", None)
+
+            if expected_type in self.precedences:
+                precedence_data = self.get_precedence("factors")
+                types = [t["type"] for pd in precedence_data for t in pd["tokens"]]
+                if actual_token.type not in types:
+                    return True
+            elif  expected_type != actual_token.type or (expected_literal is not None and expected_literal != actual_token.value):
+                return True
+        return False
+
 
 if __name__ == "__main__":
-    source = "1 + 2 + 3;"
-    tokenizer = t.Tokenizer(source)
-    tokens = tokenizer.tokenize()
+    source = "print(1, x);"
+    tkn = tokenizer.Tokenizer(source)
+    tokens = tkn.tokenize()
     p = Parser2(tokens, "parser.yaml")
     ast = p.parse()
     print(ast)
