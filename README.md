@@ -1,12 +1,11 @@
-# Custom Interpreter in Python
-This is a custom interpreted language written in Python.
+# Boomerang
+Boomerang is an interpreted language written in Python.
 
 # Install
 1. `pip install -r requirements.txt`
     * May need to run `python3 -m pip install -r requirements.txt`
-2. Install graphviz:
-    * Mac: `brew install graphviz`
-3. This project uses lefthook for pre-commit verification. Follow the installation and setup process [here](https://github.com/evilmartians/lefthook/blob/master/docs/full_guide.md)
+2. Install [graphviz](https://graphviz.org/download/)
+3. Optional: this project uses lefthook for pre-commit verification. Follow the installation and setup process [here](https://github.com/evilmartians/lefthook/blob/master/docs/full_guide.md)
 
 # Language Specs
 
