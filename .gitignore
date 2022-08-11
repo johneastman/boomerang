@@ -9,5 +9,5 @@ venv/
 *.gv
 *.gv.pdf
 
-# Language
-language.txt
+# Language Files
+main.ang
