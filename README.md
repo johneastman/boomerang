@@ -6,7 +6,7 @@ This is a custom interpreted language written in Python.
     * May need to run `python3 -m pip install -r requirements.txt`
 2. Install graphviz:
     * Mac: `brew install graphviz`
-3. This project uses lefthook for pre-commit and pre-push verification. Follow the installation and setup process [here](https://github.com/evilmartians/lefthook/blob/master/docs/full_guide.md)
+3. This project uses lefthook for pre-commit verification. Follow the installation and setup process [here](https://github.com/evilmartians/lefthook/blob/master/docs/full_guide.md)
 
 # Language Specs
 
@@ -27,6 +27,10 @@ This is a custom interpreted language written in Python.
 |Multiply|*|
 |Divide|/|
 |Assignment|=|
+|Assignment: Add|+=|
+|Assignment: Subtract|-=|
+|Assignment: Multiply|*=|
+|Assignment: Divide|/=|
 |Compare: Equal|==|
 |Compare: Not Equal|!=|
 |Compare: Greater than|>|
@@ -38,3 +42,89 @@ This is a custom interpreted language written in Python.
 |Unary: Positive|+|
 |Boolean AND|&&|
 |Boolean OR| \|\| |
+
+## Comments
+```
+let variable = 3; # inline comment
+/*
+block comment
+*/
+```
+
+## Statements
+
+### Variable Assignment
+```
+let number = 10;
+let float = 3.14;
+let string = "hello, world!";
+let boolean = true;
+let dictionary = {"a": 1, "b": 2, "c": 3};
+```
+
+### While Loops
+```
+let i = 0;
+while i < 10 {
+   print(i);
+   let i = i + 1;
+}
+```
+
+### Functions
+```
+func add(a, b) {
+   let result = a + b;
+   return result;
+}
+
+let sum = add(3, 4);
+print(sum);
+```
+
+### If Statements
+```
+let r = random();  # generates a random number between 0 and 1
+if r < 0.5 {
+    print("r is less than 0.5");
+} else {
+    print("r is greater than or equal to 0.5");
+}
+```
+
+## Expressions
+
+### Math Expressions
+```
+1 + 1;
+1 + 2 + 3 + 4;
+5 - 3;
+6 * 4;
+10 / 2;
+3 + (10 - 9 - 8);
+-3;
+-(5 + 4 + 3 + 2 + 1);
++6;
+```
+
+### Boolean Expressions
+```
+!true;  # false
+!false; # true
+
+true && false;  # false
+true || false;  # true
+```
+
+### Comparison Expressions
+```
+1 == 1;  # true
+1 != 2;  # true
+1 > 2;   # false
+2 >= 1;  # true
+2 < 1;   # true
+1 <= 2;  # true
+
+1 == 1 && 2 == 2;  # true
+1 == 2 || 2 == 1;  # true
+```

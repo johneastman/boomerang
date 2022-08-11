@@ -285,7 +285,7 @@ class Parser:
         ], self.factor)
 
     def factor(self) -> Expression:  # type: ignore
-        # Missing return statement
+        # mypy ignore: Missing return statement
         if self.current.type in [MINUS, PLUS, BANG]:
             op = self.current
             self.advance()
