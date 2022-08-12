@@ -2,10 +2,11 @@
 Boomerang is an interpreted language written in Python.
 
 # Install
-1. `pip install -r requirements.txt`
+1. Download and install [Python](https://www.python.org/downloads/)
+2. `pip install -r requirements.txt`
     * May need to run `python3 -m pip install -r requirements.txt`
-2. Install [graphviz](https://graphviz.org/download/)
-3. Optional: this project uses lefthook for pre-commit verification. Follow the installation and setup process [here](https://github.com/evilmartians/lefthook/blob/master/docs/full_guide.md)
+3. Install [graphviz](https://graphviz.org/download/)
+4. Optional: this project uses lefthook for pre-commit verification. Follow the installation and setup process [here](https://github.com/evilmartians/lefthook/blob/master/docs/full_guide.md)
 
 # Running
 Refer to `main.py` for an example of how to run the code. The language files end with the `ang` extension.
