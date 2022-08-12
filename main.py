@@ -13,18 +13,20 @@ def get_source(filepath: str):
 
 
 def evaluate(source: str, environment: Environment, visualize: bool = False):
+    try:
+        t = Tokenizer(source)
+        tokens = t.tokenize()
 
-    t = Tokenizer(source)
-    tokens = t.tokenize()
+        p = Parser(tokens)
+        ast = p.parse()
 
-    p = Parser(tokens)
-    ast = p.parse()
+        if visualize:
+            ASTVisualizer(ast).visualize()
 
-    if visualize:
-        ASTVisualizer(ast).visualize()
-
-    e = Evaluator(ast, environment)
-    return e.evaluate()
+        e = Evaluator(ast, environment)
+        return e.evaluate()
+    except Exception as e:
+        print(str(e))
 
 
 def repl():

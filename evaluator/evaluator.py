@@ -138,7 +138,9 @@ class Evaluator:
             return self.evaluate_expression(expression.expr)
 
         else:
-            raise Exception(f"Unsupported type: {type(expression)}")
+            # mypy error: error: "raise_error" does not return a value
+            # Reason for ignore: an exception is thrown
+            raise raise_error(expression.line_num, f"Unsupported type: {type(expression).__name__}")  # type: ignore
 
     def evaluate_factorial(self, factorial_expression: _parser.Factorial) -> Token:
         result = self.evaluate_expression(factorial_expression.expr)
@@ -342,7 +344,7 @@ class Evaluator:
 
         valid_type = self.valid_operation_types.get(op_type, [])
         if expression_result.type not in valid_type:
-            raise Exception(f"Cannot perform {op_type} operation on {expression_result.type}")
+            raise_error(expression_result.line_num, f"Cannot perform {op_type} operation on {expression_result.type}")
 
         actual_value = self.get_literal_value(expression_result)
 
@@ -368,16 +370,20 @@ class Evaluator:
         # to account for the fact that some expressions can result in different data types (e.g., two integers resulting
         # in a float, like 3 / 4), we need to allow operations to happen on compatible data types, like floats and
         # integers.
-        left_compatible_types = self.compatible_types_for_operations.get(left.type, [])
-        right_compatible_types = self.compatible_types_for_operations.get(right.type, [])
+        left_compatible_types: list[str] = self.compatible_types_for_operations.get(left.type, [])
+        right_compatible_types: list[str] = self.compatible_types_for_operations.get(right.type, [])
 
         if left.type not in right_compatible_types or right.type not in left_compatible_types:
-            raise Exception(f"Cannot perform {op_type} operation on {left.type} and {right.type}")
+            # mypy error: "raise_error" does not return a value
+            # reason for ignore: an exception is thrown
+            raise raise_error(left.line_num, f"Cannot perform {op_type} operation on {left.type} and {right.type}")  # type: ignore
 
         # Check that the operation can be performed on the given types. For example, "true > false" is not valid
-        valid_type = self.valid_operation_types.get(op_type, [])
+        valid_type: list[str] = self.valid_operation_types.get(op_type, [])
         if left.type not in valid_type or right.type not in valid_type:
-            raise Exception(f"Cannot perform {op_type} operation on {left.type} and {right.type}")
+            # mypy error: "raise_error" does not return a value
+            # reason for ignore: an exception is thrown
+            raise raise_error(left.line_num, f"Cannot perform {op_type} operation on {left.type} and {right.type}")  # type: ignore
 
         left_val = self.get_literal_value(left)
         right_val = self.get_literal_value(right)

@@ -86,7 +86,7 @@ invalid_boolean_operations_tests = [
 def test_invalid_boolean_operations(source, left_type, operation_type, right_type):
     with pytest.raises(Exception) as error:
         actual_result(source)
-    assert f"Cannot perform {operation_type} operation on {left_type} and {right_type}" == str(error.value)
+    assert f"Error at line 1: Cannot perform {operation_type} operation on {left_type} and {right_type}" == str(error.value)
 
 
 valid_unary_operations_tests = [
@@ -124,7 +124,7 @@ invalid_unary_operations_tests = [
 def test_invalid_unary_operations(source, op, _type):
     with pytest.raises(Exception) as error:
         actual_result(source)
-    assert f"Cannot perform {op} operation on {_type}" == str(error.value)
+    assert f"Error at line 1: Cannot perform {op} operation on {_type}" == str(error.value)
 
 
 def test_function_no_return():
