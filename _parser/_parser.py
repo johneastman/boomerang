@@ -100,10 +100,29 @@ class Parser:
                     break
 
             # TODO: Allow operation-assignment operators (+=, -=, etc.)
-            self.is_expected_token(ASSIGN)
+            assignment_operator = self.current
+            self.is_expected_token(self.assignment_operators)
             self.advance()
             right = self.expression()
-            return AssignVariable(Index(Identifier(variable_name), keys), right)
+
+            if assignment_operator.type == ASSIGN:
+                return AssignVariable(Index(Identifier(variable_name), keys), right)
+            elif assignment_operator.type in self.assignment_operators:
+                operator_token = {
+                    ASSIGN_ADD: Token(get_token_literal("PLUS"), PLUS, assignment_operator.line_num),
+                    ASSIGN_SUB: Token(get_token_literal("MINUS"), MINUS, assignment_operator.line_num),
+                    ASSIGN_MUL: Token(get_token_literal("MULTIPLY"), MULTIPLY, assignment_operator.line_num),
+                    ASSIGN_DIV: Token(get_token_literal("DIVIDE"), DIVIDE, assignment_operator.line_num)
+                }
+
+                return AssignVariable(
+                    Index(Identifier(variable_name), keys),
+                    BinaryOperation(
+                        Index(Identifier(variable_name), keys),
+                        operator_token[assignment_operator.type],
+                        right
+                    )
+                )
 
         else:
             if self.current.type == ASSIGN:
@@ -251,7 +270,7 @@ class Parser:
                 # mypy error: Argument 2 to "Index" has incompatible type "Expression"; expected "List[Expression]"
                 # TODO: fix type of 'value' to be a list of Expressions or create a separate object type for setting
                 #  dictionaries.
-                return Index(left, value)  # type: ignore
+                return Index(left, [value])  # type: ignore
             elif self.current.type == BANG:
                 self.advance()
                 return Factorial(left)
@@ -383,8 +402,13 @@ class Parser:
         }
         return builtin_functions.get(identifier_token.value, FunctionCall(identifier_token, parameters))
 
-    def is_expected_token(self, expected_token_type: str) -> None:
-        if self.current.type != expected_token_type:
+    def is_expected_token(self, expected_token_type: typing.Union[str, list[str]]) -> None:
+
+        # Multiple token types may be expected, so a list of tokens types can be passed. If just a string is passed,
+        # that string will be added to a list
+        expected_token_types = [expected_token_type] if isinstance(expected_token_type, str) else expected_token_type
+
+        if self.current.type not in expected_token_types:
             raise_error(
                 self.current.line_num,
                 f"Expected {expected_token_type}, got {self.current.type} ('{self.current.value}')")

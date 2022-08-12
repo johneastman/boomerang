@@ -217,40 +217,40 @@ assignment_tests = [
         Token("1.0", FLOAT, 1),
         Token("1.0", FLOAT, 1)
     ]),
-    # ("let d = {\"a\": 2}; let d[\"a\"] += 2; d[\"a\"];", [
-    #     DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
-    #     NoReturn(line_num=1),
-    #     Token("4", INTEGER, 1)
-    # ]),
-    # ("let d = {\"a\": 2}; let d[\"a\"] -= 2; d[\"a\"];", [
-    #     DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
-    #     NoReturn(line_num=1),
-    #     Token("0", INTEGER, 1)
-    # ]),
-    # ("let d = {\"a\": 2}; let d[\"a\"] *= 2; d[\"a\"];", [
-    #     DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
-    #     NoReturn(line_num=1),
-    #     Token("4", INTEGER, 1)
-    # ]),
-    # ("let d = {\"a\": 2}; let d[\"a\"] /= 2; d[\"a\"];", [
-    #     DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
-    #     NoReturn(line_num=1),
-    #     Token("1.0", FLOAT, 1)
-    # ]),
+    ("let d = {\"a\": 2}; let d[\"a\"] += 2; d[\"a\"];", [
+        DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
+        NoReturn(line_num=1),
+        Token("4", INTEGER, 1)
+    ]),
+    ("let d = {\"a\": 2}; let d[\"a\"] -= 2; d[\"a\"];", [
+        DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
+        NoReturn(line_num=1),
+        Token("0", INTEGER, 1)
+    ]),
+    ("let d = {\"a\": 2}; let d[\"a\"] *= 2; d[\"a\"];", [
+        DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
+        NoReturn(line_num=1),
+        Token("4", INTEGER, 1)
+    ]),
+    ("let d = {\"a\": 2}; let d[\"a\"] /= 2; d[\"a\"];", [
+        DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
+        NoReturn(line_num=1),
+        Token("1.0", FLOAT, 1)
+    ]),
     ("let d = {\"a\": 2}; let d[\"a\"] = 5; d[\"a\"];", [
         DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
         NoReturn(line_num=1),
         Token("5", INTEGER, 1)
     ]),
-    # ("let d = {\"a\": {1: 1, 2: 2}}; let d[\"a\"][1] += 20; d[\"a\"][1];", [
-    #     DictionaryToken({
-    #         Token("a", STRING, 1): DictionaryToken({
-    #             Token("1", INTEGER, 1): Token("1", INTEGER, 1),
-    #             Token("2", INTEGER, 1): Token("2", INTEGER, 1)}, 1)
-    #     }, 1),
-    #     NoReturn(line_num=1),
-    #     Token("21", INTEGER, 1)
-    # ])
+    ("let d = {\"a\": {1: 1, 2: 2}}; let d[\"a\"][1] += 20; d[\"a\"][1];", [
+        DictionaryToken({
+            Token("a", STRING, 1): DictionaryToken({
+                Token("1", INTEGER, 1): Token("1", INTEGER, 1),
+                Token("2", INTEGER, 1): Token("2", INTEGER, 1)}, 1)
+        }, 1),
+        NoReturn(line_num=1),
+        Token("21", INTEGER, 1)
+    ])
 ]
 
 

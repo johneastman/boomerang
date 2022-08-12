@@ -309,10 +309,16 @@ class Evaluator:
         if dictionary_token.type != DICTIONARY:
             raise_error(dictionary_token.line_num, f"Expected {DICTIONARY}, got {dictionary_token.type}")
 
-        key = self.validate_expression(index.index)
-        value = dictionary_token.get(key)
-        if value is None:
-            raise_error(key.line_num, f"No key in dictionary: {str(key)}")
+        eval_keys = [self.validate_expression(key) for key in index.index]
+        value = dictionary_token
+        for key in eval_keys:
+
+            # mypy error: Incompatible types in assignment (expression has type "Optional[Token]", variable has type
+            # "DictionaryToken")
+            # Reason for ignore: DictionaryToken is a child class of Token
+            value = value.get(key)  # type: ignore
+            if value is None:
+                raise_error(key.line_num, f"No key in dictionary: {str(key)}")
 
         # mypy error: Argument 2 to "set" of "DictionaryToken" has incompatible type "Optional[Token]"; expected "Token"
         # Reason for ignore: 'value' will never be None because an exception is thrown when that value is None

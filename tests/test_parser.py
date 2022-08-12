@@ -114,7 +114,7 @@ def test_dictionary():
         _parser.ExpressionStatement(
             _parser.Index(
                 _parser.Identifier(Token("dict", IDENTIFIER, 1)),
-                _parser.String(Token("a", STRING, 1))
+                [_parser.String(Token("a", STRING, 1))]
             )
         )
     ]
