@@ -27,6 +27,13 @@ evaluator_tests = [
             }, 1
         )
     ]),
+    ("0!;", [Token("1", INTEGER, 1)]),
+    ("1!;", [Token("1", INTEGER, 1)]),
+    ("2!;", [Token("2", INTEGER, 1)]),
+    ("3!;", [Token("6", INTEGER, 1)]),
+    ("4!;", [Token("24", INTEGER, 1)]),
+    ("5!;", [Token("120", INTEGER, 1)]),
+    ("6!;", [Token("720", INTEGER, 1)]),
 ]
 
 

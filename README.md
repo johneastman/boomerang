@@ -107,6 +107,7 @@ if r < 0.5 {
 -3;
 -(5 + 4 + 3 + 2 + 1);
 +6;
+5!;  # factorial. 5! = 120
 ```
 
 ### Boolean Expressions

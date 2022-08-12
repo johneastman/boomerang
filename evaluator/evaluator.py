@@ -107,6 +107,9 @@ class Evaluator:
         elif type(expression) == _parser.Type:
             return self.evaluate_type_expression(expression)
 
+        elif type(expression) == _parser.Factorial:
+            return self.evaluate_factorial(expression)
+
         elif type(expression) == _parser.Random:
             return Token(str(random.random()), FLOAT, expression.line_num)
 
@@ -136,6 +139,17 @@ class Evaluator:
 
         else:
             raise Exception(f"Unsupported type: {type(expression)}")
+
+    def evaluate_factorial(self, factorial_expression: _parser.Factorial) -> Token:
+        result = self.evaluate_expression(factorial_expression.expr)
+
+        if result.type != INTEGER:
+            raise_error(result.line_num, f"Invalid type {result.type} for factorial")
+
+        new_val = 1
+        for i in range(int(result.value), 0, -1):
+            new_val *= i
+        return Token(str(new_val), INTEGER, result.line_num)
 
     def evaluate_assign_variable(self, variable_assignment: _parser.AssignVariable) -> Token:  # type: ignore
         variable = variable_assignment.name

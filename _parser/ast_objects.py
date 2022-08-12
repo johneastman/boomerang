@@ -247,6 +247,11 @@ class IfStatement(Statement):
         self.false_statements = false_statements
 
 
+class Factorial(Expression):
+    def __init__(self, expr: Expression):
+        self.expr = expr
+
+
 class FunctionCall(Factor):
     def __init__(self, name: Token, parameter_values):
         self.name = name

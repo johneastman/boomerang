@@ -252,6 +252,9 @@ class Parser:
                 # TODO: fix type of 'value' to be a list of Expressions or create a separate object type for setting
                 #  dictionaries.
                 return Index(left, value)  # type: ignore
+            elif self.current.type == BANG:
+                self.advance()
+                return Factorial(left)
             else:
                 break
 
