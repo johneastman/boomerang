@@ -64,6 +64,22 @@ let boolean = true;
 let dictionary = {"a": 1, "b": 2, "c": 3};
 ```
 
+#### Operator Assignment
+Unlike many languages, variable reassignment in Boomerang requires the `let` keyword.
+```
+let number = 1;
+let number += 1;
+let number -= 1;
+let number *= 2
+let number /= 1;
+
+let dict = {"a": 1, "b": 2};
+let dict["a"] += 1;
+let dict["a"] -= 1;
+let dict["a"] *= 2;
+let dict["a"] /= 1;
+```
+
 ### While Loops
 ```
 let i = 0;
