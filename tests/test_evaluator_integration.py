@@ -7,6 +7,7 @@ from _parser._parser import Parser, NoReturn, DictionaryToken
 from evaluator.evaluator import Evaluator
 from evaluator._environment import Environment
 import tests.testing_utils as utils
+from utils import LanguageRuntimeException
 
 
 evaluator_tests = [
@@ -84,8 +85,9 @@ invalid_boolean_operations_tests = [
 
 @pytest.mark.parametrize("source,left_type,operation_type,right_type", invalid_boolean_operations_tests)
 def test_invalid_boolean_operations(source, left_type, operation_type, right_type):
-    with pytest.raises(Exception) as error:
+    with pytest.raises(LanguageRuntimeException) as error:
         actual_result(source)
+    assert error.typename == "LanguageRuntimeException"
     assert f"Error at line 1: Cannot perform {operation_type} operation on {left_type} and {right_type}" == str(error.value)
 
 
@@ -122,8 +124,9 @@ invalid_unary_operations_tests = [
 
 @pytest.mark.parametrize("source,op,_type", invalid_unary_operations_tests)
 def test_invalid_unary_operations(source, op, _type):
-    with pytest.raises(Exception) as error:
+    with pytest.raises(LanguageRuntimeException) as error:
         actual_result(source)
+    assert error.typename == "LanguageRuntimeException"
     assert f"Error at line 1: Cannot perform {op} operation on {_type}" == str(error.value)
 
 
@@ -136,8 +139,9 @@ def test_function_no_return():
     set var = no_return();
     """
 
-    with pytest.raises(Exception) as error:
+    with pytest.raises(LanguageRuntimeException) as error:
         actual_result(source)
+    assert error.typename == "LanguageRuntimeException"
     assert f"Error at line 6: cannot evaluate expression that returns no value" == str(error.value)
 
 
@@ -147,8 +151,9 @@ def test_function_empty_body_no_return():
     set var = no_return();
     """
 
-    with pytest.raises(Exception) as error:
+    with pytest.raises(LanguageRuntimeException) as error:
         actual_result(source)
+    assert error.typename == "LanguageRuntimeException"
     assert f"Error at line 3: cannot evaluate expression that returns no value" == str(error.value)
 
 
@@ -329,8 +334,9 @@ def test_dictionary_get_invalid_key():
     d["d"];
     """
 
-    with pytest.raises(Exception) as error:
+    with pytest.raises(LanguageRuntimeException) as error:
         actual_result(source)
+    assert error.typename == "LanguageRuntimeException"
     assert "Error at line 3: No key in dictionary: \"d\"" == str(error.value)
 
 

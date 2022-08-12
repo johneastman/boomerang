@@ -3,6 +3,7 @@ from _parser._parser import Parser
 from evaluator.evaluator import Evaluator
 from evaluator._environment import Environment
 from ast_visualizer import ASTVisualizer
+from utils import LanguageRuntimeException
 
 PROMPT = ">> "
 
@@ -25,7 +26,7 @@ def evaluate(source: str, environment: Environment, visualize: bool = False):
 
         e = Evaluator(ast, environment)
         return e.evaluate()
-    except Exception as e:
+    except LanguageRuntimeException as e:
         print(str(e))
 
 
@@ -40,7 +41,7 @@ def repl():
             try:
                 evaluated_expressions = evaluate(_input, env)
                 print(" ".join(map(str, [token.value for token in evaluated_expressions])))
-            except Exception as e:
+            except LanguageRuntimeException as e:
                 print(e)
 
 
