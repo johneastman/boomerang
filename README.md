@@ -48,7 +48,7 @@ Refer to `main.py` for an example of how to run the code. The language files end
 
 ## Comments
 ```
-let variable = 3; # inline comment
+set variable = 3; # inline comment
 /*
 block comment
 */
@@ -58,52 +58,52 @@ block comment
 
 ### Variable Assignment
 ```
-let number = 10;
-let float = 3.14;
-let string = "hello, world!";
-let boolean = true;
-let dictionary = {"a": 1, "b": 2, "c": 3};
+set number = 10;
+set float = 3.14;
+set string = "hello, world!";
+set boolean = true;
+set dictionary = {"a": 1, "b": 2, "c": 3};
 ```
 
 #### Operator Assignment
-Unlike many languages, variable reassignment in Boomerang requires the `let` keyword.
+Unlike many languages, variable reassignment in Boomerang requires the `set` keyword.
 ```
-let number = 1;
-let number += 1;
-let number -= 1;
-let number *= 2
-let number /= 1;
+set number = 1;
+set number += 1;
+set number -= 1;
+set number *= 2
+set number /= 1;
 
-let dict = {"a": 1, "b": 2};
-let dict["a"] += 1;
-let dict["a"] -= 1;
-let dict["a"] *= 2;
-let dict["a"] /= 1;
+set dict = {"a": 1, "b": 2};
+set dict["a"] += 1;
+set dict["a"] -= 1;
+set dict["a"] *= 2;
+set dict["a"] /= 1;
 ```
 
 ### While Loops
 ```
-let i = 0;
+set i = 0;
 while i < 10 {
    print(i);
-   let i = i + 1;
+   set i = i + 1;
 }
 ```
 
 ### Functions
 ```
 func add(a, b) {
-   let result = a + b;
+   set result = a + b;
    return result;
 }
 
-let sum = add(3, 4);
+set sum = add(3, 4);
 print(sum);
 ```
 
 ### If Statements
 ```
-let r = random();  # generates a random number between 0 and 1
+set r = random();  # generates a random number between 0 and 1
 if r < 0.5 {
     print("r is less than 0.5");
 } else {
