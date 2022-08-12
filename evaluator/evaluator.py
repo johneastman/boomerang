@@ -86,7 +86,7 @@ class Evaluator:
         elif type(expression) == _parser.IfStatement:
             return self.evaluate_if_statement(expression)
 
-        elif type(expression) == _parser.AssignVariable:
+        elif type(expression) == _parser.SetVariable:
             return self.evaluate_assign_variable(expression)
 
         elif type(expression) == _parser.AssignFunction:
@@ -151,7 +151,7 @@ class Evaluator:
             new_val *= i
         return Token(str(new_val), INTEGER, result.line_num)
 
-    def evaluate_assign_variable(self, variable_assignment: _parser.AssignVariable) -> Token:  # type: ignore
+    def evaluate_assign_variable(self, variable_assignment: _parser.SetVariable) -> Token:  # type: ignore
         variable = variable_assignment.name
 
         if isinstance(variable, _parser.Identifier):

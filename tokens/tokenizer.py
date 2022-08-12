@@ -179,7 +179,7 @@ class Tokenizer:
         return self.current is not None and self.current in valid_chars
 
     def is_digit(self) -> bool:
-        return self.current is not None and (self.current.isdigit() or self.current == ".")
+        return self.current is not None and (self.current.isdigit() or self.current == get_token_literal(PERIOD))
 
     def read_number(self) -> str:
         pos: int = self.index

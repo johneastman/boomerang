@@ -13,7 +13,7 @@ evaluator_tests = [
     ("1 + 1;", [Token("2", INTEGER, 1)]),
     ("1 + 2 * 2;", [Token("5", INTEGER, 1)]),
     ("(1 + 2) * 2;", [Token("6", INTEGER, 1)]),
-    ("let x = (1 + 2) * 2;x;", [Token("6", INTEGER, 1), Token("6", INTEGER, 1)]),
+    ("set x = (1 + 2) * 2;x;", [Token("6", INTEGER, 1), Token("6", INTEGER, 1)]),
     ("4 / 2;", [Token("2.0", FLOAT, 1)]),
     ("7 / 2;", [Token("3.5", FLOAT, 1)]),
     ("1 + 1 * 2 + 3 / 4;", [Token("3.75", FLOAT, 1)]),
@@ -130,10 +130,10 @@ def test_invalid_unary_operations(source, op, _type):
 def test_function_no_return():
     source = """
     func no_return() {
-        let x = 1;
+        set x = 1;
     }
     
-    let var = no_return();
+    set var = no_return();
     """
 
     with pytest.raises(Exception) as error:
@@ -144,7 +144,7 @@ def test_function_no_return():
 def test_function_empty_body_no_return():
     source = """
     func no_return() {}
-    let var = no_return();
+    set var = no_return();
     """
 
     with pytest.raises(Exception) as error:
@@ -197,52 +197,52 @@ def test_function_calls(first_param, second_param, return_val):
 
 
 assignment_tests = [
-    ("let a = 2; let a += 2; a;", [
+    ("set a = 2; set a += 2; a;", [
         Token("2", INTEGER, 1),
         Token("4", INTEGER, 1),
         Token("4", INTEGER, 1)
     ]),
-    ("let a = 2; let a -= 2; a;", [
+    ("set a = 2; set a -= 2; a;", [
         Token("2", INTEGER, 1),
         Token("0", INTEGER, 1),
         Token("0", INTEGER, 1)
     ]),
-    ("let a = 2; let a *= 2; a;", [
+    ("set a = 2; set a *= 2; a;", [
         Token("2", INTEGER, 1),
         Token("4", INTEGER, 1),
         Token("4", INTEGER, 1)
     ]),
-    ("let a = 2; let a /= 2; a;", [
+    ("set a = 2; set a /= 2; a;", [
         Token("2", INTEGER, 1),
         Token("1.0", FLOAT, 1),
         Token("1.0", FLOAT, 1)
     ]),
-    ("let d = {\"a\": 2}; let d[\"a\"] += 2; d[\"a\"];", [
+    ("set d = {\"a\": 2}; set d[\"a\"] += 2; d[\"a\"];", [
         DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
         NoReturn(line_num=1),
         Token("4", INTEGER, 1)
     ]),
-    ("let d = {\"a\": 2}; let d[\"a\"] -= 2; d[\"a\"];", [
+    ("set d = {\"a\": 2}; set d[\"a\"] -= 2; d[\"a\"];", [
         DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
         NoReturn(line_num=1),
         Token("0", INTEGER, 1)
     ]),
-    ("let d = {\"a\": 2}; let d[\"a\"] *= 2; d[\"a\"];", [
+    ("set d = {\"a\": 2}; set d[\"a\"] *= 2; d[\"a\"];", [
         DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
         NoReturn(line_num=1),
         Token("4", INTEGER, 1)
     ]),
-    ("let d = {\"a\": 2}; let d[\"a\"] /= 2; d[\"a\"];", [
+    ("set d = {\"a\": 2}; set d[\"a\"] /= 2; d[\"a\"];", [
         DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
         NoReturn(line_num=1),
         Token("1.0", FLOAT, 1)
     ]),
-    ("let d = {\"a\": 2}; let d[\"a\"] = 5; d[\"a\"];", [
+    ("set d = {\"a\": 2}; set d[\"a\"] = 5; d[\"a\"];", [
         DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
         NoReturn(line_num=1),
         Token("5", INTEGER, 1)
     ]),
-    ("let d = {\"a\": {1: 1, 2: 2}}; let d[\"a\"][1] += 20; d[\"a\"][1];", [
+    ("set d = {\"a\": {1: 1, 2: 2}}; set d[\"a\"][1] += 20; d[\"a\"][1];", [
         DictionaryToken({
             Token("a", STRING, 1): DictionaryToken({
                 Token("1", INTEGER, 1): Token("1", INTEGER, 1),
@@ -262,7 +262,7 @@ def test_assignment(source, expected_results):
 
 def test_embedded_dictionary_set():
     source = """
-    let dict = {
+    set dict = {
         "a": {
             "b": {
                 "c": 1,
@@ -270,7 +270,7 @@ def test_embedded_dictionary_set():
             }
         }
     };
-    let dict["a"]["b"]["e"] = 3;
+    set dict["a"]["b"]["e"] = 3;
     dict;
     """
     actual_tokens = actual_result(source)
@@ -300,7 +300,7 @@ def test_embedded_dictionary_set():
 
 def test_dictionary_get():
     source = """
-    let d = {"a": 1, "b": 2, "c": 3};
+    set d = {"a": 1, "b": 2, "c": 3};
     d["a"];
     d["b"];
     d["c"];
@@ -325,7 +325,7 @@ def test_dictionary_get():
 
 def test_dictionary_get_invalid_key():
     source = """
-    let d = {"a": 1, "b": 2, "c": 3};
+    set d = {"a": 1, "b": 2, "c": 3};
     d["d"];
     """
 

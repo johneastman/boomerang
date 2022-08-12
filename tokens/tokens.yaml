@@ -1,7 +1,10 @@
 tokens:
-  - literal: let
-    name: LET
-    type: LET
+  - literal: set
+    name: SET
+    type: SET
+  - literal: '.'
+    name: PERIOD
+    type: PERIOD
   - literal: '='
     name: ASSIGN
     type: ASSIGN

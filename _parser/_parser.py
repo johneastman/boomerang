@@ -71,7 +71,7 @@ class Parser:
         elif self.current.type == WHILE:
             return self.loop()
 
-        elif self.current.type == LET:
+        elif self.current.type == SET:
             return self.assign()
 
         else:
@@ -99,14 +99,13 @@ class Parser:
                 else:
                     break
 
-            # TODO: Allow operation-assignment operators (+=, -=, etc.)
             assignment_operator = self.current
             self.is_expected_token(self.assignment_operators)
             self.advance()
             right = self.expression()
 
             if assignment_operator.type == ASSIGN:
-                return AssignVariable(Index(Identifier(variable_name), keys), right)
+                return SetVariable(Index(Identifier(variable_name), keys), right)
             elif assignment_operator.type in self.assignment_operators:
                 operator_token = {
                     ASSIGN_ADD: Token(get_token_literal("PLUS"), PLUS, assignment_operator.line_num),
@@ -115,7 +114,7 @@ class Parser:
                     ASSIGN_DIV: Token(get_token_literal("DIVIDE"), DIVIDE, assignment_operator.line_num)
                 }
 
-                return AssignVariable(
+                return SetVariable(
                     Index(Identifier(variable_name), keys),
                     BinaryOperation(
                         Index(Identifier(variable_name), keys),
@@ -128,7 +127,7 @@ class Parser:
             if self.current.type == ASSIGN:
                 self.advance()
                 right = self.expression()
-                return AssignVariable(Identifier(variable_name), right)
+                return SetVariable(Identifier(variable_name), right)
 
             elif self.current.type in self.assignment_operators:
                 assignment_operator = self.current
@@ -143,7 +142,7 @@ class Parser:
                     ASSIGN_DIV: Token(get_token_literal("DIVIDE"), DIVIDE, assignment_operator.line_num)
                 }
 
-                return AssignVariable(
+                return SetVariable(
                     Identifier(variable_name),
                     BinaryOperation(
                         Identifier(variable_name),
@@ -268,8 +267,6 @@ class Parser:
                 self.advance()
 
                 # mypy error: Argument 2 to "Index" has incompatible type "Expression"; expected "List[Expression]"
-                # TODO: fix type of 'value' to be a list of Expressions or create a separate object type for setting
-                #  dictionaries.
                 return Index(left, [value])  # type: ignore
             elif self.current.type == BANG:
                 self.advance()

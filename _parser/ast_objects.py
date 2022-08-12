@@ -278,7 +278,7 @@ class BinaryOperation(Expression):
         return self.left == other.left and self.op == other.op and self.right == other.right
 
 
-class AssignVariable(Statement):
+class SetVariable(Statement):
     def __init__(self, name: Expression, value: Expression):
         self.name = name
         self.value = value

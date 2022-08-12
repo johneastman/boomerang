@@ -66,6 +66,7 @@ DOUBLE_QUOTE: str = get_token_type("DOUBLE_QUOTE")
 COLON: str = get_token_type("COLON")
 OPEN_BRACKET: str = get_token_type("OPEN_BRACKET")
 CLOSED_BRACKET: str = get_token_type("CLOSED_BRACKET")
+PERIOD: str = get_token_type("PERIOD")
 
 # Comparison/Boolean Operators
 EQ: str = get_token_type("EQ")
@@ -84,7 +85,7 @@ FUNCTION: str = get_token_type("FUNCTION")
 IF: str = get_token_type("IF")
 ELSE: str = get_token_type("ELSE")
 WHILE: str = get_token_type("WHILE")
-LET: str = get_token_type("LET")
+SET: str = get_token_type("SET")
 
 # Misc
 EOF: str = get_token_type("EOF")  # End of File
