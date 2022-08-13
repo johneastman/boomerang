@@ -77,6 +77,24 @@ class Parser:
         else:
             return ExpressionStatement(self.expression())
 
+    def get_operator_token(self, op_type, line_num):
+        operator_token = {
+            ASSIGN_ADD: Token(get_token_literal("PLUS"), PLUS, line_num),
+            ASSIGN_SUB: Token(get_token_literal("MINUS"), MINUS, line_num),
+            ASSIGN_MUL: Token(get_token_literal("MULTIPLY"), MULTIPLY, line_num),
+            ASSIGN_DIV: Token(get_token_literal("DIVIDE"), DIVIDE, line_num)
+        }
+        return operator_token[op_type]
+
+    def create_assignment_ast(self, assignment_operator: Token, name: typing.Union[Identifier, Index], value: Expression):
+        if assignment_operator.type == ASSIGN:
+            return SetVariable(name, value)
+        elif assignment_operator.type in self.assignment_operators:
+            operator_token = self.get_operator_token(assignment_operator.type, assignment_operator.line_num)
+            return SetVariable(name, BinaryOperation(name, operator_token, value))
+        else:
+            raise_error(assignment_operator.line_num, f"Invalid assignment operator: {assignment_operator.type} ({assignment_operator.value})")
+
     def assign(self) -> Statement:  # type: ignore
         self.advance()
 
@@ -104,54 +122,24 @@ class Parser:
             self.advance()
             right = self.expression()
 
-            if assignment_operator.type == ASSIGN:
-                return SetVariable(Index(Identifier(variable_name), keys), right)
-            elif assignment_operator.type in self.assignment_operators:
-                operator_token = {
-                    ASSIGN_ADD: Token(get_token_literal("PLUS"), PLUS, assignment_operator.line_num),
-                    ASSIGN_SUB: Token(get_token_literal("MINUS"), MINUS, assignment_operator.line_num),
-                    ASSIGN_MUL: Token(get_token_literal("MULTIPLY"), MULTIPLY, assignment_operator.line_num),
-                    ASSIGN_DIV: Token(get_token_literal("DIVIDE"), DIVIDE, assignment_operator.line_num)
-                }
-
-                return SetVariable(
-                    Index(Identifier(variable_name), keys),
-                    BinaryOperation(
-                        Index(Identifier(variable_name), keys),
-                        operator_token[assignment_operator.type],
-                        right
-                    )
-                )
+            return self.create_assignment_ast(
+                assignment_operator,
+                Index(Identifier(variable_name), keys),
+                right
+            )
 
         else:
-            if self.current.type == ASSIGN:
-                self.advance()
-                right = self.expression()
-                return SetVariable(Identifier(variable_name), right)
+            assignment_operator = self.current
+            self.is_expected_token(self.assignment_operators)
 
-            elif self.current.type in self.assignment_operators:
-                assignment_operator = self.current
+            self.advance()
+            right = self.expression()
 
-                self.advance()
-                right = self.expression()
-
-                operator_token = {
-                    ASSIGN_ADD: Token(get_token_literal("PLUS"), PLUS, assignment_operator.line_num),
-                    ASSIGN_SUB: Token(get_token_literal("MINUS"), MINUS, assignment_operator.line_num),
-                    ASSIGN_MUL: Token(get_token_literal("MULTIPLY"), MULTIPLY, assignment_operator.line_num),
-                    ASSIGN_DIV: Token(get_token_literal("DIVIDE"), DIVIDE, assignment_operator.line_num)
-                }
-
-                return SetVariable(
-                    Identifier(variable_name),
-                    BinaryOperation(
-                        Identifier(variable_name),
-                        operator_token[assignment_operator.type],
-                        right
-                    )
-                )
-            else:
-                raise_error(variable_name.line_num, f"Invalid assignment operator: {self.current.type}")
+            return self.create_assignment_ast(
+                assignment_operator,
+                Identifier(variable_name),
+                right
+            )
 
     def loop(self) -> Statement:
         self.advance()
@@ -267,10 +255,10 @@ class Parser:
                 self.advance()
 
                 # mypy error: Argument 2 to "Index" has incompatible type "Expression"; expected "List[Expression]"
-                return Index(left, [value])  # type: ignore
+                left = Index(left, [value])  # type: ignore
             elif self.current.type == BANG:
                 self.advance()
-                return Factorial(left)
+                left = Factorial(left)
             else:
                 break
 
