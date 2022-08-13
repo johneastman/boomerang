@@ -357,11 +357,12 @@ class Evaluator:
             raise_error(expression_result.line_num, f"Cannot perform {op_type} operation on {expression_result.type}")
 
         actual_value = self.get_literal_value(expression_result)
+        actual_type = self.get_type(actual_value)
 
         if op_type == PLUS:
-            return Token(str(actual_value), INTEGER, expression_result.line_num)
+            return Token(str(actual_value), actual_type, expression_result.line_num)
         elif op_type == MINUS:
-            return Token(str(-actual_value), INTEGER, expression_result.line_num)
+            return Token(str(-actual_value), actual_type, expression_result.line_num)
         elif op_type == BANG:
             value = get_token_literal("FALSE") if actual_value else get_token_literal("TRUE")
             return Token(str(value), BOOLEAN, expression_result.line_num)
@@ -478,5 +479,7 @@ class Evaluator:
             return INTEGER
         elif isinstance(value, dict):
             return DICTIONARY
+        elif isinstance(value, bool):
+            return BOOLEAN
         else:
             return STRING

@@ -25,7 +25,7 @@ def test_precedence_add():
     ]
 
     actual_ast = _parser.Parser(tokens).parse()
-    assert expected_ast == actual_ast
+    assert actual_ast == expected_ast
 
 
 def test_precedence_multiply():
@@ -54,7 +54,7 @@ def test_precedence_multiply():
     ]
 
     actual_ast = _parser.Parser(tokens).parse()
-    assert expected_ast == actual_ast
+    assert actual_ast == expected_ast
 
 
 precedence_and_or_tests = [
@@ -96,7 +96,7 @@ def test_precedence_and_or(test_name, operator_token):
     ]
 
     actual_ast = _parser.Parser(tokens).parse()
-    assert expected_ast == actual_ast
+    assert actual_ast == expected_ast
 
 
 def test_dictionary():
@@ -120,4 +120,4 @@ def test_dictionary():
     ]
 
     actual_ast = _parser.Parser(tokens).parse()
-    assert expected_ast == actual_ast
+    assert actual_ast == expected_ast

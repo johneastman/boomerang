@@ -171,7 +171,7 @@ identifier_data = [
 def test_read_identifier(source, expected_identifier):
     tokenizer = Tokenizer(source)
     actual_identifier = tokenizer.read_identifier()
-    assert expected_identifier == actual_identifier
+    assert actual_identifier == expected_identifier
 
 
 def test_advance():

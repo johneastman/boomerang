@@ -100,6 +100,12 @@ valid_unary_operations_tests = [
     ("+1;", [
         TestToken("1", INTEGER, 1)
     ]),
+    ("-5.258;", [
+        TestToken("-5.258", FLOAT, 1)
+    ]),
+    ("5.258;", [
+        TestToken("5.258", FLOAT, 1)
+    ]),
     ("!true;", [
         TestToken("false", BOOLEAN, 1)
     ]),
@@ -112,7 +118,7 @@ valid_unary_operations_tests = [
 @pytest.mark.parametrize("source,expected_results", valid_unary_operations_tests)
 def test_valid_unary_operations(source, expected_results):
     actual_results = actual_result(source)
-    assert expected_results == actual_results
+    assert actual_results == expected_results
 
 
 invalid_unary_operations_tests = [
@@ -129,7 +135,7 @@ def test_invalid_unary_operations(source, op, _type):
     with pytest.raises(LanguageRuntimeException) as error:
         actual_result(source)
     assert error.typename == "LanguageRuntimeException"
-    assert f"Error at line 1: Cannot perform {op} operation on {_type}" == str(error.value)
+    assert str(error.value) == f"Error at line 1: Cannot perform {op} operation on {_type}"
 
 
 def test_function_no_return():
@@ -175,7 +181,7 @@ def test_function_return():
         NoReturn(line_num=8),
     ]
     actual_results = actual_result(source)
-    assert expected_results == actual_results
+    assert actual_results == expected_results
 
 
 function_calls_tests = [
@@ -200,7 +206,7 @@ def test_function_calls(first_param, second_param, return_val):
         NoReturn(line_num=2),
         TestToken(return_val, INTEGER, 5)
     ]
-    assert expected_results == actual_results
+    assert actual_results == expected_results
 
 
 assignment_tests = [
@@ -264,7 +270,7 @@ assignment_tests = [
 @pytest.mark.parametrize("source,expected_results", assignment_tests)
 def test_assignment(source, expected_results):
     actual_results = actual_result(source)
-    assert expected_results == actual_results
+    assert actual_results == expected_results
 
 
 def test_embedded_dictionary_set():
@@ -301,7 +307,7 @@ def test_embedded_dictionary_set():
             }, 3)
         }, 2),
     ]
-    assert expected_tokens == actual_tokens
+    assert actual_tokens == expected_tokens
 
 
 def test_dictionary_get():
@@ -326,7 +332,7 @@ def test_dictionary_get():
         TestToken("3", INTEGER, 5),
     ]
     actual_values = actual_result(source)
-    assert expected_values == actual_values
+    assert actual_values == expected_values
 
 
 def test_dictionary_get_invalid_key():
@@ -338,7 +344,7 @@ def test_dictionary_get_invalid_key():
     with pytest.raises(LanguageRuntimeException) as error:
         actual_result(source)
     assert error.typename == "LanguageRuntimeException"
-    assert "Error at line 3: No key in dictionary: \"d\"" == str(error.value)
+    assert str(error.value) == "Error at line 3: No key in dictionary: \"d\""
 
 
 def actual_result(source):

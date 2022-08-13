@@ -38,7 +38,7 @@ data_types_tests = [
 @pytest.mark.parametrize("source,expected_tokens", data_types_tests)
 def test_data_types(source, expected_tokens):
     actual_tokens = Tokenizer(source).tokenize()
-    assert expected_tokens == actual_tokens
+    assert actual_tokens == expected_tokens
 
 
 tokenizer_tests = [
@@ -109,4 +109,4 @@ tokenizer_tests = [
 @pytest.mark.parametrize("source, expected_tokens", tokenizer_tests)
 def test_tokenizer(source, expected_tokens):
     actual_tokens = Tokenizer(source).tokenize()
-    assert expected_tokens == actual_tokens
+    assert actual_tokens == expected_tokens
