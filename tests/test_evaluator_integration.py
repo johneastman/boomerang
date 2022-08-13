@@ -2,69 +2,70 @@ import pytest
 
 import _parser.ast_objects
 from tokens.tokens import *
-from tokens.tokenizer import Token, Tokenizer
+from tokens.tokenizer import Tokenizer
 from _parser._parser import Parser, NoReturn, DictionaryToken
 from evaluator.evaluator import Evaluator
 from evaluator._environment import Environment
 import tests.testing_utils as utils
+from .testing_utils import TestToken
 from utils import LanguageRuntimeException
 
 
 evaluator_tests = [
-    ("1 + 1;", [Token("2", INTEGER, 1)]),
-    ("1 + 2 * 2;", [Token("5", INTEGER, 1)]),
-    ("(1 + 2) * 2;", [Token("6", INTEGER, 1)]),
-    ("set x = (1 + 2) * 2;x;", [Token("6", INTEGER, 1), Token("6", INTEGER, 1)]),
-    ("4 / 2;", [Token("2.0", FLOAT, 1)]),
-    ("7 / 2;", [Token("3.5", FLOAT, 1)]),
-    ("1 + 1 * 2 + 3 / 4;", [Token("3.75", FLOAT, 1)]),
-    ("\"hello \" + \"world!\";",  [Token("hello world!", STRING, 1)]),
+    ("1 + 1;", [TestToken("2", INTEGER, 1)]),
+    ("1 + 2 * 2;", [TestToken("5", INTEGER, 1)]),
+    ("(1 + 2) * 2;", [TestToken("6", INTEGER, 1)]),
+    ("set x = (1 + 2) * 2;x;", [TestToken("6", INTEGER, 1), TestToken("6", INTEGER, 1)]),
+    ("4 / 2;", [TestToken("2.0", FLOAT, 1)]),
+    ("7 / 2;", [TestToken("3.5", FLOAT, 1)]),
+    ("1 + 1 * 2 + 3 / 4;", [TestToken("3.75", FLOAT, 1)]),
+    ("\"hello \" + \"world!\";",  [TestToken("hello world!", STRING, 1)]),
     ("{\"a\": 1 + 1, \"b\": 3 + (2 * 2 + 1), \"c\": 55};", [
         _parser.ast_objects.DictionaryToken(
             {
-                Token("a", STRING, 1): Token("2", INTEGER, 1),
-                Token("b", STRING, 1): Token("8", INTEGER, 1),
-                Token("c", STRING, 1): Token("55", INTEGER, 1),
+                TestToken("a", STRING, 1): TestToken("2", INTEGER, 1),
+                TestToken("b", STRING, 1): TestToken("8", INTEGER, 1),
+                TestToken("c", STRING, 1): TestToken("55", INTEGER, 1),
             }, 1
         )
     ]),
-    ("0!;", [Token("1", INTEGER, 1)]),
-    ("1!;", [Token("1", INTEGER, 1)]),
-    ("2!;", [Token("2", INTEGER, 1)]),
-    ("3!;", [Token("6", INTEGER, 1)]),
-    ("4!;", [Token("24", INTEGER, 1)]),
-    ("5!;", [Token("120", INTEGER, 1)]),
-    ("6!;", [Token("720", INTEGER, 1)]),
-    ("5! + 5;", [Token("125", INTEGER, 1)]),
-    ("3!!;", [Token("720", INTEGER, 1)])
+    ("0!;", [TestToken("1", INTEGER, 1)]),
+    ("1!;", [TestToken("1", INTEGER, 1)]),
+    ("2!;", [TestToken("2", INTEGER, 1)]),
+    ("3!;", [TestToken("6", INTEGER, 1)]),
+    ("4!;", [TestToken("24", INTEGER, 1)]),
+    ("5!;", [TestToken("120", INTEGER, 1)]),
+    ("6!;", [TestToken("720", INTEGER, 1)]),
+    ("5! + 5;", [TestToken("125", INTEGER, 1)]),
+    ("3!!;", [TestToken("720", INTEGER, 1)])
 ]
 
 
 @pytest.mark.parametrize("source,expected_results", evaluator_tests)
 def test_evaluator(source, expected_results):
     actual_results = actual_result(source)
-    utils.assert_tokens_equal(expected_results, actual_results)
+    assert expected_results == actual_results
 
 
 valid_boolean_operations_tests = [
-    ("1 == 1;", [Token("true", BOOLEAN, 1)]),
-    ("1 != 1;", [Token("false", BOOLEAN, 1)]),
-    ("1 != 2;", [Token("true", BOOLEAN, 1)]),
-    ("1 >= 1;", [Token("true", BOOLEAN, 1)]),
-    ("1 >= 2;", [Token("false", BOOLEAN, 1)]),
-    ("1 > 1;",  [Token("false", BOOLEAN, 1)]),
-    ("2 > 1;",  [Token("true", BOOLEAN, 1)]),
-    ("1 <= 1;", [Token("true", BOOLEAN, 1)]),
-    ("1 < 2;",  [Token("true", BOOLEAN, 1)]),
-    ("2 < 1;",  [Token("false", BOOLEAN, 1)]),
-    ("10 == (2 + 4 * 2) == true;",  [Token("true", BOOLEAN, 1)])
+    ("1 == 1;", [TestToken("true", BOOLEAN, 1)]),
+    ("1 != 1;", [TestToken("false", BOOLEAN, 1)]),
+    ("1 != 2;", [TestToken("true", BOOLEAN, 1)]),
+    ("1 >= 1;", [TestToken("true", BOOLEAN, 1)]),
+    ("1 >= 2;", [TestToken("false", BOOLEAN, 1)]),
+    ("1 > 1;",  [TestToken("false", BOOLEAN, 1)]),
+    ("2 > 1;",  [TestToken("true", BOOLEAN, 1)]),
+    ("1 <= 1;", [TestToken("true", BOOLEAN, 1)]),
+    ("1 < 2;",  [TestToken("true", BOOLEAN, 1)]),
+    ("2 < 1;",  [TestToken("false", BOOLEAN, 1)]),
+    ("10 == (2 + 4 * 2) == true;",  [TestToken("true", BOOLEAN, 1)])
 ]
 
 
 @pytest.mark.parametrize("source,expected_results", valid_boolean_operations_tests)
 def test_valid_boolean_operations(source, expected_results):
     actual_results = actual_result(source)
-    utils.assert_tokens_equal(expected_results, actual_results)
+    assert expected_results == actual_results
 
 
 invalid_boolean_operations_tests = [
@@ -94,16 +95,16 @@ def test_invalid_boolean_operations(source, left_type, operation_type, right_typ
 
 valid_unary_operations_tests = [
     ("-1;", [
-        Token("-1", INTEGER, 1)
+        TestToken("-1", INTEGER, 1)
      ]),
     ("+1;", [
-        Token("1", INTEGER, 1)
+        TestToken("1", INTEGER, 1)
     ]),
     ("!true;", [
-        Token("false", BOOLEAN, 1)
+        TestToken("false", BOOLEAN, 1)
     ]),
     ("!false;", [
-        Token("true", BOOLEAN, 1)
+        TestToken("true", BOOLEAN, 1)
     ]),
 ]
 
@@ -111,7 +112,7 @@ valid_unary_operations_tests = [
 @pytest.mark.parametrize("source,expected_results", valid_unary_operations_tests)
 def test_valid_unary_operations(source, expected_results):
     actual_results = actual_result(source)
-    utils.assert_tokens_equal(expected_results, actual_results)
+    assert expected_results == actual_results
 
 
 invalid_unary_operations_tests = [
@@ -170,11 +171,11 @@ def test_function_return():
     """
     expected_results = [
         NoReturn(line_num=2),
-        Token("true", BOOLEAN, 7),
+        TestToken("true", BOOLEAN, 7),
         NoReturn(line_num=8),
     ]
     actual_results = actual_result(source)
-    utils.assert_tokens_equal(expected_results, actual_results)
+    assert expected_results == actual_results
 
 
 function_calls_tests = [
@@ -197,65 +198,65 @@ def test_function_calls(first_param, second_param, return_val):
     actual_results = actual_result(source)
     expected_results = [
         NoReturn(line_num=2),
-        Token(return_val, INTEGER, 5)
+        TestToken(return_val, INTEGER, 5)
     ]
-    utils.assert_tokens_equal(expected_results, actual_results)
+    assert expected_results == actual_results
 
 
 assignment_tests = [
     ("set a = 2; set a += 2; a;", [
-        Token("2", INTEGER, 1),
-        Token("4", INTEGER, 1),
-        Token("4", INTEGER, 1)
+        TestToken("2", INTEGER, 1),
+        TestToken("4", INTEGER, 1),
+        TestToken("4", INTEGER, 1)
     ]),
     ("set a = 2; set a -= 2; a;", [
-        Token("2", INTEGER, 1),
-        Token("0", INTEGER, 1),
-        Token("0", INTEGER, 1)
+        TestToken("2", INTEGER, 1),
+        TestToken("0", INTEGER, 1),
+        TestToken("0", INTEGER, 1)
     ]),
     ("set a = 2; set a *= 2; a;", [
-        Token("2", INTEGER, 1),
-        Token("4", INTEGER, 1),
-        Token("4", INTEGER, 1)
+        TestToken("2", INTEGER, 1),
+        TestToken("4", INTEGER, 1),
+        TestToken("4", INTEGER, 1)
     ]),
     ("set a = 2; set a /= 2; a;", [
-        Token("2", INTEGER, 1),
-        Token("1.0", FLOAT, 1),
-        Token("1.0", FLOAT, 1)
+        TestToken("2", INTEGER, 1),
+        TestToken("1.0", FLOAT, 1),
+        TestToken("1.0", FLOAT, 1)
     ]),
     ("set d = {\"a\": 2}; set d[\"a\"] += 2; d[\"a\"];", [
-        DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
+        DictionaryToken({TestToken("a", STRING, 1): TestToken("2", INTEGER, 1)}, 1),
         NoReturn(line_num=1),
-        Token("4", INTEGER, 1)
+        TestToken("4", INTEGER, 1)
     ]),
     ("set d = {\"a\": 2}; set d[\"a\"] -= 2; d[\"a\"];", [
-        DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
+        DictionaryToken({TestToken("a", STRING, 1): TestToken("2", INTEGER, 1)}, 1),
         NoReturn(line_num=1),
-        Token("0", INTEGER, 1)
+        TestToken("0", INTEGER, 1)
     ]),
     ("set d = {\"a\": 2}; set d[\"a\"] *= 2; d[\"a\"];", [
-        DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
+        DictionaryToken({TestToken("a", STRING, 1): TestToken("2", INTEGER, 1)}, 1),
         NoReturn(line_num=1),
-        Token("4", INTEGER, 1)
+        TestToken("4", INTEGER, 1)
     ]),
     ("set d = {\"a\": 2}; set d[\"a\"] /= 2; d[\"a\"];", [
-        DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
+        DictionaryToken({TestToken("a", STRING, 1): TestToken("2", INTEGER, 1)}, 1),
         NoReturn(line_num=1),
-        Token("1.0", FLOAT, 1)
+        TestToken("1.0", FLOAT, 1)
     ]),
     ("set d = {\"a\": 2}; set d[\"a\"] = 5; d[\"a\"];", [
-        DictionaryToken({Token("a", STRING, 1): Token("2", INTEGER, 1)}, 1),
+        DictionaryToken({TestToken("a", STRING, 1): TestToken("2", INTEGER, 1)}, 1),
         NoReturn(line_num=1),
-        Token("5", INTEGER, 1)
+        TestToken("5", INTEGER, 1)
     ]),
     ("set d = {\"a\": {1: 1, 2: 2}}; set d[\"a\"][1] += 20; d[\"a\"][1];", [
         DictionaryToken({
-            Token("a", STRING, 1): DictionaryToken({
-                Token("1", INTEGER, 1): Token("1", INTEGER, 1),
-                Token("2", INTEGER, 1): Token("2", INTEGER, 1)}, 1)
+            TestToken("a", STRING, 1): DictionaryToken({
+                TestToken("1", INTEGER, 1): TestToken("1", INTEGER, 1),
+                TestToken("2", INTEGER, 1): TestToken("2", INTEGER, 1)}, 1)
         }, 1),
         NoReturn(line_num=1),
-        Token("21", INTEGER, 1)
+        TestToken("21", INTEGER, 1)
     ])
 ]
 
@@ -263,7 +264,7 @@ assignment_tests = [
 @pytest.mark.parametrize("source,expected_results", assignment_tests)
 def test_assignment(source, expected_results):
     actual_results = actual_result(source)
-    utils.assert_tokens_equal(expected_results, actual_results)
+    assert expected_results == actual_results
 
 
 def test_embedded_dictionary_set():
@@ -282,26 +283,25 @@ def test_embedded_dictionary_set():
     actual_tokens = actual_result(source)
     expected_tokens = [
         DictionaryToken({
-            Token("a", STRING, 3): DictionaryToken({
-                Token("b", STRING, 4): DictionaryToken({
-                    Token("c", STRING, 5): Token("1", INTEGER, 5),
-                    Token("d", STRING, 6): Token("2", INTEGER, 6),
+            TestToken("a", STRING, 3): DictionaryToken({
+                TestToken("b", STRING, 4): DictionaryToken({
+                    TestToken("c", STRING, 5): TestToken("1", INTEGER, 5),
+                    TestToken("d", STRING, 6): TestToken("2", INTEGER, 6),
                 }, 4)
             }, 3)
         }, 2),
         NoReturn(2),
         DictionaryToken({
-            Token("a", STRING, 3): DictionaryToken({
-                Token("b", STRING, 4): DictionaryToken({
-                    Token("c", STRING, 5): Token("1", INTEGER, 5),
-                    Token("d", STRING, 6): Token("2", INTEGER, 6),
-                    Token("e", STRING, 10): Token("3", INTEGER, 10),
+            TestToken("a", STRING, 3): DictionaryToken({
+                TestToken("b", STRING, 4): DictionaryToken({
+                    TestToken("c", STRING, 5): TestToken("1", INTEGER, 5),
+                    TestToken("d", STRING, 6): TestToken("2", INTEGER, 6),
+                    TestToken("e", STRING, 10): TestToken("3", INTEGER, 10),
                 }, 4)
             }, 3)
         }, 2),
     ]
-    assert len(expected_tokens) == len(actual_tokens)
-    utils.assert_tokens_equal(expected_tokens, actual_tokens)
+    assert expected_tokens == actual_tokens
 
 
 def test_dictionary_get():
@@ -314,16 +314,16 @@ def test_dictionary_get():
 
     dict_line_num = 2
     expected_dictionary_token = _parser.ast_objects.DictionaryToken({
-        Token("a", STRING, dict_line_num): Token("1", INTEGER, dict_line_num),
-        Token("b", STRING, dict_line_num): Token("2", INTEGER, dict_line_num),
-        Token("c", STRING, dict_line_num): Token("3", INTEGER, dict_line_num),
+        TestToken("a", STRING, dict_line_num): TestToken("1", INTEGER, dict_line_num),
+        TestToken("b", STRING, dict_line_num): TestToken("2", INTEGER, dict_line_num),
+        TestToken("c", STRING, dict_line_num): TestToken("3", INTEGER, dict_line_num),
     }, dict_line_num)
 
     expected_values = [
         expected_dictionary_token,
-        Token("1", INTEGER, 3),
-        Token("2", INTEGER, 4),
-        Token("3", INTEGER, 5),
+        TestToken("1", INTEGER, 3),
+        TestToken("2", INTEGER, 4),
+        TestToken("3", INTEGER, 5),
     ]
     actual_values = actual_result(source)
     assert expected_values == actual_values

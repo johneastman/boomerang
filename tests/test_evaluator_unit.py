@@ -1,7 +1,6 @@
 import pytest
 from evaluator.evaluator import Evaluator
 from collections import namedtuple
-from utils import LanguageRuntimeException
 
 
 def test_evaluate_expression_invalid_type():

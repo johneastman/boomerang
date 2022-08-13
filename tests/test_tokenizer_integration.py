@@ -1,36 +1,36 @@
 import pytest
-import tests.testing_utils as utils
 from tokens.tokens import *
-from tokens.tokenizer import Token, Tokenizer
+from tokens.tokenizer import Tokenizer
+from .testing_utils import TestToken
 
 data_types_tests = [
     ("\"hello, world!\"", [
-        Token("hello, world!", STRING, 1),
-        Token("", EOF, 1),
+        TestToken("hello, world!", STRING, 1),
+        TestToken("", EOF, 1),
     ]),
     ("true", [
-        Token("true", BOOLEAN, 1),
-        Token("", EOF, 1),
+        TestToken("true", BOOLEAN, 1),
+        TestToken("", EOF, 1),
     ]),
     ("false", [
-        Token("false", BOOLEAN, 1),
-        Token("", EOF, 1),
+        TestToken("false", BOOLEAN, 1),
+        TestToken("", EOF, 1),
     ]),
     ("1", [
-        Token("1", INTEGER, 1),
-        Token("", EOF, 1),
+        TestToken("1", INTEGER, 1),
+        TestToken("", EOF, 1),
     ]),
     ("15", [
-        Token("15", INTEGER, 1),
-        Token("", EOF, 1),
+        TestToken("15", INTEGER, 1),
+        TestToken("", EOF, 1),
     ]),
     ("153", [
-        Token("153", INTEGER, 1),
-        Token("", EOF, 1),
+        TestToken("153", INTEGER, 1),
+        TestToken("", EOF, 1),
     ]),
     ("1.5", [
-        Token("1.5", FLOAT, 1),
-        Token("", EOF, 1),
+        TestToken("1.5", FLOAT, 1),
+        TestToken("", EOF, 1),
     ]),
 ]
 
@@ -38,70 +38,70 @@ data_types_tests = [
 @pytest.mark.parametrize("source,expected_tokens", data_types_tests)
 def test_data_types(source, expected_tokens):
     actual_tokens = Tokenizer(source).tokenize()
-    utils.assert_tokens_equal(expected_tokens, actual_tokens)
+    assert expected_tokens == actual_tokens
 
 
 tokenizer_tests = [
     ("1 + 1;", [
-        Token("1", INTEGER, 1),
-        Token("+", PLUS, 1),
-        Token("1", INTEGER, 1),
-        Token(";", SEMICOLON, 1),
-        Token("", EOF, 1)
+        TestToken("1", INTEGER, 1),
+        TestToken("+", PLUS, 1),
+        TestToken("1", INTEGER, 1),
+        TestToken(";", SEMICOLON, 1),
+        TestToken("", EOF, 1)
     ]),
     ("a = 1;\nb = 2;", [
-        Token("a", IDENTIFIER, 1),
-        Token("=", ASSIGN, 1),
-        Token("1", INTEGER, 1),
-        Token(";", SEMICOLON, 1),
-        Token("b", IDENTIFIER, 2),
-        Token("=", ASSIGN, 2),
-        Token("2", INTEGER, 2),
-        Token(";", SEMICOLON, 2),
-        Token("", EOF, 2),
+        TestToken("a", IDENTIFIER, 1),
+        TestToken("=", ASSIGN, 1),
+        TestToken("1", INTEGER, 1),
+        TestToken(";", SEMICOLON, 1),
+        TestToken("b", IDENTIFIER, 2),
+        TestToken("=", ASSIGN, 2),
+        TestToken("2", INTEGER, 2),
+        TestToken(";", SEMICOLON, 2),
+        TestToken("", EOF, 2),
     ]),
     ("# a = 1;\nb = 2;", [
-        Token("b", IDENTIFIER, 2),
-        Token("=", ASSIGN, 2),
-        Token("2", INTEGER, 2),
-        Token(";", SEMICOLON, 2),
-        Token("", EOF, 2),
+        TestToken("b", IDENTIFIER, 2),
+        TestToken("=", ASSIGN, 2),
+        TestToken("2", INTEGER, 2),
+        TestToken(";", SEMICOLON, 2),
+        TestToken("", EOF, 2),
     ]),
     ("\n/*x = 1;\nb = 2; */\nc = 3;", [
-        Token("c", IDENTIFIER, 4),
-        Token("=", ASSIGN, 4),
-        Token("3", INTEGER, 4),
-        Token(";", SEMICOLON, 4),
-        Token("", EOF, 4),
+        TestToken("c", IDENTIFIER, 4),
+        TestToken("=", ASSIGN, 4),
+        TestToken("3", INTEGER, 4),
+        TestToken(";", SEMICOLON, 4),
+        TestToken("", EOF, 4),
     ]),
     ("/*func is_eq(a, b) {\n    return a == b;\n};\n*/print(1 / 1);", [
-        Token("print", IDENTIFIER, 4),
-        Token("(", OPEN_PAREN, 4),
-        Token("1", INTEGER, 4),
-        Token("/", DIVIDE, 4),
-        Token("1", INTEGER, 4),
-        Token(")", CLOSED_PAREN, 4),
-        Token(";", SEMICOLON, 4),
-        Token("", EOF, 4),
+        TestToken("print", IDENTIFIER, 4),
+        TestToken("(", OPEN_PAREN, 4),
+        TestToken("1", INTEGER, 4),
+        TestToken("/", DIVIDE, 4),
+        TestToken("1", INTEGER, 4),
+        TestToken(")", CLOSED_PAREN, 4),
+        TestToken(";", SEMICOLON, 4),
+        TestToken("", EOF, 4),
     ]),
     ("i += 3; j -= 4;\nk *= 5; l /= 6;", [
-        Token("i", IDENTIFIER, 1),
-        Token("+=", ASSIGN_ADD, 1),
-        Token("3", INTEGER, 1),
-        Token(";", SEMICOLON, 1),
-        Token("j", IDENTIFIER, 1),
-        Token("-=", ASSIGN_SUB, 1),
-        Token("4", INTEGER, 1),
-        Token(";", SEMICOLON, 1),
-        Token("k", IDENTIFIER, 2),
-        Token("*=", ASSIGN_MUL, 2),
-        Token("5", INTEGER, 2),
-        Token(";", SEMICOLON, 2),
-        Token("l", IDENTIFIER, 2),
-        Token("/=", ASSIGN_DIV, 2),
-        Token("6", INTEGER, 2),
-        Token(";", SEMICOLON, 2),
-        Token("", EOF, 2),
+        TestToken("i", IDENTIFIER, 1),
+        TestToken("+=", ASSIGN_ADD, 1),
+        TestToken("3", INTEGER, 1),
+        TestToken(";", SEMICOLON, 1),
+        TestToken("j", IDENTIFIER, 1),
+        TestToken("-=", ASSIGN_SUB, 1),
+        TestToken("4", INTEGER, 1),
+        TestToken(";", SEMICOLON, 1),
+        TestToken("k", IDENTIFIER, 2),
+        TestToken("*=", ASSIGN_MUL, 2),
+        TestToken("5", INTEGER, 2),
+        TestToken(";", SEMICOLON, 2),
+        TestToken("l", IDENTIFIER, 2),
+        TestToken("/=", ASSIGN_DIV, 2),
+        TestToken("6", INTEGER, 2),
+        TestToken(";", SEMICOLON, 2),
+        TestToken("", EOF, 2),
     ])
 ]
 
@@ -109,4 +109,4 @@ tokenizer_tests = [
 @pytest.mark.parametrize("source, expected_tokens", tokenizer_tests)
 def test_tokenizer(source, expected_tokens):
     actual_tokens = Tokenizer(source).tokenize()
-    utils.assert_tokens_equal(expected_tokens, actual_tokens)
+    assert expected_tokens == actual_tokens

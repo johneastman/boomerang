@@ -2,7 +2,6 @@ import tokens.tokens
 from tokens.tokenizer import Token
 from tokens.tokens import *
 from typing import Optional
-from utils import raise_error
 
 
 class Statement:
@@ -286,6 +285,11 @@ class SetVariable(Statement):
     def __repr__(self):
         class_name = self.__class__.__name__
         return f"{class_name}(name={self.name}, value={self.value})"
+
+    def __eq__(self, other):
+        if not isinstance(other, SetVariable):
+            return False
+        return self.name == other.name and self.value == other.value
 
 
 class UnaryOperation(Factor):

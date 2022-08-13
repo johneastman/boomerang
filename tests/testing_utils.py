@@ -4,40 +4,16 @@ from tokens.tokenizer import Token
 from _parser.ast_objects import DictionaryToken, NoReturn
 
 
-def assert_tokens_equal(expected_tokens: list[Token], actual_tokens: list[Token]):
-    assert len(expected_tokens) == len(actual_tokens)
+class TestToken(Token):
+    """Test Token object
 
-    for expected, actual in zip(expected_tokens, actual_tokens):
+    Same as Token object, but equals method checks line_num, which allows for more easily testing that Token objects
+    are actually equal
+    """
+    def __eq__(self, other):
+        if not isinstance(other, TestToken) and not isinstance(other, Token):
+            return False
+        return self.value == other.value and self.type == other.type and self.line_num == other.line_num
 
-        if isinstance(expected, DictionaryToken) and isinstance(actual, DictionaryToken):
-            assert_dictionary_tokens_equal(expected, actual)
-        elif isinstance(expected, NoReturn) and isinstance(actual, NoReturn):
-            assert_token_equal(expected, actual)
-        elif isinstance(expected, Token) and isinstance(actual, Token):
-            assert_token_equal(expected, actual)
-        else:
-            pytest.fail(f"expected type: {type(expected)} != actual type: {type(actual)}")
-
-
-def assert_token_equal(expected: Token, actual: Token) -> None:
-    assert expected.value == actual.value
-    assert expected.type == actual.type
-    assert expected.line_num == actual.line_num
-
-
-def assert_dictionary_tokens_equal(expected: DictionaryToken, actual: DictionaryToken):
-    assert expected.value == actual.value
-    assert expected.type == actual.type
-    assert expected.line_num == actual.line_num
-
-    for (expected_key, expected_val), (actual_key, actual_val) in zip(expected.data.items(), actual.data.items()):
-        assert type(expected_key) == Token
-        assert type(actual_key) == Token
-        assert_token_equal(expected_key, actual_key)
-
-        if isinstance(expected_val, DictionaryToken) and isinstance(actual_val, DictionaryToken):
-            assert_dictionary_tokens_equal(expected_val, actual_val)
-        elif isinstance(expected_val, Token) and isinstance(actual_val, Token):
-            assert_token_equal(expected_val, actual_val)
-        else:
-            pytest.fail(f"expected type: {type(expected_val)} != actual type: {type(actual_val)}")
+    def __hash__(self):
+        return super().__hash__()

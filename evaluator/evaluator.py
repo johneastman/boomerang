@@ -324,12 +324,16 @@ class Evaluator:
             # "DictionaryToken")
             # Reason for ignore: DictionaryToken is a child class of Token
             value = value.get(key)  # type: ignore
+
             if value is None:
                 raise_error(key.line_num, f"No key in dictionary: {str(key)}")
 
-        # mypy error: Argument 2 to "set" of "DictionaryToken" has incompatible type "Optional[Token]"; expected "Token"
-        # Reason for ignore: 'value' will never be None because an exception is thrown when that value is None
-        dictionary_token.set(key, value)  # type: ignore
+            # Update the line number of the value to be the key's line number. This is because the key in the dictionary
+            # will have a different line number from the accessor key. For example:
+            #     d = {"a": 1};  # Token for "a": line_num = 1
+            #     d["a"];  # Token for "a": line_num = 2
+            # For debugging purposes, the line number in the token object should be updated to reflect the current line
+            value.line_num = key.line_num
 
         # mypy expects an Optional[Token] because 'value' can be None. However, an exception is throws if 'value'
         # is None, so the return type will always be a Token.
