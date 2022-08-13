@@ -332,7 +332,8 @@ class Evaluator:
             # will have a different line number from the accessor key. For example:
             #     d = {"a": 1};  # Token for "a": line_num = 1
             #     d["a"];  # Token for "a": line_num = 2
-            # For debugging purposes, the line number in the token object should be updated to reflect the current line
+            # For debugging purposes, the line number in the token object should be updated to reflect the current line,
+            # which the key (in the context of retrieving it's value from the dictionary) will have.
             value.line_num = key.line_num
 
         # mypy expects an Optional[Token] because 'value' can be None. However, an exception is throws if 'value'
