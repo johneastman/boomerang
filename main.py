@@ -1,5 +1,6 @@
 from tokens.tokenizer import Tokenizer
 from _parser._parser import Parser
+from _parser.ast_objects import NoReturn
 from evaluator.evaluator import Evaluator
 from evaluator._environment import Environment
 from ast_visualizer import ASTVisualizer
@@ -38,11 +39,15 @@ def repl():
         if _input.lower() == "exit":
             break
         else:
-            try:
-                evaluated_expressions = evaluate(_input, env)
-                print(" ".join(map(str, [token.value for token in evaluated_expressions])))
-            except LanguageRuntimeException as e:
-                print(e)
+            evaluated_expressions = evaluate(_input, env)
+            # if 'evaluated_expressions' is None, an error likely occurred
+            if evaluated_expressions is not None:
+                for token in evaluated_expressions:
+                    if isinstance(token, NoReturn):
+                        # If the statement/expression returns nothing (e.g., if-else, variable assignment, etc.), do not
+                        # print anything.
+                        continue
+                    print(token.value)
 
 
 if __name__ == "__main__":

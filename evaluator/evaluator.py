@@ -284,10 +284,12 @@ class Evaluator:
 
     def evaluate_if_statement(self, if_statement: _parser.IfStatement) -> Token:
         evaluated_comparison = self.validate_expression(if_statement.comparison)
+
+        # We don't need to return the results of the 'if' or 'else' blocks because an if-statement has no return value
         if evaluated_comparison.value == get_token_literal("TRUE"):
-            return self.evaluate_statements(if_statement.true_statements)
+            self.evaluate_statements(if_statement.true_statements)
         elif if_statement.false_statements is not None:
-            return self.evaluate_statements(if_statement.false_statements)
+            self.evaluate_statements(if_statement.false_statements)
         return _parser.NoReturn()
 
     def evaluate_print_statement(self, _print: _parser.Print) -> Token:
