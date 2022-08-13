@@ -1,3 +1,6 @@
+import argparse
+
+# Local packages
 from tokens.tokenizer import Tokenizer
 from _parser._parser import Parser
 from _parser.ast_objects import NoReturn
@@ -51,4 +54,22 @@ def repl():
 
 
 if __name__ == "__main__":
-    evaluate(get_source("main.ang"), Environment())
+    parser = argparse.ArgumentParser(description="Boomerang Interpreter")
+
+    path_flags = ("--path", "-p")
+    parser.add_argument(*path_flags, help="Path to Boomerang file", type=str, required=False)
+
+    repl_flags = ("--repl", "-r")
+    parser.add_argument(*repl_flags, "-r", help="Run Boomerang repl (Read-Evaluate-Print Loop)", action="store_true")
+
+    args = parser.parse_args()
+    repl_var = args.repl
+    path_var = args.path
+
+    if repl_var and path_var:
+        parser.error(f"{path_flags[0]} and {repl_flags[0]} cannot be given together")
+
+    if args.repl:
+        repl()
+    elif args.path:
+        evaluate(get_source(args.path), Environment())
