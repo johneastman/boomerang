@@ -36,6 +36,7 @@ evaluator_tests = [
     ("5!;", [Token("120", INTEGER, 1)]),
     ("6!;", [Token("720", INTEGER, 1)]),
     ("5! + 5;", [Token("125", INTEGER, 1)]),
+    ("3!!;", [Token("720", INTEGER, 1)])
 ]
 
 

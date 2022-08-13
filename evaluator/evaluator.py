@@ -140,7 +140,10 @@ class Evaluator:
         else:
             # mypy error: error: "raise_error" does not return a value
             # Reason for ignore: an exception is thrown
-            raise raise_error(expression.line_num, f"Unsupported type: {type(expression).__name__}")  # type: ignore
+            #
+            # This is a program-specific error because a missing object type would come about during development, not
+            # when a user is using this programming language.
+            raise Exception(f"Unsupported type: {type(expression).__name__}")  # type: ignore
 
     def evaluate_factorial(self, factorial_expression: _parser.Factorial) -> Token:
         result = self.evaluate_expression(factorial_expression.expr)

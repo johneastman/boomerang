@@ -9,7 +9,22 @@ Boomerang is an interpreted language written in Python.
 4. Optional: this project uses lefthook for pre-commit verification. Follow the installation and setup process [here](https://github.com/evilmartians/lefthook/blob/master/docs/full_guide.md)
 
 # Running
+TODO: Update main.py to make easier to run
 Refer to `main.py` for an example of how to run the code. The language files end with the `ang` extension.
+
+# Development Guide
+The following information is for contributing to this project.
+
+## Exceptions
+There are two types of exceptions: [Language Exceptions](#language-exceptions) and [Program Exceptions](#program-exceptions).
+
+### Language Exceptions
+These are errors introduced by users into Boomerang code (syntax errors, index out of range, invalid token, etc). The interpreter will catch these errors and display them to the user.
+
+To raise a language exception, call the `raise_error` method in `utils.py`, which raises a `LanguageRuntimeException` exception.
+
+### Program Exceptions
+These are errors with the Python code itself and exist to aid the development process. To raise a program exception, raise any valid Python exception (e.g., `raise ValueError`, `raise Exception`, `raise RuntimeError`, etc.).
 
 # Language Specs
 
