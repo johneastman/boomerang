@@ -1,7 +1,4 @@
-import pytest
-
 from tokens.tokenizer import Token
-from _parser.ast_objects import DictionaryToken, NoReturn
 
 
 class TestToken(Token):
