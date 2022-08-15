@@ -6,8 +6,8 @@ from _parser._parser import Parser
 from _parser.ast_objects import NoReturn
 from evaluator.evaluator import Evaluator
 from evaluator._environment import Environment
-from ast_visualizer import ASTVisualizer
-from utils import LanguageRuntimeException
+from utils.ast_visualizer import ASTVisualizer
+from utils.utils import LanguageRuntimeException
 
 PROMPT = ">> "
 

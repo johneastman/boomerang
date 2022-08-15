@@ -5,7 +5,7 @@ from _parser import _parser
 from tokens.tokens import *
 from tokens.tokenizer import Token
 from evaluator._environment import Environment
-from utils import raise_error, ReturnException
+from utils.utils import raise_error, ReturnException
 import copy
 import random
 

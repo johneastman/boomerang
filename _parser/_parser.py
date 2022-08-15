@@ -1,7 +1,7 @@
 import typing
 
 from .ast_objects import *
-from utils import raise_error
+from utils.utils import raise_error
 from typing import Callable
 
 

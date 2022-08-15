@@ -6,9 +6,8 @@ from tokens.tokenizer import Tokenizer
 from _parser._parser import Parser, NoReturn, DictionaryToken
 from evaluator.evaluator import Evaluator
 from evaluator._environment import Environment
-import tests.testing_utils as utils
 from .testing_utils import TestToken
-from utils import LanguageRuntimeException
+from utils.utils import LanguageRuntimeException
 
 
 evaluator_tests = [
