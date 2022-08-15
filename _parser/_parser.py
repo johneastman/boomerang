@@ -1,6 +1,5 @@
 import typing
 
-from tokens.tokens import *
 from .ast_objects import *
 from utils import raise_error
 from typing import Callable

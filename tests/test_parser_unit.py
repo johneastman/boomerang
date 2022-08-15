@@ -52,3 +52,31 @@ def test_set_statement_operate_assign(operator_assign_literal, operator_assign_t
             Integer(TestToken("1", INTEGER, 1))))
 
     assert actual_assign_ast == expected_assign_ast
+
+
+def test_set_dictionary():
+    tokens = [
+        TestToken("set", SET, 1),
+        TestToken("variable", IDENTIFIER, 1),
+        TestToken("[", OPEN_BRACKET, 1),
+        TestToken("\"key1\"", STRING, 1),
+        TestToken("]", CLOSED_BRACKET, 1),
+        TestToken("[", OPEN_BRACKET, 1),
+        TestToken("\"key2\"", STRING, 1),
+        TestToken("]", CLOSED_BRACKET, 1),
+        TestToken("=", ASSIGN, 1),
+        TestToken("1", INTEGER, 1),
+        TestToken(";", SEMICOLON, 1),
+    ]
+
+    p = Parser(tokens)
+    actual_assign_ast = p.assign()
+    expected_assign_ast = SetVariable(
+        Index(
+            Identifier(
+                TestToken("variable", IDENTIFIER, 1)),
+            [String(TestToken("\"key1\"", STRING, 1)), String(TestToken("\"key2\"", STRING, 1))]),
+        Integer(TestToken("1", INTEGER, 1))
+    )
+
+    assert actual_assign_ast == expected_assign_ast
