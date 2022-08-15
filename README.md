@@ -9,6 +9,8 @@ Boomerang is an interpreted language written in Python.
 4. Optional: this project uses lefthook for pre-commit verification. Follow the installation and setup process [here](https://github.com/evilmartians/lefthook/blob/master/docs/full_guide.md)
 
 # Running
+Boomerang files end with the `.bng` extension (e.g., `main.bng`).
+
 To run a Boomerang file:
 `python3 main.py --path [PATH TO FILE]`
 
