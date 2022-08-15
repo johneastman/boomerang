@@ -12,5 +12,4 @@ class TestToken(Token):
             return False
         return self.value == other.value and self.type == other.type and self.line_num == other.line_num
 
-    def __hash__(self):
-        return super().__hash__()
+    __hash__ = Token.__hash__
