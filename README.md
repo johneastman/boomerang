@@ -1,6 +1,11 @@
 # Boomerang
 Boomerang is an interpreted language written in Python.
 
+Boomerang is:
+* **Procedural:** commands are executed in the order they are defined.
+* **Dynamically Typed:** variable, function, parameter, etc. types are not declared explicitly; rather, they are interpreted from the values they are assigned (e.g., `1` is an integer, `3.14159` is a float, `"hello world!"` is a string, etc.).
+* **Strongly Typed:** strict rules for how different types interact (e.g. `1 + 1` or `1 + 1.5` are valid, but `1 + "hello world!"` is invalid).
+
 # Install
 1. Download and install [Python](https://www.python.org/downloads/)
 2. `pip install -r requirements.txt`
