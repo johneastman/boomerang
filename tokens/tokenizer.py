@@ -1,9 +1,9 @@
-from typing import Optional, Callable, Tuple
-
-from .tokens import *
+from typing import Optional, Callable
 import string
 
-tokens_dict = get_keyword_dict()
+from .tokens import *
+
+tokens_dict = get_keyword_dict([KEYWORDS, SYMBOLS])
 
 
 class Token:

@@ -1,139 +1,143 @@
 tokens:
-  - literal: set
-    name: SET
-    type: SET
-  - literal: '.'
-    name: PERIOD
-    type: PERIOD
-  - literal: '='
-    name: ASSIGN
-    type: ASSIGN
-  - literal: +=
-    name: ASSIGN_ADD
-    type: ASSIGN_ADD
-  - literal: -=
-    name: ASSIGN_SUB
-    type: ASSIGN_SUB
-  - literal: '*='
-    name: ASSIGN_MUL
-    type: ASSIGN_MUL
-  - literal: /=
-    name: ASSIGN_DIV
-    type: ASSIGN_DIV
-  - literal: +
-    name: PLUS
-    type: PLUS
-  - literal: '-'
-    name: MINUS
-    type: MINUS
-  - literal: '*'
-    name: MULTIPLY
-    type: MULTIPLY
-  - literal: /
-    name: DIVIDE
-    type: DIVIDE
-  - literal: ;
-    name: SEMICOLON
-    type: SEMICOLON
-  - literal: (
-    name: OPEN_PAREN
-    type: OPEN_PAREN
-  - literal: )
-    name: CLOSED_PAREN
-    type: CLOSED_PAREN
-  - literal: '{'
-    name: OPEN_CURLY_BRACKET
-    type: OPEN_CURLY_BRACKET
-  - literal: '}'
-    name: CLOSED_CURLY_BRACKET
-    type: CLOSED_CURLY_BRACKET
-  - literal: ','
-    name: COMMA
-    type: COMMA
-  - literal: '#'
-    name: COMMENT
-    type: COMMENT
-  - literal: /*
-    name: BLOCK_COMMENT
-    type: BLOCK_COMMENT
-  - literal: ==
-    name: EQ
-    type: EQ
-  - literal: '!='
-    name: NE
-    type: NE
-  - literal: '>='
-    name: GE
-    type: GE
-  - literal: <=
-    name: LE
-    type: LE
-  - literal: '>'
-    name: GT
-    type: GT
-  - literal: <
-    name: LT
-    type: LT
-  - literal: '!'
-    name: BANG
-    type: BANG
-  - literal: '&&'
-    name: AND
-    type: AND
-  - literal: '||'
-    name: OR
-    type: OR
-  - literal: return
-    name: RETURN
-    type: RETURN
-  - literal: func
-    name: FUNCTION
-    type: FUNCTION
-  - literal: if
-    name: IF
-    type: IF
-  - literal: else
-    name: ELSE
-    type: ELSE
-  - literal: while
-    name: WHILE
-    type: WHILE
-  - literal: 'true'
-    name: 'TRUE'
-    type: BOOLEAN
-  - literal: 'false'
-    name: 'FALSE'
-    type: BOOLEAN
-  - literal: '"'
-    name: DOUBLE_QUOTE
-    type: DOUBLE_QUOTE
-  - literal: ''
-    name: EOF
-    type: EOF
-  - literal: ''
-    name: INTEGER
-    type: INTEGER
-  - literal: ''
-    name: IDENTIFIER
-    type: IDENTIFIER
-  - literal: ''
-    name: BOOLEAN
-    type: BOOLEAN
-  - literal: ''
-    name: STRING
-    type: STRING
-  - literal: ''
-    name: FLOAT
-    type: FLOAT
-  - literal: ''
-    name: DICTIONARY
-    type: DICTIONARY
-  - literal: ':'
-    name: COLON
-    type: COLON
-  - literal: '['
-    name: OPEN_BRACKET
-    type: OPEN_BRACKET
-  - literal: ']'
-    name: CLOSED_BRACKET
-    type: CLOSED_BRACKET
+  keywords:
+    - literal: set
+      name: SET
+      type: SET
+    - literal: func
+      name: FUNCTION
+      type: FUNCTION
+    - literal: if
+      name: IF
+      type: IF
+    - literal: else
+      name: ELSE
+      type: ELSE
+    - literal: while
+      name: WHILE
+      type: WHILE
+    # boolean values must be in strings; otherwise they will be interpreted by Python as boolean values
+    - literal: 'true'
+      name: 'TRUE'
+      type: BOOLEAN
+    - literal: 'false'
+      name: 'FALSE'
+      type: BOOLEAN
+  symbols:
+    - literal: '.'
+      name: PERIOD
+      type: PERIOD
+    - literal: '='
+      name: ASSIGN
+      type: ASSIGN
+    - literal: +=
+      name: ASSIGN_ADD
+      type: ASSIGN_ADD
+    - literal: -=
+      name: ASSIGN_SUB
+      type: ASSIGN_SUB
+    - literal: '*='
+      name: ASSIGN_MUL
+      type: ASSIGN_MUL
+    - literal: /=
+      name: ASSIGN_DIV
+      type: ASSIGN_DIV
+    - literal: +
+      name: PLUS
+      type: PLUS
+    - literal: '-'
+      name: MINUS
+      type: MINUS
+    - literal: '*'
+      name: MULTIPLY
+      type: MULTIPLY
+    - literal: /
+      name: DIVIDE
+      type: DIVIDE
+    - literal: ;
+      name: SEMICOLON
+      type: SEMICOLON
+    - literal: (
+      name: OPEN_PAREN
+      type: OPEN_PAREN
+    - literal: )
+      name: CLOSED_PAREN
+      type: CLOSED_PAREN
+    - literal: '{'
+      name: OPEN_CURLY_BRACKET
+      type: OPEN_CURLY_BRACKET
+    - literal: '}'
+      name: CLOSED_CURLY_BRACKET
+      type: CLOSED_CURLY_BRACKET
+    - literal: ','
+      name: COMMA
+      type: COMMA
+    - literal: '#'
+      name: COMMENT
+      type: COMMENT
+    - literal: /*
+      name: BLOCK_COMMENT
+      type: BLOCK_COMMENT
+    - literal: ==
+      name: EQ
+      type: EQ
+    - literal: '!='
+      name: NE
+      type: NE
+    - literal: '>='
+      name: GE
+      type: GE
+    - literal: <=
+      name: LE
+      type: LE
+    - literal: '>'
+      name: GT
+      type: GT
+    - literal: <
+      name: LT
+      type: LT
+    - literal: '!'
+      name: BANG
+      type: BANG
+    - literal: '&&'
+      name: AND
+      type: AND
+    - literal: '||'
+      name: OR
+      type: OR
+    - literal: return
+      name: RETURN
+      type: RETURN
+    - literal: '"'
+      name: DOUBLE_QUOTE
+      type: DOUBLE_QUOTE
+    - literal: ':'
+      name: COLON
+      type: COLON
+    - literal: '['
+      name: OPEN_BRACKET
+      type: OPEN_BRACKET
+    - literal: ']'
+      name: CLOSED_BRACKET
+      type: CLOSED_BRACKET
+  data_types:
+    - literal: ''
+      name: EOF
+      type: EOF
+    - literal: ''
+      name: INTEGER
+      type: INTEGER
+    - literal: ''
+      name: IDENTIFIER
+      type: IDENTIFIER
+    - literal: ''
+      name: BOOLEAN
+      type: BOOLEAN
+    - literal: ''
+      name: STRING
+      type: STRING
+    - literal: ''
+      name: FLOAT
+      type: FLOAT
+    - literal: ''
+      name: DICTIONARY
+      type: DICTIONARY

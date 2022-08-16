@@ -1,4 +1,3 @@
-from tokens.tokenizer import Token
 import yaml
 
 
@@ -19,8 +18,10 @@ class ReturnException(Exception):
     }
     ```
     """
-    def __init__(self, token: Token) -> None:
+    def __init__(self, token) -> None:
         """Initializer
+
+        NOTE: Can't define "token: Token" due to import error
 
         This allows us to retrieve the token returned by the return statement.
 
@@ -36,3 +37,10 @@ def read_yaml_file(path: str):
 
 def raise_error(line_num: int, description: str) -> None:
     raise LanguageRuntimeException(f"Error at line {line_num}: {description}")
+
+
+def get(dictionary: dict, key_path: str):
+    value = dictionary
+    for key in key_path.split("."):
+        value = value[key]
+    return value

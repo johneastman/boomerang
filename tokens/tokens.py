@@ -2,15 +2,18 @@ from typing import Tuple
 import yaml  # type: ignore
 import os
 
+import utils.utils as utils
+
 TOKENS_FILE_PATH = os.path.join(os.path.dirname(__file__), "tokens.yaml")
 
 
-def load_tokens():
-    with open(TOKENS_FILE_PATH, "r") as file:
-        content = yaml.safe_load(file)
+def load_tokens(key_path: str):
+    content = utils.read_yaml_file(TOKENS_FILE_PATH)
+
+    token_data = utils.get(content, key_path)
 
     tokens: dict[str, Tuple[str, str]] = {}
-    for token in content["tokens"]:
+    for token in token_data:
         name = token["name"]
         literal = token["literal"]
         _type = token["type"]
@@ -20,11 +23,20 @@ def load_tokens():
     return tokens
 
 
-language_tokens: dict[str, Tuple[str, str]] = load_tokens()
+KEYWORDS = load_tokens("tokens.keywords")
+SYMBOLS = load_tokens("tokens.symbols")
+DATA_TYPES = load_tokens("tokens.data_types")
 
 
-def get_keyword_dict() -> dict[str, str]:
-    return {literal: _type for literal, _type in language_tokens.values()}
+language_tokens: dict[str, Tuple[str, str]] = {**KEYWORDS, **SYMBOLS, **DATA_TYPES}
+
+
+def get_keyword_dict(token_dicts: list[dict[str, Tuple[str, str]]]) -> dict[str, str]:
+    combined_tokens: dict[str, Tuple[str, str]] = {}
+    for token_dict in token_dicts:
+        combined_tokens.update(token_dict)
+
+    return {literal: _type for literal, _type in combined_tokens.values()}
 
 
 def get_token(name: str) -> Tuple[str, str]:
