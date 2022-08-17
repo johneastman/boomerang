@@ -265,15 +265,15 @@ class Evaluator:
             raise_error(expression_result.line_num, f"Cannot perform {op_type} operation on {expression_result_type.__name__}")
 
         if op_type == PLUS:
-            actual_value = self.get_literal_value(expression_result)
+            actual_value = expression_result.value
             actual_type = self.get_type(actual_value)
             return actual_type(actual_value, expression_result.line_num)
         elif op_type == MINUS:
-            actual_value = -self.get_literal_value(expression_result)
+            actual_value = -expression_result.value
             actual_type = self.get_type(actual_value)
             return actual_type(actual_value, expression_result.line_num)
         elif op_type == BANG:
-            actual_value = not self.get_literal_value(expression_result)
+            actual_value = not expression_result.value
             actual_type = self.get_type(actual_value)
             return actual_type(actual_value, expression_result.line_num)
         else:
@@ -363,29 +363,12 @@ class Evaluator:
         else:
             raise Exception(f"Invalid binary operator '{binary_operation.op.value}' at line {binary_operation.op.line_num}")
 
-    def get_literal_value(self, token: Token) -> typing.Any:
-        """Convert token values to their Python values so the comparison can be performed. For example, "1" should be
-        converted to an integer, and "true" and "false" should be converted to booleans.
-        :param token: a Token object representing a literal (number, boolean, etc.)
-        :return: Python's representation of the token value
-        """
-        if type(token) == _parser.Integer:
-            return int(token.value)
-        elif type(token) == _parser.Float:
-            return float(token.value)
-        elif type(token) == _parser.Boolean:
-            return token.value
-        elif type(token) == _parser.String:
-            return token.value
-
-        raise_error(token.line_num, f"Unsupported type: {token.type}")
-
     def get_type(self, value: object):
-        if isinstance(value, bool):
+        if type(value) == bool:
             return _parser.Boolean
-        if isinstance(value, float):
+        if type(value) == float:
             return _parser.Float
-        elif isinstance(value, int):
+        elif type(value) == int:
             return _parser.Integer
         else:
             return _parser.String
