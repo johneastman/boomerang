@@ -102,45 +102,14 @@ class String(Factor, Base):
         return f"\"{self.value}\""
 
 
-class Dictionary(Factor, Base):
-    def __init__(self, value: dict, line_num: int):
-        super().__init__(value, line_num)
-
-    __hash__ = super.__hash__
-
-    def __eq__(self, other: object):
-        """
-        Has to override because "hash" was generating unique values even if the object's attributes are the same.
-
-        >>> import _parser.ast_objects as o
-        >>> {o.String("a", 1): o.Integer(5, 1)} == {o.String("a", 1): o.Integer(5, 1)}
-        False
-        >>> o.String("a", 1).__hash__()
-        8783204471501
-        >>> o.String("a", 1).__hash__()
-        8783204471525
-        >>> o.String("a", 1).__hash__()
-        8783204471549
-        >>> hash(o.String("a", 1))
-        8783204471468
-        >>> hash(o.String("a", 1))
-        8783204471420
-        >>> hash(o.String("a", 1))
-        8783204471438
-        """
-        if not isinstance(other, Dictionary):
-            return False
-
-        for (self_k, self_v), (other_k, other_v) in zip(self.value.items(), other.value.items()):
-            if self_k != other_k or self_v != other_v:
-                return False
-
-        return self.line_num == other.line_num
-
-
 class Identifier(Factor, Base):
     def __init__(self, value: str, line_num: int):
         super().__init__(value, line_num)
+
+
+class NoReturn(Factor, Base):
+    def __init__(self, line_num: int = 0):
+        super().__init__("", line_num)
 
 
 class BuiltinFunction(Factor):
@@ -164,94 +133,9 @@ class Print(BuiltinFunction):
         super().__init__(params, line_num)
 
 
-class Type(BuiltinFunction):
-    def __init__(self, params: list[Expression], line_num: int):
-        super().__init__(params, line_num)
-
-
 class Random(BuiltinFunction):
     def __init__(self, params: list[Expression], line_num: int):
         super().__init__(params, line_num)
-
-
-class NoReturn(Token):
-    def __init__(self, line_num: int = 0):
-        super().__init__("", "", line_num)
-
-    def __eq__(self, other):
-        if not isinstance(other, NoReturn):
-            return False
-        return self.value == other.value and self.type == other.type and self.line_num == other.line_num
-
-
-class DictionaryToken(Token):
-    """Token object for storing dictionaries.
-
-    We could use a Python dictionary as the internal structure--that would probably be more efficient. However,
-    this implementation allows for storing the keys and values as full token. This implementations means we don't have
-    to recreate the token after fetching the literal value from the dictionary or interpret the token type from the
-    Python data type.
-    """
-
-    def __init__(self, data: dict[Token, Token], line_num: int) -> None:
-        self.data = data
-        super().__init__(self.string(), tokens.tokens.DICTIONARY, line_num)
-
-    def set(self, key: Token, value: Token) -> None:
-        self.data[key] = value
-        self.value = self.string()
-
-    def string(self) -> str:
-        def traverse(d: dict[Token, Token]):
-            s = "{"
-            for i, (k, v) in enumerate(d.items()):
-                if isinstance(v, dict):
-                    s += f"{display_val(k)}: {traverse(v)}"
-                else:
-                    s += f"{display_val(k)}: {display_val(v)}"
-
-                # Don't add a comma after the last element in the list of key-pair values
-                if i < len(d.items()) - 1:
-                    s += ", "
-            s += "}"
-            return s
-
-        def display_val(t: Token) -> str:
-            if t.type == STRING:
-                return f"\"{t.value}\""
-            return t.value
-
-        return traverse(self.data)
-
-    def get(self, key: Token) -> Optional[Token]:
-        return self.data.get(key, None)
-
-    def __str__(self) -> str:
-        return self.string()
-
-    def __repr__(self):
-        return f"{self.__class__.__name__}(data={self.data}, value={self.value}, type={self.type}, line_num={self.line_num})"
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, DictionaryToken):
-            return False
-
-        return self.value == other.value and self.type == other.type and self.line_num == other.line_num \
-               and self.data == other.data
-
-
-class Index(Expression):
-    def __init__(self, left: Expression, indices: list[Expression]):
-        self.left = left
-        self.index = indices
-
-    def __eq__(self, other: object):
-        if not isinstance(other, Index):
-            return False
-        return self.left == other.left and self.index == other.index
-
-    def __repr__(self):
-        return f"Index(left={self.left}, index={self.index})"
 
 
 class Return(Statement):

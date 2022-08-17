@@ -2,16 +2,16 @@ import pytest
 
 from _parser._parser import Parser
 from _parser.ast_objects import *
-from .testing_utils import TestToken
+from tokens.tokenizer import Token
 
 
 def test_set_statement():
     tokens = [
-        TestToken("set", SET, 1),
-        TestToken("variable", IDENTIFIER, 1),
-        TestToken("=", ASSIGN, 1),
-        TestToken("1", INTEGER, 1),
-        TestToken(";", SEMICOLON, 1),
+        Token("set", SET, 1),
+        Token("variable", IDENTIFIER, 1),
+        Token("=", ASSIGN, 1),
+        Token("1", INTEGER, 1),
+        Token(";", SEMICOLON, 1),
     ]
 
     p = Parser(tokens)
@@ -33,13 +33,13 @@ operate_assign_tests = [
 @pytest.mark.parametrize("operator_assign_literal, operator_assign_type, operator_literal, operator_type", operate_assign_tests)
 def test_set_statement_operate_assign(operator_assign_literal, operator_assign_type, operator_literal, operator_type):
     variable_name = "variable"
-    identifier_token = Identifier(TestToken(variable_name, IDENTIFIER, 1))
+    identifier_token = Identifier(variable_name, 1)
     tokens = [
-        TestToken("set", SET, 1),
-        TestToken(variable_name, IDENTIFIER, 1),
-        TestToken(operator_assign_literal, operator_assign_type, 1),
-        TestToken("1", INTEGER, 1),
-        TestToken(";", SEMICOLON, 1),
+        Token("set", SET, 1),
+        Token(variable_name, IDENTIFIER, 1),
+        Token(operator_assign_literal, operator_assign_type, 1),
+        Token("1", INTEGER, 1),
+        Token(";", SEMICOLON, 1),
     ]
 
     p = Parser(tokens)
@@ -48,35 +48,7 @@ def test_set_statement_operate_assign(operator_assign_literal, operator_assign_t
         identifier_token,
         BinaryOperation(
             identifier_token,
-            TestToken(operator_literal, operator_type, 1),
-            Integer(TestToken("1", INTEGER, 1))))
-
-    assert actual_assign_ast == expected_assign_ast
-
-
-def test_set_dictionary():
-    tokens = [
-        TestToken("set", SET, 1),
-        TestToken("variable", IDENTIFIER, 1),
-        TestToken("[", OPEN_BRACKET, 1),
-        TestToken("\"key1\"", STRING, 1),
-        TestToken("]", CLOSED_BRACKET, 1),
-        TestToken("[", OPEN_BRACKET, 1),
-        TestToken("\"key2\"", STRING, 1),
-        TestToken("]", CLOSED_BRACKET, 1),
-        TestToken("=", ASSIGN, 1),
-        TestToken("1", INTEGER, 1),
-        TestToken(";", SEMICOLON, 1),
-    ]
-
-    p = Parser(tokens)
-    actual_assign_ast = p.assign()
-    expected_assign_ast = SetVariable(
-        Index(
-            Identifier(
-                TestToken("variable", IDENTIFIER, 1)),
-            [String(TestToken("\"key1\"", STRING, 1)), String(TestToken("\"key2\"", STRING, 1))]),
-        Integer(TestToken("1", INTEGER, 1))
-    )
+            Token(operator_literal, operator_type, 1),
+            Integer(1, 1)))
 
     assert actual_assign_ast == expected_assign_ast

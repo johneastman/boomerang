@@ -85,7 +85,7 @@ class Parser:
         }
         return operator_token[op_type]
 
-    def create_assignment_ast(self, assignment_operator: Token, name: typing.Union[Identifier, Index], value: Expression):
+    def create_assignment_ast(self, assignment_operator: Token, name: Identifier, value: Expression):
         if assignment_operator.type == ASSIGN:
             return SetVariable(name, value)
         elif assignment_operator.type in self.assignment_operators:
@@ -101,44 +101,18 @@ class Parser:
         variable_name = self.current
 
         self.advance()
-        if self.current.type == OPEN_BRACKET:
-            # Dictionary or array (any indexable data type)
-            self.advance()
-            keys = []
-            while True:
-                key = self.expression()
-                keys.append(key)
-                self.is_expected_token(CLOSED_BRACKET)
-                self.advance()
 
-                if self.current.type == OPEN_BRACKET:
-                    self.advance()
-                else:
-                    break
+        assignment_operator = self.current
+        self.is_expected_token(self.assignment_operators)
 
-            assignment_operator = self.current
-            self.is_expected_token(self.assignment_operators)
-            self.advance()
-            right = self.expression()
+        self.advance()
+        right = self.expression()
 
-            return self.create_assignment_ast(
-                assignment_operator,
-                Index(Identifier(variable_name.value, variable_name.line_num), keys),
-                right
-            )
-
-        else:
-            assignment_operator = self.current
-            self.is_expected_token(self.assignment_operators)
-
-            self.advance()
-            right = self.expression()
-
-            return self.create_assignment_ast(
-                assignment_operator,
-                Identifier(variable_name.value, variable_name.line_num),
-                right
-            )
+        return self.create_assignment_ast(
+            assignment_operator,
+            Identifier(variable_name.value, variable_name.line_num),
+            right
+        )
 
     def loop(self) -> Statement:
         self.advance()
@@ -335,30 +309,6 @@ class Parser:
                 self.advance()
                 return Identifier(identifier_token.value, identifier_token.line_num)
 
-        elif self.current.type == OPEN_CURLY_BRACKET:
-            line_num = self.current.line_num
-            self.advance()
-            keys = []
-            values = []
-            while self.current.type != CLOSED_CURLY_BRACKET:
-                keys.append(self.expression())
-
-                self.is_expected_token(COLON)
-                self.advance()
-
-                values.append(self.expression())
-
-                if self.current.type == CLOSED_CURLY_BRACKET:
-                    break
-
-                self.is_expected_token(COMMA)
-                self.advance()
-
-            self.advance()
-
-            value = dict(zip(keys, values))
-            return Dictionary(value, line_num)
-
         else:
             raise_error(self.current.line_num, f"Invalid token: {self.current.type} ({self.current.value})")
 
@@ -384,7 +334,6 @@ class Parser:
 
         builtin_functions = {
             "print": Print(parameters, identifier_token.line_num),
-            "type": Type(parameters, identifier_token.line_num),
             "random": Random(parameters, identifier_token.line_num)
         }
         return builtin_functions.get(identifier_token.value, FunctionCall(identifier_token, parameters))

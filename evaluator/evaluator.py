@@ -71,12 +71,12 @@ class Evaluator:
         return evaluated_expressions
 
     def validate_expression(self, expression):
-        value: Token = self.evaluate_expression(expression)
+        value: _parser.Base = self.evaluate_expression(expression)
         if isinstance(value, _parser.NoReturn):
             raise_error(value.line_num, "cannot evaluate expression that returns no value")
         return value
 
-    def evaluate_expression(self, expression: typing.Union[_parser.Expression, _parser.Statement]) -> Token:
+    def evaluate_expression(self, expression: typing.Union[_parser.Expression, _parser.Statement]) -> _parser.Base:
         if type(expression) == _parser.BinaryOperation:
             return self.evaluate_binary_expression(expression)
 
@@ -104,14 +104,11 @@ class Evaluator:
         elif type(expression) == _parser.Print:
             return self.evaluate_print_statement(expression)
 
-        elif type(expression) == _parser.Type:
-            return self.evaluate_type_expression(expression)
-
         elif type(expression) == _parser.Factorial:
             return self.evaluate_factorial(expression)
 
         elif type(expression) == _parser.Random:
-            return Token(str(random.random()), FLOAT, expression.line_num)
+            return _parser.Float(random.random(), expression.line_num)
 
         elif type(expression) == _parser.Integer:
             return expression
@@ -125,17 +122,8 @@ class Evaluator:
         elif type(expression) == _parser.String:
             return expression
 
-        elif type(expression) == _parser.Dictionary:
-            new_values = {}
-            for key, value in expression.value.items():
-                new_values[self.evaluate_expression(key)] = self.evaluate_expression(value)
-            return _parser.Dictionary(new_values, expression.line_num)
-
         elif type(expression) == _parser.Return:
             return self.validate_expression(expression.expr)
-
-        elif type(expression) == _parser.Index:
-            return self.evaluate_index_expression(expression)
 
         elif type(expression) == _parser.ExpressionStatement:
             return self.evaluate_expression(expression.expr)
@@ -149,74 +137,35 @@ class Evaluator:
             raise Exception(f"Unsupported type: {type(expression).__name__}")  # type: ignore
 
     def evaluate_factorial(self, factorial_expression: _parser.Factorial) -> _parser.Integer:
-        result = self.evaluate_expression(factorial_expression.expr)
+        result: _parser.Base = self.evaluate_expression(factorial_expression.expr)
 
-        if type(result) != _parser.Integer:
+        if not isinstance(result, _parser.Integer):
             raise_error(result.line_num, f"Invalid type {type(result)} for factorial")
 
         new_val = 1
-        for i in range(int(result.value), 0, -1):
+
+        # mypy error: No overload variant of "range" matches argument types "object", "int", "int"
+        # reason for ignore: "result.value" is an integer
+        for i in range(result.value, 0, -1):  # type: ignore
             new_val *= i
         return _parser.Integer(new_val, result.line_num)
 
-    def evaluate_assign_variable(self, variable_assignment: _parser.SetVariable) -> Token:  # type: ignore
+    def evaluate_assign_variable(self, variable_assignment: _parser.SetVariable) -> _parser.Base:  # type: ignore
         variable = variable_assignment.name
 
         if isinstance(variable, _parser.Identifier):
             var_value = self.validate_expression(variable_assignment.value)
             self.env.set_var(variable.value, var_value)
             return var_value
-        elif isinstance(variable, _parser.Index):
-
-            # TODO: 'update' makes more sense as part of the DictionaryToken object, but I wasn't able to figure
-            #  out how to update the item in-place. Figure out how to do that so we can move this method.
-            def update(
-                    dictionary: _parser.DictionaryToken,
-                    keys: list[Token],
-                    value: Token,
-                    index: int = 0
-            ) -> _parser.DictionaryToken:
-                key: Token = keys[index]
-
-                if index == len(keys) - 1:
-                    # Set the variable
-                    dictionary.set(key, value)
-                    return dictionary
-
-                # mypy error: error: Incompatible types in assignment (expression has type "Optional[Token]", variable
-                # has type "Optional[DictionaryToken]"
-                # Reason for ignore: DictionaryToken is a subclass of Token
-                next_dict: Optional[DictionaryToken] = dictionary.get(key)  # type: ignore
-                if next_dict is None:
-                    raise_error(key.line_num, f"No key in dictionary: {str(key)}")
-
-                # Update the parent key with the new values of the child dictionary
-                #
-                # mypy error: error: Item "None" of "Optional[DictionaryToken]" has no attribute "data"
-                # Reason for ignore: 'next_dict' will never be None because an exception is thrown when that value is
-                # None
-                dictionary.set(key, update(next_dict, keys, value, index=index + 1))  # type: ignore
-                return dictionary
-
-            dictionary: _parser.DictionaryToken = self.validate_expression(variable.left)
-            if dictionary.type != DICTIONARY:
-                raise_error(dictionary.line_num, f"Expected {DICTIONARY}, got {dictionary.type}")
-
-            # Evaluate each key in the list of unevaluated
-            evaluated_keys = [self.evaluate_expression(key) for key in variable.index]
-            value = self.evaluate_expression(variable_assignment.value)
-            dictionary = update(dictionary, evaluated_keys, value)
-
-            return _parser.NoReturn(line_num=dictionary.line_num)
         else:
             variable_type = variable_assignment.name.type  # type: ignore
             raise_error(variable_assignment.name.line_num, f"Cannot assign value to type {variable_type}")  # type: ignore
 
-    def evaluate_assign_function(self, function_definition: _parser.AssignFunction) -> Token:
+    def evaluate_assign_function(self, function_definition: _parser.AssignFunction) -> _parser.Base:
         self.env.set_func(function_definition.name.value, function_definition)
         return _parser.NoReturn(line_num=function_definition.name.line_num)
 
-    def evaluate_identifier(self, identifier: _parser.Identifier) -> Token:  # type: ignore
+    def evaluate_identifier(self, identifier: _parser.Identifier) -> _parser.Base:  # type: ignore
         # For variables, check the current environment. If it does not exist, check the parent environment.
         # Continue doing this until there are no more parent environments. If the variable does not exist in all
         # scopes, it does not exist anywhere in the code.
@@ -227,9 +176,9 @@ class Evaluator:
                 return variable_value
             env = env.parent_env
 
-        raise_error(identifier.token.line_num, r"Undefined variable: {expression.token.value}")
+        raise_error(identifier.line_num, f"undefined variable: {identifier.value}")
 
-    def evaluate_function_call(self, function_call: _parser.FunctionCall) -> Token:
+    def evaluate_function_call(self, function_call: _parser.FunctionCall) -> _parser.Base:
         function_name = function_call.name.value
 
         function: typing.Optional[_parser.AssignFunction] = None
@@ -280,22 +229,22 @@ class Evaluator:
             # After the function is called, switch to the parent environment
             self.env = self.env.parent_env
 
-    def evaluate_loop_statement(self, loop: _parser.Loop) -> Token:
+    def evaluate_loop_statement(self, loop: _parser.Loop) -> _parser.Base:
         while self.validate_expression(loop.condition).value == get_token_literal("TRUE"):
             self.evaluate_statements(loop.statements)
         return _parser.NoReturn()
 
-    def evaluate_if_statement(self, if_statement: _parser.IfStatement) -> Token:
+    def evaluate_if_statement(self, if_statement: _parser.IfStatement) -> _parser.Base:
         evaluated_comparison = self.validate_expression(if_statement.comparison)
 
         # We don't need to return the results of the 'if' or 'else' blocks because an if-statement has no return value
-        if evaluated_comparison.value == get_token_literal("TRUE"):
+        if evaluated_comparison.value is True:
             self.evaluate_statements(if_statement.true_statements)
         elif if_statement.false_statements is not None:
             self.evaluate_statements(if_statement.false_statements)
         return _parser.NoReturn()
 
-    def evaluate_print_statement(self, _print: _parser.Print) -> Token:
+    def evaluate_print_statement(self, _print: _parser.Print) -> _parser.Base:
         evaluated_params = []
         for param in _print.params:
             result = self.validate_expression(param)
@@ -303,61 +252,16 @@ class Evaluator:
         print(" ".join(evaluated_params))
         return _parser.NoReturn(line_num=_print.line_num)
 
-    def evaluate_type_expression(self, _type: _parser.Type) -> Token:
-        num_args = len(_type.params)
-        if num_args != 1:
-            raise_error(_type.line_num, f"Expected 1 argument; got {num_args}")
-
-        result = self.validate_expression(_type.params[0])
-        return Token(result.type, result.type, _type.line_num)
-
-    def evaluate_index_expression(self, index: _parser.Index) -> Token:
-        # mypy error:  Incompatible types in assignment (expression has type "Token", variable has type
-        # "DictionaryToken")
-        # Reason for ignore: DictionaryToken is a subclass of Token
-        dictionary_token: _parser.DictionaryToken = self.evaluate_expression(index.left)  # type: ignore
-        if dictionary_token.type != DICTIONARY:
-            raise_error(dictionary_token.line_num, f"Expected {DICTIONARY}, got {dictionary_token.type}")
-
-        eval_keys = [self.validate_expression(key) for key in index.index]
-        value = dictionary_token
-        for key in eval_keys:
-
-            # mypy error: Incompatible types in assignment (expression has type "Optional[Token]", variable has type
-            # "DictionaryToken")
-            # Reason for ignore: DictionaryToken is a child class of Token
-            value = value.get(key)  # type: ignore
-
-            if value is None:
-                raise_error(key.line_num, f"No key in dictionary: {str(key)}")
-
-            # Update the line number of the value to be the key's line number. This is because the key in the dictionary
-            # will have a different line number from the accessor key. For example:
-            #     d = {"a": 1};  # Token for "a": line_num = 1
-            #     d["a"];  # Token for "a": line_num = 2
-            # For debugging purposes, the line number in the token object should be updated to reflect the current line,
-            # which the key (in the context of retrieving it's value from the dictionary) will have.
-            value.line_num = key.line_num
-
-        # mypy expects an Optional[Token] because 'value' can be None. However, an exception is throws if 'value'
-        # is None, so the return type will always be a Token.
-        return value  # type: ignore
-
-    def evaluate_dictionary_expression(self, dictionary: _parser.Dictionary) -> _parser.DictionaryToken:
-        data = {}
-        for key, value in zip(dictionary.keys, dictionary.values):
-            eval_key = self.validate_expression(key)
-            eval_value = self.validate_expression(value)
-            data[eval_key] = eval_value
-        return _parser.DictionaryToken(data, dictionary.line_num)
-
-    def evaluate_unary_expression(self, unary_expression: _parser.UnaryOperation) -> Token:
+    def evaluate_unary_expression(self, unary_expression: _parser.UnaryOperation) -> _parser.Base:
         expression_result = self.validate_expression(unary_expression.expression)
         expression_result_type = type(expression_result)
         op_type = unary_expression.op.type
 
         valid_type = self.valid_operation_types.get(op_type, [])
-        if expression_result_type not in valid_type:
+
+        # mypy error: Unsupported right operand type for in ("object")
+        # reason for ignore: TODO: investigate
+        if expression_result_type not in valid_type: # type: ignore
             raise_error(expression_result.line_num, f"Cannot perform {op_type} operation on {expression_result_type.__name__}")
 
         if op_type == PLUS:
@@ -375,7 +279,7 @@ class Evaluator:
         else:
             raise Exception(f"Invalid unary operator: {op_type} ({unary_expression.op.value})")
 
-    def evaluate_binary_expression(self, binary_operation: _parser.BinaryOperation) -> Token:
+    def evaluate_binary_expression(self, binary_operation: _parser.BinaryOperation) -> _parser.Base:
         left = self.validate_expression(binary_operation.left)
         left_type = type(left)
 
@@ -390,8 +294,11 @@ class Evaluator:
         # to account for the fact that some expressions can result in different data types (e.g., two integers resulting
         # in a float, like 3 / 4), we need to allow operations to happen on compatible data types, like floats and
         # integers.
-        left_compatible_types: list[str] = self.compatible_types_for_operations.get(left_type, [])
-        right_compatible_types: list[str] = self.compatible_types_for_operations.get(right_type, [])
+        #
+        # mypy error: Incompatible types in assignment (expression has type "object", variable has type "List[Base]")
+        # reason for ignore: TODO: investigate
+        left_compatible_types: list[_parser.Base] = self.compatible_types_for_operations.get(left_type, [])  # type: ignore
+        right_compatible_types: list[_parser.Base] = self.compatible_types_for_operations.get(right_type, [])  # type: ignore
 
         if left_type not in right_compatible_types or right_type not in left_compatible_types:
             # mypy error: "raise_error" does not return a value
@@ -399,7 +306,10 @@ class Evaluator:
             raise raise_error(left.line_num, f"Cannot perform {op_type} operation on {left_type.__name__} and {right_type.__name__}")  # type: ignore
 
         # Check that the operation can be performed on the given types. For example, "true > false" is not valid
-        valid_type: list[str] = self.valid_operation_types.get(op_type, [])
+        #
+        # mypy error: Incompatible types in assignment (expression has type "object", variable has type "List[Base]")
+        # reason for ignore: TODO: investigate
+        valid_type: list[_parser.Base] = self.valid_operation_types.get(op_type, [])  # type: ignore
         if left_type not in valid_type or right_type not in valid_type:
             # mypy error: "raise_error" does not return a value
             # reason for ignore: an exception is thrown
@@ -467,10 +377,6 @@ class Evaluator:
             return token.value
         elif type(token) == _parser.String:
             return token.value
-        elif type(token) == _parser.Dictionary:
-            # All token values are stored as strings, so to get the actual dictionary, the Python interpreter
-            # needs to evaluate the string.
-            return ast.literal_eval(token.value)
 
         raise_error(token.line_num, f"Unsupported type: {token.type}")
 
@@ -481,7 +387,5 @@ class Evaluator:
             return _parser.Float
         elif isinstance(value, int):
             return _parser.Integer
-        elif isinstance(value, dict):
-            return _parser.Dictionary
         else:
             return _parser.String

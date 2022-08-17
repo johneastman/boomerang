@@ -47,7 +47,6 @@ These are errors with the Python code itself and exist to aid the development pr
 |FLOAT|1.1, 2.5, 3.14159|
 |STRING|"Hello, world!"|
 |BOOLEAN|true, false|
-|DICTIONARY|{"a": "b", 1: 2, true: false, 3.14: 0.159}|
 
 ## Operators
 |Operator Name|Literal|
@@ -89,7 +88,6 @@ set number = 10;
 set float = 3.14;
 set string = "hello, world!";
 set boolean = true;
-set dictionary = {"a": 1, "b": 2, "c": 3};
 ```
 
 #### Operator Assignment
@@ -100,12 +98,6 @@ set number += 1;
 set number -= 1;
 set number *= 2
 set number /= 1;
-
-set dict = {"a": 1, "b": 2};
-set dict["a"] += 1;
-set dict["a"] -= 1;
-set dict["a"] *= 2;
-set dict["a"] /= 1;
 ```
 
 ### While Loops
