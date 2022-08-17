@@ -123,7 +123,7 @@ class Parser:
 
             return self.create_assignment_ast(
                 assignment_operator,
-                Index(Identifier(variable_name), keys),
+                Index(Identifier(variable_name.value, variable_name.line_num), keys),
                 right
             )
 
@@ -136,7 +136,7 @@ class Parser:
 
             return self.create_assignment_ast(
                 assignment_operator,
-                Identifier(variable_name),
+                Identifier(variable_name.value, variable_name.line_num),
                 right
             )
 
@@ -309,22 +309,23 @@ class Parser:
         elif self.current.type == INTEGER:
             number_token = self.current
             self.advance()
-            return Integer(number_token)
+            return Integer(int(number_token.value), number_token.line_num)
 
         elif self.current.type == FLOAT:
             float_token = self.current
             self.advance()
-            return Float(float_token)
+            return Float(float(float_token.value), float_token.line_num)
 
         elif self.current.type == BOOLEAN:
             bool_val_token = self.current
+            value = True if bool_val_token.value == get_token_literal("TRUE") else False
             self.advance()
-            return Boolean(bool_val_token)
+            return Boolean(value, bool_val_token.line_num)
 
         elif self.current.type == STRING:
-            string_val = self.current
+            string_token = self.current
             self.advance()
-            return String(string_val)
+            return String(string_token.value, string_token.line_num)
 
         elif self.current.type == IDENTIFIER:
             identifier_token = self.current
@@ -332,7 +333,7 @@ class Parser:
                 return self.function_call(identifier_token)
             else:
                 self.advance()
-                return Identifier(identifier_token)
+                return Identifier(identifier_token.value, identifier_token.line_num)
 
         elif self.current.type == OPEN_CURLY_BRACKET:
             line_num = self.current.line_num
@@ -354,7 +355,9 @@ class Parser:
                 self.advance()
 
             self.advance()
-            return Dictionary(keys, values, line_num)
+
+            value = dict(zip(keys, values))
+            return Dictionary(value, line_num)
 
         else:
             raise_error(self.current.line_num, f"Invalid token: {self.current.type} ({self.current.value})")

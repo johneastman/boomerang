@@ -1,6 +1,6 @@
 import pytest
 
-import _parser.ast_objects
+import _parser.ast_objects as o
 from tokens.tokens import *
 from tokens.tokenizer import Tokenizer
 from _parser._parser import Parser, NoReturn, DictionaryToken
@@ -11,32 +11,32 @@ from utils.utils import LanguageRuntimeException
 
 
 evaluator_tests = [
-    ("1 + 1;", [TestToken("2", INTEGER, 1)]),
-    ("1 + 2 * 2;", [TestToken("5", INTEGER, 1)]),
-    ("(1 + 2) * 2;", [TestToken("6", INTEGER, 1)]),
-    ("set x = (1 + 2) * 2;x;", [TestToken("6", INTEGER, 1), TestToken("6", INTEGER, 1)]),
-    ("4 / 2;", [TestToken("2.0", FLOAT, 1)]),
-    ("7 / 2;", [TestToken("3.5", FLOAT, 1)]),
-    ("1 + 1 * 2 + 3 / 4;", [TestToken("3.75", FLOAT, 1)]),
-    ("\"hello \" + \"world!\";",  [TestToken("hello world!", STRING, 1)]),
+    ("1 + 1;", [o.Integer(2, 1)]),
+    ("1 + 2 * 2;", [o.Integer(5, 1)]),
+    ("(1 + 2) * 2;", [o.Integer(6, 1)]),
+    ("set x = (1 + 2) * 2;x;", [o.Integer(6, 1), o.Integer(6, 1)]),
+    ("4 / 2;", [o.Float(2.0, 1)]),
+    ("7 / 2;", [o.Float(3.5, 1)]),
+    ("1 + 1 * 2 + 3 / 4;", [o.Float(3.75, 1)]),
+    ("\"hello \" + \"world!\";",  [o.String("hello world!", 1)]),
     ("{\"a\": 1 + 1, \"b\": 3 + (2 * 2 + 1), \"c\": 55};", [
-        _parser.ast_objects.DictionaryToken(
+        o.Dictionary(
             {
-                TestToken("a", STRING, 1): TestToken("2", INTEGER, 1),
-                TestToken("b", STRING, 1): TestToken("8", INTEGER, 1),
-                TestToken("c", STRING, 1): TestToken("55", INTEGER, 1),
+                o.String("a", 1): o.Integer(2, 1),
+                o.String("b", 1): o.Integer(8, 1),
+                o.String("c", 1): o.Integer(55, 1),
             }, 1
         )
     ]),
-    ("0!;", [TestToken("1", INTEGER, 1)]),
-    ("1!;", [TestToken("1", INTEGER, 1)]),
-    ("2!;", [TestToken("2", INTEGER, 1)]),
-    ("3!;", [TestToken("6", INTEGER, 1)]),
-    ("4!;", [TestToken("24", INTEGER, 1)]),
-    ("5!;", [TestToken("120", INTEGER, 1)]),
-    ("6!;", [TestToken("720", INTEGER, 1)]),
-    ("5! + 5;", [TestToken("125", INTEGER, 1)]),
-    ("3!!;", [TestToken("720", INTEGER, 1)])
+    ("0!;", [o.Integer(1, 1)]),
+    ("1!;", [o.Integer(1, 1)]),
+    ("2!;", [o.Integer(2, 1)]),
+    ("3!;", [o.Integer(6, 1)]),
+    ("4!;", [o.Integer(24, 1)]),
+    ("5!;", [o.Integer(120, 1)]),
+    ("6!;", [o.Integer(720, 1)]),
+    ("5! + 5;", [o.Integer(125, 1)]),
+    ("3!!;", [o.Integer(720, 1)])
 ]
 
 
@@ -47,17 +47,17 @@ def test_evaluator(source, expected_results):
 
 
 valid_boolean_operations_tests = [
-    ("1 == 1;", [TestToken("true", BOOLEAN, 1)]),
-    ("1 != 1;", [TestToken("false", BOOLEAN, 1)]),
-    ("1 != 2;", [TestToken("true", BOOLEAN, 1)]),
-    ("1 >= 1;", [TestToken("true", BOOLEAN, 1)]),
-    ("1 >= 2;", [TestToken("false", BOOLEAN, 1)]),
-    ("1 > 1;",  [TestToken("false", BOOLEAN, 1)]),
-    ("2 > 1;",  [TestToken("true", BOOLEAN, 1)]),
-    ("1 <= 1;", [TestToken("true", BOOLEAN, 1)]),
-    ("1 < 2;",  [TestToken("true", BOOLEAN, 1)]),
-    ("2 < 1;",  [TestToken("false", BOOLEAN, 1)]),
-    ("10 == (2 + 4 * 2) == true;",  [TestToken("true", BOOLEAN, 1)])
+    ("1 == 1;", [o.Boolean(True, 1)]),
+    ("1 != 1;", [o.Boolean(False, 1)]),
+    ("1 != 2;", [o.Boolean(True, 1)]),
+    ("1 >= 1;", [o.Boolean(True, 1)]),
+    ("1 >= 2;", [o.Boolean(False, 1)]),
+    ("1 > 1;",  [o.Boolean(False, 1)]),
+    ("2 > 1;",  [o.Boolean(True, 1)]),
+    ("1 <= 1;", [o.Boolean(True, 1)]),
+    ("1 < 2;",  [o.Boolean(True, 1)]),
+    ("2 < 1;",  [o.Boolean(False, 1)]),
+    ("10 == (2 + 4 * 2) == true;",  [o.Boolean(True, 1)])
 ]
 
 
@@ -68,19 +68,19 @@ def test_valid_boolean_operations(source, expected_results):
 
 
 invalid_boolean_operations_tests = [
-    ("1 == true;", "INTEGER", "EQ", "BOOLEAN"),
-    ("1 != true;", "INTEGER", "NE", "BOOLEAN"),
-    ("1 > true;", "INTEGER", "GT", "BOOLEAN"),
-    ("2 >= false;", "INTEGER", "GE", "BOOLEAN"),
-    ("2 < false;", "INTEGER", "LT", "BOOLEAN"),
-    ("2 <= false;", "INTEGER", "LE", "BOOLEAN"),
+    ("1 == true;", "Integer", "EQ", "Boolean"),
+    ("1 != true;", "Integer", "NE", "Boolean"),
+    ("1 > true;", "Integer", "GT", "Boolean"),
+    ("2 >= false;", "Integer", "GE", "Boolean"),
+    ("2 < false;", "Integer", "LT", "Boolean"),
+    ("2 <= false;", "Integer", "LE", "Boolean"),
 
     # Check that we can't use boolean operators in less-than, greater-than, greater-than-or-equal, or
     # less-than-or-equal
-    ("true <= false;", "BOOLEAN", "LE", "BOOLEAN"),
-    ("true < false;", "BOOLEAN", "LT", "BOOLEAN"),
-    ("true >= false;", "BOOLEAN", "GE", "BOOLEAN"),
-    ("true > false;", "BOOLEAN", "GT", "BOOLEAN")
+    ("true <= false;", "Boolean", "LE", "Boolean"),
+    ("true < false;", "Boolean", "LT", "Boolean"),
+    ("true >= false;", "Boolean", "GE", "Boolean"),
+    ("true > false;", "Boolean", "GT", "Boolean")
 ]
 
 
@@ -94,22 +94,22 @@ def test_invalid_boolean_operations(source, left_type, operation_type, right_typ
 
 valid_unary_operations_tests = [
     ("-1;", [
-        TestToken("-1", INTEGER, 1)
+        o.Integer(-1, 1)
      ]),
     ("+1;", [
-        TestToken("1", INTEGER, 1)
+        o.Integer(1, 1)
     ]),
     ("-5.258;", [
-        TestToken("-5.258", FLOAT, 1)
+        o.Float(-5.258, 1)
     ]),
     ("5.258;", [
-        TestToken("5.258", FLOAT, 1)
+        o.Float(5.258, 1)
     ]),
     ("!true;", [
-        TestToken("false", BOOLEAN, 1)
+        o.Boolean(False, 1)
     ]),
     ("!false;", [
-        TestToken("true", BOOLEAN, 1)
+        o.Boolean(True, 1)
     ]),
 ]
 
@@ -121,11 +121,11 @@ def test_valid_unary_operations(source, expected_results):
 
 
 invalid_unary_operations_tests = [
-    ("!1;", "BANG", "INTEGER"),
-    ("-true;", "MINUS", "BOOLEAN"),
-    ("-false;", "MINUS", "BOOLEAN"),
-    ("+true;", "PLUS", "BOOLEAN"),
-    ("+false;", "PLUS", "BOOLEAN"),
+    ("!1;", "BANG", "Integer"),
+    ("-true;", "MINUS", "Boolean"),
+    ("-false;", "MINUS", "Boolean"),
+    ("+true;", "PLUS", "Boolean"),
+    ("+false;", "PLUS", "Boolean"),
 ]
 
 
@@ -176,7 +176,7 @@ def test_function_return():
     """
     expected_results = [
         NoReturn(line_num=2),
-        TestToken("true", BOOLEAN, 7),
+        o.Boolean(True, 7),
         NoReturn(line_num=8),
     ]
     actual_results = actual_result(source)
@@ -318,7 +318,7 @@ def test_dictionary_get():
     """
 
     dict_line_num = 2
-    expected_dictionary_token = _parser.ast_objects.DictionaryToken({
+    expected_dictionary_token = o.DictionaryToken({
         TestToken("a", STRING, dict_line_num): TestToken("1", INTEGER, dict_line_num),
         TestToken("b", STRING, dict_line_num): TestToken("2", INTEGER, dict_line_num),
         TestToken("c", STRING, dict_line_num): TestToken("3", INTEGER, dict_line_num),

@@ -44,17 +44,103 @@ class Base:
     Data types line integers, floats, booleans, strings, etc., but also identifiers (variables, functions, etc.)
     """
 
-    def __init__(self, token: Token):
-        self.token = token
+    def __init__(self, value: object, line_num: int):
+        self.value = value
+        self.line_num = line_num
+
+    def __str__(self):
+        return str(self.value)
 
     def __eq__(self, other: object):
         if not isinstance(other, self.__class__):
             return False
-        return self.token == other.token
+
+        if not isinstance(self.value, type(other.value)):
+            return False
+
+        return self.value == other.value and self.line_num == other.line_num
 
     def __repr__(self):
         class_name = self.__class__.__name__
-        return f"{class_name}(token={self.token})"
+        return f"{class_name}(value={self.value}, line_num={self.line_num})"
+
+    def __hash__(self):
+        return hash((self.value, self.line_num))
+
+
+class Integer(Factor, Base):
+    def __init__(self, value: int, line_num: int):
+        super().__init__(value, line_num)
+
+    __hash__ = super.__hash__
+
+
+class Float(Factor, Base):
+    def __init__(self, value: float, line_num: int):
+        super().__init__(value, line_num)
+
+    __hash__ = super.__hash__
+
+
+class Boolean(Factor, Base):
+    def __init__(self, value: bool, line_num: int):
+        super().__init__(value, line_num)
+
+    __hash__ = super.__hash__
+
+    def __str__(self):
+        return get_token_literal("TRUE") if self.value else get_token_literal("FALSE")
+
+
+class String(Factor, Base):
+    def __init__(self, value: str, line_num: int):
+        super().__init__(value, line_num)
+
+    __hash__ = super.__hash__
+
+    def __str__(self):
+        return f"\"{self.value}\""
+
+
+class Dictionary(Factor, Base):
+    def __init__(self, value: dict, line_num: int):
+        super().__init__(value, line_num)
+
+    __hash__ = super.__hash__
+
+    def __eq__(self, other: object):
+        """
+        Has to override because "hash" was generating unique values even if the object's attributes are the same.
+
+        >>> import _parser.ast_objects as o
+        >>> {o.String("a", 1): o.Integer(5, 1)} == {o.String("a", 1): o.Integer(5, 1)}
+        False
+        >>> o.String("a", 1).__hash__()
+        8783204471501
+        >>> o.String("a", 1).__hash__()
+        8783204471525
+        >>> o.String("a", 1).__hash__()
+        8783204471549
+        >>> hash(o.String("a", 1))
+        8783204471468
+        >>> hash(o.String("a", 1))
+        8783204471420
+        >>> hash(o.String("a", 1))
+        8783204471438
+        """
+        if not isinstance(other, Dictionary):
+            return False
+
+        for (self_k, self_v), (other_k, other_v) in zip(self.value.items(), other.value.items()):
+            if self_k != other_k or self_v != other_v:
+                return False
+
+        return self.line_num == other.line_num
+
+
+class Identifier(Factor, Base):
+    def __init__(self, value: str, line_num: int):
+        super().__init__(value, line_num)
 
 
 class BuiltinFunction(Factor):
@@ -86,46 +172,6 @@ class Type(BuiltinFunction):
 class Random(BuiltinFunction):
     def __init__(self, params: list[Expression], line_num: int):
         super().__init__(params, line_num)
-
-
-class Integer(Base, Factor):
-    def __init__(self, token: Token):
-        super().__init__(token)
-
-
-class Float(Base, Factor):
-    def __init__(self, token: Token):
-        super().__init__(token)
-
-
-class Boolean(Base, Factor):
-    def __init__(self, token: Token):
-        super().__init__(token)
-
-
-class String(Base, Factor):
-    def __init__(self, token: Token):
-        super().__init__(token)
-
-
-class Identifier(Base, Factor):
-    def __init__(self, token: Token):
-        super().__init__(token)
-
-
-class Dictionary(Factor):
-    def __init__(self, keys, values, line_num):
-        self.keys = keys
-        self.values = values
-        self.line_num = line_num
-
-    def __eq__(self, other):
-        if not isinstance(other, Dictionary):
-            return False
-        return self.keys == other.keys and self.values == other.values
-
-    def __repr__(self):
-        return f"Dictionary(keys={self.keys}, values={self.values})"
 
 
 class NoReturn(Token):

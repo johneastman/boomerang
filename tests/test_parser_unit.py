@@ -17,8 +17,8 @@ def test_set_statement():
     p = Parser(tokens)
     actual_assign_ast = p.assign()
     expected_assign_ast = SetVariable(
-        Identifier(TestToken("variable", IDENTIFIER, 1)),
-        Integer(TestToken("1", INTEGER, 1)))
+        Identifier("variable", 1),
+        Integer(1, 1))
     assert actual_assign_ast == expected_assign_ast
 
 

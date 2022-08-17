@@ -18,28 +18,28 @@ class Evaluator:
         # Map operations to valid data types. This ensures expressions like "1 + true", "!1", "-true", "+false", etc.
         # are invalid.
         self.valid_operation_types = {
-            PLUS: [INTEGER, STRING, FLOAT],
-            MINUS: [INTEGER, FLOAT],
-            MULTIPLY: [INTEGER, FLOAT],
-            DIVIDE: [INTEGER, FLOAT],
-            EQ: [INTEGER, BOOLEAN, FLOAT, STRING],
-            NE: [INTEGER, BOOLEAN, FLOAT, STRING],
-            GT: [INTEGER, FLOAT],
-            GE: [INTEGER, FLOAT],
-            LT: [INTEGER, FLOAT],
-            LE: [INTEGER, FLOAT],
-            BANG: [BOOLEAN],
-            AND: [BOOLEAN],
-            OR: [BOOLEAN]
+            PLUS: [_parser.Integer, _parser.String, _parser.Float],
+            MINUS: [_parser.Integer, _parser.Float],
+            MULTIPLY: [_parser.Integer, _parser.Float],
+            DIVIDE: [_parser.Integer, _parser.Float],
+            EQ: [_parser.Integer, _parser.Boolean, _parser.Float, _parser.String],
+            NE: [_parser.Integer, _parser.Boolean, _parser.Float, _parser.String],
+            GT: [_parser.Integer, _parser.Float],
+            GE: [_parser.Integer, _parser.Float],
+            LT: [_parser.Integer, _parser.Float],
+            LE: [_parser.Integer, _parser.Float],
+            BANG: [_parser.Boolean],
+            AND: [_parser.Boolean],
+            OR: [_parser.Boolean]
         }
 
         # Map what types are compatible with others when performing operations (for example, addition can be performed
         # on floats and integers).
         self.compatible_types_for_operations = {
-            FLOAT: [FLOAT, INTEGER],
-            INTEGER: [INTEGER, FLOAT],
-            STRING: [STRING],
-            BOOLEAN: [BOOLEAN]
+            _parser.Float: [_parser.Float, _parser.Integer],
+            _parser.Integer: [_parser.Integer, _parser.Float],
+            _parser.String: [_parser.String],
+            _parser.Boolean: [_parser.Boolean]
         }
 
     def evaluate(self):
@@ -114,19 +114,22 @@ class Evaluator:
             return Token(str(random.random()), FLOAT, expression.line_num)
 
         elif type(expression) == _parser.Integer:
-            return expression.token
+            return expression
 
         elif type(expression) == _parser.Float:
-            return expression.token
+            return expression
 
         elif type(expression) == _parser.Boolean:
-            return expression.token
+            return expression
 
         elif type(expression) == _parser.String:
-            return expression.token
+            return expression
 
         elif type(expression) == _parser.Dictionary:
-            return self.evaluate_dictionary_expression(expression)
+            new_values = {}
+            for key, value in expression.value.items():
+                new_values[self.evaluate_expression(key)] = self.evaluate_expression(value)
+            return _parser.Dictionary(new_values, expression.line_num)
 
         elif type(expression) == _parser.Return:
             return self.validate_expression(expression.expr)
@@ -145,23 +148,23 @@ class Evaluator:
             # when a user is using this programming language.
             raise Exception(f"Unsupported type: {type(expression).__name__}")  # type: ignore
 
-    def evaluate_factorial(self, factorial_expression: _parser.Factorial) -> Token:
+    def evaluate_factorial(self, factorial_expression: _parser.Factorial) -> _parser.Integer:
         result = self.evaluate_expression(factorial_expression.expr)
 
-        if result.type != INTEGER:
-            raise_error(result.line_num, f"Invalid type {result.type} for factorial")
+        if type(result) != _parser.Integer:
+            raise_error(result.line_num, f"Invalid type {type(result)} for factorial")
 
         new_val = 1
         for i in range(int(result.value), 0, -1):
             new_val *= i
-        return Token(str(new_val), INTEGER, result.line_num)
+        return _parser.Integer(new_val, result.line_num)
 
     def evaluate_assign_variable(self, variable_assignment: _parser.SetVariable) -> Token:  # type: ignore
         variable = variable_assignment.name
 
         if isinstance(variable, _parser.Identifier):
             var_value = self.validate_expression(variable_assignment.value)
-            self.env.set_var(variable.token.value, var_value)
+            self.env.set_var(variable.value, var_value)
             return var_value
         elif isinstance(variable, _parser.Index):
 
@@ -219,7 +222,7 @@ class Evaluator:
         # scopes, it does not exist anywhere in the code.
         env = self.env
         while env is not None:
-            variable_value = env.get_var(identifier.token.value)
+            variable_value = env.get_var(identifier.value)
             if variable_value is not None:
                 return variable_value
             env = env.parent_env
@@ -350,28 +353,34 @@ class Evaluator:
 
     def evaluate_unary_expression(self, unary_expression: _parser.UnaryOperation) -> Token:
         expression_result = self.validate_expression(unary_expression.expression)
+        expression_result_type = type(expression_result)
         op_type = unary_expression.op.type
 
         valid_type = self.valid_operation_types.get(op_type, [])
-        if expression_result.type not in valid_type:
-            raise_error(expression_result.line_num, f"Cannot perform {op_type} operation on {expression_result.type}")
-
-        actual_value = self.get_literal_value(expression_result)
-        actual_type = self.get_type(actual_value)
+        if expression_result_type not in valid_type:
+            raise_error(expression_result.line_num, f"Cannot perform {op_type} operation on {expression_result_type.__name__}")
 
         if op_type == PLUS:
-            return Token(str(actual_value), actual_type, expression_result.line_num)
+            actual_value = self.get_literal_value(expression_result)
+            actual_type = self.get_type(actual_value)
+            return actual_type(actual_value, expression_result.line_num)
         elif op_type == MINUS:
-            return Token(str(-actual_value), actual_type, expression_result.line_num)
+            actual_value = -self.get_literal_value(expression_result)
+            actual_type = self.get_type(actual_value)
+            return actual_type(actual_value, expression_result.line_num)
         elif op_type == BANG:
-            value = get_token_literal("FALSE") if actual_value else get_token_literal("TRUE")
-            return Token(str(value), BOOLEAN, expression_result.line_num)
+            actual_value = not self.get_literal_value(expression_result)
+            actual_type = self.get_type(actual_value)
+            return actual_type(actual_value, expression_result.line_num)
         else:
             raise Exception(f"Invalid unary operator: {op_type} ({unary_expression.op.value})")
 
     def evaluate_binary_expression(self, binary_operation: _parser.BinaryOperation) -> Token:
         left = self.validate_expression(binary_operation.left)
+        left_type = type(left)
+
         right = self.validate_expression(binary_operation.right)
+        right_type = type(right)
         op_type = binary_operation.op.type
 
         # Check that the types are compatible. If they are not, the operation cannot be performed.
@@ -381,73 +390,66 @@ class Evaluator:
         # to account for the fact that some expressions can result in different data types (e.g., two integers resulting
         # in a float, like 3 / 4), we need to allow operations to happen on compatible data types, like floats and
         # integers.
-        left_compatible_types: list[str] = self.compatible_types_for_operations.get(left.type, [])
-        right_compatible_types: list[str] = self.compatible_types_for_operations.get(right.type, [])
+        left_compatible_types: list[str] = self.compatible_types_for_operations.get(left_type, [])
+        right_compatible_types: list[str] = self.compatible_types_for_operations.get(right_type, [])
 
-        if left.type not in right_compatible_types or right.type not in left_compatible_types:
+        if left_type not in right_compatible_types or right_type not in left_compatible_types:
             # mypy error: "raise_error" does not return a value
             # reason for ignore: an exception is thrown
-            raise raise_error(left.line_num, f"Cannot perform {op_type} operation on {left.type} and {right.type}")  # type: ignore
+            raise raise_error(left.line_num, f"Cannot perform {op_type} operation on {left_type.__name__} and {right_type.__name__}")  # type: ignore
 
         # Check that the operation can be performed on the given types. For example, "true > false" is not valid
         valid_type: list[str] = self.valid_operation_types.get(op_type, [])
-        if left.type not in valid_type or right.type not in valid_type:
+        if left_type not in valid_type or right_type not in valid_type:
             # mypy error: "raise_error" does not return a value
             # reason for ignore: an exception is thrown
-            raise raise_error(left.line_num, f"Cannot perform {op_type} operation on {left.type} and {right.type}")  # type: ignore
-
-        left_val = self.get_literal_value(left)
-        right_val = self.get_literal_value(right)
+            raise raise_error(left.line_num, f"Cannot perform {op_type} operation on {left_type.__name__} and {right_type.__name__}")  # type: ignore
 
         # Math operations
         if op_type == PLUS:
-            result = left_val + right_val
-            return Token(str(result), self.get_type(result), left.line_num)
+            result = left.value + right.value
+            result_type = self.get_type(result)
+            return result_type(result, left.line_num)
         elif op_type == MINUS:
-            result = left_val - right_val
-            return Token(str(result), self.get_type(result), left.line_num)
+            result = left.value - right.value
+            result_type = self.get_type(result)
+            return result_type(result, left.line_num)
         elif op_type == MULTIPLY:
-            result = left_val * right_val
-            return Token(str(result), self.get_type(result), left.line_num)
+            result = left.value * right.value
+            result_type = self.get_type(result)
+            return result_type(result, left.line_num)
         elif op_type == DIVIDE:
-            if right_val == 0:
+            if right.value == 0:
                 raise Exception("Division by zero")
-            result = left_val / right_val
-            return Token(str(left_val / right_val), self.get_type(result), left.line_num)
+            result = left.value / right.value
+            result_type = self.get_type(result)
+            return result_type(result, left.line_num)
 
         # Binary comparisons
         elif op_type == EQ:
-            result = left_val == right_val
-            value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
-            return Token(str(value), BOOLEAN, left.line_num)
+            result = left.value == right.value
+            return _parser.Boolean(result, left.line_num)
         elif op_type == NE:
-            result = left_val != right_val
-            value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
-            return Token(str(value), BOOLEAN, left.line_num)
+            result = left.value != right.value
+            return _parser.Boolean(result, left.line_num)
         elif op_type == GT:
-            result = left_val > right_val
-            value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
-            return Token(str(value), BOOLEAN, left.line_num)
+            result = left.value > right.value
+            return _parser.Boolean(result, left.line_num)
         elif op_type == GE:
-            result = left_val >= right_val
-            value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
-            return Token(str(value), BOOLEAN, left.line_num)
+            result = left.value >= right.value
+            return _parser.Boolean(result, left.line_num)
         elif op_type == LT:
-            result = left_val < right_val
-            value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
-            return Token(str(value), BOOLEAN, left.line_num)
+            result = left.value < right.value
+            return _parser.Boolean(result, left.line_num)
         elif op_type == LE:
-            result = left_val <= right_val
-            value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
-            return Token(str(value), BOOLEAN, left.line_num)
+            result = left.value <= right.value
+            return _parser.Boolean(result, left.line_num)
         elif op_type == AND:
-            result = left_val and right_val
-            value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
-            return Token(str(value), BOOLEAN, left.line_num)
+            result = left.value and right.value
+            return _parser.Boolean(result, left.line_num)
         elif op_type == OR:
-            result = left_val or right_val
-            value = get_token_literal("TRUE") if result else get_token_literal("FALSE")
-            return Token(str(value), BOOLEAN, left.line_num)
+            result = left.value or right.value
+            return _parser.Boolean(result, left.line_num)
         else:
             raise Exception(f"Invalid binary operator '{binary_operation.op.value}' at line {binary_operation.op.line_num}")
 
@@ -457,29 +459,29 @@ class Evaluator:
         :param token: a Token object representing a literal (number, boolean, etc.)
         :return: Python's representation of the token value
         """
-        if token.type == INTEGER:
+        if type(token) == _parser.Integer:
             return int(token.value)
-        elif token.type == FLOAT:
+        elif type(token) == _parser.Float:
             return float(token.value)
-        elif token.type == BOOLEAN:
-            return True if token.value == get_token_literal("TRUE") else False
-        elif token.type == STRING:
+        elif type(token) == _parser.Boolean:
             return token.value
-        elif token.type == DICTIONARY:
+        elif type(token) == _parser.String:
+            return token.value
+        elif type(token) == _parser.Dictionary:
             # All token values are stored as strings, so to get the actual dictionary, the Python interpreter
             # needs to evaluate the string.
             return ast.literal_eval(token.value)
 
         raise_error(token.line_num, f"Unsupported type: {token.type}")
 
-    def get_type(self, value: object) -> str:
+    def get_type(self, value: object):
+        if isinstance(value, bool):
+            return _parser.Boolean
         if isinstance(value, float):
-            return FLOAT
+            return _parser.Float
         elif isinstance(value, int):
-            return INTEGER
+            return _parser.Integer
         elif isinstance(value, dict):
-            return DICTIONARY
-        elif isinstance(value, bool):
-            return BOOLEAN
+            return _parser.Dictionary
         else:
-            return STRING
+            return _parser.String
