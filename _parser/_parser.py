@@ -221,14 +221,6 @@ class Parser:
                 self.advance()
                 right = next_method()
                 left = BinaryOperation(left, op, right)
-            elif self.current.type == OPEN_BRACKET:
-                self.advance()
-                value = self.expression()
-                self.is_expected_token(CLOSED_BRACKET)
-                self.advance()
-
-                # mypy error: Argument 2 to "Index" has incompatible type "Expression"; expected "List[Expression]"
-                left = Index(left, [value])  # type: ignore
             elif self.current.type == BANG:
                 self.advance()
                 left = Factorial(left)
