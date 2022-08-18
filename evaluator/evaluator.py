@@ -173,6 +173,10 @@ class Evaluator:
         while env is not None:
             variable_value = env.get_var(identifier.value)
             if variable_value is not None:
+
+                # When a variable is retrieved, update the line number to reflect the current line number because the
+                # variable was saved with the line number where it was defined.
+                variable_value.line_num = identifier.line_num
                 return variable_value
             env = env.parent_env
 
@@ -230,7 +234,7 @@ class Evaluator:
             self.env = self.env.parent_env
 
     def evaluate_loop_statement(self, loop: _parser.Loop) -> _parser.Base:
-        while self.validate_expression(loop.condition).value == get_token_literal("TRUE"):
+        while self.validate_expression(loop.condition).value is True:
             self.evaluate_statements(loop.statements)
         return _parser.NoReturn()
 

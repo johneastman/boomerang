@@ -1,9 +1,8 @@
 import pytest
 
 import _parser.ast_objects as o
-from tokens.tokens import *
 from tokens.tokenizer import Tokenizer
-from _parser._parser import Parser, NoReturn
+from _parser._parser import Parser, NoReturn, Integer
 from evaluator.evaluator import Evaluator
 from evaluator._environment import Environment
 from utils.utils import LanguageRuntimeException
@@ -225,6 +224,26 @@ assignment_tests = [
 @pytest.mark.parametrize("source,expected_results", assignment_tests)
 def test_assignment(source, expected_results):
     actual_results = actual_result(source)
+    assert actual_results == expected_results
+
+
+def test_loop():
+    """This test verifies that the loop works by checking the final value of "i". If "i" is 10, then the loop ran as
+    expected; otherwise, there was an error.
+    """
+    source = """
+    set i = 0;
+    while i < 10 {
+        set i += 1;
+    }
+    i;
+    """
+    actual_results = actual_result(source)
+    expected_results = [
+        Integer(0, 2),
+        NoReturn(),
+        Integer(10, 6)
+    ]
     assert actual_results == expected_results
 
 
