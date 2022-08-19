@@ -173,14 +173,6 @@ Boomerang features built-in tree objects. Each node can have `n` children, which
 
 Be aware that the root node does not have brackets before it or after the proceeding tree. Tree structures expect an expression followed by the Pointer operator.
 ```
-set list_tree = "list" => [
-   "a",
-   "b",
-   1 + (2 + 2),
-   "hello" + " " + "world!"
-];
-print(list_tree);  # "list" => ["a", "b", 5, "hello world!"]
-
 set tree = "root" => [
     "parent_1" => [
         "child_1_1" => [
@@ -193,4 +185,22 @@ set tree = "root" => [
     "parent_3"
 ];
 print(tree);  # "root" => ["parent_1" => ["child_1_1" => ["grandchild_1_1_1"]], "parent_2" => ["child_2_2"], "parent_3"]
+```
+
+#### Lists and Dictionaries
+Unlike many languages, Boomerang doesn't have lists (arrays) or dictionaries (maps). However, both can be implemented fairly easily with trees.
+```
+set list = "list" => [
+   "a",
+   "b",
+   1 + (2 + 2),
+   "hello" + " " + "world!"
+];
+
+set dict = "dictionary" => [
+    "a" => [1],
+    "b" => [2],
+    "c" => [3]
+];
+print(dict);  # "dictionary" => ["a" => [1], "b" => [2], "c" => [3]]
 ```
