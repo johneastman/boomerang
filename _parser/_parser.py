@@ -211,21 +211,30 @@ class Parser:
         self.advance()
 
         def get_nodes(root: Expression) -> Node:
+            self.is_expected_token(OPEN_BRACKET)
+            self.advance()
+
             children = []
             while True:
                 value = next_method()
 
                 if self.current.type == POINTER:
+                    # Pointer denotes an edge, so we're creating a child node/subtree
                     self.advance()
                     children.append(get_nodes(value))
                 else:
+                    # A leaf node
                     children.append(Node(value))
 
-                    if self.current.type == COMMA:
-                        self.advance()
-                        continue
+                if self.current.type == COMMA:
+                    # Commas denote multiple child nodes
+                    self.advance()
+                    continue
 
-                if self.current.type not in [POINTER, COMMA]:
+                if self.current.type == CLOSED_BRACKET:
+                    # Closed bracket means we're at the end of the child nodes and going back to the outer scope/scope
+                    # of the root node.
+                    self.advance()
                     break
 
             return Node(root, children=children)

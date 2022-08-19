@@ -169,8 +169,28 @@ true || false;  # true
 ```
 
 ### Trees
-Boomerang features built-in tree objects. To construct a tree, simply add `=>` between expressions in succession
+Boomerang features built-in tree objects. Each node can have `n` children, which means trees in Boomerang are n-ary trees. Nodes are expressions, edges are defined with `=>`, and child nodes fall between straight brackets (`[` and `]`). Place commas between expressions in brackets to denote multiple child nodes.
+
+Be aware that the root node does not have brackets before it or after the proceeding tree. Tree structures expect an expression followed by the Pointer operator.
 ```
-set linked_list = "a" => 1 + (2 + 3) => 3.14159 => "hello" + " world!";
-print(linked_list); # "a" => 6 => 3.14159 => "hello world!"
+set list_tree = "list" => [
+   "a",
+   "b",
+   1 + (2 + 2),
+   "hello" + " " + "world!"
+];
+print(list_tree);  # "list" => ["a", "b", 5, "hello world!"]
+
+set tree = "root" => [
+    "parent_1" => [
+        "child_1_1" => [
+            "grandchild_1_1_1"
+        ]
+    ],
+    "parent_2" => [
+        "child_2_2"
+    ],
+    "parent_3"
+];
+print(tree);  # "root" => ["parent_1" => ["child_1_1" => ["grandchild_1_1_1"]], "parent_2" => ["child_2_2"], "parent_3"]
 ```

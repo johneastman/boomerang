@@ -247,55 +247,73 @@ def test_loop():
     assert actual_results == expected_results
 
 
-def test_tree_linked_list():
-    source = """
-    set linked_list = "a" => 1 + (2 + 2) => "c" => "hello" + " world!";
-    linked_list;
-    """
-    expected_results = [
-        o.NoReturn(line_num=2),
+tree_tests = [
+    (
+        "\"a\" => [1 + (2 + 2) => [\"c\" => [\"hello\" + \" world!\"]]]",
         o.Tree(
-            o.Node(o.String("a", 2),
-                   children=[
-                       o.Node(o.Integer(5, 2),
-                              children=[
-                                  o.Node(o.String("c", 2),
-                                         children=[
-                                             o.Node(o.String("hello world!", 2))
-                                         ])
-                              ])
-                   ]),
-            3
-        )
-    ]
-
-    actual_results = actual_result(source)
-    assert actual_results == expected_results
-
-
-def test_tree():
-    source = """
-    set tree = "root" => "parent_1" => "child_1_1" => "grandchild_1_1_1", "parent_2" => "child_2_2", "parent_3";
-    tree;
-    """
-    line_num = 2
-    expected_results = [
-        o.NoReturn(line_num=line_num),
-        o.Tree(
-            o.Node(o.String("root", line_num), children=[
-                o.Node(o.String("parent_1", line_num), children=[
-                    o.Node(o.String("child_1_1", line_num), children=[
-                        o.Node(o.String("grandchild_1_1_1", line_num)),
-                        o.Node(o.String("parent_2", line_num), children=[
-                            o.Node(o.String("child_2_2", line_num)),
-                            o.Node(o.String("parent_3", line_num))
-                        ])
+            o.Node(o.String("a", 2), children=[
+                o.Node(o.Integer(5, 2), children=[
+                    o.Node(o.String("c", 2), children=[
+                        o.Node(o.String("hello world!", 2))
                     ])
                 ])
             ]),
             3
         )
+    ),
+    (
+        """"root" => [
+            "parent_1" => [
+                "child_1_1" => [
+                    "grandchild_1_1_1"
+                ]
+            ],
+            "parent_2" => [
+                "child_2_2"
+            ],
+            "parent_3"
+        ]""",
+        o.Tree(
+            o.Node(o.String("root", 2), children=[
+                o.Node(o.String("parent_1", 3), children=[
+                    o.Node(o.String("child_1_1", 4), children=[
+                        o.Node(o.String("grandchild_1_1_1", 5))
+                    ])
+                ]),
+                o.Node(o.String("parent_2", 8), children=[
+                    o.Node(o.String("child_2_2", 9))
+                ]),
+                o.Node(o.String("parent_3", 11))
+            ]),
+            13
+        )
+    ),
+    (
+        "\"list\" => [\"a\", \"b\", \"c\", \"d\"]",
+        o.Tree(
+            o.Node(o.String("list", 2), children=[
+                o.Node(o.String("a", 2)),
+                o.Node(o.String("b", 2)),
+                o.Node(o.String("c", 2)),
+                o.Node(o.String("d", 2)),
+            ]),
+            3
+        )
+    )
+]
+
+
+@pytest.mark.parametrize("tree_source,expected_tree", tree_tests)
+def test_trees(tree_source, expected_tree):
+    source = f"""
+    set tree = {tree_source};
+    tree;
+    """
+    expected_results = [
+        o.NoReturn(line_num=2),
+        expected_tree
     ]
+
     actual_results = actual_result(source)
     assert actual_results == expected_results
 

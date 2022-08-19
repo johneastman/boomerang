@@ -135,19 +135,6 @@ class Tree(Factor, Base):
     def __init__(self, value: Optional[Node], line_num: int):
         super().__init__(value, line_num)
 
-    def insert(self, item):
-        temp: Node = Node(item)
-        if self.value is None:
-            self.value = temp
-        else:
-            # mypy error: Incompatible types in assignment (expression has type "Union[str, float, Node]", variable has type "Node")
-            # reason for ignore: Node is in Union[str, float, Node]
-            ptr: Node = self.value  # type: ignore
-            while len(ptr.children) > 0:
-                ptr = ptr.children[0]
-            ptr.children.append(temp)
-        return self.value
-
     def __str__(self) -> str:
 
         pointer_literal = get_token_literal('POINTER')
