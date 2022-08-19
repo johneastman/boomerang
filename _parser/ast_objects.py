@@ -41,17 +41,20 @@ class ExpressionStatement(Statement):
 
 
 class Node(Factor):
-    def __init__(self, value: Expression, _next=None):
+    def __init__(self, value: Expression, children=None):
         self.value = value
-        self.next: Optional[Node] = _next
+        self.children: list[Node] = [] if children is None else children
 
     def __eq__(self, other: object):
         if not isinstance(other, Node):
             return False
-        return self.value == other.value and self.next == other.next
+        return self.value == other.value and self.children == other.children
 
     def __str__(self):
-        return f"{self.__class__.__name__}(value={self.value}, next={self.next})"
+        return f"{self.__class__.__name__}(value={self.value}, children={self.children})"
+
+    def __repr__(self):
+        return self.__str__()
 
 
 class Base:
@@ -140,9 +143,9 @@ class Tree(Factor, Base):
             # mypy error: Incompatible types in assignment (expression has type "Union[str, float, Node]", variable has type "Node")
             # reason for ignore: Node is in Union[str, float, Node]
             ptr: Node = self.value  # type: ignore
-            while ptr.next is not None:
-                ptr = ptr.next
-            ptr.next = temp
+            while len(ptr.children) > 0:
+                ptr = ptr.children[0]
+            ptr.children.append(temp)
         return self.value
 
     def __str__(self) -> str:
@@ -153,7 +156,7 @@ class Tree(Factor, Base):
         tmp: Optional[Node] = self.value  # type: ignore
         while tmp is not None:
             nodes.append(tmp)
-            tmp = tmp.next
+            tmp = tmp.children[0] if len(tmp.children) > 0 else None
         return f" {get_token_literal('POINTER')} ".join(map(lambda n: str(n.value), nodes))
 
 

@@ -147,7 +147,7 @@ class Evaluator:
                 # mypy error: Incompatible types in assignment (expression has type "Optional[Node]", variable has
                 #             type "Node")
                 # reason for ignore: "Node" is compatible with "Optional[Node]"
-                tmp = tmp.next  # type: ignore
+                tmp = tmp.children[0] if len(tmp.children) > 0 else None  # type: ignore
             return _parser.Tree(root, expression.line_num)
 
         else:

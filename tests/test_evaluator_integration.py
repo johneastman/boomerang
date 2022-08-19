@@ -256,12 +256,15 @@ def test_tree_linked_list():
         o.NoReturn(line_num=2),
         o.Tree(
             o.Node(o.String("a", 2),
-                   _next=o.Node(o.Integer(5, 2),
-                                _next=o.Node(o.String("c", 2),
-                                             _next=o.Node(o.String("hello world!", 2))
-                                             )
-                                )
-                   ),
+                   children=[
+                       o.Node(o.Integer(5, 2),
+                              children=[
+                                  o.Node(o.String("c", 2),
+                                         children=[
+                                             o.Node(o.String("hello world!", 2))
+                                         ])
+                              ])
+                   ]),
             3
         )
     ]
