@@ -155,7 +155,7 @@ class Tree(Factor, Base):
         def traverse(node: Node):
             if len(node.children) == 0:
                 return str(node.value)
-            return f"{node.value} {pointer_literal} {', '.join(traverse(child) for child in node.children)}"
+            return f"{node.value} {pointer_literal} [{', '.join(traverse(child) for child in node.children)}]"
 
         # mypy error: Argument 1 to "traverse" has incompatible type "Union[int, str, float, Node, None]"; expected
         #             "Node"

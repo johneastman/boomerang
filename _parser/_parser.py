@@ -210,21 +210,28 @@ class Parser:
         line_num = self.current.line_num
         self.advance()
 
-        nodes = []
-        while self.current.type != POINTER:
-            expression = next_method()
-            nodes.append(expression)
+        def get_nodes(root: Expression) -> Node:
+            children = []
+            while True:
+                value = next_method()
 
-            if self.current.type != POINTER:
-                break
+                if self.current.type == POINTER:
+                    self.advance()
+                    children.append(get_nodes(value))
+                else:
+                    children.append(Node(value))
 
-            self.advance()
+                    if self.current.type == COMMA:
+                        self.advance()
+                        continue
 
-        root = Node(root_expression)
-        tree = Tree(root, line_num)
-        for node in nodes:
-            tree.insert(node)
-        return tree
+                if self.current.type not in [POINTER, COMMA]:
+                    break
+
+            return Node(root, children=children)
+
+        nodes = get_nodes(root_expression)
+        return Tree(nodes, line_num)
 
     def binary_expression(
             self,

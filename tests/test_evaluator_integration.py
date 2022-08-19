@@ -273,6 +273,33 @@ def test_tree_linked_list():
     assert actual_results == expected_results
 
 
+def test_tree():
+    source = """
+    set tree = "root" => "parent_1" => "child_1_1" => "grandchild_1_1_1", "parent_2" => "child_2_2", "parent_3";
+    tree;
+    """
+    line_num = 2
+    expected_results = [
+        o.NoReturn(line_num=line_num),
+        o.Tree(
+            o.Node(o.String("root", line_num), children=[
+                o.Node(o.String("parent_1", line_num), children=[
+                    o.Node(o.String("child_1_1", line_num), children=[
+                        o.Node(o.String("grandchild_1_1_1", line_num)),
+                        o.Node(o.String("parent_2", line_num), children=[
+                            o.Node(o.String("child_2_2", line_num)),
+                            o.Node(o.String("parent_3", line_num))
+                        ])
+                    ])
+                ])
+            ]),
+            3
+        )
+    ]
+    actual_results = actual_result(source)
+    assert actual_results == expected_results
+
+
 def actual_result(source):
     t = Tokenizer(source)
     tokens = t.tokenize()
