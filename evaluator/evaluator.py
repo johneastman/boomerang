@@ -140,7 +140,7 @@ class Evaluator:
             # when a user is using this programming language.
             raise Exception(f"Unsupported type: {type(expression).__name__}")  # type: ignore
 
-    def evaluate_tree(self, tree: _parser.Tree):
+    def evaluate_tree(self, tree: _parser.Tree) -> _parser.Tree:
         # Iterate through the tree to evaluate and update each node's value
         #
         # mypy error: Incompatible types in assignment (expression has type "Union[int, str, float, Node, None]",
@@ -149,7 +149,9 @@ class Evaluator:
         root: _parser.Node = tree.value  # type: ignore
 
         def traverse(node: _parser.Node):
-            node.value = self.evaluate_expression(node.value)
+            # mypy error: Incompatible types in assignment (expression has type "Base", variable has type "Expression")
+            # reason for ignore: TODO: fix type
+            node.value = self.evaluate_expression(node.value)  # type: ignore
             for child in node.children:
                 traverse(child)
 

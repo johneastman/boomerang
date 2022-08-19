@@ -157,7 +157,10 @@ class Tree(Factor, Base):
                 return str(node.value)
             return f"{node.value} {pointer_literal} {', '.join(traverse(child) for child in node.children)}"
 
-        return traverse(self.value)
+        # mypy error: Argument 1 to "traverse" has incompatible type "Union[int, str, float, Node, None]"; expected
+        #             "Node"
+        # reason for ignore: "Node" is in "Union[int, str, float, Node, None]"
+        return traverse(self.value)  # type: ignore
 
 
 class BuiltinFunction(Factor):
