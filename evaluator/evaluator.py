@@ -130,25 +130,7 @@ class Evaluator:
             return expression
 
         elif type(expression) == _parser.Tree:
-            # Iterate through the tree to evaluate and update each node's value
-            #
-            # mypy error: Incompatible types in assignment (expression has type "Union[int, str, float, Node, None]",
-            #             variable has type "Node")
-            # reason for ignore: "Node" in "Union[int, str, float, Node, None]"
-            root: _parser.Node = expression.value  # type: ignore
-            tmp: _parser.Node = root
-            while tmp is not None:
-                # mypy error: Incompatible types in assignment (expression has type "Base", variable has type
-                #             "Expression")
-                # reason for ignore: can't add "Base" to "Node" initializer because "Node" must be defined above "Base"
-                # in file
-                tmp.value = self.evaluate_expression(tmp.value)  # type: ignore
-
-                # mypy error: Incompatible types in assignment (expression has type "Optional[Node]", variable has
-                #             type "Node")
-                # reason for ignore: "Node" is compatible with "Optional[Node]"
-                tmp = tmp.children[0] if len(tmp.children) > 0 else None  # type: ignore
-            return _parser.Tree(root, expression.line_num)
+            return self.evaluate_tree(expression)
 
         else:
             # mypy error: error: "raise_error" does not return a value
@@ -157,6 +139,22 @@ class Evaluator:
             # This is a program-specific error because a missing object type would come about during development, not
             # when a user is using this programming language.
             raise Exception(f"Unsupported type: {type(expression).__name__}")  # type: ignore
+
+    def evaluate_tree(self, tree: _parser.Tree):
+        # Iterate through the tree to evaluate and update each node's value
+        #
+        # mypy error: Incompatible types in assignment (expression has type "Union[int, str, float, Node, None]",
+        #             variable has type "Node")
+        # reason for ignore: "Node" in "Union[int, str, float, Node, None]"
+        root: _parser.Node = tree.value  # type: ignore
+
+        def traverse(node: _parser.Node):
+            node.value = self.evaluate_expression(node.value)
+            for child in node.children:
+                traverse(child)
+
+        traverse(root)
+        return _parser.Tree(root, tree.line_num)
 
     def evaluate_factorial(self, factorial_expression: _parser.Factorial) -> _parser.Integer:
         result: _parser.Base = self.evaluate_expression(factorial_expression.expr)

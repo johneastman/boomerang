@@ -149,15 +149,15 @@ class Tree(Factor, Base):
         return self.value
 
     def __str__(self) -> str:
-        nodes: list[Node] = []
-        # mypy error: Incompatible types in assignment (expression has type "Union[int, str, float, Node, None]",
-        #             variable has type "Optional[Node]")
-        # reason for ignore: Optional[Node] means "Node" or "None"
-        tmp: Optional[Node] = self.value  # type: ignore
-        while tmp is not None:
-            nodes.append(tmp)
-            tmp = tmp.children[0] if len(tmp.children) > 0 else None
-        return f" {get_token_literal('POINTER')} ".join(map(lambda n: str(n.value), nodes))
+
+        pointer_literal = get_token_literal('POINTER')
+
+        def traverse(node: Node):
+            if len(node.children) == 0:
+                return str(node.value)
+            return f"{node.value} {pointer_literal} {', '.join(traverse(child) for child in node.children)}"
+
+        return traverse(self.value)
 
 
 class BuiltinFunction(Factor):
