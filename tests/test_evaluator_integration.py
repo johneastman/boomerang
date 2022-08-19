@@ -2,7 +2,7 @@ import pytest
 
 import _parser.ast_objects as o
 from tokens.tokenizer import Tokenizer
-from _parser._parser import Parser, NoReturn, Integer
+from _parser._parser import Parser
 from evaluator.evaluator import Evaluator
 from evaluator._environment import Environment
 from utils.utils import LanguageRuntimeException
@@ -12,7 +12,7 @@ evaluator_tests = [
     ("1 + 1;", [o.Integer(2, 1)]),
     ("1 + 2 * 2;", [o.Integer(5, 1)]),
     ("(1 + 2) * 2;", [o.Integer(6, 1)]),
-    ("set x = (1 + 2) * 2;x;", [o.Integer(6, 1), o.Integer(6, 1)]),
+    ("set x = (1 + 2) * 2;x;", [o.NoReturn(line_num=1), o.Integer(6, 1)]),
     ("4 / 2;", [o.Float(2.0, 1)]),
     ("7 / 2;", [o.Float(3.5, 1)]),
     ("1 + 1 * 2 + 3 / 4;", [o.Float(3.75, 1)]),
@@ -164,9 +164,9 @@ def test_function_return():
     is_equal(1, 2);  # No return
     """
     expected_results = [
-        NoReturn(line_num=2),
+        o.NoReturn(line_num=2),
         o.Boolean(True, 7),
-        NoReturn(line_num=8),
+        o.NoReturn(line_num=8),
     ]
     actual_results = actual_result(source)
     assert actual_results == expected_results
@@ -191,7 +191,7 @@ def test_function_calls(first_param, second_param, return_val):
 
     actual_results = actual_result(source)
     expected_results = [
-        NoReturn(line_num=2),
+        o.NoReturn(line_num=2),
         o.Integer(int(return_val), 5)
     ]
     assert actual_results == expected_results
@@ -199,23 +199,23 @@ def test_function_calls(first_param, second_param, return_val):
 
 assignment_tests = [
     ("set a = 2; set a += 2; a;", [
-        o.Integer(2, 1),
-        o.Integer(4, 1),
+        o.NoReturn(line_num=1),
+        o.NoReturn(line_num=1),
         o.Integer(4, 1)
     ]),
     ("set a = 2; set a -= 2; a;", [
-        o.Integer(2, 1),
-        o.Integer(0, 1),
+        o.NoReturn(line_num=1),
+        o.NoReturn(line_num=1),
         o.Integer(0, 1)
     ]),
     ("set a = 2; set a *= 2; a;", [
-        o.Integer(2, 1),
-        o.Integer(4, 1),
+        o.NoReturn(line_num=1),
+        o.NoReturn(line_num=1),
         o.Integer(4, 1)
     ]),
     ("set a = 2; set a /= 2; a;", [
-        o.Integer(2, 1),
-        o.Float(1.0, 1),
+        o.NoReturn(line_num=1),
+        o.NoReturn(line_num=1),
         o.Float(1.0, 1)
     ])
 ]
@@ -240,10 +240,33 @@ def test_loop():
     """
     actual_results = actual_result(source)
     expected_results = [
-        Integer(0, 2),
-        NoReturn(),
-        Integer(10, 6)
+        o.NoReturn(line_num=2),
+        o.NoReturn(),
+        o.Integer(10, 6)
     ]
+    assert actual_results == expected_results
+
+
+def test_tree_linked_list():
+    source = """
+    set linked_list = "a" => 1 + (2 + 2) => "c" => "hello" + " world!";
+    linked_list;
+    """
+    expected_results = [
+        o.NoReturn(line_num=2),
+        o.Tree(
+            o.Node(o.String("a", 2),
+                   _next=o.Node(o.Integer(5, 2),
+                                _next=o.Node(o.String("c", 2),
+                                             _next=o.Node(o.String("hello world!", 2))
+                                             )
+                                )
+                   ),
+            3
+        )
+    ]
+
+    actual_results = actual_result(source)
     assert actual_results == expected_results
 
 

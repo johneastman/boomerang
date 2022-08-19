@@ -23,6 +23,9 @@ tokens:
       name: 'FALSE'
       type: BOOLEAN
   symbols:
+    - literal: '=>'
+      name: POINTER
+      type: POINTER
     - literal: '.'
       name: PERIOD
       type: PERIOD

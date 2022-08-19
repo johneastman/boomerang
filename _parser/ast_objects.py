@@ -1,7 +1,9 @@
+import typing
+
 import tokens.tokens
 from tokens.tokenizer import Token
 from tokens.tokens import *
-from typing import Optional
+from typing import Optional, Union
 
 
 class Statement:
@@ -38,13 +40,27 @@ class ExpressionStatement(Statement):
         return self.expr == other.expr
 
 
+class Node(Factor):
+    def __init__(self, value: Expression, _next=None):
+        self.value = value
+        self.next: Optional[Node] = _next
+
+    def __eq__(self, other: object):
+        if not isinstance(other, Node):
+            return False
+        return self.value == other.value and self.next == other.next
+
+    def __str__(self):
+        return f"{self.__class__.__name__}(value={self.value}, next={self.next})"
+
+
 class Base:
     """Base class for lowest-level objects in the abstract syntax tree.
 
     Data types line integers, floats, booleans, strings, etc., but also identifiers (variables, functions, etc.)
     """
 
-    def __init__(self, value: object, line_num: int):
+    def __init__(self, value: typing.Union[int, str, float, Optional[Node]], line_num: int):
         self.value = value
         self.line_num = line_num
 
@@ -110,6 +126,35 @@ class Identifier(Factor, Base):
 class NoReturn(Factor, Base):
     def __init__(self, line_num: int = 0):
         super().__init__("", line_num)
+
+
+class Tree(Factor, Base):
+    def __init__(self, value: Optional[Node], line_num: int):
+        super().__init__(value, line_num)
+
+    def insert(self, item):
+        temp: Node = Node(item)
+        if self.value is None:
+            self.value = temp
+        else:
+            # mypy error: Incompatible types in assignment (expression has type "Union[str, float, Node]", variable has type "Node")
+            # reason for ignore: Node is in Union[str, float, Node]
+            ptr: Node = self.value  # type: ignore
+            while ptr.next is not None:
+                ptr = ptr.next
+            ptr.next = temp
+        return self.value
+
+    def __str__(self) -> str:
+        nodes: list[Node] = []
+        # mypy error: Incompatible types in assignment (expression has type "Union[int, str, float, Node, None]",
+        #             variable has type "Optional[Node]")
+        # reason for ignore: Optional[Node] means "Node" or "None"
+        tmp: Optional[Node] = self.value  # type: ignore
+        while tmp is not None:
+            nodes.append(tmp)
+            tmp = tmp.next
+        return f" {get_token_literal('POINTER')} ".join(map(lambda n: str(n.value), nodes))
 
 
 class BuiltinFunction(Factor):

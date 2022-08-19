@@ -206,6 +206,26 @@ class Parser:
 
         return AssignFunction(function_name, parameters, function_statements)
 
+    def pointer(self, root_expression: Expression, next_method: Callable[[], Expression]) -> Expression:
+        line_num = self.current.line_num
+        self.advance()
+
+        nodes = []
+        while self.current.type != POINTER:
+            expression = next_method()
+            nodes.append(expression)
+
+            if self.current.type != POINTER:
+                break
+
+            self.advance()
+
+        root = Node(root_expression)
+        tree = Tree(root, line_num)
+        for node in nodes:
+            tree.insert(node)
+        return tree
+
     def binary_expression(
             self,
             binary_operators: list[str],
@@ -230,9 +250,14 @@ class Parser:
         return left
 
     def expression(self) -> Expression:
-        return self.binary_expression([
+        expression = self.binary_expression([
             AND, OR
         ], self.boolean)
+
+        if self.current.type == POINTER:
+            return self.pointer(expression, self.boolean)
+
+        return expression
 
     def boolean(self) -> Expression:
         return self.binary_expression([

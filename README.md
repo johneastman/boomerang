@@ -91,7 +91,7 @@ set boolean = true;
 ```
 
 #### Operator Assignment
-Unlike many languages, variable reassignment in Boomerang requires the `set` keyword.
+Unlike many languages, variable assignment and reassignment requires the `set` keyword.
 ```
 set number = 1;
 set number += 1;
@@ -166,4 +166,11 @@ true || false;  # true
 
 1 == 1 && 2 == 2;  # true
 1 == 2 || 2 == 1;  # true
+```
+
+### Trees
+Boomerang features built-in tree objects. To construct a tree, simply add `=>` between expressions in succession
+```
+set linked_list = "a" => 1 + (2 + 3) => 3.14159 => "hello" + " world!";
+print(linked_list); # "a" => 6 => 3.14159 => "hello world!"
 ```

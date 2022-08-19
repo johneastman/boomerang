@@ -107,6 +107,13 @@ class Evaluator:
         elif type(expression) == _parser.Factorial:
             return self.evaluate_factorial(expression)
 
+        elif type(expression) == _parser.Return:
+            return self.validate_expression(expression.expr)
+
+        elif type(expression) == _parser.ExpressionStatement:
+            return self.evaluate_expression(expression.expr)
+
+        # Base Types
         elif type(expression) == _parser.Random:
             return _parser.Float(random.random(), expression.line_num)
 
@@ -122,11 +129,26 @@ class Evaluator:
         elif type(expression) == _parser.String:
             return expression
 
-        elif type(expression) == _parser.Return:
-            return self.validate_expression(expression.expr)
+        elif type(expression) == _parser.Tree:
+            # Iterate through the tree to evaluate and update each node's value
+            #
+            # mypy error: Incompatible types in assignment (expression has type "Union[int, str, float, Node, None]",
+            #             variable has type "Node")
+            # reason for ignore: "Node" in "Union[int, str, float, Node, None]"
+            root: _parser.Node = expression.value  # type: ignore
+            tmp: _parser.Node = root
+            while tmp is not None:
+                # mypy error: Incompatible types in assignment (expression has type "Base", variable has type
+                #             "Expression")
+                # reason for ignore: can't add "Base" to "Node" initializer because "Node" must be defined above "Base"
+                # in file
+                tmp.value = self.evaluate_expression(tmp.value)  # type: ignore
 
-        elif type(expression) == _parser.ExpressionStatement:
-            return self.evaluate_expression(expression.expr)
+                # mypy error: Incompatible types in assignment (expression has type "Optional[Node]", variable has
+                #             type "Node")
+                # reason for ignore: "Node" is compatible with "Optional[Node]"
+                tmp = tmp.next  # type: ignore
+            return _parser.Tree(root, expression.line_num)
 
         else:
             # mypy error: error: "raise_error" does not return a value
@@ -154,9 +176,9 @@ class Evaluator:
         variable = variable_assignment.name
 
         if isinstance(variable, _parser.Identifier):
-            var_value = self.validate_expression(variable_assignment.value)
+            var_value: _parser.Base = self.validate_expression(variable_assignment.value)
             self.env.set_var(variable.value, var_value)
-            return var_value
+            return _parser.NoReturn(line_num=var_value.line_num)
         else:
             variable_type = variable_assignment.name.type  # type: ignore
             raise_error(variable_assignment.name.line_num, f"Cannot assign value to type {variable_type}")  # type: ignore
