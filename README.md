@@ -120,6 +120,13 @@ set sum = add(3, 4);
 print(sum);
 ```
 
+#### Builtin Functions
+|Name|Description|
+|----|-----------|
+|print()|prints object representations to console. Takes `n` arguments|
+|random()|Generate a random float between 0 and 1. Takes 0 arguments.|
+|add_node()|Add nodes to a tree object. Takes 3 parameters: tree object, object being added to tree, and add path|
+
 ### If Statements
 ```
 set r = random();  # generates a random number between 0 and 1
