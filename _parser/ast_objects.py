@@ -67,8 +67,11 @@ class Base:
         self.value = value
         self.line_num = line_num
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.value)
+
+    def __int__(self):
+        return int(self.value)  # type: ignore
 
     def __eq__(self, other: object):
         if not isinstance(other, self.__class__):
@@ -202,6 +205,21 @@ class AddNode(BuiltinFunction):
 class Random(BuiltinFunction):
     def __init__(self, params: list[Expression], line_num: int):
         super().__init__(params, line_num, 0)
+
+
+class ToType(BuiltinFunction):
+    def __init__(self, params: list[Expression], line_num: int, _type: typing.Type):
+        super().__init__(params, line_num, 1)
+        self.type: typing.Type = _type
+
+        # Ignore for mypy because "str", "int", etc are Type objects and "String", "Integer", etc. are Base objects
+        self.types: dict[typing.Type, typing.Type[Base]] = {
+            str: String,  # type: ignore
+            int: Integer  # type: ignore
+        }
+
+    def get_language_type(self) -> Optional[typing.Type[Base]]:
+        return self.types.get(self.type, None)
 
 
 class Return(Statement):

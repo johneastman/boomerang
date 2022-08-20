@@ -368,10 +368,12 @@ class Parser:
 
         self.advance()
 
+        line_num = identifier_token.line_num
         builtin_functions = {
-            "print": Print(parameters, identifier_token.line_num),
-            "random": Random(parameters, identifier_token.line_num),
-            "add_node": AddNode(parameters, identifier_token.line_num)
+            "print": Print(parameters, line_num),
+            "random": Random(parameters, line_num),
+            "add_node": AddNode(parameters, line_num),
+            "to_str": ToType(parameters, line_num, str),
         }
         return builtin_functions.get(identifier_token.value, FunctionCall(identifier_token, parameters))
 

@@ -114,6 +114,9 @@ class Evaluator:
         elif isinstance(expression, _parser.ExpressionStatement):
             return self.evaluate_expression(expression.expr)
 
+        elif isinstance(expression, _parser.ToType):
+            return self.evaluate_to_string(expression)
+
         # Base Types
         elif isinstance(expression, _parser.Random):
             return _parser.Float(random.random(), expression.line_num)
@@ -136,6 +139,18 @@ class Evaluator:
         # This is a program-specific error because a missing object type would come about during development, not
         # when a user is using this programming language.
         raise Exception(f"Unsupported type: {type(expression).__name__}")
+
+    def evaluate_to_string(self, to_type: _parser.ToType) -> _parser.Base:
+        base_object: _parser.Base = self.evaluate_expression(to_type.params[0])
+        conversion_type: typing.Optional[typing.Type[_parser.Base]] = to_type.get_language_type()
+
+        if conversion_type is None:
+            raise Exception(f"Unsupported Python type: {to_type.type.__name__}")
+
+        if isinstance(base_object, conversion_type):
+            # If the object passed to "to_string" is already a string, just return the object
+            return base_object
+        return conversion_type(to_type.type(base_object), to_type.line_num)
 
     def evaluate_add_node(self, add_node: _parser.AddNode) -> _parser.NoReturn:
 
