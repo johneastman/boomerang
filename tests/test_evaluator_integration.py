@@ -318,6 +318,37 @@ def test_trees(tree_source, expected_tree):
     assert actual_results == expected_results
 
 
+def test_add_node_to_tree():
+    source = """
+    set list = "numbers" => [];
+    add_node(list, 1, "");
+    list;
+    add_node(list, 2, 1);
+    list;
+    """
+    expected_results = [
+        o.NoReturn(line_num=2),
+        o.NoReturn(line_num=3),
+        o.Tree(
+            o.Node(o.String("numbers", 2), children=[
+                o.Node(o.Integer(1, 3))
+            ]),
+            4
+        ),
+        o.NoReturn(line_num=5),
+        o.Tree(
+            o.Node(o.String("numbers", 2), children=[
+                o.Node(o.Integer(1, 3), children=[
+                    o.Node(o.Integer(2, 5))
+                ])
+            ]),
+            6
+        ),
+    ]
+    actual_results = actual_result(source)
+    assert actual_results == expected_results
+
+
 def actual_result(source):
     t = Tokenizer(source)
     tokens = t.tokenize()

@@ -41,7 +41,7 @@ class ExpressionStatement(Statement):
 
 
 class Node(Factor):
-    def __init__(self, value: Expression, children=None):
+    def __init__(self, value: Union[Expression, "Base"], children=None):
         self.value = value
         self.children: list[Node] = [] if children is None else children
 
@@ -82,9 +82,6 @@ class Base:
     def __repr__(self):
         class_name = self.__class__.__name__
         return f"{class_name}(value={self.value}, line_num={self.line_num})"
-
-    def __hash__(self):
-        return hash((self.value, self.line_num))
 
 
 class Integer(Factor, Base):
@@ -135,26 +132,50 @@ class Tree(Factor, Base):
     def __init__(self, value: Optional[Node], line_num: int):
         super().__init__(value, line_num)
 
-    def __str__(self) -> str:
+    def add_node(self, node: Node, add_path: str):
+        root: Node = self.value  # type: ignore
+        tmp: Node = root
 
+        parsed_add_path = filter(None, add_path.split("."))
+        for node_value in parsed_add_path:
+            for child in tmp.children:
+                if str(child.value.value) == node_value:  # type: ignore
+                    tmp = child
+                    break
+        tmp.children.append(node)
+
+    def __str__(self) -> str:
         pointer_literal = get_token_literal('POINTER')
+        open_bracket_literal = get_token_literal("OPEN_BRACKET")
+        closed_bracket_literal = get_token_literal("CLOSED_BRACKET")
 
         def traverse(node: Node):
             if len(node.children) == 0:
                 return str(node.value)
-            return f"{node.value} {pointer_literal} [{', '.join(traverse(child) for child in node.children)}]"
+            return f"{node.value} {pointer_literal} {open_bracket_literal}{', '.join(traverse(child) for child in node.children)}{closed_bracket_literal}"
 
         # mypy error: Argument 1 to "traverse" has incompatible type "Union[int, str, float, Node, None]"; expected
         #             "Node"
         # reason for ignore: "Node" is in "Union[int, str, float, Node, None]"
+        if len(self.value.children) == 0:  # type: ignore
+            return f"{self.value.value} {pointer_literal} {open_bracket_literal}{closed_bracket_literal}"  # type: ignore
         return traverse(self.value)  # type: ignore
 
 
-class BuiltinFunction(Factor):
+class FunctionCall(Factor):
+    def __init__(self, name: Token, parameter_values):
+        self.name = name
+        self.parameter_values = parameter_values
 
-    def __init__(self, params: list[Expression], line_num: int):
+    def __repr__(self):
+        return f"[{self.__class__.__name__}(name={self.name}, parameter_values={self.parameter_values})]"
+
+
+class BuiltinFunction(Factor):
+    def __init__(self, params: list[Expression], line_num: int, num_params: int):
         self.params = params
         self.line_num = line_num
+        self.num_params = num_params
 
     def __eq__(self, other: object):
         if not isinstance(other, BuiltinFunction):
@@ -168,12 +189,17 @@ class BuiltinFunction(Factor):
 
 class Print(BuiltinFunction):
     def __init__(self, params: list[Expression], line_num: int):
-        super().__init__(params, line_num)
+        super().__init__(params, line_num, -1)
+
+
+class AddNode(BuiltinFunction):
+    def __init__(self, params: list[Expression], line_num: int):
+        super().__init__(params, line_num, 3)
 
 
 class Random(BuiltinFunction):
     def __init__(self, params: list[Expression], line_num: int):
-        super().__init__(params, line_num)
+        super().__init__(params, line_num, 0)
 
 
 class Return(Statement):
@@ -217,15 +243,6 @@ class IfStatement(Statement):
 class Factorial(Expression):
     def __init__(self, expr: Expression):
         self.expr = expr
-
-
-class FunctionCall(Factor):
-    def __init__(self, name: Token, parameter_values):
-        self.name = name
-        self.parameter_values = parameter_values
-
-    def __repr__(self):
-        return f"[{self.__class__.__name__}(name={self.name}, parameter_values={self.parameter_values})]"
 
 
 class BinaryOperation(Expression):

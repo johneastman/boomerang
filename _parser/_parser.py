@@ -216,6 +216,13 @@ class Parser:
 
             children = []
             while True:
+
+                if self.current.type == CLOSED_BRACKET:
+                    # Closed bracket means we're at the end of the child nodes and going back to the outer scope/scope
+                    # of the root node.
+                    self.advance()
+                    break
+
                 value = next_method()
 
                 if self.current.type == POINTER:
@@ -230,12 +237,6 @@ class Parser:
                     # Commas denote multiple child nodes
                     self.advance()
                     continue
-
-                if self.current.type == CLOSED_BRACKET:
-                    # Closed bracket means we're at the end of the child nodes and going back to the outer scope/scope
-                    # of the root node.
-                    self.advance()
-                    break
 
             return Node(root, children=children)
 
@@ -346,10 +347,10 @@ class Parser:
             raise_error(self.current.line_num, f"Invalid token: {self.current.type} ({self.current.value})")
 
     def function_call(self, identifier_token: Token) -> Factor:
-        self.advance()
-        self.advance()
+        self.advance()  # skip identifier
+        self.advance()  # skip open paren
 
-        parameters = []
+        parameters: list[Expression] = []
         # This condition in after 'while' handles functions with no parameters. If this was set to 'while True',
         # the parser would expect a NUMBER after the open-paren of the function call and throw the error.
         # in `if self.current.type != NUMBER`.
@@ -367,7 +368,8 @@ class Parser:
 
         builtin_functions = {
             "print": Print(parameters, identifier_token.line_num),
-            "random": Random(parameters, identifier_token.line_num)
+            "random": Random(parameters, identifier_token.line_num),
+            "add_node": AddNode(parameters, identifier_token.line_num)
         }
         return builtin_functions.get(identifier_token.value, FunctionCall(identifier_token, parameters))
 

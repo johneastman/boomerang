@@ -104,6 +104,9 @@ class Evaluator:
         elif type(expression) == _parser.Print:
             return self.evaluate_print_statement(expression)
 
+        elif type(expression) == _parser.AddNode:
+            return self.evaluate_add_node(expression)
+
         elif type(expression) == _parser.Factorial:
             return self.evaluate_factorial(expression)
 
@@ -139,6 +142,21 @@ class Evaluator:
             # This is a program-specific error because a missing object type would come about during development, not
             # when a user is using this programming language.
             raise Exception(f"Unsupported type: {type(expression).__name__}")  # type: ignore
+
+    def evaluate_add_node(self, add_node: _parser.AddNode) -> _parser.NoReturn:
+
+        if len(add_node.params) != add_node.num_params:
+            raise_error(add_node.line_num, f"Incorrect number of arguments. Expected {add_node.num_params}, got {len(add_node.params)}")
+
+        # mypy error: Incompatible types in assignment (expression has type "Base", variable has type "Tree")
+        # reason for ignore: if "tree" is not a "Tree" objject, an exception will be thrown
+        tree: _parser.Tree = self.evaluate_expression(add_node.params[0])  # type: ignore
+        if not isinstance(tree, _parser.Tree):
+            raise_error(add_node.line_num, f"Invalid type {tree.__class__.__name__} for add_node")
+        value = self.evaluate_expression(add_node.params[1])
+        add_path = self.evaluate_expression(add_node.params[2])
+        tree.add_node(_parser.Node(value), str(add_path.value))
+        return _parser.NoReturn(line_num=add_node.line_num)
 
     def evaluate_tree(self, tree: _parser.Tree) -> _parser.Tree:
         # Iterate through the tree to evaluate and update each node's value
