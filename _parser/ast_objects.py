@@ -71,7 +71,7 @@ class Base:
         return str(self.value)
 
     def __int__(self):
-        if any(isinstance(self, t) for t in [String, Boolean]):
+        if any(isinstance(self, t) for t in [String, Boolean, Tree]):
             utils.raise_error(self.line_num, f"cannot convert {self.__class__.__name__} to {Integer.__name__}")
         return int(self.value)  # type: ignore
 
@@ -123,16 +123,6 @@ class String(Factor, Base):
         return f"\"{self.value}\""
 
 
-class Identifier(Factor, Base):
-    def __init__(self, value: str, line_num: int):
-        super().__init__(value, line_num)
-
-
-class NoReturn(Factor, Base):
-    def __init__(self, line_num: int = 0):
-        super().__init__("", line_num)
-
-
 class Tree(Factor, Base):
     def __init__(self, value: Optional[Node], line_num: int):
         super().__init__(value, line_num)
@@ -167,6 +157,16 @@ class Tree(Factor, Base):
         if len(self.value.children) == 0:
             return f"{self.value.value} {pointer_literal} {open_bracket_literal}{closed_bracket_literal}"
         return traverse(self.value)
+
+
+class Identifier(Factor, Base):
+    def __init__(self, value: str, line_num: int):
+        super().__init__(value, line_num)
+
+
+class NoReturn(Factor, Base):
+    def __init__(self, line_num: int = 0):
+        super().__init__("", line_num)
 
 
 class FunctionCall(Factor):

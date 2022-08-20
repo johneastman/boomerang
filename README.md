@@ -43,10 +43,11 @@ These are errors with the Python code itself and exist to aid the development pr
 ## Data Types
 |Data Type|Examples|
 |---|---|
-|INTEGER|1, 2, 3, 10, 13, 100, 1234567890|
-|FLOAT|1.1, 2.5, 3.14159|
-|STRING|"Hello, world!"|
-|BOOLEAN|true, false|
+|Integer|1, 2, 3, 10, 13, 100, 1234567890|
+|Float|1.1, 2.5, 3.14159|
+|String|"Hello, world!"|
+|Boolean|true, false|
+|Tree|"root" => [1, 2, 3 => [3.1, 3.2, 3.3], 4]|
 
 ## Operators
 |Operator Name|Literal|
@@ -123,10 +124,11 @@ print(sum);
 #### Builtin Functions
 |Name|Description|
 |----|-----------|
-|print()|prints object representations to console. Takes `n` arguments|
+|print(...)|prints object representations to console. Takes `n` arguments|
 |random()|Generate a random float between 0 and 1. Takes 0 arguments.|
-|add_node()|Add nodes to a tree object. Takes 3 parameters: tree object, object being added to tree, and add path|
-|to_str()|Convert Boomerang objects to `String`|
+|add_node(tree, node, path)|Add nodes to a tree object. Takes 3 parameters: tree object, object being added to tree, and add path|
+|to_str(base_object)|Convert Base objects to `String`|
+|to_int(base_object)|Convert Base objects to `Integer`. Currently only works for `Float`.|
 
 ### If Statements
 ```
