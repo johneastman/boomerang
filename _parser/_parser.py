@@ -374,6 +374,7 @@ class Parser:
             "random": Random(parameters, line_num),
             "add_node": AddNode(parameters, line_num),
             "to_str": ToType(parameters, line_num, str),
+            "to_int": ToType(parameters, line_num, int)
         }
         return builtin_functions.get(identifier_token.value, FunctionCall(identifier_token, parameters))
 

@@ -71,6 +71,8 @@ class Base:
         return str(self.value)
 
     def __int__(self):
+        if any(isinstance(self, t) for t in [String, Boolean]):
+            utils.raise_error(self.line_num, f"cannot convert {self.__class__.__name__} to {Integer.__name__}")
         return int(self.value)  # type: ignore
 
     def __eq__(self, other: object):

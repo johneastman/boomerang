@@ -126,6 +126,7 @@ print(sum);
 |print()|prints object representations to console. Takes `n` arguments|
 |random()|Generate a random float between 0 and 1. Takes 0 arguments.|
 |add_node()|Add nodes to a tree object. Takes 3 parameters: tree object, object being added to tree, and add path|
+|to_str()|Convert Boomerang objects to `String`|
 
 ### If Statements
 ```
