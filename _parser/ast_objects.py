@@ -63,7 +63,7 @@ class Base:
     Data types line integers, floats, booleans, strings, etc., but also identifiers (variables, functions, etc.)
     """
 
-    def __init__(self, value: typing.Union[int, str, float, Optional[Node]], line_num: int):
+    def __init__(self, value: typing.Union[int, str, float, bool, Optional[Node]], line_num: int):
         self.value = value
         self.line_num = line_num
 
@@ -132,8 +132,10 @@ class Tree(Factor, Base):
     def __init__(self, value: Optional[Node], line_num: int):
         super().__init__(value, line_num)
 
-    def add_node(self, node: Node, add_path: str):
-        root: Node = self.value  # type: ignore
+    def add_node(self, node: Node, add_path: str) -> None:
+        assert isinstance(self.value, Node)  # for mypy type checks
+
+        root: Node = self.value
         tmp: Node = root
 
         parsed_add_path = filter(None, add_path.split("."))
@@ -145,6 +147,8 @@ class Tree(Factor, Base):
         tmp.children.append(node)
 
     def __str__(self) -> str:
+        assert isinstance(self.value, Node)
+
         pointer_literal = get_token_literal('POINTER')
         open_bracket_literal = get_token_literal("OPEN_BRACKET")
         closed_bracket_literal = get_token_literal("CLOSED_BRACKET")
@@ -152,14 +156,12 @@ class Tree(Factor, Base):
         def traverse(node: Node):
             if len(node.children) == 0:
                 return str(node.value)
-            return f"{node.value} {pointer_literal} {open_bracket_literal}{', '.join(traverse(child) for child in node.children)}{closed_bracket_literal}"
+            return f"{node.value} {pointer_literal} {open_bracket_literal}" \
+                   f"{', '.join(traverse(child) for child in node.children)}{closed_bracket_literal}"
 
-        # mypy error: Argument 1 to "traverse" has incompatible type "Union[int, str, float, Node, None]"; expected
-        #             "Node"
-        # reason for ignore: "Node" is in "Union[int, str, float, Node, None]"
-        if len(self.value.children) == 0:  # type: ignore
-            return f"{self.value.value} {pointer_literal} {open_bracket_literal}{closed_bracket_literal}"  # type: ignore
-        return traverse(self.value)  # type: ignore
+        if len(self.value.children) == 0:
+            return f"{self.value.value} {pointer_literal} {open_bracket_literal}{closed_bracket_literal}"
+        return traverse(self.value)
 
 
 class FunctionCall(Factor):
@@ -263,7 +265,7 @@ class BinaryOperation(Expression):
 
 
 class SetVariable(Statement):
-    def __init__(self, name: Expression, value: Expression):
+    def __init__(self, name: Identifier, value: Expression):
         self.name = name
         self.value = value
 

@@ -85,16 +85,19 @@ class Parser:
         }
         return operator_token[op_type]
 
-    def create_assignment_ast(self, assignment_operator: Token, name: Identifier, value: Expression):
+    def create_assignment_ast(self, assignment_operator: Token, name: Identifier, value: Expression) -> SetVariable:
         if assignment_operator.type == ASSIGN:
             return SetVariable(name, value)
+
         elif assignment_operator.type in self.assignment_operators:
             operator_token = self.get_operator_token(assignment_operator.type, assignment_operator.line_num)
             return SetVariable(name, BinaryOperation(name, operator_token, value))
-        else:
-            raise_error(assignment_operator.line_num, f"Invalid assignment operator: {assignment_operator.type} ({assignment_operator.value})")
 
-    def assign(self) -> Statement:  # type: ignore
+        else:
+            raise_error(assignment_operator.line_num, f"Invalid assignment operator: {assignment_operator.type} "
+                                                      f"({assignment_operator.value})")
+
+    def assign(self) -> Statement:
         self.advance()
 
         self.is_expected_token(IDENTIFIER)
@@ -298,7 +301,7 @@ class Parser:
             DIVIDE
         ], self.factor)
 
-    def factor(self) -> Expression:  # type: ignore
+    def factor(self) -> Expression:
         # mypy ignore: Missing return statement
         if self.current.type in [MINUS, PLUS, BANG]:
             op = self.current
@@ -343,8 +346,7 @@ class Parser:
                 self.advance()
                 return Identifier(identifier_token.value, identifier_token.line_num)
 
-        else:
-            raise_error(self.current.line_num, f"Invalid token: {self.current.type} ({self.current.value})")
+        raise_error(self.current.line_num, f"Invalid token: {self.current.type} ({self.current.value})")
 
     def function_call(self, identifier_token: Token) -> Factor:
         self.advance()  # skip identifier

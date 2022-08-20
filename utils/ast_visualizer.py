@@ -1,3 +1,5 @@
+# mypy error: Skipping analyzing "graphviz": module is installed, but missing library stubs or py.typed marker
+# reason for ignore: mypy doesn't know about dependency types
 import graphviz  # type: ignore
 from _parser.ast_objects import *
 
@@ -32,7 +34,7 @@ class ASTVisualizer:
                 self.add_edge(node_id, id(param))
                 self.__visualize(param)
         elif type(expression) == SetVariable:
-            self.add_node(node_id, f"{expression.name.value} =")  # type: ignore
+            self.add_node(node_id, f"{expression.name.value} =")
             self.add_edge(node_id, id(expression.value))
             self.__visualize(expression.value)
         else:

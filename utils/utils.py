@@ -1,4 +1,5 @@
 import yaml
+import typing
 
 
 class LanguageRuntimeException(Exception):
@@ -30,12 +31,12 @@ class ReturnException(Exception):
         self.token = token
 
 
-def read_yaml_file(path: str):
+def read_yaml_file(path: str) -> dict:
     with open(path, "r") as file:
         return yaml.safe_load(file)
 
 
-def raise_error(line_num: int, description: str) -> None:
+def raise_error(line_num: int, description: str) -> typing.NoReturn:
     raise LanguageRuntimeException(f"Error at line {line_num}: {description}")
 
 

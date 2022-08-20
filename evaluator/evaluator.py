@@ -1,9 +1,7 @@
 import typing
-import ast
 
 from _parser import _parser
 from tokens.tokens import *
-from tokens.tokenizer import Token
 from evaluator._environment import Environment
 from utils.utils import raise_error, ReturnException
 import copy
@@ -77,71 +75,67 @@ class Evaluator:
         return value
 
     def evaluate_expression(self, expression: typing.Union[_parser.Expression, _parser.Statement]) -> _parser.Base:
-        if type(expression) == _parser.BinaryOperation:
+        if isinstance(expression, _parser.BinaryOperation):
             return self.evaluate_binary_expression(expression)
 
-        elif type(expression) == _parser.UnaryOperation:
+        elif isinstance(expression, _parser.UnaryOperation):
             return self.evaluate_unary_expression(expression)
 
-        elif type(expression) == _parser.IfStatement:
+        elif isinstance(expression, _parser.IfStatement):
             return self.evaluate_if_statement(expression)
 
-        elif type(expression) == _parser.SetVariable:
+        elif isinstance(expression, _parser.SetVariable):
             return self.evaluate_assign_variable(expression)
 
-        elif type(expression) == _parser.AssignFunction:
+        elif isinstance(expression, _parser.AssignFunction):
             return self.evaluate_assign_function(expression)
 
-        elif type(expression) == _parser.Identifier:
+        elif isinstance(expression, _parser.Identifier):
             return self.evaluate_identifier(expression)
 
-        elif type(expression) == _parser.FunctionCall:
+        elif isinstance(expression, _parser.FunctionCall):
             return self.evaluate_function_call(expression)
 
-        elif type(expression) == _parser.Loop:
+        elif isinstance(expression, _parser.Loop):
             return self.evaluate_loop_statement(expression)
 
-        elif type(expression) == _parser.Print:
+        elif isinstance(expression, _parser.Print):
             return self.evaluate_print_statement(expression)
 
-        elif type(expression) == _parser.AddNode:
+        elif isinstance(expression, _parser.AddNode):
             return self.evaluate_add_node(expression)
 
-        elif type(expression) == _parser.Factorial:
+        elif isinstance(expression, _parser.Factorial):
             return self.evaluate_factorial(expression)
 
-        elif type(expression) == _parser.Return:
+        elif isinstance(expression, _parser.Return):
             return self.validate_expression(expression.expr)
 
-        elif type(expression) == _parser.ExpressionStatement:
+        elif isinstance(expression, _parser.ExpressionStatement):
             return self.evaluate_expression(expression.expr)
 
         # Base Types
-        elif type(expression) == _parser.Random:
+        elif isinstance(expression, _parser.Random):
             return _parser.Float(random.random(), expression.line_num)
 
-        elif type(expression) == _parser.Integer:
+        elif isinstance(expression, _parser.Integer):
             return expression
 
-        elif type(expression) == _parser.Float:
+        elif isinstance(expression, _parser.Float):
             return expression
 
-        elif type(expression) == _parser.Boolean:
+        elif isinstance(expression, _parser.Boolean):
             return expression
 
-        elif type(expression) == _parser.String:
+        elif isinstance(expression, _parser.String):
             return expression
 
-        elif type(expression) == _parser.Tree:
+        elif isinstance(expression, _parser.Tree):
             return self.evaluate_tree(expression)
 
-        else:
-            # mypy error: error: "raise_error" does not return a value
-            # Reason for ignore: an exception is thrown
-            #
-            # This is a program-specific error because a missing object type would come about during development, not
-            # when a user is using this programming language.
-            raise Exception(f"Unsupported type: {type(expression).__name__}")  # type: ignore
+        # This is a program-specific error because a missing object type would come about during development, not
+        # when a user is using this programming language.
+        raise Exception(f"Unsupported type: {type(expression).__name__}")
 
     def evaluate_add_node(self, add_node: _parser.AddNode) -> _parser.NoReturn:
 
@@ -149,10 +143,11 @@ class Evaluator:
             raise_error(add_node.line_num, f"Incorrect number of arguments. Expected {add_node.num_params}, got {len(add_node.params)}")
 
         # mypy error: Incompatible types in assignment (expression has type "Base", variable has type "Tree")
-        # reason for ignore: if "tree" is not a "Tree" objject, an exception will be thrown
+        # reason for ignore: if "tree" is not a "Tree" object, an exception will be thrown
         tree: _parser.Tree = self.evaluate_expression(add_node.params[0])  # type: ignore
         if not isinstance(tree, _parser.Tree):
             raise_error(add_node.line_num, f"Invalid type {tree.__class__.__name__} for add_node")
+
         value = self.evaluate_expression(add_node.params[1])
         add_path = self.evaluate_expression(add_node.params[2])
         tree.add_node(_parser.Node(value), str(add_path.value))
@@ -186,26 +181,25 @@ class Evaluator:
 
         # mypy error: No overload variant of "range" matches argument types "object", "int", "int"
         # reason for ignore: "result.value" is an integer
-        for i in range(result.value, 0, -1):  # type: ignore
+        for i in range(result.value, 1, -1):  # type: ignore
             new_val *= i
         return _parser.Integer(new_val, result.line_num)
 
-    def evaluate_assign_variable(self, variable_assignment: _parser.SetVariable) -> _parser.Base:  # type: ignore
+    def evaluate_assign_variable(self, variable_assignment: _parser.SetVariable) -> _parser.NoReturn:
         variable = variable_assignment.name
 
         if isinstance(variable, _parser.Identifier):
             var_value: _parser.Base = self.validate_expression(variable_assignment.value)
             self.env.set_var(variable.value, var_value)
             return _parser.NoReturn(line_num=var_value.line_num)
-        else:
-            variable_type = variable_assignment.name.type  # type: ignore
-            raise_error(variable_assignment.name.line_num, f"Cannot assign value to type {variable_type}")  # type: ignore
+
+        raise_error(variable_assignment.name.line_num, f"cannot assign value to type {variable.__class__.__name__}")
 
     def evaluate_assign_function(self, function_definition: _parser.AssignFunction) -> _parser.Base:
         self.env.set_func(function_definition.name.value, function_definition)
         return _parser.NoReturn(line_num=function_definition.name.line_num)
 
-    def evaluate_identifier(self, identifier: _parser.Identifier) -> _parser.Base:  # type: ignore
+    def evaluate_identifier(self, identifier: _parser.Identifier) -> _parser.Base:
         # For variables, check the current environment. If it does not exist, check the parent environment.
         # Continue doing this until there are no more parent environments. If the variable does not exist in all
         # scopes, it does not exist anywhere in the code.
@@ -238,7 +232,7 @@ class Evaluator:
         if function is None:
             raise_error(function_call.name.line_num, f"Undefined function: {function_name}")
 
-        parameter_identifiers = function.parameters  # type: ignore
+        parameter_identifiers = function.parameters
         parameter_values = function_call.parameter_values
 
         if len(parameter_identifiers) != len(parameter_values):
@@ -258,7 +252,7 @@ class Evaluator:
         self.env.set_vars(evaluated_param_values)
 
         # Evaluate every expression in the function body
-        statements = function.statements  # type: ignore
+        statements = function.statements
 
         try:
             # If a ReturnException is never thrown, then the function does not return anything.
@@ -305,7 +299,7 @@ class Evaluator:
 
         # mypy error: Unsupported right operand type for in ("object")
         # reason for ignore: TODO: investigate
-        if expression_result_type not in valid_type: # type: ignore
+        if expression_result_type not in valid_type:  # type: ignore
             raise_error(expression_result.line_num, f"Cannot perform {op_type} operation on {expression_result_type.__name__}")
 
         if op_type == PLUS:
@@ -345,9 +339,7 @@ class Evaluator:
         right_compatible_types: list[_parser.Base] = self.compatible_types_for_operations.get(right_type, [])  # type: ignore
 
         if left_type not in right_compatible_types or right_type not in left_compatible_types:
-            # mypy error: "raise_error" does not return a value
-            # reason for ignore: an exception is thrown
-            raise raise_error(left.line_num, f"Cannot perform {op_type} operation on {left_type.__name__} and {right_type.__name__}")  # type: ignore
+            raise raise_error(left.line_num, f"Cannot perform {op_type} operation on {left_type.__name__} and {right_type.__name__}")
 
         # Check that the operation can be performed on the given types. For example, "true > false" is not valid
         #
@@ -355,9 +347,7 @@ class Evaluator:
         # reason for ignore: TODO: investigate
         valid_type: list[_parser.Base] = self.valid_operation_types.get(op_type, [])  # type: ignore
         if left_type not in valid_type or right_type not in valid_type:
-            # mypy error: "raise_error" does not return a value
-            # reason for ignore: an exception is thrown
-            raise raise_error(left.line_num, f"Cannot perform {op_type} operation on {left_type.__name__} and {right_type.__name__}")  # type: ignore
+            raise raise_error(left.line_num, f"Cannot perform {op_type} operation on {left_type.__name__} and {right_type.__name__}")
 
         # Math operations
         if op_type == PLUS:

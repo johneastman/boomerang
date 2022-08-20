@@ -1,5 +1,4 @@
 from typing import Tuple
-import yaml  # type: ignore
 import os
 
 import utils.utils as utils
