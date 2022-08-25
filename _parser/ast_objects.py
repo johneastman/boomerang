@@ -238,7 +238,12 @@ class Loop(Statement):
         self.statements = statements
 
     def __repr__(self):
-        return f"[{self.__class__.__name__}(condition: {self.condition}, statements: {self.statements})]"
+        return f"{self.__class__.__name__}(condition: {self.condition}, statements: {self.statements})"
+
+    def __eq__(self, other: object):
+        if not isinstance(other, Loop):
+            return False
+        return self.condition == other.condition and self.statements == other.statements
 
 
 class AssignFunction(Statement):
