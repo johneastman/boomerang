@@ -317,18 +317,17 @@ class Evaluator:
         if expression_result_type not in valid_type:  # type: ignore
             raise_error(expression_result.line_num, f"Cannot perform {op_type} operation on {expression_result_type.__name__}")
 
+        new_line_num = expression_result.line_num  # line number for the result of evaluating the expression
+
         if op_type == PLUS:
-            actual_value = expression_result.value
-            actual_type = self.get_type(actual_value)
-            return actual_type(actual_value, expression_result.line_num)
+            return self.create_base_object(expression_result.value, new_line_num)
+
         elif op_type == MINUS:
-            actual_value = -expression_result.value
-            actual_type = self.get_type(actual_value)
-            return actual_type(actual_value, expression_result.line_num)
+            return self.create_base_object(-expression_result.value, new_line_num)
+
         elif op_type == BANG:
-            actual_value = not expression_result.value
-            actual_type = self.get_type(actual_value)
-            return actual_type(actual_value, expression_result.line_num)
+            return self.create_base_object(not expression_result.value, new_line_num)
+
         else:
             raise Exception(f"Invalid unary operator: {op_type} ({unary_expression.op.value})")
 
@@ -364,60 +363,62 @@ class Evaluator:
         if left_type not in valid_type or right_type not in valid_type:
             raise raise_error(left.line_num, f"Cannot perform {op_type} operation on {left_type.__name__} and {right_type.__name__}")
 
+        new_line_num = left.line_num  # line number for the result of evaluating the expression
+
         # Math operations
         if op_type == PLUS:
-            result = left.value + right.value
-            result_type = self.get_type(result)
-            return result_type(result, left.line_num)
+            return self.create_base_object(left.value + right.value, new_line_num)
+
         elif op_type == MINUS:
-            result = left.value - right.value
-            result_type = self.get_type(result)
-            return result_type(result, left.line_num)
+            return self.create_base_object(left.value - right.value, new_line_num)
+
         elif op_type == MULTIPLY:
-            result = left.value * right.value
-            result_type = self.get_type(result)
-            return result_type(result, left.line_num)
+            return self.create_base_object(left.value * right.value, new_line_num)
+
         elif op_type == DIVIDE:
             if right.value == 0:
                 raise Exception("Division by zero")
-            result = left.value / right.value
-            result_type = self.get_type(result)
-            return result_type(result, left.line_num)
+            return self.create_base_object(left.value / right.value, new_line_num)
 
         # Binary comparisons
+        #
+        # Note: for boolean operations, 'create_base_object' does not need to be called because the result of a boolean
+        # expression is always a boolean value (unlike, for example, dividing two integers, which results in a float).
         elif op_type == EQ:
-            result = left.value == right.value
-            return _parser.Boolean(result, left.line_num)
+            return _parser.Boolean(left.value == right.value, new_line_num)
+
         elif op_type == NE:
-            result = left.value != right.value
-            return _parser.Boolean(result, left.line_num)
+            return _parser.Boolean(left.value != right.value, new_line_num)
+
         elif op_type == GT:
-            result = left.value > right.value
-            return _parser.Boolean(result, left.line_num)
+            return _parser.Boolean(left.value > right.value, new_line_num)
+
         elif op_type == GE:
-            result = left.value >= right.value
-            return _parser.Boolean(result, left.line_num)
+            return _parser.Boolean(left.value >= right.value, new_line_num)
+
         elif op_type == LT:
-            result = left.value < right.value
-            return _parser.Boolean(result, left.line_num)
+            return _parser.Boolean(left.value < right.value, new_line_num)
+
         elif op_type == LE:
-            result = left.value <= right.value
-            return _parser.Boolean(result, left.line_num)
+            return _parser.Boolean(left.value <= right.value, new_line_num)
+
         elif op_type == AND:
-            result = left.value and right.value
-            return _parser.Boolean(result, left.line_num)
+            return _parser.Boolean(left.value and right.value, new_line_num)
+
         elif op_type == OR:
-            result = left.value or right.value
-            return _parser.Boolean(result, left.line_num)
+            return _parser.Boolean(left.value or right.value, new_line_num)
+
         else:
             raise Exception(f"Invalid binary operator '{binary_operation.op.value}' at line {binary_operation.op.line_num}")
 
-    def get_type(self, value: object):
-        if type(value) == bool:
-            return _parser.Boolean
-        if type(value) == float:
-            return _parser.Float
-        elif type(value) == int:
-            return _parser.Integer
+    def create_base_object(self, value: object, line_num: int) -> _parser.Base:
+        if isinstance(value, bool):
+            return _parser.Boolean(value, line_num)
+        elif isinstance(value, float):
+            return _parser.Float(value, line_num)
+        elif isinstance(value, int):
+            return _parser.Integer(value, line_num)
+        elif isinstance(value, str):
+            return _parser.String(value, line_num)
         else:
-            return _parser.String
+            raise Exception(f"Unsupported internal type: {type(value).__name__}")
