@@ -1,7 +1,8 @@
 # Boomerang
-Boomerang is an interpreted language written in Python.
+Boomerang is a programming language written in Python.
 
 Boomerang is:
+* **Interpreted:** code executes in the runtime of another language (in this case, Python).
 * **Procedural:** commands are executed in the order they are defined.
 * **Dynamically Typed:** variable, function, parameter, etc. types are not declared explicitly; rather, they are interpreted from the values they are assigned (e.g., `1` is an integer, `3.14159` is a float, `"hello world!"` is a string, etc.).
 * **Strongly Typed:** strict rules for how different types interact (e.g. `1 + 1` or `1 + 1.5` are valid, but `1 + "hello world!"` is invalid).
@@ -72,6 +73,7 @@ These are errors with the Python code itself and exist to aid the development pr
 |Unary: Positive|+|
 |Boolean AND|&&|
 |Boolean OR| \|\| |
+|Edge|=>|
 
 ## Comments
 ```
@@ -179,9 +181,9 @@ true || false;  # true
 ```
 
 ### Trees
-Boomerang features built-in tree objects. Each node can have `n` children, which means trees in Boomerang are n-ary trees. Nodes are expressions, edges are defined with `=>`, and child nodes fall between straight brackets (`[` and `]`). Place commas between expressions in brackets to denote multiple child nodes.
+Boomerang features built-in tree objects. Each node can have `n` children, which means trees in Boomerang are n-ary trees. Nodes are expressions, edges are defined with `=>` (Edge operator), and child nodes fall between straight brackets (`[` and `]`). Place commas between expressions in brackets to denote multiple child nodes.
 
-Be aware that the root node does not have brackets before it or after the proceeding tree. Tree structures expect an expression followed by the Pointer operator.
+Be aware that the root node does not have brackets before it or after the proceeding tree. Tree structures expect an expression followed by the Edge operator.
 ```
 set tree = "root" => [
     "parent_1" => [
