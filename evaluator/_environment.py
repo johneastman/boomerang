@@ -1,4 +1,4 @@
-from typing import Type, Optional
+from typing import Optional
 from _parser.ast_objects import Base, AssignFunction
 
 
