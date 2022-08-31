@@ -9,8 +9,6 @@ from evaluator._environment import Environment
 from utils.ast_visualizer import ASTVisualizer
 from utils.utils import LanguageRuntimeException
 
-PROMPT = ">> "
-
 
 def get_source(filepath: str):
     with open(filepath, "r") as file:
@@ -34,10 +32,10 @@ def evaluate(source: str, environment: Environment, visualize: bool = False):
         print(str(e))
 
 
-def repl():
+def repl(prompt=">>"):
     env = Environment()
     while True:
-        _input = input(PROMPT)
+        _input = input(f"{prompt} ")
 
         if _input.lower() == "exit":
             break

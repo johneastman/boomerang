@@ -1,4 +1,4 @@
-from typing import Optional, Callable
+from typing import Optional, Callable, Tuple
 import string
 
 from .tokens import *
@@ -22,29 +22,10 @@ class Token:
         return f"{self.__class__.__name__}(value: {self.value}, type: {self.type}, line_num: {self.line_num})"
 
     def __eq__(self, other: object) -> bool:
-        """Check if token objects are equal
-
-        Note: We do not check the line number to ensure this implementation is compatible with dictionary objects. A
-        key may be valid, but not considered matching if the line numbers both key objects do not match.
-
-        For example:
-        ```
-        dict = {
-            Token("a", STRING, 1): Token("1", INTEGER, 1)
-        }
-
-        dict[Token("a", STRING, 2)]
-        ```
-        Even though "a" exists in the dictionary, this code would fail because the line_num for "a" in the
-        dictionary is 1 and line_num in the get/index method is 2, which are not equal. Therefore, the code would
-        assume this key does not exist (and the line number exists primarily for debugging/error logging).
-        """
+        """Check if token objects are equal."""
         if not isinstance(other, Token):
             return False
-        return self.value == other.value and self.type == other.type
-
-    def __hash__(self):
-        return hash((self.value, self.type))
+        return self.value == other.value and self.type == other.type and self.line_num == other.line_num
 
 
 class Tokenizer:
