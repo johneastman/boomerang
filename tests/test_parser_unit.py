@@ -81,3 +81,26 @@ def test_loop():
     )
 
     assert actual_loop_ast == expected_loop_ast
+
+
+tree_string_tests = [
+    (
+        Tree(Node(String("root", 1)), 1),
+        "\"root\" => []"
+    ),
+    (
+        Tree(
+            Node(String("root", 1), children=[
+                Node(Integer(1, 1)),
+                Node(Float(3.14159, 1))
+            ]),
+            1),
+        "\"root\" => [1, 3.14159]"
+    )
+]
+
+
+@pytest.mark.parametrize("tree, string_repr", tree_string_tests)
+def test_tree_to_string(tree, string_repr):
+    actual_value = str(tree)
+    assert actual_value == string_repr

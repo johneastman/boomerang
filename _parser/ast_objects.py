@@ -247,6 +247,9 @@ class Tree(Factor, Base):
                    f"{', '.join(traverse(child) for child in node.children)}{closed_bracket_literal}"
 
         if len(self.value.children) == 0:
+            # To ensure the string representation is reflective of the actual syntax, a tree with no children is
+            # displayed as '"root" => []' because that is how a tree with one root node and no children is defined
+            # syntactically.
             return f"{self.value.value} {pointer_literal} {open_bracket_literal}{closed_bracket_literal}"
         return traverse(self.value)
 
