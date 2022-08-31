@@ -1,6 +1,5 @@
 import typing
 
-import tokens.tokens
 from tokens.tokenizer import Token
 from tokens.tokens import *
 from typing import Optional, Union
@@ -63,9 +62,16 @@ class Base:
     Data types line integers, floats, booleans, strings, etc., but also identifiers (variables, functions, etc.)
     """
 
-    def __init__(self, value: typing.Union[int, str, float, bool, Optional[Node]], line_num: int):
+    def __init__(self,
+                 value: typing.Union[int, str, float, bool, Optional[Node]],
+                 line_num: int,
+                 compatible_operators: list[str],
+                 compatible_types: list[str]):
         self.value = value
         self.line_num = line_num
+
+        self.compatible_operators = compatible_operators
+        self.compatible_types = compatible_types
 
     def __str__(self) -> str:
         return str(self.value)
@@ -88,24 +94,109 @@ class Base:
         class_name = self.__class__.__name__
         return f"{class_name}(value={self.value}, line_num={self.line_num})"
 
+    def is_type_compatible(self, other: object) -> bool:
+        """Check that the types are compatible. If they are not, the operation cannot be performed.
+
+        Without this check, someone could run "1 == true" or "false != 2". Both checks are technically valid, but
+        this is invalid because the data types for the left and right expressions are not compatible. However,
+        to account for the fact that some expressions can result in different data types (e.g., two integers resulting
+        in a float, like 3 / 4), we need to allow operations to happen on compatible data types, like floats and
+        integers.
+        """
+        if not isinstance(other, Base):
+            return False
+
+        return type(self).__name__ in other.compatible_types or type(other).__name__ in self.compatible_types
+
+    def is_operator_compatible(self, other: object, operator: str):
+        """Check that the operation can be performed on the given types. For example, "true > false" is not valid"""
+        # 'other' is None for unary operations. We just need to check that the operator is compatible with this object.
+        if other is None:
+            return operator in self.compatible_operators
+
+        # 'other' is not None for binary operations, and we need to check operator compatibility for both 'self' and
+        # 'other'.
+        if not isinstance(other, Base):
+            return False
+
+        return operator in self.compatible_operators or operator in other.compatible_operators
+
+    def is_compatible_with(self, other: object, operator: str) -> bool:
+        if not isinstance(other, Base):
+            # TODO: Add logging/throw error because this is an internal issue
+            return False
+
+        if not self.is_type_compatible(other):
+            return False
+
+        if not self.is_operator_compatible(other, operator):
+            return False
+
+        return True
+
 
 class Integer(Factor, Base):
     def __init__(self, value: int, line_num: int):
-        super().__init__(value, line_num)
+        operators = [
+            PLUS,
+            MINUS,
+            MULTIPLY,
+            DIVIDE,
+            EQ,
+            NE,
+            GT,
+            GE,
+            LT,
+            LE
+        ]
+
+        types = [
+            Integer.__name__,
+            Float.__name__
+        ]
+        super().__init__(value, line_num, operators, types)
 
     __hash__ = super.__hash__
 
 
 class Float(Factor, Base):
     def __init__(self, value: float, line_num: int):
-        super().__init__(value, line_num)
+        operators = [
+            PLUS,
+            MINUS,
+            MULTIPLY,
+            DIVIDE,
+            EQ,
+            NE,
+            GT,
+            GE,
+            LT,
+            LE
+        ]
+
+        types = [
+            Integer.__name__,
+            Float.__name__
+        ]
+        super().__init__(value, line_num, operators, types)
 
     __hash__ = super.__hash__
 
 
 class Boolean(Factor, Base):
     def __init__(self, value: bool, line_num: int):
-        super().__init__(value, line_num)
+        operators = [
+            EQ,
+            NE,
+            BANG,
+            AND,
+            OR
+        ]
+
+        types = [
+            Boolean.__name__
+        ]
+        super().__init__(value, line_num, operators, types)
 
     __hash__ = super.__hash__
 
@@ -115,7 +206,16 @@ class Boolean(Factor, Base):
 
 class String(Factor, Base):
     def __init__(self, value: str, line_num: int):
-        super().__init__(value, line_num)
+        operators = [
+            PLUS,
+            EQ,
+            NE
+        ]
+
+        types = [
+            String.__name__
+        ]
+        super().__init__(value, line_num, operators, types)
 
     __hash__ = super.__hash__
 
@@ -125,7 +225,7 @@ class String(Factor, Base):
 
 class Tree(Factor, Base):
     def __init__(self, value: Optional[Node], line_num: int):
-        super().__init__(value, line_num)
+        super().__init__(value, line_num, [], [Tree.__name__])
 
     def add_node(self, node: Node, add_path: str) -> None:
         assert isinstance(self.value, Node)  # for mypy type checks
@@ -159,14 +259,16 @@ class Tree(Factor, Base):
         return traverse(self.value)
 
 
+# TODO: Why is Identifier a Base object? Identifiers should be "containers" for Base objects (the Base object is stored
+#  in the variable dictionary).
 class Identifier(Factor, Base):
     def __init__(self, value: str, line_num: int):
-        super().__init__(value, line_num)
+        super().__init__(value, line_num, [], [])
 
 
 class NoReturn(Factor, Base):
     def __init__(self, line_num: int = 0):
-        super().__init__("", line_num)
+        super().__init__("", line_num, [], [])
 
 
 class FunctionCall(Factor):

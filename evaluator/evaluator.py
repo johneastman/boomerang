@@ -150,7 +150,11 @@ class Evaluator:
         if isinstance(base_object, conversion_type):
             # If the object passed to "to_string" is already a string, just return the object
             return base_object
-        return conversion_type(to_type.type(base_object), to_type.line_num)
+        # TODO: find better way to convert object types. Need to preserve the compatible tyes and operators of the new
+        #  type being converted to.
+        # mypy error: Missing positional arguments "compatible_operators", "compatible_types" in call to "Base"
+        # reason for ignore: Base child objects don't need these variables passed to them
+        return conversion_type(to_type.type(base_object), to_type.line_num)  # type: ignore
 
     def evaluate_add_node(self, add_node: _parser.AddNode) -> _parser.NoReturn:
 
@@ -310,12 +314,9 @@ class Evaluator:
         expression_result_type = type(expression_result)
         op_type = unary_expression.op.type
 
-        valid_type = self.valid_operation_types.get(op_type, [])
-
-        # mypy error: Unsupported right operand type for in ("object")
-        # reason for ignore: TODO: investigate
-        if expression_result_type not in valid_type:  # type: ignore
-            raise_error(expression_result.line_num, f"Cannot perform {op_type} operation on {expression_result_type.__name__}")
+        if not expression_result.is_operator_compatible(None, op_type):
+            raise_error(expression_result.line_num,
+                        f"Cannot perform {op_type} operation on {expression_result_type.__name__}")
 
         new_line_num = expression_result.line_num  # line number for the result of evaluating the expression
 
@@ -339,29 +340,11 @@ class Evaluator:
         right_type = type(right)
         op_type = binary_operation.op.type
 
-        # Check that the types are compatible. If they are not, the operation cannot be performed.
-        #
-        # Without this check, someone could run "1 == true" or "false != 2". Both checks are technically valid, but
-        # this is invalid because the data types for the left and right expressions are not compatible. However,
-        # to account for the fact that some expressions can result in different data types (e.g., two integers resulting
-        # in a float, like 3 / 4), we need to allow operations to happen on compatible data types, like floats and
-        # integers.
-        #
-        # mypy error: Incompatible types in assignment (expression has type "object", variable has type "List[Base]")
-        # reason for ignore: TODO: investigate
-        left_compatible_types: list[_parser.Base] = self.compatible_types_for_operations.get(left_type, [])  # type: ignore
-        right_compatible_types: list[_parser.Base] = self.compatible_types_for_operations.get(right_type, [])  # type: ignore
-
-        if left_type not in right_compatible_types or right_type not in left_compatible_types:
-            raise raise_error(left.line_num, f"Cannot perform {op_type} operation on {left_type.__name__} and {right_type.__name__}")
-
-        # Check that the operation can be performed on the given types. For example, "true > false" is not valid
-        #
-        # mypy error: Incompatible types in assignment (expression has type "object", variable has type "List[Base]")
-        # reason for ignore: TODO: investigate
-        valid_type: list[_parser.Base] = self.valid_operation_types.get(op_type, [])  # type: ignore
-        if left_type not in valid_type or right_type not in valid_type:
-            raise raise_error(left.line_num, f"Cannot perform {op_type} operation on {left_type.__name__} and {right_type.__name__}")
+        # Check if both the type and operator are compatible for this binary operation
+        if not left.is_type_compatible(right) or not left.is_operator_compatible(right, op_type):
+            raise raise_error(
+                left.line_num,
+                f"Cannot perform {op_type} operation on {left_type.__name__} and {right_type.__name__}")
 
         new_line_num = left.line_num  # line number for the result of evaluating the expression
 
