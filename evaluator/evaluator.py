@@ -212,7 +212,7 @@ class Evaluator:
             self.env.set_var(variable.value, var_value)
             return _parser.NoReturn(line_num=var_value.line_num)
 
-        raise_error(variable_assignment.name.line_num, f"cannot assign value to type {variable.__class__.__name__}")
+        raise_error(variable_assignment.name.line_num, f"cannot assign value to type {type(variable).__name__}")
 
     def evaluate_assign_function(self, function_definition: _parser.AssignFunction) -> _parser.Base:
         self.env.set_func(function_definition.name.value, function_definition)

@@ -156,8 +156,6 @@ class Integer(Factor, Base):
         ]
         super().__init__(value, line_num, operators, types)
 
-    __hash__ = super.__hash__
-
 
 class Float(Factor, Base):
     def __init__(self, value: float, line_num: int):
@@ -180,8 +178,6 @@ class Float(Factor, Base):
         ]
         super().__init__(value, line_num, operators, types)
 
-    __hash__ = super.__hash__
-
 
 class Boolean(Factor, Base):
     def __init__(self, value: bool, line_num: int):
@@ -197,8 +193,6 @@ class Boolean(Factor, Base):
             Boolean.__name__
         ]
         super().__init__(value, line_num, operators, types)
-
-    __hash__ = super.__hash__
 
     def __str__(self):
         return get_token_literal("TRUE") if self.value else get_token_literal("FALSE")
@@ -216,8 +210,6 @@ class String(Factor, Base):
             String.__name__
         ]
         super().__init__(value, line_num, operators, types)
-
-    __hash__ = super.__hash__
 
     def __str__(self):
         return f"\"{self.value}\""
@@ -259,16 +251,20 @@ class Tree(Factor, Base):
         return traverse(self.value)
 
 
-# TODO: Why is Identifier a Base object? Identifiers should be "containers" for Base objects (the Base object is stored
-#  in the variable dictionary).
-class Identifier(Factor, Base):
-    def __init__(self, value: str, line_num: int):
-        super().__init__(value, line_num, [], [])
-
-
 class NoReturn(Factor, Base):
-    def __init__(self, line_num: int = 0):
+    def __init__(self, line_num: int = 0) -> None:
         super().__init__("", line_num, [], [])
+
+
+class Identifier(Factor):
+    def __init__(self, value: str, line_num: int) -> None:
+        self.value = value
+        self.line_num = line_num
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Identifier):
+            return False
+        return self.value == other.value and self.line_num == other.line_num
 
 
 class FunctionCall(Factor):
