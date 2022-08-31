@@ -9,14 +9,20 @@ import random
 
 
 class Evaluator:
-    def __init__(self, ast, env):
+    def __init__(self, ast: list[_parser.Statement], env: typing.Optional[Environment]) -> None:
         self.ast = ast
         self.env = env
 
-    def evaluate(self):
+    @property
+    def get_env(self) -> Environment:
+        if self.env is None:
+            raise Exception("Environment is None")
+        return self.env
+
+    def evaluate(self) -> typing.List[_parser.Base]:
         return self.evaluate_statements(self.ast)
 
-    def evaluate_statements(self, statements: list[_parser.Statement]):
+    def evaluate_statements(self, statements: list[_parser.Statement]) -> list[_parser.Base]:
         evaluated_expressions = []
         for expression in statements:
             evaluated_expression = self.evaluate_expression(expression)
@@ -38,10 +44,10 @@ class Evaluator:
 
         # TODO: Figure out how to handle returns for both REPL and regular code execution
         if len(evaluated_expressions) == 0:
-            return _parser.NoReturn()
+            evaluated_expressions.append(_parser.NoReturn())
         return evaluated_expressions
 
-    def validate_expression(self, expression):
+    def validate_expression(self, expression: _parser.Expression) -> _parser.Base:
         value: _parser.Base = self.evaluate_expression(expression)
         if isinstance(value, _parser.NoReturn):
             raise_error(value.line_num, "cannot evaluate expression that returns no value")
@@ -88,7 +94,7 @@ class Evaluator:
             return self.evaluate_expression(expression.expr)
 
         elif isinstance(expression, _parser.ToType):
-            return self.evaluate_to_string(expression)
+            return self.evaluate_to_type(expression)
 
         # Base Types
         elif isinstance(expression, _parser.Random):
@@ -113,21 +119,9 @@ class Evaluator:
         # when a user is using this programming language.
         raise Exception(f"Unsupported type: {type(expression).__name__}")
 
-    def evaluate_to_string(self, to_type: _parser.ToType) -> _parser.Base:
-        base_object: _parser.Base = self.evaluate_expression(to_type.params[0])
-        conversion_type: typing.Optional[typing.Type[_parser.Base]] = to_type.get_language_type()
-
-        if conversion_type is None:
-            raise Exception(f"Unsupported Python type: {to_type.type.__name__}")
-
-        if isinstance(base_object, conversion_type):
-            # If the object passed to "to_string" is already a string, just return the object
-            return base_object
-        # TODO: find better way to convert object types. Need to preserve the compatible tyes and operators of the new
-        #  type being converted to.
-        # mypy error: Missing positional arguments "compatible_operators", "compatible_types" in call to "Base"
-        # reason for ignore: Base child objects don't need these variables passed to them
-        return conversion_type(to_type.type(base_object), to_type.line_num)  # type: ignore
+    def evaluate_to_type(self, to_type: _parser.ToType) -> _parser.Base:
+        object_to_convert: _parser.Base = self.evaluate_expression(to_type.params[0])
+        return object_to_convert.convert_to(to_type.type)
 
     def evaluate_add_node(self, add_node: _parser.AddNode) -> _parser.NoReturn:
 
@@ -146,14 +140,10 @@ class Evaluator:
         return _parser.NoReturn(line_num=add_node.line_num)
 
     def evaluate_tree(self, tree: _parser.Tree) -> _parser.Tree:
-        # Iterate through the tree to evaluate and update each node's value
-        #
-        # mypy error: Incompatible types in assignment (expression has type "Union[int, str, float, Node, None]",
-        #             variable has type "Node")
-        # reason for ignore: "Node" in "Union[int, str, float, Node, None]"
-        root: _parser.Node = tree.value  # type: ignore
+        """Iterate through the tree to evaluate and update each node's value."""
+        root: _parser.Node = tree.value
 
-        def traverse(node: _parser.Node):
+        def traverse(node: _parser.Node) -> None:
             # mypy error: Incompatible types in assignment (expression has type "Base", variable has type "Expression")
             # reason for ignore: TODO: fix type
             node.value = self.evaluate_expression(node.value)  # type: ignore
@@ -171,9 +161,7 @@ class Evaluator:
 
         new_val = 1
 
-        # mypy error: No overload variant of "range" matches argument types "object", "int", "int"
-        # reason for ignore: "result.value" is an integer
-        for i in range(result.value, 1, -1):  # type: ignore
+        for i in range(result.value, 1, -1):
             new_val *= i
         return _parser.Integer(new_val, result.line_num)
 
@@ -182,20 +170,20 @@ class Evaluator:
 
         if isinstance(variable, _parser.Identifier):
             var_value: _parser.Base = self.validate_expression(variable_assignment.value)
-            self.env.set_var(variable.value, var_value)
+            self.get_env.set_var(variable.value, var_value)
             return _parser.NoReturn(line_num=var_value.line_num)
 
         raise_error(variable_assignment.name.line_num, f"cannot assign value to type {type(variable).__name__}")
 
     def evaluate_assign_function(self, function_definition: _parser.AssignFunction) -> _parser.Base:
-        self.env.set_func(function_definition.name.value, function_definition)
+        self.get_env.set_func(function_definition.name.value, function_definition)
         return _parser.NoReturn(line_num=function_definition.name.line_num)
 
     def evaluate_identifier(self, identifier: _parser.Identifier) -> _parser.Base:
         # For variables, check the current environment. If it does not exist, check the parent environment.
         # Continue doing this until there are no more parent environments. If the variable does not exist in all
         # scopes, it does not exist anywhere in the code.
-        env = self.env
+        env: typing.Optional[Environment] = self.env
         while env is not None:
             variable_value = env.get_var(identifier.value)
             if variable_value is not None:
@@ -209,12 +197,12 @@ class Evaluator:
         raise_error(identifier.line_num, f"undefined variable: {identifier.value}")
 
     def evaluate_function_call(self, function_call: _parser.FunctionCall) -> _parser.Base:
-        function_name = function_call.name.value
+        function_name = function_call.name
 
         function: typing.Optional[_parser.AssignFunction] = None
-        env = self.env
+        env: typing.Optional[Environment] = self.env
         while env is not None:
-            f = env.get_func(function_call.name.value)
+            f = env.get_func(function_call.name)
             if f is not None:
                 function = f
             env = env.parent_env
@@ -222,7 +210,7 @@ class Evaluator:
         # If the function is not defined in the functions dictionary, throw an error saying the
         # function is undefined
         if function is None:
-            raise_error(function_call.name.line_num, f"Undefined function: {function_name}")
+            raise_error(function_call.line_num, f"Undefined function: {function_name}")
 
         parameter_identifiers = function.parameters
         parameter_values = function_call.parameter_values
@@ -232,7 +220,7 @@ class Evaluator:
             error_msg += f"Function '{function_name}' defined with {len(parameter_identifiers)} parameters "
             error_msg += f"({', '.join(map(lambda t: t.value, parameter_identifiers))}), "
             error_msg += f"but {len(parameter_values)} given."
-            raise_error(function_call.name.line_num, error_msg)
+            raise_error(function_call.line_num, error_msg)
 
         # Map the parameters to their values and set them in the variables dictionary
         evaluated_param_values = {}
@@ -249,11 +237,11 @@ class Evaluator:
         try:
             # If a ReturnException is never thrown, then the function does not return anything.
             self.evaluate_statements(statements)
-            return _parser.NoReturn(line_num=function_call.name.line_num)
+            return _parser.NoReturn(line_num=function_call.line_num)
         except ReturnException as return_exception:
             # If a ReturnException is thrown, return the value of the evaluated expression in the return statement
-            return_token = return_exception.token
-            return_token.line_num = function_call.name.line_num
+            return_token = return_exception.base_object
+            return_token.line_num = function_call.line_num
             return return_token
         finally:
             # After the function is called, switch to the parent environment
@@ -364,8 +352,7 @@ class Evaluator:
         elif op_type == OR:
             return _parser.Boolean(left.value or right.value, new_line_num)
 
-        else:
-            raise Exception(f"Invalid binary operator '{binary_operation.op.value}' at line {binary_operation.op.line_num}")
+        raise Exception(f"Invalid binary operator '{binary_operation.op.value}' at line {binary_operation.op.line_num}")
 
     def create_base_object(self, value: object, line_num: int) -> _parser.Base:
         if isinstance(value, bool):

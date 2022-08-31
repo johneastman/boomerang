@@ -1,21 +1,23 @@
 import argparse
 
 # Local packages
+import typing
+
 from tokens.tokenizer import Tokenizer
-from _parser._parser import Parser
+from _parser._parser import Parser, Base
 from _parser.ast_objects import NoReturn
 from evaluator.evaluator import Evaluator
 from evaluator._environment import Environment
-from utils.ast_visualizer import ASTVisualizer
+# from utils.ast_visualizer import ASTVisualizer
 from utils.utils import LanguageRuntimeException
 
 
-def get_source(filepath: str):
+def get_source(filepath: str) -> str:
     with open(filepath, "r") as file:
         return file.read()
 
 
-def evaluate(source: str, environment: Environment, visualize: bool = False):
+def evaluate(source: str, environment: Environment, visualize: bool = False) -> typing.Optional[typing.List[Base]]:
     try:
         t = Tokenizer(source)
         tokens = t.tokenize()
@@ -23,16 +25,17 @@ def evaluate(source: str, environment: Environment, visualize: bool = False):
         p = Parser(tokens)
         ast = p.parse()
 
-        if visualize:
-            ASTVisualizer(ast).visualize()
+        # if visualize:
+        #     ASTVisualizer(ast).visualize()
 
         e = Evaluator(ast, environment)
         return e.evaluate()
     except LanguageRuntimeException as e:
         print(str(e))
+    return None
 
 
-def repl(prompt=">>"):
+def repl(prompt: str = ">>") -> None:
     env = Environment()
     while True:
         _input = input(f"{prompt} ")

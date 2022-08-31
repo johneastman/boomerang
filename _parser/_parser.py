@@ -1,6 +1,7 @@
 import typing
 
-from .ast_objects import *
+from tokens.tokenizer import *
+from _parser.ast_objects import *
 from utils.utils import raise_error
 from typing import Callable
 
@@ -76,7 +77,7 @@ class Parser:
         else:
             return ExpressionStatement(self.expression())
 
-    def get_operator_token(self, op_type, line_num):
+    def get_operator_token(self, op_type: str, line_num: int) -> Token:
         operator_token = {
             ASSIGN_ADD: Token(get_token_literal("PLUS"), PLUS, line_num),
             ASSIGN_SUB: Token(get_token_literal("MINUS"), MINUS, line_num),
@@ -369,14 +370,16 @@ class Parser:
         self.advance()
 
         line_num = identifier_token.line_num
-        builtin_functions = {
+        builtin_functions: typing.Dict[str, BuiltinFunction] = {
             "print": Print(parameters, line_num),
             "random": Random(parameters, line_num),
             "add_node": AddNode(parameters, line_num),
-            "to_str": ToType(parameters, line_num, str),
-            "to_int": ToType(parameters, line_num, int)
+            "to_str": ToType(parameters, line_num, String),
+            "to_int": ToType(parameters, line_num, Integer)
         }
-        return builtin_functions.get(identifier_token.value, FunctionCall(identifier_token, parameters))
+        return builtin_functions.get(
+            identifier_token.value,
+            FunctionCall(identifier_token.value, parameters, identifier_token.line_num))
 
     def is_expected_token(self, expected_token_type: typing.Union[str, list[str]]) -> None:
 

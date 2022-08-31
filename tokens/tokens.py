@@ -6,7 +6,7 @@ import utils.utils as utils
 TOKENS_FILE_PATH = os.path.join(os.path.dirname(__file__), "tokens.yaml")
 
 
-def load_tokens(key_path: str):
+def load_tokens(key_path: str) -> dict[str, Tuple[str, str]]:
     content = utils.read_yaml_file(TOKENS_FILE_PATH)
 
     token_data = utils.get(content, key_path)

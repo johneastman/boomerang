@@ -13,7 +13,7 @@ class Token:
         self.type = _type
         self.line_num = line_num
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self.type == STRING:
             return f'"{self.value}"'
         return str(self.value)
