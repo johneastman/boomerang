@@ -13,33 +13,6 @@ class Evaluator:
         self.ast = ast
         self.env = env
 
-        # Map operations to valid data types. This ensures expressions like "1 + true", "!1", "-true", "+false", etc.
-        # are invalid.
-        self.valid_operation_types = {
-            PLUS: [_parser.Integer, _parser.String, _parser.Float],
-            MINUS: [_parser.Integer, _parser.Float],
-            MULTIPLY: [_parser.Integer, _parser.Float],
-            DIVIDE: [_parser.Integer, _parser.Float],
-            EQ: [_parser.Integer, _parser.Boolean, _parser.Float, _parser.String],
-            NE: [_parser.Integer, _parser.Boolean, _parser.Float, _parser.String],
-            GT: [_parser.Integer, _parser.Float],
-            GE: [_parser.Integer, _parser.Float],
-            LT: [_parser.Integer, _parser.Float],
-            LE: [_parser.Integer, _parser.Float],
-            BANG: [_parser.Boolean],
-            AND: [_parser.Boolean],
-            OR: [_parser.Boolean]
-        }
-
-        # Map what types are compatible with others when performing operations (for example, addition can be performed
-        # on floats and integers).
-        self.compatible_types_for_operations = {
-            _parser.Float: [_parser.Float, _parser.Integer],
-            _parser.Integer: [_parser.Integer, _parser.Float],
-            _parser.String: [_parser.String],
-            _parser.Boolean: [_parser.Boolean]
-        }
-
     def evaluate(self):
         return self.evaluate_statements(self.ast)
 
