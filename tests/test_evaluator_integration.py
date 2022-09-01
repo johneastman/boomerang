@@ -299,6 +299,18 @@ tree_tests = [
             ]),
             3
         )
+    ),
+    (
+        "\"booleans\" => [true && true, true && false, true || true, true || false]",
+        o.Tree(
+            o.Node(o.String("booleans", 2), children=[
+                o.Node(o.Boolean(True, 2)),
+                o.Node(o.Boolean(False, 2)),
+                o.Node(o.Boolean(True, 2)),
+                o.Node(o.Boolean(True, 2)),
+            ]),
+            3
+        )
     )
 ]
 

@@ -271,14 +271,17 @@ class Parser:
         return left
 
     def expression(self) -> Expression:
-        expression = self.binary_expression([
-            AND, OR
-        ], self.boolean)
+        expression = self.tree()
 
         if self.current.type == POINTER:
-            return self.pointer(expression, self.boolean)
+            return self.pointer(expression, self.tree)
 
         return expression
+
+    def tree(self) -> Expression:
+        return self.binary_expression([
+            AND, OR
+        ], self.boolean)
 
     def boolean(self) -> Expression:
         return self.binary_expression([
