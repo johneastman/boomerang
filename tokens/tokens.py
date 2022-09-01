@@ -78,7 +78,7 @@ COLON: str = get_token_type("COLON")
 OPEN_BRACKET: str = get_token_type("OPEN_BRACKET")
 CLOSED_BRACKET: str = get_token_type("CLOSED_BRACKET")
 PERIOD: str = get_token_type("PERIOD")
-POINTER: str = get_token_type("POINTER")
+EDGE: str = get_token_type("EDGE")
 
 # Comparison/Boolean Operators
 EQ: str = get_token_type("EQ")

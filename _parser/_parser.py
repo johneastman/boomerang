@@ -229,7 +229,7 @@ class Parser:
 
                 value = next_method()
 
-                if self.current.type == POINTER:
+                if self.current.type == EDGE:
                     # Pointer denotes an edge, so we're creating a child node/subtree
                     self.advance()
                     children.append(get_nodes(value))
@@ -273,7 +273,7 @@ class Parser:
     def expression(self) -> Expression:
         expression = self.tree()
 
-        if self.current.type == POINTER:
+        if self.current.type == EDGE:
             return self.pointer(expression, self.tree)
 
         return expression
@@ -378,7 +378,9 @@ class Parser:
             "random": Random(parameters, line_num),
             "add_node": AddNode(parameters, line_num),
             "to_str": ToType(parameters, line_num, String),
-            "to_int": ToType(parameters, line_num, Integer)
+            "to_int": ToType(parameters, line_num, Integer),
+            "to_float": ToType(parameters, line_num, Float),
+            "to_bool": ToType(parameters, line_num, Boolean),
         }
         return builtin_functions.get(
             identifier_token.value,

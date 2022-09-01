@@ -30,26 +30,20 @@ def test_undefined_variable():
 
 
 to_type_tests = [
-    # (String, Integer(1, 1), String("1", 1)),
-    # (String, Integer(100, 5), String("100", 5)),
-    # (String, Float(3.14159, 15), String("3.14159", 15)),
-    # (String, String("hello, world!", 3), String("hello, world!", 3)),
-    # (String, Boolean(True, 5), String("true", 5)),
-    # (String, Boolean(False, 10), String("false", 10)),
-    # (String, Tree(Node(Integer(5, 1), children=[
-    #     Node(Float(4.5, 1)),
-    #     Node(String("bools", 1), children=[
-    #         Node(Boolean(True, 1)),
-    #         Node(Boolean(False, 1))
-    #     ]),
-    #     Node(Integer(100, 1))
-    # ]), 1), String("5 => [4.5, \"bools\" => [true, false], 100]", 1)),
-    (Integer, Float(5.5, 1), Integer(5, 1))
+    (String("hello, world!", 3), String, String("hello, world!", 3)),
+    (Float(5.5, 1), Integer, Integer(5, 1)),
+    (Integer(10, 1), Float, Float(10.0, 1)),
+    (String("1", 1), Integer, Integer(1, 1)),
+    (String("3.14159", 1), Float, Float(3.14159, 1)),
+    (Float(3.14159, 1), String, String("3.14159", 1)),
+    (Integer(1, 1), String, String("1", 1)),
+    (Boolean(True, 1), String, String("true", 1)),
+    (Boolean(False, 1), String, String("false", 1)),
 ]
 
 
-@pytest.mark.parametrize("_type, input_object, expected_object", to_type_tests)
-def test_to_type(_type, input_object, expected_object):
+@pytest.mark.parametrize("input_object, _type, expected_object", to_type_tests)
+def test_to_type(input_object, _type, expected_object):
     to_string_object = ToType([input_object], input_object.line_num, _type)
 
     actual_result = evaluator.evaluate_to_type(to_string_object)
@@ -57,17 +51,51 @@ def test_to_type(_type, input_object, expected_object):
 
 
 invalid_to_type_tests = [
-    (Integer, String("a", 1), "String"),
-    (Integer, Boolean(True, 1), "Boolean"),
-    (Integer, Boolean(False, 1), "Boolean"),
+    (String("true", 1), Boolean),
+    (String("false", 1), Boolean),
+    (String("\"root\" => [1, 2]", 1), Tree),
+    (Boolean(True, 1), Integer),
+    (Boolean(False, 1), Integer),
+    (Boolean(True, 1), Float),
+    (Boolean(False, 1), Float),
+    (Boolean(True, 1), Tree),
+    (Boolean(False, 1), Tree),
+    (
+        Tree(Node(Integer(5, 1), children=[
+            Node(Float(4.5, 1)),
+            Node(String("bools", 1), children=[
+                Node(Boolean(True, 1)),
+                Node(Boolean(False, 1))
+            ]),
+            Node(Integer(100, 1))
+        ]), 1),
+        String
+    )
 ]
 
 
-@pytest.mark.parametrize("_type, input_object, object_name", invalid_to_type_tests)
-def test_to_type_invalid_types(_type, input_object, object_name):
+@pytest.mark.parametrize("input_object, _type", invalid_to_type_tests)
+def test_to_type_invalid_types(input_object, _type):
     to_string_object = ToType([input_object], input_object.line_num, _type)
 
     with pytest.raises(LanguageRuntimeException) as error:
         evaluator.evaluate_to_type(to_string_object)
     assert error.typename == "LanguageRuntimeException"
-    assert str(error.value) == f"Error at line 1: cannot convert {object_name} to Integer"
+    assert str(error.value) == f"Error at line 1: cannot convert {input_object.__class__.__name__} to {_type.__name__}"
+
+
+invalid_data_tests = [
+    (String("a", 1), Integer, "\"a\""),
+    (String("a", 1), Float, "\"a\""),
+]
+
+
+@pytest.mark.parametrize("input_object, _type, input_object_repr", invalid_data_tests)
+def test_to_type_valid_types_invalid_data(input_object, _type, input_object_repr):
+    to_string_object = ToType([input_object], input_object.line_num, _type)
+
+    with pytest.raises(LanguageRuntimeException) as error:
+        evaluator.evaluate_to_type(to_string_object)
+    assert error.typename == "LanguageRuntimeException"
+    assert str(error.value) == f"Error at line 1: cannot convert '{input_object_repr}' of type " \
+                               f"{input_object.__class__.__name__} to {_type.__name__}"

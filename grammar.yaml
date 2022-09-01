@@ -9,9 +9,11 @@ statement:
   - "set identifier = expression"
   - "expression"
 expression:
+  - "tree_expr"
+  - "tree_expr => [ list of: expression ]"
+tree_expr:
   - "boolean_expr && boolean_expr"
   - "boolean_expr || boolean_expr"
-  - "boolean_expr => [ list of: boolean_expr ]"
 boolean_expr:
   - "addition == addition"
   - "addition != addition"

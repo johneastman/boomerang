@@ -24,8 +24,8 @@ tokens:
       type: BOOLEAN
   symbols:
     - literal: '=>'
-      name: POINTER
-      type: POINTER
+      name: EDGE
+      type: EDGE
     - literal: '.'
       name: PERIOD
       type: PERIOD

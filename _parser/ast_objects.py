@@ -68,12 +68,17 @@ class Base:
                  value: typing.Any,
                  line_num: int,
                  compatible_operators: list[str],
-                 compatible_types: list[str]):
+                 compatible_types: list[str],
+                 conversion_types: list[str]):
         self.value = value
         self.line_num = line_num
 
         self.compatible_operators = compatible_operators
+
+        # NOTE: These two lists had to be lists of strings because using just the types was causing issues with mypy
+        # and type checking
         self.compatible_types = compatible_types
+        self.conversion_types = conversion_types
 
     def __str__(self) -> str:
         return str(self.value)
@@ -123,10 +128,11 @@ class Base:
 
     def convert_to(self, _type: typing.Type["Base"]) -> "Base":
         if type(self) == _type:
-            # Don't try to convert the object if the type of 'self' is the same as '_type'.
+            # Do not try to convert the object if the type of 'self' is the same as '_type'. This check is why the type
+            # of self does not need to be declared in 'self.conversion_types'
             return self
 
-        if _type.__name__ not in self.compatible_types:
+        if _type.__name__ not in self.conversion_types:
             utils.raise_error(self.line_num, f"cannot convert {self.__class__.__name__} to {_type.__name__}")
 
         try:
@@ -146,7 +152,7 @@ class Base:
                 f"cannot convert '{str(self)}' of type {self.__class__.__name__} to {_type.__name__}")
 
 
-class Integer(Factor, Base):
+class Integer(Base, Factor):
     def __init__(self, value: int, line_num: int) -> None:
         operators = [
             PLUS,
@@ -161,14 +167,19 @@ class Integer(Factor, Base):
             LE
         ]
 
-        types = [
+        operation_types = [
             Integer.__name__,
             Float.__name__
         ]
-        super().__init__(value, line_num, operators, types)
+
+        conversion_types = [
+            Float.__name__,
+            String.__name__
+        ]
+        super().__init__(value, line_num, operators, operation_types, conversion_types)
 
 
-class Float(Factor, Base):
+class Float(Base, Factor):
     def __init__(self, value: float, line_num: int) -> None:
         operators = [
             PLUS,
@@ -183,14 +194,19 @@ class Float(Factor, Base):
             LE
         ]
 
-        types = [
+        operation_types = [
             Integer.__name__,
             Float.__name__
         ]
-        super().__init__(value, line_num, operators, types)
+
+        conversion_types = [
+            Integer.__name__,
+            String.__name__
+        ]
+        super().__init__(value, line_num, operators, operation_types, conversion_types)
 
 
-class Boolean(Factor, Base):
+class Boolean(Base, Factor):
     def __init__(self, value: bool, line_num: int):
         operators = [
             EQ,
@@ -200,16 +216,20 @@ class Boolean(Factor, Base):
             OR
         ]
 
-        types = [
+        operation_types = [
             Boolean.__name__
         ]
-        super().__init__(value, line_num, operators, types)
+
+        conversion_types = [
+            String.__name__
+        ]
+        super().__init__(value, line_num, operators, operation_types, conversion_types)
 
     def __str__(self) -> str:
         return get_token_literal("TRUE") if self.value else get_token_literal("FALSE")
 
 
-class String(Factor, Base):
+class String(Base, Factor):
     def __init__(self, value: str, line_num: int) -> None:
         operators = [
             PLUS,
@@ -217,18 +237,24 @@ class String(Factor, Base):
             NE
         ]
 
-        types = [
+        operation_types = [
             String.__name__
         ]
-        super().__init__(value, line_num, operators, types)
+
+        conversion_types = [
+            Integer.__name__,
+            Float.__name__
+        ]
+
+        super().__init__(value, line_num, operators, operation_types, conversion_types)
 
     def __str__(self) -> str:
         return f"\"{self.value}\""
 
 
-class Tree(Factor, Base):
+class Tree(Base, Factor):
     def __init__(self, value: Optional[Node], line_num: int) -> None:
-        super().__init__(value, line_num, [], [Tree.__name__])
+        super().__init__(value, line_num, [], [Tree.__name__], [])
 
     def add_node(self, node: Node, add_path: str) -> None:
         assert isinstance(self.value, Node)  # for mypy type checks
@@ -247,7 +273,7 @@ class Tree(Factor, Base):
     def __str__(self) -> str:
         assert isinstance(self.value, Node)
 
-        pointer_literal = get_token_literal('POINTER')
+        pointer_literal = get_token_literal("EDGE")
         open_bracket_literal = get_token_literal("OPEN_BRACKET")
         closed_bracket_literal = get_token_literal("CLOSED_BRACKET")
 
@@ -265,9 +291,9 @@ class Tree(Factor, Base):
         return traverse(self.value)
 
 
-class NoReturn(Factor, Base):
+class NoReturn(Base, Factor):
     def __init__(self, line_num: int = 0) -> None:
-        super().__init__("", line_num, [], [])
+        super().__init__("", line_num, [], [], [])
 
 
 class Identifier(Factor):
