@@ -67,12 +67,9 @@ class Base:
     def __init__(self,
                  value: typing.Any,
                  line_num: int,
-                 compatible_operators: list[str],
                  conversion_types: list[str]):
         self.value = value
         self.line_num = line_num
-
-        self.compatible_operators = compatible_operators
 
         # NOTE: These two lists had to be lists of strings because using just the types was causing issues with mypy
         # and type checking
@@ -97,6 +94,15 @@ class Base:
         utils.raise_error(
             self.line_num,
             f"Cannot perform {DIVIDE} operation on {type(self).__name__} and {type(other).__name__}")
+
+    def negative(self) -> "Base":
+        utils.raise_error(self.line_num, f"Cannot perform {MINUS} operation on {type(self).__name__}")
+
+    def positive(self) -> "Base":
+        utils.raise_error(self.line_num, f"Cannot perform {PLUS} operation on {type(self).__name__}")
+
+    def bang(self) -> "Base":
+        utils.raise_error(self.line_num, f"Cannot perform {BANG} operation on {type(self).__name__}")
 
     def equals(self, other: "Base") -> "Base":
 
@@ -164,6 +170,7 @@ class Base:
         return int(self.value)
 
     def __eq__(self, other: object) -> bool:
+        """FOR TESTING"""
         if not isinstance(other, self.__class__):
             return False
 
@@ -172,19 +179,6 @@ class Base:
     def __repr__(self) -> str:
         class_name = self.__class__.__name__
         return f"{class_name}(value={self.value}, line_num={self.line_num})"
-
-    def is_operator_compatible(self, other: object, operator: str) -> bool:
-        """Check that the operation can be performed on the given types. For example, "true > false" is not valid"""
-        # 'other' is None for unary operations. We just need to check that the operator is compatible with this object.
-        if other is None:
-            return operator in self.compatible_operators
-
-        # 'other' is not None for binary operations, and we need to check operator compatibility for both 'self' and
-        # 'other'.
-        if not isinstance(other, Base):
-            return False
-
-        return operator in self.compatible_operators or operator in other.compatible_operators
 
     def convert_to(self, _type: typing.Type["Base"]) -> "Base":
         if type(self) == _type:
@@ -214,24 +208,17 @@ class Base:
 
 class Integer(Base, Factor):
     def __init__(self, value: int, line_num: int) -> None:
-        operators = [
-            PLUS,
-            MINUS,
-            MULTIPLY,
-            DIVIDE,
-            EQ,
-            NE,
-            GT,
-            GE,
-            LT,
-            LE
-        ]
-
         conversion_types = [
             Float.__name__,
             String.__name__
         ]
-        super().__init__(value, line_num, operators, conversion_types)
+        super().__init__(value, line_num, conversion_types)
+
+    def negative(self) -> "Base":
+        return Integer(-self.value, self.line_num)
+
+    def positive(self) -> "Base":
+        return self
 
     def add(self, other: Base) -> Base:
         result = self.value + other.value
@@ -240,10 +227,7 @@ class Integer(Base, Factor):
         elif isinstance(other, Float):
             return Float(result, self.line_num)
 
-        utils.raise_error(
-            self.line_num,
-            f"Cannot perform {PLUS} operation on {type(self).__name__} and {type(other).__name__}"
-        )
+        return super().add(other)
 
     def subtract(self, other: Base) -> Base:
         result = self.value - other.value
@@ -328,24 +312,17 @@ class Integer(Base, Factor):
 
 class Float(Base, Factor):
     def __init__(self, value: float, line_num: int) -> None:
-        operators = [
-            PLUS,
-            MINUS,
-            MULTIPLY,
-            DIVIDE,
-            EQ,
-            NE,
-            GT,
-            GE,
-            LT,
-            LE
-        ]
-
         conversion_types = [
             Integer.__name__,
             String.__name__
         ]
-        super().__init__(value, line_num, operators, conversion_types)
+        super().__init__(value, line_num, conversion_types)
+
+    def negative(self) -> "Base":
+        return Float(-self.value, self.line_num)
+
+    def positive(self) -> "Base":
+        return self
 
     def add(self, other: Base) -> Base:
         result = self.value + other.value
@@ -402,18 +379,13 @@ class Float(Base, Factor):
 
 class Boolean(Base, Factor):
     def __init__(self, value: bool, line_num: int):
-        operators = [
-            EQ,
-            NE,
-            BANG,
-            AND,
-            OR
-        ]
-
         conversion_types = [
             String.__name__
         ]
-        super().__init__(value, line_num, operators, conversion_types)
+        super().__init__(value, line_num, conversion_types)
+
+    def bang(self) -> "Base":
+        return Boolean(not self.value, self.line_num)
 
     def __str__(self) -> str:
         return get_token_literal("TRUE") if self.value else get_token_literal("FALSE")
@@ -421,18 +393,13 @@ class Boolean(Base, Factor):
 
 class String(Base, Factor):
     def __init__(self, value: str, line_num: int) -> None:
-        operators = [
-            PLUS,
-            EQ,
-            NE
-        ]
 
         conversion_types = [
             Integer.__name__,
             Float.__name__
         ]
 
-        super().__init__(value, line_num, operators, conversion_types)
+        super().__init__(value, line_num, conversion_types)
 
     def add(self, other: Base) -> Base:
         if isinstance(other, String):
@@ -445,7 +412,7 @@ class String(Base, Factor):
 
 class Tree(Base, Factor):
     def __init__(self, value: Optional[Node], line_num: int) -> None:
-        super().__init__(value, line_num, [], [])
+        super().__init__(value, line_num, [])
 
     def add_node(self, node: Node, add_path: str) -> None:
         assert isinstance(self.value, Node)  # for mypy type checks
@@ -484,7 +451,7 @@ class Tree(Base, Factor):
 
 class NoReturn(Base, Factor):
     def __init__(self, line_num: int = 0) -> None:
-        super().__init__("", line_num, [], [])
+        super().__init__("", line_num, [])
 
 
 class Identifier(Factor):

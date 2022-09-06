@@ -272,23 +272,16 @@ class Evaluator:
 
     def evaluate_unary_expression(self, unary_expression: _parser.UnaryOperation) -> _parser.Base:
         expression_result = self.validate_expression(unary_expression.expression)
-        expression_result_type = type(expression_result)
         op_type = unary_expression.op.type
 
-        if not expression_result.is_operator_compatible(None, op_type):
-            raise_error(expression_result.line_num,
-                        f"Cannot perform {op_type} operation on {expression_result_type.__name__}")
-
-        new_line_num = expression_result.line_num  # line number for the result of evaluating the expression
-
         if op_type == PLUS:
-            return self.create_base_object(expression_result.value, new_line_num)
+            return expression_result.positive()
 
         elif op_type == MINUS:
-            return self.create_base_object(-expression_result.value, new_line_num)
+            return expression_result.negative()
 
         elif op_type == BANG:
-            return self.create_base_object(not expression_result.value, new_line_num)
+            return expression_result.bang()
 
         else:
             raise Exception(f"Invalid unary operator: {op_type} ({unary_expression.op.value})")
