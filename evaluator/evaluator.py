@@ -295,62 +295,50 @@ class Evaluator:
 
     def evaluate_binary_expression(self, binary_operation: _parser.BinaryOperation) -> _parser.Base:
         left = self.validate_expression(binary_operation.left)
-        left_type = type(left)
 
         right = self.validate_expression(binary_operation.right)
-        right_type = type(right)
         op_type = binary_operation.op.type
-
-        # Check if both the type and operator are compatible for this binary operation
-        if not left.is_type_compatible(right) or not left.is_operator_compatible(right, op_type):
-            raise raise_error(
-                left.line_num,
-                f"Cannot perform {op_type} operation on {left_type.__name__} and {right_type.__name__}")
-
-        new_line_num = left.line_num  # line number for the result of evaluating the expression
 
         # Math operations
         if op_type == PLUS:
-            return self.create_base_object(left.value + right.value, new_line_num)
+            return left.add(right)
 
         elif op_type == MINUS:
-            return self.create_base_object(left.value - right.value, new_line_num)
+            return left.subtract(right)
 
         elif op_type == MULTIPLY:
-            return self.create_base_object(left.value * right.value, new_line_num)
+            return left.multiply(right)
 
         elif op_type == DIVIDE:
-            if right.value == 0:
-                raise Exception("Division by zero")
-            return self.create_base_object(left.value / right.value, new_line_num)
+            return left.divide(right)
 
         # Binary comparisons
         #
         # Note: for boolean operations, 'create_base_object' does not need to be called because the result of a boolean
         # expression is always a boolean value (unlike, for example, dividing two integers, which results in a float).
         elif op_type == EQ:
-            return _parser.Boolean(left.value == right.value, new_line_num)
+            return left.equals(right)
 
         elif op_type == NE:
-            return _parser.Boolean(left.value != right.value, new_line_num)
+            return left.not_equals(right)
 
         elif op_type == GT:
-            return _parser.Boolean(left.value > right.value, new_line_num)
+            return left.greater_than(right)
 
         elif op_type == GE:
-            return _parser.Boolean(left.value >= right.value, new_line_num)
+            return left.greater_than_or_equal(right)
 
         elif op_type == LT:
-            return _parser.Boolean(left.value < right.value, new_line_num)
+            return left.less_than(right)
 
         elif op_type == LE:
-            return _parser.Boolean(left.value <= right.value, new_line_num)
+            return left.less_than_or_equal(right)
 
         elif op_type == AND:
-            return _parser.Boolean(left.value and right.value, new_line_num)
+            return left.and_(right)
 
         elif op_type == OR:
-            return _parser.Boolean(left.value or right.value, new_line_num)
+            return left.or_(right)
 
         raise Exception(f"Invalid binary operator '{binary_operation.op.value}' at line {binary_operation.op.line_num}")
 

@@ -68,7 +68,6 @@ class Base:
                  value: typing.Any,
                  line_num: int,
                  compatible_operators: list[str],
-                 compatible_types: list[str],
                  conversion_types: list[str]):
         self.value = value
         self.line_num = line_num
@@ -77,8 +76,83 @@ class Base:
 
         # NOTE: These two lists had to be lists of strings because using just the types was causing issues with mypy
         # and type checking
-        self.compatible_types = compatible_types
         self.conversion_types = conversion_types
+
+    def add(self, other: "Base") -> "Base":
+        utils.raise_error(
+            self.line_num,
+            f"Cannot perform {PLUS} operation on {type(self).__name__} and {type(other).__name__}")
+
+    def subtract(self, other: "Base") -> "Base":
+        utils.raise_error(
+            self.line_num,
+            f"Cannot perform {MINUS} operation on {type(self).__name__} and {type(other).__name__}")
+
+    def multiply(self, other: "Base") -> "Base":
+        utils.raise_error(
+            self.line_num,
+            f"Cannot perform {MULTIPLY} operation on {type(self).__name__} and {type(other).__name__}")
+
+    def divide(self, other: "Base") -> "Base":
+        utils.raise_error(
+            self.line_num,
+            f"Cannot perform {DIVIDE} operation on {type(self).__name__} and {type(other).__name__}")
+
+    def equals(self, other: "Base") -> "Base":
+
+        if type(self) == type(other):
+            return Boolean(self.value == other.value, self.line_num)
+
+        utils.raise_error(
+            self.line_num,
+            f"Cannot perform {EQ} operation on {type(self).__name__} and {type(other).__name__}")
+
+    def not_equals(self, other: "Base") -> "Base":
+
+        if type(self) == type(other):
+            return Boolean(self.value != other.value, self.line_num)
+
+        utils.raise_error(
+            self.line_num,
+            f"Cannot perform {NE} operation on {type(self).__name__} and {type(other).__name__}")
+
+    def greater_than(self, other: "Base") -> "Base":
+        utils.raise_error(
+            self.line_num,
+            f"Cannot perform {GT} operation on {type(self).__name__} and {type(other).__name__}")
+
+    def greater_than_or_equal(self, other: "Base") -> "Base":
+        utils.raise_error(
+            self.line_num,
+            f"Cannot perform {GE} operation on {type(self).__name__} and {type(other).__name__}")
+
+    def less_than(self, other: "Base") -> "Base":
+        utils.raise_error(
+            self.line_num,
+            f"Cannot perform {LT} operation on {type(self).__name__} and {type(other).__name__}")
+
+    def less_than_or_equal(self, other: "Base") -> "Base":
+        utils.raise_error(
+            self.line_num,
+            f"Cannot perform {LE} operation on {type(self).__name__} and {type(other).__name__}")
+
+    def and_(self, other: "Base") -> "Base":
+
+        if isinstance(other, Boolean):
+            return Boolean(self.value and other.value, self.line_num)
+
+        utils.raise_error(
+            self.line_num,
+            f"Cannot perform {AND} operation on {type(self).__name__} and {type(other).__name__}")
+
+    def or_(self, other: "Base") -> "Base":
+
+        if isinstance(other, Boolean):
+            return Boolean(self.value or other.value, self.line_num)
+
+        utils.raise_error(
+            self.line_num,
+            f"Cannot perform {OR} operation on {type(self).__name__} and {type(other).__name__}")
 
     def __str__(self) -> str:
         return str(self.value)
@@ -98,20 +172,6 @@ class Base:
     def __repr__(self) -> str:
         class_name = self.__class__.__name__
         return f"{class_name}(value={self.value}, line_num={self.line_num})"
-
-    def is_type_compatible(self, other: object) -> bool:
-        """Check that the types are compatible. If they are not, the operation cannot be performed.
-
-        Without this check, someone could run "1 == true" or "false != 2". Both checks are technically valid, but
-        this is invalid because the data types for the left and right expressions are not compatible. However,
-        to account for the fact that some expressions can result in different data types (e.g., two integers resulting
-        in a float, like 3 / 4), we need to allow operations to happen on compatible data types, like floats and
-        integers.
-        """
-        if not isinstance(other, Base):
-            return False
-
-        return type(self).__name__ in other.compatible_types or type(other).__name__ in self.compatible_types
 
     def is_operator_compatible(self, other: object, operator: str) -> bool:
         """Check that the operation can be performed on the given types. For example, "true > false" is not valid"""
@@ -167,16 +227,103 @@ class Integer(Base, Factor):
             LE
         ]
 
-        operation_types = [
-            Integer.__name__,
-            Float.__name__
-        ]
-
         conversion_types = [
             Float.__name__,
             String.__name__
         ]
-        super().__init__(value, line_num, operators, operation_types, conversion_types)
+        super().__init__(value, line_num, operators, conversion_types)
+
+    def add(self, other: Base) -> Base:
+        result = self.value + other.value
+        if isinstance(other, Integer):
+            return Integer(result, self.line_num)
+        elif isinstance(other, Float):
+            return Float(result, self.line_num)
+
+        utils.raise_error(
+            self.line_num,
+            f"Cannot perform {PLUS} operation on {type(self).__name__} and {type(other).__name__}"
+        )
+
+    def subtract(self, other: Base) -> Base:
+        result = self.value - other.value
+        if isinstance(other, Integer):
+            return Integer(result, self.line_num)
+        elif isinstance(other, Float):
+            return Float(result, self.line_num)
+
+        utils.raise_error(
+            self.line_num,
+            f"Cannot perform {PLUS} operation on {type(self).__name__} and {type(other).__name__}"
+        )
+
+    def multiply(self, other: Base) -> Base:
+        result = self.value * other.value
+        if isinstance(other, Integer):
+            return Integer(result, self.line_num)
+        elif isinstance(other, Float):
+            return Float(result, self.line_num)
+
+        utils.raise_error(
+            self.line_num,
+            f"Cannot perform {PLUS} operation on {type(self).__name__} and {type(other).__name__}"
+        )
+
+    def divide(self, other: Base) -> Base:
+
+        if other.value == 0:
+            utils.raise_error(self.line_num, "division by zero")
+
+        result = self.value / other.value
+        if isinstance(other, Integer):
+            return Float(result, self.line_num)
+        elif isinstance(other, Float):
+            return Float(result, self.line_num)
+
+        utils.raise_error(
+            self.line_num,
+            f"Cannot perform {PLUS} operation on {type(self).__name__} and {type(other).__name__}"
+        )
+
+    def greater_than(self, other: "Base") -> "Base":
+        result = self.value > other.value
+        if isinstance(other, Integer):
+            return Boolean(result, self.line_num)
+
+        elif isinstance(other, Float):
+            return Boolean(result, self.line_num)
+
+        return super().greater_than(other)
+
+    def greater_than_or_equal(self, other: "Base") -> "Base":
+        result = self.value >= other.value
+        if isinstance(other, Integer):
+            return Boolean(result, self.line_num)
+
+        elif isinstance(other, Float):
+            return Boolean(result, self.line_num)
+
+        return super().greater_than_or_equal(other)
+
+    def less_than(self, other: "Base") -> "Base":
+        result = self.value < other.value
+        if isinstance(other, Integer):
+            return Boolean(result, self.line_num)
+
+        elif isinstance(other, Float):
+            return Boolean(result, self.line_num)
+
+        return super().less_than(other)
+
+    def less_than_or_equal(self, other: "Base") -> "Base":
+        result = self.value >= other.value
+        if isinstance(other, Integer):
+            return Boolean(result, self.line_num)
+
+        elif isinstance(other, Float):
+            return Boolean(result, self.line_num)
+
+        return super().less_than_or_equal(other)
 
 
 class Float(Base, Factor):
@@ -194,16 +341,63 @@ class Float(Base, Factor):
             LE
         ]
 
-        operation_types = [
-            Integer.__name__,
-            Float.__name__
-        ]
-
         conversion_types = [
             Integer.__name__,
             String.__name__
         ]
-        super().__init__(value, line_num, operators, operation_types, conversion_types)
+        super().__init__(value, line_num, operators, conversion_types)
+
+    def add(self, other: Base) -> Base:
+        result = self.value + other.value
+        if isinstance(other, Integer):
+            return Float(result, self.line_num)
+        elif isinstance(other, Float):
+            return Float(result, self.line_num)
+
+        utils.raise_error(
+            self.line_num,
+            f"Cannot perform {PLUS} operation on {type(self).__name__} and {type(other).__name__}"
+        )
+
+    def subtract(self, other: Base) -> Base:
+        result = self.value - other.value
+        if isinstance(other, Integer):
+            return Float(result, self.line_num)
+        elif isinstance(other, Float):
+            return Float(result, self.line_num)
+
+        utils.raise_error(
+            self.line_num,
+            f"Cannot perform {PLUS} operation on {type(self).__name__} and {type(other).__name__}"
+        )
+
+    def multiply(self, other: Base) -> Base:
+        result = self.value * other.value
+        if isinstance(other, Integer):
+            return Float(result, self.line_num)
+        elif isinstance(other, Float):
+            return Float(result, self.line_num)
+
+        utils.raise_error(
+            self.line_num,
+            f"Cannot perform {PLUS} operation on {type(self).__name__} and {type(other).__name__}"
+        )
+
+    def divide(self, other: Base) -> Base:
+
+        if other.value == 0:
+            utils.raise_error(self.line_num, "division by zero")
+
+        result = self.value / other.value
+        if isinstance(other, Integer):
+            return Float(result, self.line_num)
+        elif isinstance(other, Float):
+            return Float(result, self.line_num)
+
+        utils.raise_error(
+            self.line_num,
+            f"Cannot perform {PLUS} operation on {type(self).__name__} and {type(other).__name__}"
+        )
 
 
 class Boolean(Base, Factor):
@@ -216,14 +410,10 @@ class Boolean(Base, Factor):
             OR
         ]
 
-        operation_types = [
-            Boolean.__name__
-        ]
-
         conversion_types = [
             String.__name__
         ]
-        super().__init__(value, line_num, operators, operation_types, conversion_types)
+        super().__init__(value, line_num, operators, conversion_types)
 
     def __str__(self) -> str:
         return get_token_literal("TRUE") if self.value else get_token_literal("FALSE")
@@ -237,16 +427,17 @@ class String(Base, Factor):
             NE
         ]
 
-        operation_types = [
-            String.__name__
-        ]
-
         conversion_types = [
             Integer.__name__,
             Float.__name__
         ]
 
-        super().__init__(value, line_num, operators, operation_types, conversion_types)
+        super().__init__(value, line_num, operators, conversion_types)
+
+    def add(self, other: Base) -> Base:
+        if isinstance(other, String):
+            return String(self.value + other.value, self.line_num)
+        return super().add(other)
 
     def __str__(self) -> str:
         return f"\"{self.value}\""
@@ -254,7 +445,7 @@ class String(Base, Factor):
 
 class Tree(Base, Factor):
     def __init__(self, value: Optional[Node], line_num: int) -> None:
-        super().__init__(value, line_num, [], [Tree.__name__], [])
+        super().__init__(value, line_num, [], [])
 
     def add_node(self, node: Node, add_path: str) -> None:
         assert isinstance(self.value, Node)  # for mypy type checks
@@ -293,7 +484,7 @@ class Tree(Base, Factor):
 
 class NoReturn(Base, Factor):
     def __init__(self, line_num: int = 0) -> None:
-        super().__init__("", line_num, [], [], [])
+        super().__init__("", line_num, [], [])
 
 
 class Identifier(Factor):
