@@ -48,7 +48,6 @@ These are errors with the Python code itself and exist to aid the development pr
 |Float|1.1, 2.5, 3.14159|
 |String|"Hello, world!"|
 |Boolean|true, false|
-|Tree|"root" => [1, 2, 3 => [3.1, 3.2, 3.3], 4]|
 
 ## Operators
 |Operator Name|Literal|
