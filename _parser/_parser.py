@@ -1,24 +1,23 @@
 import typing
 
-from tokens.tokenizer import *
+from tokens.tokenizer import Token
 from _parser.ast_objects import *
 from utils.utils import raise_error
 from typing import Callable
 
+# Precedence names
+LOWEST = "LOWEST"  # default
+EDGE = "EDGE"  # =>
+AND_OR = "AND_OR"  # &&, ||
+EQUALS = "EQUALS"  # ==, !=
+LESS_GREATER = "LESS_GREATER"  # <, >, >=, <=
+SUM = "SUM"  # +, -
+PRODUCT = "PRODUCT"  # *, /
+PREFIX = "PREFIX"  # -X, +X, !X
+CALL = "CALL"  # function calls (e.g. function())
+
 
 class Parser:
-
-    # Higher precedence is lower on the list (for example, && and || take precedence above everything, so they have a
-    # precedence level of 2.
-    LOWEST = 1
-    EDGE = 2  # =>
-    AND_OR = 3  # &&, ||
-    EQUALS = 4  # ==, !=
-    LESS_GREATER = 5  # <, >
-    SUM = 6  # +, -
-    PRODUCT = 7  # *, /
-    PREFIX = 8  # -X, +X, !X
-    CALL = 9  # func()
 
     def __init__(self, tokens: list[Token]):
         self.tokens = tokens
@@ -32,24 +31,44 @@ class Parser:
             ASSIGN_DIV
         ]
 
-        self.infix_precedence: dict[str, int] = {
-            EQ: self.EQUALS,
-            NE: self.EQUALS,
-            LT: self.LESS_GREATER,
-            LE: self.LESS_GREATER,
-            GT: self.LESS_GREATER,
-            GE: self.LESS_GREATER,
-            AND: self.AND_OR,
-            OR: self.AND_OR,
-            PLUS: self.SUM,
-            MINUS: self.SUM,
-            MULTIPLY: self.PRODUCT,
-            DIVIDE: self.PRODUCT,
-            FUNCTION: self.CALL,
-            EDGE: self.EDGE
+        # Higher precedence is lower on the list (for example, && and || take precedence above everything, so they have
+        # a precedence level of 2.
+        #
+        # Storing the precedence levels in this list allows precedences to be rearranged without having to manually
+        # change other precedence values. For example, if we want to add a precedence before EDGE, we can just add it
+        # to this list, and the parser will automatically handle that precedence's integer value (which is the
+        # index + 1).
+        self.precedences: list[str] = [
+            LOWEST,
+            EDGE,
+            AND_OR,
+            EQUALS,
+            LESS_GREATER,
+            SUM,
+            PRODUCT,
+            PREFIX,
+            CALL
+        ]
+
+        self.infix_precedence: dict[str, str] = {
+            EQ: EQUALS,
+            NE: EQUALS,
+            LT: LESS_GREATER,
+            LE: LESS_GREATER,
+            GT: LESS_GREATER,
+            GE: LESS_GREATER,
+            AND: AND_OR,
+            OR: AND_OR,
+            PLUS: SUM,
+            MINUS: SUM,
+            MULTIPLY: PRODUCT,
+            DIVIDE: PRODUCT,
+            FUNCTION: CALL,
+            EDGE: EDGE
         }
 
-        self.prefix_denotations: dict[str, Callable[[], Expression]] = {  # prefix: leaf/terminating nodes. Not recursive, nothing on the left
+        # prefix: leaf/terminating nodes. Not recursive, nothing on the left
+        self.prefix_denotations: dict[str, Callable[[], Expression]] = {
             INTEGER: self.parse_prefix,
             FLOAT: self.parse_prefix,
             BOOLEAN: self.parse_prefix,
@@ -61,8 +80,8 @@ class Parser:
             OPEN_PAREN: self.parse_prefix
         }
 
-        self.postfix_precedence: dict[str, int] = {
-            BANG: self.PREFIX
+        self.postfix_precedence: dict[str, str] = {
+            BANG: PREFIX
         }
 
         self.left_denotations: dict[str, Callable[[Expression], Expression]] = {
@@ -85,7 +104,26 @@ class Parser:
             BANG: self.parse_postfix
         }
 
-    def expression(self, precedence_level: int = LOWEST) -> Expression:
+    def get_precedence_level(self, precedence_name: str) -> int:
+        """Get the precedence level of a given precedence. The precedences are stores in 'self.precedences' from lowest
+        to highest, so the precedence value is just the index + 1, where LOWEST is 1.
+
+        :param precedence_name: precedence name/label (see top of this file above Parser class)
+        :return: the precedence level
+        """
+        return self.precedences.index(precedence_name) + 1
+
+    def get_next_precedence_level(self, precedence_dict: dict[str, str]) -> int:
+        """Get the precedence level of the next operator in the expression.
+
+        :param precedence_dict: token-precedence mapping for the next token in the expression
+        :return: precedence level for token type in 'precedence_dict'
+        """
+        precedence_name = precedence_dict.get(self.current.type, LOWEST)
+        return self.get_precedence_level(precedence_name)
+
+    def expression(self, precedence_name: str = LOWEST) -> Expression:
+        precedence_level = self.get_precedence_level(precedence_name)
 
         # Prefix
         prefix_function: typing.Optional[Callable[[], Expression]] = self.prefix_denotations.get(self.current.type, None)
@@ -94,14 +132,14 @@ class Parser:
         left = prefix_function()
 
         # Postfix comes before infix to allow postfix operators in infix expressions (e.g., 5! + 5)
-        while self.current is not None and precedence_level < self.postfix_precedence.get(self.current.type, self.LOWEST):
+        while self.current is not None and precedence_level < self.get_next_precedence_level(self.postfix_precedence):
             postfix_function: typing.Optional[Callable[[Expression], Expression]] = self.right_denotations.get(self.current.type, None)
             if postfix_function is None:
                 raise_error(self.current.line_num, f"invalid postfix operator: {self.current.type}")
             left = postfix_function(left)
 
         # Infix
-        while self.current is not None and precedence_level < self.infix_precedence.get(self.current.type, self.LOWEST):
+        while self.current is not None and precedence_level < self.get_next_precedence_level(self.infix_precedence):
             infix_function: typing.Optional[Callable[[Expression], Expression]] = self.left_denotations.get(self.current.type, None)
             if infix_function is None:
                 raise_error(self.current.line_num, f"invalid infix operator: {self.current.type}")
@@ -161,7 +199,7 @@ class Parser:
         else:
             op = self.current
             self.advance()
-            right = self.expression(self.infix_precedence.get(op.type, self.LOWEST))
+            right = self.expression(self.infix_precedence.get(op.type, LOWEST))
             return BinaryOperation(left, op, right)
 
     def parse_postfix(self, left: Expression) -> Expression:
@@ -410,7 +448,7 @@ class Parser:
                 self.advance()
                 break
 
-            value = self.expression(self.infix_precedence.get(op.type, self.LOWEST))
+            value = self.expression(self.infix_precedence.get(op.type, LOWEST))
             if self.current.type == EDGE:
                 # mypy error: Argument 1 to "append" of "list" has incompatible type "Expression"; expected "Node"
                 # Reason for ignore: due to how 'parse_infix' is written, that method will return a Node object in
