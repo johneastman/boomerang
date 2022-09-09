@@ -35,27 +35,13 @@ class ExpressionStatement(Statement):
     def __init__(self, expr: Expression) -> None:
         self.expr = expr
 
+    def __repr__(self) -> str:
+        return f"{self.__class__.__name__}(expr: {self.expr})"
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, ExpressionStatement):
             return False
         return self.expr == other.expr
-
-
-class Node(Factor):
-    def __init__(self, value: Union[Expression, "Base"], children: Optional[list["Node"]] = None) -> None:
-        self.value = value
-        self.children = [] if children is None else children
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Node):
-            return False
-        return self.value == other.value and self.children == other.children
-
-    def __str__(self) -> str:
-        return f"{self.__class__.__name__}(value={self.value}, children={self.children})"
-
-    def __repr__(self) -> str:
-        return self.__str__()
 
 
 class Base:
@@ -410,27 +396,30 @@ class String(Base, Factor):
         return f"\"{self.value}\""
 
 
-class Tree(Base, Factor):
-    def __init__(self, value: Optional[Node], line_num: int) -> None:
+class Node(Base, Factor):
+    def __init__(self, value: Union[Expression, "Base"], line_num: int, children: Optional[list["Node"]] = None) -> None:
         super().__init__(value, line_num, [])
+        self.children = [] if children is None else children
 
-    def add_node(self, node: Node, add_path: str) -> None:
-        assert isinstance(self.value, Node)  # for mypy type checks
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Node):
+            return False
+        return self.value == other.value and self.children == other.children
 
-        root: Node = self.value
+    def add_node(self, node: "Node", add_path: str) -> None:
+
+        root: Node = self
         tmp: Node = root
 
         parsed_add_path = filter(None, add_path.split("."))
         for node_value in parsed_add_path:
             for child in tmp.children:
-                if str(child.value.value) == node_value:  # type: ignore
+                if str(child.value) == node_value:
                     tmp = child
                     break
         tmp.children.append(node)
 
     def __str__(self) -> str:
-        assert isinstance(self.value, Node)
-
         pointer_literal = get_token_literal("EDGE")
         open_bracket_literal = get_token_literal("OPEN_BRACKET")
         closed_bracket_literal = get_token_literal("CLOSED_BRACKET")
@@ -441,12 +430,54 @@ class Tree(Base, Factor):
             return f"{node.value} {pointer_literal} {open_bracket_literal}" \
                    f"{', '.join(traverse(child) for child in node.children)}{closed_bracket_literal}"
 
-        if len(self.value.children) == 0:
+        if len(self.children) == 0:
             # To ensure the string representation is reflective of the actual syntax, a tree with no children is
             # displayed as '"root" => []' because that is how a tree with one root node and no children is defined
             # syntactically.
-            return f"{self.value.value} {pointer_literal} {open_bracket_literal}{closed_bracket_literal}"
-        return traverse(self.value)
+            return f"{self.value} {pointer_literal} {open_bracket_literal}{closed_bracket_literal}"
+        return traverse(self)
+
+    def __repr__(self) -> str:
+        return self.__str__()
+
+
+# class Tree(Base, Factor):
+#     def __init__(self, value: Optional[Node], line_num: int) -> None:
+#         super().__init__(value, line_num, [])
+#
+#     def add_node(self, node: Node, add_path: str) -> None:
+#         assert isinstance(self.value, Node)  # for mypy type checks
+#
+#         root: Node = self.value
+#         tmp: Node = root
+#
+#         parsed_add_path = filter(None, add_path.split("."))
+#         for node_value in parsed_add_path:
+#             for child in tmp.children:
+#                 if str(child.value.value) == node_value:  # type: ignore
+#                     tmp = child
+#                     break
+#         tmp.children.append(node)
+#
+#     def __str__(self) -> str:
+#         assert isinstance(self.value, Node)
+#
+#         pointer_literal = get_token_literal("EDGE")
+#         open_bracket_literal = get_token_literal("OPEN_BRACKET")
+#         closed_bracket_literal = get_token_literal("CLOSED_BRACKET")
+#
+#         def traverse(node: Node) -> str:
+#             if len(node.children) == 0:
+#                 return str(node.value)
+#             return f"{node.value} {pointer_literal} {open_bracket_literal}" \
+#                    f"{', '.join(traverse(child) for child in node.children)}{closed_bracket_literal}"
+#
+#         if len(self.value.children) == 0:
+#             # To ensure the string representation is reflective of the actual syntax, a tree with no children is
+#             # displayed as '"root" => []' because that is how a tree with one root node and no children is defined
+#             # syntactically.
+#             return f"{self.value.value} {pointer_literal} {open_bracket_literal}{closed_bracket_literal}"
+#         return traverse(self.value)
 
 
 class NoReturn(Base, Factor):

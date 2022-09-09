@@ -85,16 +85,14 @@ def test_loop():
 
 tree_string_tests = [
     (
-        Tree(Node(String("root", 1)), 1),
+        Node(String("root", 1), 1),
         "\"root\" => []"
     ),
     (
-        Tree(
-            Node(String("root", 1), children=[
-                Node(Integer(1, 1)),
-                Node(Float(3.14159, 1))
-            ]),
-            1),
+        Node(String("root", 1), 1, children=[
+            Node(Integer(1, 1), 1),
+            Node(Float(3.14159, 1), 1)
+        ]),
         "\"root\" => [1, 3.14159]"
     )
 ]

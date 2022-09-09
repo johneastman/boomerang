@@ -250,16 +250,13 @@ def test_loop():
 tree_tests = [
     (
         "\"a\" => [1 + (2 + 2) => [\"c\" => [\"hello\" + \" world!\"]]]",
-        o.Tree(
-            o.Node(o.String("a", 2), children=[
-                o.Node(o.Integer(5, 2), children=[
-                    o.Node(o.String("c", 2), children=[
-                        o.Node(o.String("hello world!", 2))
-                    ])
+        o.Node(o.String("a", 2), 1, children=[
+            o.Node(o.Integer(5, 2), 1, children=[
+                o.Node(o.String("c", 2), 1, children=[
+                    o.Node(o.String("hello world!", 2), 1)
                 ])
-            ]),
-            3
-        )
+            ])
+        ])
     ),
     (
         """"root" => [
@@ -273,44 +270,35 @@ tree_tests = [
             ],
             "parent_3"
         ]""",
-        o.Tree(
-            o.Node(o.String("root", 2), children=[
-                o.Node(o.String("parent_1", 3), children=[
-                    o.Node(o.String("child_1_1", 4), children=[
-                        o.Node(o.String("grandchild_1_1_1", 5))
-                    ])
-                ]),
-                o.Node(o.String("parent_2", 8), children=[
-                    o.Node(o.String("child_2_2", 9))
-                ]),
-                o.Node(o.String("parent_3", 11))
+        o.Node(o.String("root", 2), 1, children=[
+            o.Node(o.String("parent_1", 3), 1, children=[
+                o.Node(o.String("child_1_1", 4), 1, children=[
+                    o.Node(o.String("grandchild_1_1_1", 5), 1)
+                ])
             ]),
-            13
-        )
+            o.Node(o.String("parent_2", 8), 1, children=[
+                o.Node(o.String("child_2_2", 9), 1)
+            ]),
+            o.Node(o.String("parent_3", 11), 1)
+        ])
     ),
     (
         "\"list\" => [\"a\", \"b\", \"c\", \"d\"]",
-        o.Tree(
-            o.Node(o.String("list", 2), children=[
-                o.Node(o.String("a", 2)),
-                o.Node(o.String("b", 2)),
-                o.Node(o.String("c", 2)),
-                o.Node(o.String("d", 2)),
-            ]),
-            3
-        )
+        o.Node(o.String("list", 2), 1, children=[
+            o.Node(o.String("a", 2), 1),
+            o.Node(o.String("b", 2), 1),
+            o.Node(o.String("c", 2), 1),
+            o.Node(o.String("d", 2), 1),
+        ])
     ),
     (
         "\"booleans\" => [true && true, true && false, true || true, true || false]",
-        o.Tree(
-            o.Node(o.String("booleans", 2), children=[
-                o.Node(o.Boolean(True, 2)),
-                o.Node(o.Boolean(False, 2)),
-                o.Node(o.Boolean(True, 2)),
-                o.Node(o.Boolean(True, 2)),
-            ]),
-            3
-        )
+        o.Node(o.String("booleans", 2), 1, children=[
+            o.Node(o.Boolean(True, 2), 1),
+            o.Node(o.Boolean(False, 2), 1),
+            o.Node(o.Boolean(True, 2), 1),
+            o.Node(o.Boolean(True, 2), 1),
+        ])
     )
 ]
 
@@ -341,21 +329,15 @@ def test_add_node_to_tree():
     expected_results = [
         o.NoReturn(line_num=2),
         o.NoReturn(line_num=3),
-        o.Tree(
-            o.Node(o.String("numbers", 2), children=[
-                o.Node(o.Integer(1, 3))
-            ]),
-            4
-        ),
+        o.Node(o.String("numbers", 2), 1, children=[
+            o.Node(o.Integer(1, 3), 1)
+        ]),
         o.NoReturn(line_num=5),
-        o.Tree(
-            o.Node(o.String("numbers", 2), children=[
-                o.Node(o.Integer(1, 3), children=[
-                    o.Node(o.Integer(2, 5))
-                ])
-            ]),
-            6
-        ),
+        o.Node(o.String("numbers", 2), 1, children=[
+            o.Node(o.Integer(1, 3), 1, children=[
+                o.Node(o.Integer(2, 5), 1)
+            ])
+        ]),
     ]
     actual_results = actual_result(source)
     assert actual_results == expected_results

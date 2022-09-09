@@ -112,7 +112,7 @@ class Evaluator:
         elif isinstance(expression, _parser.String):
             return expression
 
-        elif isinstance(expression, _parser.Tree):
+        elif isinstance(expression, _parser.Node):
             return self.evaluate_tree(expression)
 
         # This is a program-specific error because a missing object type would come about during development, not
@@ -130,28 +130,25 @@ class Evaluator:
 
         # mypy error: Incompatible types in assignment (expression has type "Base", variable has type "Tree")
         # reason for ignore: if "tree" is not a "Tree" object, an exception will be thrown
-        tree: _parser.Tree = self.evaluate_expression(add_node.params[0])  # type: ignore
-        if not isinstance(tree, _parser.Tree):
+        tree: _parser.Node = self.evaluate_expression(add_node.params[0])  # type: ignore
+        if not isinstance(tree, _parser.Node):
             raise_error(add_node.line_num, f"Invalid type {tree.__class__.__name__} for add_node")
 
         value = self.evaluate_expression(add_node.params[1])
         add_path = self.evaluate_expression(add_node.params[2])
-        tree.add_node(_parser.Node(value), str(add_path.value))
+        tree.add_node(_parser.Node(value, add_node.line_num), str(add_path.value))
         return _parser.NoReturn(line_num=add_node.line_num)
 
-    def evaluate_tree(self, tree: _parser.Tree) -> _parser.Tree:
+    def evaluate_tree(self, root: _parser.Node) -> _parser.Node:
         """Iterate through the tree to evaluate and update each node's value."""
-        root: _parser.Node = tree.value
 
         def traverse(node: _parser.Node) -> None:
-            # mypy error: Incompatible types in assignment (expression has type "Base", variable has type "Expression")
-            # reason for ignore: TODO: fix type
-            node.value = self.evaluate_expression(node.value)  # type: ignore
+            node.value = self.evaluate_expression(node.value)
             for child in node.children:
                 traverse(child)
 
         traverse(root)
-        return _parser.Tree(root, tree.line_num)
+        return root
 
     def evaluate_factorial(self, factorial_expression: _parser.Factorial) -> _parser.Integer:
         result: _parser.Base = self.evaluate_expression(factorial_expression.expr)

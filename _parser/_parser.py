@@ -8,17 +8,167 @@ from typing import Callable
 
 class Parser:
 
+    # Higher precedence is lower on the list (for example, && and || take precedence above everything, so they have a
+    # precedence level of 2.
+    LOWEST = 1
+    EDGE = 2  # =>
+    AND_OR = 3  # &&, ||
+    EQUALS = 4  # ==, !=
+    LESS_GREATER = 5  # <, >
+    SUM = 6  # +, -
+    PRODUCT = 7  # *, /
+    PREFIX = 8  # -X, +X, !X
+    CALL = 9  # func()
+
     def __init__(self, tokens: list[Token]):
         self.tokens = tokens
         self.index = 0
 
-        self.assignment_operators = [
+        self.assignment_operators: list[str] = [
             ASSIGN,
             ASSIGN_ADD,
             ASSIGN_SUB,
             ASSIGN_MUL,
             ASSIGN_DIV
         ]
+
+        self.infix_precedence: dict[str, int] = {
+            EQ: self.EQUALS,
+            NE: self.EQUALS,
+            LT: self.LESS_GREATER,
+            LE: self.LESS_GREATER,
+            GT: self.LESS_GREATER,
+            GE: self.LESS_GREATER,
+            AND: self.AND_OR,
+            OR: self.AND_OR,
+            PLUS: self.SUM,
+            MINUS: self.SUM,
+            MULTIPLY: self.PRODUCT,
+            DIVIDE: self.PRODUCT,
+            FUNCTION: self.CALL,
+            EDGE: self.EDGE
+        }
+
+        self.prefix_denotations: dict[str, Callable[[], Expression]] = {  # prefix: leaf/terminating nodes. Not recursive, nothing on the left
+            INTEGER: self.parse_prefix,
+            FLOAT: self.parse_prefix,
+            BOOLEAN: self.parse_prefix,
+            STRING: self.parse_prefix,
+            BANG: self.parse_prefix,
+            PLUS: self.parse_prefix,
+            MINUS: self.parse_prefix,
+            IDENTIFIER: self.parse_prefix,  # variable, function
+            OPEN_PAREN: self.parse_prefix
+        }
+
+        self.postfix_precedence: dict[str, int] = {
+            BANG: self.PREFIX
+        }
+
+        self.left_denotations: dict[str, Callable[[Expression], Expression]] = {
+            PLUS: self.parse_infix,
+            MINUS: self.parse_infix,
+            MULTIPLY: self.parse_infix,
+            DIVIDE: self.parse_infix,
+            EDGE: self.parse_infix,
+            EQ: self.parse_infix,
+            NE: self.parse_infix,
+            GT: self.parse_infix,
+            GE: self.parse_infix,
+            LT: self.parse_infix,
+            LE: self.parse_infix,
+            AND: self.parse_infix,
+            OR: self.parse_infix,
+        }
+
+        self.right_denotations: dict[str, Callable[[Expression], Expression]] = {
+            BANG: self.parse_postfix
+        }
+
+    def expression(self, precedence_level: int = LOWEST) -> Expression:
+
+        # Prefix
+        prefix_function: typing.Optional[Callable[[], Expression]] = self.prefix_denotations.get(self.current.type, None)
+        if prefix_function is None:
+            raise_error(self.current.line_num, f"invalid prefix operator: {self.current.type}")
+        left = prefix_function()
+
+        # Postfix comes before infix to allow postfix operators in infix expressions (e.g., 5! + 5)
+        while self.current is not None and precedence_level < self.postfix_precedence.get(self.current.type, self.LOWEST):
+            postfix_function: typing.Optional[Callable[[Expression], Expression]] = self.right_denotations.get(self.current.type, None)
+            if postfix_function is None:
+                raise_error(self.current.line_num, f"invalid postfix operator: {self.current.type}")
+            left = postfix_function(left)
+
+        # Infix
+        while self.current is not None and precedence_level < self.infix_precedence.get(self.current.type, self.LOWEST):
+            infix_function: typing.Optional[Callable[[Expression], Expression]] = self.left_denotations.get(self.current.type, None)
+            if infix_function is None:
+                raise_error(self.current.line_num, f"invalid infix operator: {self.current.type}")
+            left = infix_function(left)
+
+        return left
+
+    def parse_prefix(self) -> Expression:  # Factor
+        if self.current.type in [MINUS, PLUS, BANG]:
+            op = self.current
+            self.advance()
+            expression = self.expression()
+            return UnaryOperation(op, expression)
+
+        elif self.current.type == OPEN_PAREN:
+            self.advance()
+            expression = self.expression()
+            if self.current.type == CLOSED_PAREN:
+                self.advance()
+                return expression
+            self.is_expected_token(CLOSED_PAREN)
+
+        elif self.current.type == INTEGER:
+            number_token = self.current
+            self.advance()
+            return Integer(int(number_token.value), number_token.line_num)
+
+        elif self.current.type == FLOAT:
+            float_token = self.current
+            self.advance()
+            return Float(float(float_token.value), float_token.line_num)
+
+        elif self.current.type == BOOLEAN:
+            bool_val_token = self.current
+            value = True if bool_val_token.value == get_token_literal("TRUE") else False
+            self.advance()
+            return Boolean(value, bool_val_token.line_num)
+
+        elif self.current.type == STRING:
+            string_token = self.current
+            self.advance()
+            return String(string_token.value, string_token.line_num)
+
+        elif self.current.type == IDENTIFIER:
+            identifier_token = self.current
+            if self.peek.type == OPEN_PAREN:
+                return self.function_call(identifier_token)
+            else:
+                self.advance()
+                return Identifier(identifier_token.value, identifier_token.line_num)
+
+        raise_error(self.current.line_num, f"Invalid token: {self.current.type} ({self.current.value})")
+
+    def parse_infix(self, left: Expression) -> Expression:
+        if self.current.type == EDGE:
+            return self.parse_tree(left)
+        else:
+            op = self.current
+            self.advance()
+            right = self.expression(self.infix_precedence.get(op.type, self.LOWEST))
+            return BinaryOperation(left, op, right)
+
+    def parse_postfix(self, left: Expression) -> Expression:
+        if self.current.type == BANG:
+            self.advance()
+            return Factorial(left)
+        return left
 
     def advance(self) -> None:
         self.index += 1
@@ -210,148 +360,6 @@ class Parser:
 
         return AssignFunction(function_name, parameters, function_statements)
 
-    def pointer(self, root_expression: Expression, next_method: Callable[[], Expression]) -> Expression:
-        line_num = self.current.line_num
-        self.advance()
-
-        def get_nodes(root: Expression) -> Node:
-            self.is_expected_token(OPEN_BRACKET)
-            self.advance()
-
-            children = []
-            while True:
-
-                if self.current.type == CLOSED_BRACKET:
-                    # Closed bracket means we're at the end of the child nodes and going back to the outer scope/scope
-                    # of the root node.
-                    self.advance()
-                    break
-
-                value = next_method()
-
-                if self.current.type == EDGE:
-                    # Pointer denotes an edge, so we're creating a child node/subtree
-                    self.advance()
-                    children.append(get_nodes(value))
-                else:
-                    # A leaf node
-                    children.append(Node(value))
-
-                if self.current.type == COMMA:
-                    # Commas denote multiple child nodes
-                    self.advance()
-                    continue
-
-            return Node(root, children=children)
-
-        nodes = get_nodes(root_expression)
-        return Tree(nodes, line_num)
-
-    def binary_expression(
-            self,
-            binary_operators: list[str],
-            next_method: Callable[[], Expression]) -> Expression:
-
-        left = next_method()
-
-        while True:
-            if self.current is None:
-                return left
-            elif self.current.type in binary_operators:
-                op = self.current
-                self.advance()
-                right = next_method()
-                left = BinaryOperation(left, op, right)
-            elif self.current.type == BANG:
-                self.advance()
-                left = Factorial(left)
-            else:
-                break
-
-        return left
-
-    def expression(self) -> Expression:
-        expression = self.tree()
-
-        if self.current.type == EDGE:
-            return self.pointer(expression, self.tree)
-
-        return expression
-
-    def tree(self) -> Expression:
-        return self.binary_expression([
-            AND, OR
-        ], self.boolean)
-
-    def boolean(self) -> Expression:
-        return self.binary_expression([
-            EQ,
-            NE,
-            GE,
-            GT,
-            LE,
-            LT
-        ], self.addition)
-
-    def addition(self) -> Expression:
-        return self.binary_expression([
-            PLUS,
-            MINUS
-        ], self.term)
-
-    def term(self) -> Expression:
-        return self.binary_expression([
-            MULTIPLY,
-            DIVIDE
-        ], self.factor)
-
-    def factor(self) -> Expression:
-        # mypy ignore: Missing return statement
-        if self.current.type in [MINUS, PLUS, BANG]:
-            op = self.current
-            self.advance()
-            expression = self.expression()
-            return UnaryOperation(op, expression)
-
-        elif self.current.type == OPEN_PAREN:
-            self.advance()
-            expression = self.expression()
-            if self.current.type == CLOSED_PAREN:
-                self.advance()
-                return expression
-            self.is_expected_token(CLOSED_PAREN)
-
-        elif self.current.type == INTEGER:
-            number_token = self.current
-            self.advance()
-            return Integer(int(number_token.value), number_token.line_num)
-
-        elif self.current.type == FLOAT:
-            float_token = self.current
-            self.advance()
-            return Float(float(float_token.value), float_token.line_num)
-
-        elif self.current.type == BOOLEAN:
-            bool_val_token = self.current
-            value = True if bool_val_token.value == get_token_literal("TRUE") else False
-            self.advance()
-            return Boolean(value, bool_val_token.line_num)
-
-        elif self.current.type == STRING:
-            string_token = self.current
-            self.advance()
-            return String(string_token.value, string_token.line_num)
-
-        elif self.current.type == IDENTIFIER:
-            identifier_token = self.current
-            if self.peek.type == OPEN_PAREN:
-                return self.function_call(identifier_token)
-            else:
-                self.advance()
-                return Identifier(identifier_token.value, identifier_token.line_num)
-
-        raise_error(self.current.line_num, f"Invalid token: {self.current.type} ({self.current.value})")
-
     def function_call(self, identifier_token: Token) -> Factor:
         self.advance()  # skip identifier
         self.advance()  # skip open paren
@@ -385,6 +393,38 @@ class Parser:
         return builtin_functions.get(
             identifier_token.value,
             FunctionCall(identifier_token.value, parameters, identifier_token.line_num))
+
+    def parse_tree(self, left: Expression) -> Node:
+        op = self.current
+        line_num = op.line_num
+        self.advance()
+
+        self.is_expected_token(OPEN_BRACKET)
+        self.advance()
+
+        children: list[Node] = []
+        while True:
+            if self.current.type == CLOSED_BRACKET:
+                # Closed bracket means we're at the end of the child nodes and going back to the outer scope/scope
+                # of the root node.
+                self.advance()
+                break
+
+            value = self.expression(self.infix_precedence.get(op.type, self.LOWEST))
+            if self.current.type == EDGE:
+                # mypy error: Argument 1 to "append" of "list" has incompatible type "Expression"; expected "Node"
+                # Reason for ignore: due to how 'parse_infix' is written, that method will return a Node object in
+                # this context. Because the current token is an EDGE operator, 'parse_infix' will call this method.
+                children.append(self.parse_infix(value))  # type: ignore
+            else:
+                children.append(Node(value, line_num))
+
+            if self.current.type == COMMA:
+                # Commas denote multiple child nodes
+                self.advance()
+                continue
+
+        return Node(left, line_num, children=children)
 
     def is_expected_token(self, expected_token_type: typing.Union[str, list[str]]) -> None:
 
