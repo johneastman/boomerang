@@ -67,41 +67,8 @@ class Parser:
             EDGE: EDGE
         }
 
-        # prefix: leaf/terminating nodes. Not recursive, nothing on the left
-        self.prefix_denotations: dict[str, Callable[[], Expression]] = {
-            INTEGER: self.parse_prefix,
-            FLOAT: self.parse_prefix,
-            BOOLEAN: self.parse_prefix,
-            STRING: self.parse_prefix,
-            BANG: self.parse_prefix,
-            PLUS: self.parse_prefix,
-            MINUS: self.parse_prefix,
-            IDENTIFIER: self.parse_prefix,  # variable, function
-            OPEN_PAREN: self.parse_prefix
-        }
-
         self.postfix_precedence: dict[str, str] = {
             BANG: PREFIX
-        }
-
-        self.left_denotations: dict[str, Callable[[Expression], Expression]] = {
-            PLUS: self.parse_infix,
-            MINUS: self.parse_infix,
-            MULTIPLY: self.parse_infix,
-            DIVIDE: self.parse_infix,
-            EDGE: self.parse_infix,
-            EQ: self.parse_infix,
-            NE: self.parse_infix,
-            GT: self.parse_infix,
-            GE: self.parse_infix,
-            LT: self.parse_infix,
-            LE: self.parse_infix,
-            AND: self.parse_infix,
-            OR: self.parse_infix,
-        }
-
-        self.right_denotations: dict[str, Callable[[Expression], Expression]] = {
-            BANG: self.parse_postfix
         }
 
     def get_precedence_level(self, precedence_name: str) -> int:
@@ -126,24 +93,15 @@ class Parser:
         precedence_level = self.get_precedence_level(precedence_name)
 
         # Prefix
-        prefix_function: typing.Optional[Callable[[], Expression]] = self.prefix_denotations.get(self.current.type, None)
-        if prefix_function is None:
-            raise_error(self.current.line_num, f"invalid prefix operator: {self.current.type}")
-        left = prefix_function()
+        left = self.parse_prefix()
 
         # Postfix comes before infix to allow postfix operators in infix expressions (e.g., 5! + 5)
         while self.current is not None and precedence_level < self.get_next_precedence_level(self.postfix_precedence):
-            postfix_function: typing.Optional[Callable[[Expression], Expression]] = self.right_denotations.get(self.current.type, None)
-            if postfix_function is None:
-                raise_error(self.current.line_num, f"invalid postfix operator: {self.current.type}")
-            left = postfix_function(left)
+            left = self.parse_postfix(left)
 
         # Infix
         while self.current is not None and precedence_level < self.get_next_precedence_level(self.infix_precedence):
-            infix_function: typing.Optional[Callable[[Expression], Expression]] = self.left_denotations.get(self.current.type, None)
-            if infix_function is None:
-                raise_error(self.current.line_num, f"invalid infix operator: {self.current.type}")
-            left = infix_function(left)
+            left = self.parse_infix(left)
 
         return left
 
