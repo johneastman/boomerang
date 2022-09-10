@@ -1,6 +1,6 @@
 import typing
 
-from tokens.tokenizer import Token
+from tokens.tokenizer import *
 from _parser.ast_objects import *
 from utils.utils import raise_error
 from typing import Callable
@@ -13,7 +13,7 @@ EQUALS = "EQUALS"  # ==, !=
 LESS_GREATER = "LESS_GREATER"  # <, >, >=, <=
 SUM = "SUM"  # +, -
 PRODUCT = "PRODUCT"  # *, /
-PREFIX = "PREFIX"  # -X, +X, !X
+PREFIX = "PREFIX"  # -X, +X, !X, X!
 CALL = "CALL"  # function calls (e.g. function())
 
 
@@ -64,10 +64,7 @@ class Parser:
             MULTIPLY: PRODUCT,
             DIVIDE: PRODUCT,
             FUNCTION: CALL,
-            EDGE: EDGE
-        }
-
-        self.postfix_precedence: dict[str, str] = {
+            EDGE: EDGE,
             BANG: PREFIX
         }
 
@@ -94,10 +91,6 @@ class Parser:
 
         # Prefix
         left = self.parse_prefix()
-
-        # Postfix comes before infix to allow postfix operators in infix expressions (e.g., 5! + 5)
-        while self.current is not None and precedence_level < self.get_next_precedence_level(self.postfix_precedence):
-            left = self.parse_postfix(left)
 
         # Infix
         while self.current is not None and precedence_level < self.get_next_precedence_level(self.infix_precedence):
@@ -154,17 +147,17 @@ class Parser:
     def parse_infix(self, left: Expression) -> Expression:
         if self.current.type == EDGE:
             return self.parse_tree(left)
+
+        # Postfix operators are just infix operators without a right expression
+        elif self.current.type == BANG:
+            self.advance()
+            return Factorial(left)
+
         else:
             op = self.current
             self.advance()
             right = self.expression(self.infix_precedence.get(op.type, LOWEST))
             return BinaryOperation(left, op, right)
-
-    def parse_postfix(self, left: Expression) -> Expression:
-        if self.current.type == BANG:
-            self.advance()
-            return Factorial(left)
-        return left
 
     def advance(self) -> None:
         self.index += 1
