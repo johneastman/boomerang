@@ -34,6 +34,9 @@ class Tokenizer:
         self.index: int = 0
         self.line_num: int = 1
         self.line_col: int = 1
+
+        # If self.current is None, the tokenizer should return an EOF token. When that happens, this variable will be
+        # set to true, and the next time .next_token is called, a StopIteration exception is raised.
         self.is_end_of_stream: bool = False
 
     def __iter__(self) -> "Tokenizer":

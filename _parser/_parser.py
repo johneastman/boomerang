@@ -92,6 +92,8 @@ class Parser:
     @property
     def peek(self) -> Token:
         if len(self.peek_queue) > 0:
+            # Because we just want to see what the next token is without consuming it, return the last value in the
+            # queue without calling .pop()
             return self.peek_queue[-1]
 
         try:
