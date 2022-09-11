@@ -44,6 +44,7 @@ valid_boolean_operations_tests = [
     ("1 > 1;",  [o.Boolean(False, 1)]),
     ("2 > 1;",  [o.Boolean(True, 1)]),
     ("1 <= 1;", [o.Boolean(True, 1)]),
+    ("1 <= 10;", [o.Boolean(True, 1)]),
     ("1 < 2;",  [o.Boolean(True, 1)]),
     ("2 < 1;",  [o.Boolean(False, 1)]),
     ("10 == (2 + 4 * 2) == true;",  [o.Boolean(True, 1)])
