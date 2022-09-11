@@ -20,9 +20,8 @@ def get_source(filepath: str) -> str:
 def evaluate(source: str, environment: Environment, visualize: bool = False) -> typing.Optional[typing.List[Base]]:
     try:
         t = Tokenizer(source)
-        tokens = t.tokenize()
 
-        p = Parser(tokens)
+        p = Parser(t)
         ast = p.parse()
 
         # if visualize:
@@ -32,7 +31,8 @@ def evaluate(source: str, environment: Environment, visualize: bool = False) -> 
         return e.evaluate()
     except LanguageRuntimeException as e:
         print(str(e))
-    return None
+
+    return None  # needed to solve mypy error: Missing return statement
 
 
 def repl(prompt: str = ">>") -> None:

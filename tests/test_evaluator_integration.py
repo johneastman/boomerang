@@ -42,12 +42,14 @@ valid_boolean_operations_tests = [
     ("1 >= 1;", [o.Boolean(True, 1)]),
     ("1 >= 2;", [o.Boolean(False, 1)]),
     ("1 > 1;",  [o.Boolean(False, 1)]),
+    ("1 > 2;",  [o.Boolean(False, 1)]),
     ("2 > 1;",  [o.Boolean(True, 1)]),
     ("1 <= 1;", [o.Boolean(True, 1)]),
     ("1 <= 10;", [o.Boolean(True, 1)]),
+    ("10 <= 1;", [o.Boolean(False, 1)]),
     ("1 < 2;",  [o.Boolean(True, 1)]),
     ("2 < 1;",  [o.Boolean(False, 1)]),
-    ("10 == (2 + 4 * 2) == true;",  [o.Boolean(True, 1)])
+    ("10 == 2 + 4 * 2 == true;",  [o.Boolean(True, 1)])
 ]
 
 
@@ -324,7 +326,7 @@ def test_add_node_to_tree():
     set list = "numbers" => [];
     add_node(list, 1, "");
     list;
-    add_node(list, 2, 1);
+    add_node(list, 2, "1");
     list;
     """
     expected_results = [
@@ -346,9 +348,8 @@ def test_add_node_to_tree():
 
 def actual_result(source):
     t = Tokenizer(source)
-    tokens = t.tokenize()
 
-    p = Parser(tokens)
+    p = Parser(t)
     ast = p.parse()
 
     e = Evaluator(ast, Environment())

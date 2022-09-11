@@ -182,5 +182,5 @@ def test_advance():
         assert tokenizer.index == i
         tokenizer.advance()
 
-    assert tokenizer.current is None
+    assert tokenizer.current is None  # current is a property and acts like a method call
     assert tokenizer.index == len(source)

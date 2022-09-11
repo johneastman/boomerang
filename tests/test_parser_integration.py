@@ -1,18 +1,10 @@
 import pytest
 from tokens.tokens import *
-from tokens.tokenizer import Token
+from tokens.tokenizer import Token, Tokenizer
 from _parser import _parser
 
 
 def test_precedence_add():
-
-    tokens = [
-        Token("1", INTEGER, 1),
-        Token("+", PLUS, 1),
-        Token("1", INTEGER, 1),
-        Token(";", SEMICOLON, 1),
-        Token("", EOF, 1)
-    ]
 
     expected_ast = [
         _parser.ExpressionStatement(
@@ -24,21 +16,12 @@ def test_precedence_add():
         )
     ]
 
-    actual_ast = _parser.Parser(tokens).parse()
+    tokenizer = Tokenizer("1+1;")
+    actual_ast = _parser.Parser(tokenizer).parse()
     assert actual_ast == expected_ast
 
 
 def test_precedence_multiply():
-    tokens = [
-        Token("1", INTEGER, 1),
-        Token("+", PLUS, 1),
-        Token("2", INTEGER, 1),
-        Token("*", MULTIPLY, 1),
-        Token("4", INTEGER, 1),
-        Token(";", SEMICOLON, 1),
-        Token("", EOF, 1)
-    ]
-
     expected_ast = [
         _parser.ExpressionStatement(
             _parser.BinaryOperation(
@@ -53,7 +36,8 @@ def test_precedence_multiply():
         )
     ]
 
-    actual_ast = _parser.Parser(tokens).parse()
+    tokenizer = Tokenizer("1+2*4;")
+    actual_ast = _parser.Parser(tokenizer).parse()
     assert actual_ast == expected_ast
 
 
@@ -65,17 +49,8 @@ precedence_and_or_tests = [
 
 @pytest.mark.parametrize("test_name,operator_token", precedence_and_or_tests)
 def test_precedence_and_or(test_name, operator_token):
-    tokens = [
-        Token("1", INTEGER, 1),
-        Token("==", EQ, 1),
-        Token("1", INTEGER, 1),
-        operator_token,
-        Token("2", INTEGER, 1),
-        Token("!=", NE, 1),
-        Token("3", INTEGER, 1),
-        Token(";", SEMICOLON, 1),
-        Token("", EOF, 1)
-    ]
+
+    tokenizer = Tokenizer(f"1 == 1 {operator_token.value} 2 != 3;")
 
     expected_ast = [
         _parser.ExpressionStatement(
@@ -95,5 +70,5 @@ def test_precedence_and_or(test_name, operator_token):
         )
     ]
 
-    actual_ast = _parser.Parser(tokens).parse()
+    actual_ast = _parser.Parser(tokenizer).parse()
     assert actual_ast == expected_ast
