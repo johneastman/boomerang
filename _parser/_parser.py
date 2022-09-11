@@ -278,7 +278,7 @@ class Parser:
         self.advance()
 
         # Add a semicolon so users don't have to add one in the code
-        # self.add_semicolon()
+        self.add_semicolon()
 
         return Loop(comparison, loop_statements)
 
@@ -311,7 +311,7 @@ class Parser:
             self.is_expected_token(CLOSED_CURLY_BRACKET)
             self.advance()
 
-        # self.add_semicolon()
+        self.add_semicolon()
 
         return IfStatement(comparison, if_statements, else_statements)
 
@@ -350,7 +350,7 @@ class Parser:
         self.is_expected_token(CLOSED_CURLY_BRACKET)
         self.advance()
 
-        # self.add_semicolon()
+        self.add_semicolon()
 
         return AssignFunction(function_name, parameters, function_statements)
 
@@ -431,9 +431,12 @@ class Parser:
                 self.current.line_num,
                 f"Expected {expected_token_type}, got {self.current.type} ('{self.current.value}')")
 
-    # def add_semicolon(self) -> None:
-    #     semicolon_label = "SEMICOLON"
-    #     self.peek_queue.insert(
-    #         0,
-    #         Token(get_token_literal(semicolon_label), get_token_type(semicolon_label), self.current.line_num),
-    #     )
+    def add_semicolon(self) -> None:
+        semicolon_label = "SEMICOLON"
+        semicolon_literal = get_token_literal(semicolon_label)
+        semicolon_type = get_token_type(semicolon_label)
+
+        # To insert a token into the token stream, add the current token to the peek queue, and then update
+        # self.current to the new token
+        self.peek_queue.append(self.current)
+        self.current = Token(semicolon_literal, semicolon_type, self.current.line_num)

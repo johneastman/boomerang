@@ -133,7 +133,7 @@ def test_function_no_return():
     source = """
     func no_return() {
         set x = 1;
-    };
+    }
     
     set var = no_return();
     """
@@ -146,7 +146,7 @@ def test_function_no_return():
 
 def test_function_empty_body_no_return():
     source = """
-    func no_return() {};
+    func no_return() {}
     set var = no_return();
     """
 
@@ -161,8 +161,8 @@ def test_function_return():
     func is_equal(a, b) {
         if (a == b) {
             return true;
-        };
-    };
+        }
+    }
     is_equal(1, 1);  # true
     is_equal(1, 2);  # No return
     """
@@ -188,7 +188,7 @@ def test_function_calls(first_param, second_param, return_val):
     source = f"""
     func add(a, b) {{
         return a + b;
-    }};
+    }}
     add({first_param}, {second_param});
     """
 
@@ -238,7 +238,7 @@ def test_loop():
     set i = 0;
     while i < 10 {
         set i += 1;
-    };
+    }
     i;
     """
     actual_results = actual_result(source)
