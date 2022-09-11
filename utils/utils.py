@@ -44,6 +44,10 @@ def raise_error(line_num: int, description: str) -> typing.NoReturn:
     raise LanguageRuntimeException(f"Error at line {line_num}: {description}")
 
 
+def raise_unexpected_end_of_file() -> typing.NoReturn:
+    raise LanguageRuntimeException("Unexpected end of file")
+
+
 def get(dictionary: dict[str, typing.Any], key_path: str) -> typing.Any:
     value = dictionary
     for key in key_path.split("."):

@@ -34,13 +34,18 @@ class Tokenizer:
         self.index: int = 0
         self.line_num: int = 1
         self.line_col: int = 1
+        self.is_end_of_stream: bool = False
 
     def __iter__(self) -> "Tokenizer":
         return self
 
     def __next__(self) -> Token:
-        if self.current is None:
+        if self.is_end_of_stream:
             raise StopIteration
+
+        if self.current is None:
+            self.is_end_of_stream = True
+
         return self.next_token()
 
     def next_token(self) -> Token:
@@ -48,7 +53,7 @@ class Tokenizer:
         self.skip_comments()
 
         if self.current is None:
-            raise StopIteration
+            return Token("", EOF, self.line_num)
 
         elif self.is_digit():
             number: str = self.read_number()

@@ -70,6 +70,37 @@ class Parser:
             BANG: PREFIX
         }
 
+    def parse(self) -> list[Statement]:
+        ast = []
+        while self.current.type != EOF:
+            result = self.statement()
+            self.is_expected_token(SEMICOLON)
+            self.advance()
+            ast.append(result)
+
+        return ast
+
+    def advance(self) -> None:
+        if len(self.peek_queue) > 0:
+            self.current = self.peek_queue.pop()
+        else:
+            try:
+                self.current = next(self.tokenizer)
+            except StopIteration:
+                utils.raise_unexpected_end_of_file()
+
+    @property
+    def peek(self) -> Token:
+        if len(self.peek_queue) > 0:
+            return self.peek_queue[-1]
+
+        try:
+            token = next(self.tokenizer)
+            self.peek_queue.append(token)
+            return token
+        except StopIteration:
+            utils.raise_unexpected_end_of_file()
+
     def get_precedence_level(self, precedence_name: str) -> int:
         """Get the precedence level of a given precedence. The precedences are stores in 'self.precedences' from lowest
         to highest, so the precedence value is just the index + 1, where LOWEST is 1.
@@ -160,37 +191,6 @@ class Parser:
             self.advance()
             right = self.expression(self.infix_precedence.get(op.type, LOWEST))
             return BinaryOperation(left, op, right)
-
-    def advance(self) -> None:
-        if len(self.peek_queue) > 0:
-            self.current = self.peek_queue.pop()
-        else:
-            try:
-                self.current = next(self.tokenizer)
-            except StopIteration:
-                # mypy error: Incompatible types in assignment (expression has type "None", variable has type "Token")
-                # reason for ignore:
-                self.current = None  # type: ignore
-
-    @property
-    def peek(self) -> Token:
-        if len(self.peek_queue) > 0:
-            return self.peek_queue[-1]
-
-        token = next(self.tokenizer)
-        self.peek_queue.append(token)
-        return token
-
-    def parse(self) -> list[Statement]:
-        ast = []
-        while self.current is not None:
-            result = self.statement()
-            self.is_expected_token(SEMICOLON)
-
-            self.advance()
-            ast.append(result)
-
-        return ast
 
     def block_statement(self) -> list[Statement]:
         """Statements between two curly brackets (functions, if-statements, loops, etc.)"""
