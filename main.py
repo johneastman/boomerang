@@ -4,6 +4,7 @@ import argparse
 import typing
 
 from tokens.tokenizer import Tokenizer
+from tokens.token_queue import TokenQueue
 from _parser._parser import Parser, Base
 from _parser.ast_objects import NoReturn
 from evaluator.evaluator import Evaluator
@@ -17,15 +18,13 @@ def get_source(filepath: str) -> str:
         return file.read()
 
 
-def evaluate(source: str, environment: Environment, visualize: bool = False) -> typing.Optional[typing.List[Base]]:
+def evaluate(source: str, environment: Environment) -> typing.Optional[typing.List[Base]]:
     try:
         t = Tokenizer(source)
+        tokens = TokenQueue(t)
 
-        p = Parser(t)
+        p = Parser(tokens)
         ast = p.parse()
-
-        # if visualize:
-        #     ASTVisualizer(ast).visualize()
 
         e = Evaluator(ast, environment)
         return e.evaluate()

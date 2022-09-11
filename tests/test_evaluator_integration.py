@@ -2,6 +2,7 @@ import pytest
 
 import _parser.ast_objects as o
 from tokens.tokenizer import Tokenizer
+from tokens.token_queue import TokenQueue
 from _parser._parser import Parser
 from evaluator.evaluator import Evaluator
 from evaluator._environment import Environment
@@ -348,8 +349,9 @@ def test_add_node_to_tree():
 
 def actual_result(source):
     t = Tokenizer(source)
+    tokens = TokenQueue(t)
 
-    p = Parser(t)
+    p = Parser(tokens)
     ast = p.parse()
 
     e = Evaluator(ast, Environment())

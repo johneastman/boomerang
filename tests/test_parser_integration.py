@@ -1,7 +1,8 @@
 import pytest
 from tokens.tokens import *
-from tokens.tokenizer import Token, Tokenizer
+from tokens.tokenizer import Token
 from _parser import _parser
+from . import testing_utils
 
 
 def test_precedence_add():
@@ -16,8 +17,8 @@ def test_precedence_add():
         )
     ]
 
-    tokenizer = Tokenizer("1+1;")
-    actual_ast = _parser.Parser(tokenizer).parse()
+    parser = testing_utils.parser("1+1;")
+    actual_ast = parser.parse()
     assert actual_ast == expected_ast
 
 
@@ -36,8 +37,8 @@ def test_precedence_multiply():
         )
     ]
 
-    tokenizer = Tokenizer("1+2*4;")
-    actual_ast = _parser.Parser(tokenizer).parse()
+    parser = testing_utils.parser("1+2*4;")
+    actual_ast = parser.parse()
     assert actual_ast == expected_ast
 
 
@@ -50,7 +51,7 @@ precedence_and_or_tests = [
 @pytest.mark.parametrize("test_name,operator_token", precedence_and_or_tests)
 def test_precedence_and_or(test_name, operator_token):
 
-    tokenizer = Tokenizer(f"1 == 1 {operator_token.value} 2 != 3;")
+    parser = testing_utils.parser(f"1 == 1 {operator_token.value} 2 != 3;")
 
     expected_ast = [
         _parser.ExpressionStatement(
@@ -70,5 +71,5 @@ def test_precedence_and_or(test_name, operator_token):
         )
     ]
 
-    actual_ast = _parser.Parser(tokenizer).parse()
+    actual_ast = parser.parse()
     assert actual_ast == expected_ast

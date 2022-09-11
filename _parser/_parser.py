@@ -1,6 +1,7 @@
 import typing
 
 from tokens.tokenizer import *
+from tokens.token_queue import TokenQueue
 from _parser.ast_objects import *
 from utils.utils import raise_error
 from typing import Callable
@@ -19,12 +20,8 @@ CALL = "CALL"  # function calls (e.g. function())
 
 class Parser:
 
-    def __init__(self, tokenizer: Tokenizer):
-        self.tokenizer = tokenizer
-
-        self.current = next(self.tokenizer)
-
-        self.peek_queue: list[Token] = []
+    def __init__(self, tokens: TokenQueue):
+        self.tokens = tokens
 
         self.assignment_operators: list[str] = [
             ASSIGN,
@@ -81,27 +78,15 @@ class Parser:
         return ast
 
     def advance(self) -> None:
-        if len(self.peek_queue) > 0:
-            self.current = self.peek_queue.pop()
-        else:
-            try:
-                self.current = next(self.tokenizer)
-            except StopIteration:
-                utils.raise_unexpected_end_of_file()
+        self.tokens.next()
 
     @property
     def peek(self) -> Token:
-        if len(self.peek_queue) > 0:
-            # Because we just want to see what the next token is without consuming it, return the last value in the
-            # queue without calling .pop()
-            return self.peek_queue[-1]
+        return self.tokens.peek()
 
-        try:
-            token = next(self.tokenizer)
-            self.peek_queue.append(token)
-            return token
-        except StopIteration:
-            utils.raise_unexpected_end_of_file()
+    @property
+    def current(self) -> Token:
+        return self.tokens.current
 
     def get_precedence_level(self, precedence_name: str) -> int:
         """Get the precedence level of a given precedence. The precedences are stores in 'self.precedences' from lowest
@@ -434,11 +419,4 @@ class Parser:
                 f"Expected {expected_token_type}, got {self.current.type} ('{self.current.value}')")
 
     def add_semicolon(self) -> None:
-        semicolon_label = "SEMICOLON"
-        semicolon_literal = get_token_literal(semicolon_label)
-        semicolon_type = get_token_type(semicolon_label)
-
-        # To insert a token into the token stream, add the current token to the peek queue, and then update
-        # self.current to the new token
-        self.peek_queue.append(self.current)
-        self.current = Token(semicolon_literal, semicolon_type, self.current.line_num)
+        self.tokens.add("SEMICOLON")
