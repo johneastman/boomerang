@@ -42,11 +42,14 @@ valid_boolean_operations_tests = [
     ("1 >= 1;", [o.Boolean(True, 1)]),
     ("1 >= 2;", [o.Boolean(False, 1)]),
     ("1 > 1;",  [o.Boolean(False, 1)]),
+    ("1 > 2;",  [o.Boolean(False, 1)]),
     ("2 > 1;",  [o.Boolean(True, 1)]),
     ("1 <= 1;", [o.Boolean(True, 1)]),
+    ("1 <= 10;", [o.Boolean(True, 1)]),
+    ("10 <= 1;", [o.Boolean(False, 1)]),
     ("1 < 2;",  [o.Boolean(True, 1)]),
     ("2 < 1;",  [o.Boolean(False, 1)]),
-    ("10 == (2 + 4 * 2) == true;",  [o.Boolean(True, 1)])
+    ("10 == 2 + 4 * 2 == true;",  [o.Boolean(True, 1)])
 ]
 
 
@@ -130,7 +133,7 @@ def test_function_no_return():
     source = """
     func no_return() {
         set x = 1;
-    }
+    };
     
     set var = no_return();
     """
@@ -143,7 +146,7 @@ def test_function_no_return():
 
 def test_function_empty_body_no_return():
     source = """
-    func no_return() {}
+    func no_return() {};
     set var = no_return();
     """
 
@@ -158,8 +161,8 @@ def test_function_return():
     func is_equal(a, b) {
         if (a == b) {
             return true;
-        }
-    }
+        };
+    };
     is_equal(1, 1);  # true
     is_equal(1, 2);  # No return
     """
@@ -185,7 +188,7 @@ def test_function_calls(first_param, second_param, return_val):
     source = f"""
     func add(a, b) {{
         return a + b;
-    }}
+    }};
     add({first_param}, {second_param});
     """
 
@@ -235,7 +238,7 @@ def test_loop():
     set i = 0;
     while i < 10 {
         set i += 1;
-    }
+    };
     i;
     """
     actual_results = actual_result(source)
@@ -323,7 +326,7 @@ def test_add_node_to_tree():
     set list = "numbers" => [];
     add_node(list, 1, "");
     list;
-    add_node(list, 2, 1);
+    add_node(list, 2, "1");
     list;
     """
     expected_results = [
@@ -345,9 +348,8 @@ def test_add_node_to_tree():
 
 def actual_result(source):
     t = Tokenizer(source)
-    tokens = t.tokenize()
 
-    p = Parser(tokens)
+    p = Parser(t)
     ast = p.parse()
 
     e = Evaluator(ast, Environment())

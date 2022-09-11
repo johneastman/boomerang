@@ -286,7 +286,7 @@ class Integer(Base, Factor):
         return super().less_than(other)
 
     def less_than_or_equal(self, other: "Base") -> "Base":
-        result = self.value >= other.value
+        result = self.value <= other.value
         if isinstance(other, Integer):
             return Boolean(result, self.line_num)
 

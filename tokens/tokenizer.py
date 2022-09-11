@@ -35,75 +35,62 @@ class Tokenizer:
         self.line_num: int = 1
         self.line_col: int = 1
 
-    def tokenize(self) -> list[Token]:
-        tokens: list[Token] = []
+    def __iter__(self) -> "Tokenizer":
+        return self
 
-        while True:
-            self.skip_whitespace()
+    def __next__(self) -> Token:
+        if self.current is None:
+            raise StopIteration
+        return self.next_token()
 
-            if self.current is None:
-                break
+    def next_token(self) -> Token:
+        self.skip_whitespace()
+        self.skip_comments()
 
-            elif self.is_digit():
-                number: str = self.read_number()
-                token_type: str = FLOAT if "." in number else INTEGER
-                tokens.append(Token(number, token_type, self.line_num))
-                continue
+        if self.current is None:
+            raise StopIteration
 
-            elif self.is_identifier():
-                letters: str = self.read_identifier()
+        elif self.is_digit():
+            number: str = self.read_number()
+            token_type: str = FLOAT if "." in number else INTEGER
+            return Token(number, token_type, self.line_num)
 
-                # Any string that is not a keyword is an identifier (variable, function, etc.)
-                token_type = tokens_dict.get(letters, IDENTIFIER)
-                tokens.append(Token(letters, token_type, self.line_num))
-                continue
+        elif self.is_identifier():
+            letters: str = self.read_identifier()
 
-            elif self.is_string():
-                self.advance()
-                string_literal: str = self.read_string()
-                tokens.append(Token(string_literal, STRING, self.line_num))
-                self.advance()
+            # Any string that is not a keyword is an identifier (variable, function, etc.)
+            token_type = tokens_dict.get(letters, IDENTIFIER)
+            return Token(letters, token_type, self.line_num)
 
-            else:
-                # Find all tokens starting with the current character. Sort by the length of each token in descending
-                # order. This ensures shorter tokens with similar characters to longer tokens are not mistakenly
-                # matched (for example, '==' might get confused as two '=' if the smaller tokens are ordered first).
-                #
-                # l = literal
-                # t = type
-                key_sort: Callable[[Tuple[str, str, int]], int] = lambda data: data[2]
-                matching_tokens: list[Tuple[str, str, int]] = sorted(
-                    [(l, t, len(l)) for l, t in tokens_dict.items() if l.startswith(self.current)],
-                    key=key_sort, reverse=True
-                )
+        elif self.is_string():
+            self.advance()  # skip starting quote
+            string_literal: str = self.read_string()
+            self.advance()  # skip ending quote
+            return Token(string_literal, STRING, self.line_num)
 
-                # If no tokens are found, then assume an invalid character
-                if len(matching_tokens) == 0:
-                    self.raise_invalid_char(self.current)
+        else:
+            # Find all tokens starting with the current character. Sort by the length of each token in descending
+            # order. This ensures shorter tokens with similar characters to longer tokens are not mistakenly
+            # matched (for example, '==' might get confused as two '=' if the smaller tokens are ordered first).
+            #
+            # l = literal
+            # t = type
+            key_sort: Callable[[Tuple[str, str, int]], int] = lambda data: data[2]
+            matching_tokens: list[Tuple[str, str, int]] = sorted(
+                [(l, t, len(l)) for l, t in tokens_dict.items() if l.startswith(self.current)],
+                key=key_sort, reverse=True
+            )
 
-                for literal, _type, literal_len in matching_tokens:
-                    matching_source: str = self.source[self.index:self.index + literal_len]
-                    if matching_source == literal:
+            for literal, _type, literal_len in matching_tokens:
+                matching_source: str = self.source[self.index:self.index + literal_len]
+                if matching_source == literal:
+                    # Advance past the number of characters in the matching literal string
+                    for _ in range(literal_len):
+                        self.advance()
+                    return Token(literal, _type, self.line_num)
 
-                        # Skip single-line and block comments
-                        if _type == COMMENT:
-                            self.skip_comment()
-                        elif _type == BLOCK_COMMENT:
-                            self.skip_block_comment()
-                            break
-                        else:
-                            tokens.append(Token(literal, _type, self.line_num))
-
-                        # Advance past the number of characters in the matching token
-                        for _ in range(literal_len):
-                            self.advance()
-                        break
-
-        tokens.append(Token("", EOF, self.line_num))  # Add end-of-file token
-        return tokens
-
-    def raise_invalid_char(self, char: str) -> None:
-        raise Exception(f"Invalid character: {char}")
+            # If no tokens are found, then assume an invalid character
+            utils.raise_error(self.line_num, f"invalid character {repr(self.current)}")
 
     @property
     def current(self) -> Optional[str]:
@@ -124,18 +111,28 @@ class Tokenizer:
 
             self.advance()
 
-    def skip_comment(self) -> None:
+    def skip_comments(self) -> None:
+        if self.current == get_token_literal("COMMENT"):
+            self.skip_inline_comment()
+
+        elif self.current == get_token_literal("DIVIDE") and self.next_char == get_token_literal("MULTIPLY"):
+            self.skip_block_comment()
+
+        self.skip_whitespace()  # for any whitespace that may be after the comments
+
+    def skip_inline_comment(self) -> None:
         # If a hash symbol is found, skip until the end of the line
         while self.current is not None and self.current != "\n":
             self.advance()
+        self.advance()  # skip end-line char
+
         self.line_num += 1
 
     def skip_block_comment(self) -> None:
         while True:
-            if self.current == "*" and self.next_char == "/":
-                # Advance past two characters that close the block comment
-                self.advance()
-                self.advance()
+            if self.current == get_token_literal("MULTIPLY") and self.next_char == get_token_literal("DIVIDE"):
+                self.advance()  # skip over /
+                self.advance()  # skip over *
                 break
 
             if self.current == "\n":

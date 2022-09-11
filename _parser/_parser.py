@@ -19,9 +19,12 @@ CALL = "CALL"  # function calls (e.g. function())
 
 class Parser:
 
-    def __init__(self, tokens: list[Token]):
-        self.tokens = tokens
-        self.index = 0
+    def __init__(self, tokenizer: Tokenizer):
+        self.tokenizer = tokenizer
+
+        self.current = next(self.tokenizer)
+
+        self.peek_queue: list[Token] = []
 
         self.assignment_operators: list[str] = [
             ASSIGN,
@@ -63,7 +66,6 @@ class Parser:
             MINUS: SUM,
             MULTIPLY: PRODUCT,
             DIVIDE: PRODUCT,
-            FUNCTION: CALL,
             EDGE: EDGE,
             BANG: PREFIX
         }
@@ -160,31 +162,34 @@ class Parser:
             return BinaryOperation(left, op, right)
 
     def advance(self) -> None:
-        self.index += 1
-
-    @property
-    def current(self) -> Token:
-        current = self.tokens[self.index] if self.index < len(self.tokens) else None
-        if current is None:
-            raise Exception(f"from {self.__class__.__name__}.current: token is None")
-        return current
+        if len(self.peek_queue) > 0:
+            self.current = self.peek_queue.pop()
+        else:
+            try:
+                self.current = next(self.tokenizer)
+            except StopIteration:
+                # mypy error: Incompatible types in assignment (expression has type "None", variable has type "Token")
+                # reason for ignore:
+                self.current = None  # type: ignore
 
     @property
     def peek(self) -> Token:
-        next_token_index = self.index + 1
-        next_token = self.tokens[next_token_index] if next_token_index < len(self.tokens) else None
-        if next_token is None:
-            raise Exception(f"from {self.__class__.__name__}.peek: token is None")
-        return next_token
+        if len(self.peek_queue) > 0:
+            return self.peek_queue[-1]
+
+        token = next(self.tokenizer)
+        self.peek_queue.append(token)
+        return token
 
     def parse(self) -> list[Statement]:
         ast = []
-        while self.current is not None and self.current.type != EOF:
+        while self.current is not None:
             result = self.statement()
             self.is_expected_token(SEMICOLON)
 
             self.advance()
             ast.append(result)
+
         return ast
 
     def block_statement(self) -> list[Statement]:
@@ -273,7 +278,7 @@ class Parser:
         self.advance()
 
         # Add a semicolon so users don't have to add one in the code
-        self.add_semicolon()
+        # self.add_semicolon()
 
         return Loop(comparison, loop_statements)
 
@@ -306,7 +311,7 @@ class Parser:
             self.is_expected_token(CLOSED_CURLY_BRACKET)
             self.advance()
 
-        self.add_semicolon()
+        # self.add_semicolon()
 
         return IfStatement(comparison, if_statements, else_statements)
 
@@ -345,7 +350,7 @@ class Parser:
         self.is_expected_token(CLOSED_CURLY_BRACKET)
         self.advance()
 
-        self.add_semicolon()
+        # self.add_semicolon()
 
         return AssignFunction(function_name, parameters, function_statements)
 
@@ -426,9 +431,9 @@ class Parser:
                 self.current.line_num,
                 f"Expected {expected_token_type}, got {self.current.type} ('{self.current.value}')")
 
-    def add_semicolon(self) -> None:
-        semicolon_label = "SEMICOLON"
-        self.tokens.insert(
-            self.index,
-            Token(get_token_literal(semicolon_label), get_token_type(semicolon_label), self.current.line_num)
-        )
+    # def add_semicolon(self) -> None:
+    #     semicolon_label = "SEMICOLON"
+    #     self.peek_queue.insert(
+    #         0,
+    #         Token(get_token_literal(semicolon_label), get_token_type(semicolon_label), self.current.line_num),
+    #     )
