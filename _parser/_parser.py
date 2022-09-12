@@ -68,11 +68,22 @@ class Parser:
         }
 
     def parse(self) -> list[Statement]:
-        ast = []
-        while self.current.type != EOF:
-            result = self.statement()
-            ast.append(result)
-        return ast
+        return self.parse_statements(EOF)
+
+    def parse_statements(self, end_type: str) -> list[Statement]:
+        """Parse statements within a certain scope (set by 'end_type')
+
+        For block statements, that value will be a closed curly bracket. For program statements, that value will be an
+        end-of-file token.
+        """
+        statements = []
+        while self.current.type != end_type:
+            statements.append(self.statement())
+        return statements
+
+    def block_statement(self) -> list[Statement]:
+        """Statements between two curly brackets (functions, if-statements, loops, etc.)"""
+        return self.parse_statements(CLOSED_CURLY_BRACKET)
 
     def advance(self) -> None:
         self.tokens.next()
@@ -175,13 +186,6 @@ class Parser:
             self.advance()
             right = self.expression(self.infix_precedence.get(op.type, LOWEST))
             return BinaryOperation(left, op, right)
-
-    def block_statement(self) -> list[Statement]:
-        """Statements between two curly brackets (functions, if-statements, loops, etc.)"""
-        statements = []
-        while self.current.type != CLOSED_CURLY_BRACKET:
-            statements.append(self.statement())
-        return statements
 
     def statement(self) -> Statement:
         if self.current.type == FUNCTION:
