@@ -71,10 +71,7 @@ class Parser:
         ast = []
         while self.current.type != EOF:
             result = self.statement()
-            self.is_expected_token(SEMICOLON)
-            self.advance()
             ast.append(result)
-
         return ast
 
     def advance(self) -> None:
@@ -184,8 +181,6 @@ class Parser:
         statements = []
         while self.current.type != CLOSED_CURLY_BRACKET:
             statements.append(self.statement())
-            self.is_expected_token(SEMICOLON)
-            self.advance()
         return statements
 
     def statement(self) -> Statement:
@@ -264,9 +259,6 @@ class Parser:
         self.is_expected_token(CLOSED_CURLY_BRACKET)
         self.advance()
 
-        # Add a semicolon so users don't have to add one in the code
-        self.add_semicolon()
-
         return Loop(comparison, loop_statements)
 
     def if_statement(self) -> Statement:
@@ -297,8 +289,6 @@ class Parser:
             # Closed curly bracket
             self.is_expected_token(CLOSED_CURLY_BRACKET)
             self.advance()
-
-        self.add_semicolon()
 
         return IfStatement(comparison, if_statements, else_statements)
 
@@ -336,8 +326,6 @@ class Parser:
 
         self.is_expected_token(CLOSED_CURLY_BRACKET)
         self.advance()
-
-        self.add_semicolon()
 
         return AssignFunction(function_name, parameters, function_statements)
 
@@ -417,6 +405,3 @@ class Parser:
             raise_error(
                 self.current.line_num,
                 f"Expected {expected_token_type}, got {self.current.type} ('{self.current.value}')")
-
-    def add_semicolon(self) -> None:
-        self.tokens.add("SEMICOLON")

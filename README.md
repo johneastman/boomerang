@@ -76,7 +76,7 @@ These are errors with the Python code itself and exist to aid the development pr
 
 ## Comments
 ```
-set variable = 3; # inline comment
+set variable = 3  # inline comment
 /*
 block comment
 */
@@ -86,40 +86,40 @@ block comment
 
 ### Variable Assignment
 ```
-set number = 10;
-set float = 3.14;
-set string = "hello, world!";
-set boolean = true;
+set number = 10
+set float = 3.14
+set string = "hello, world!"
+set boolean = true
 ```
 
 #### Operator Assignment
 Unlike many languages, variable assignment and reassignment requires the `set` keyword.
 ```
-set number = 1;
-set number += 1;
-set number -= 1;
+set number = 1
+set number += 1
+set number -= 1
 set number *= 2
-set number /= 1;
+set number /= 1
 ```
 
 ### While Loops
 ```
-set i = 0;
+set i = 0
 while i < 10 {
-   print(i);
-   set i = i + 1;
+   print(i)
+   set i = i + 1
 }
 ```
 
 ### Functions
 ```
 func add(a, b) {
-   set result = a + b;
-   return result;
+   set result = a + b
+   return result
 }
 
-set sum = add(3, 4);
-print(sum);
+set sum = add(3, 4)
+print(sum)
 ```
 
 #### Builtin Functions
@@ -133,11 +133,11 @@ print(sum);
 
 ### If Statements
 ```
-set r = random();  # generates a random number between 0 and 1
+set r = random()  # generates a random number between 0 and 1
 if r < 0.5 {
-    print("r is less than 0.5");
+    print("r is less than 0.5")
 } else {
-    print("r is greater than or equal to 0.5");
+    print("r is greater than or equal to 0.5")
 }
 ```
 
@@ -145,38 +145,38 @@ if r < 0.5 {
 
 ### Math Expressions
 ```
-1 + 1;
-1 + 2 + 3 + 4;
-5 - 3;
-6 * 4;
-10 / 2;
-3 + (10 - 9 - 8);
--3;
--(5 + 4 + 3 + 2 + 1);
-+6;
-5!;  # factorial. 5! = 120
+1 + 1
+1 + 2 + 3 + 4
+5 - 3
+6 * 4
+10 / 2
+3 + (10 - 9 - 8)
+-3
+-(5 + 4 + 3 + 2 + 1)
++6
+5!  # factorial. 5! = 120
 ```
 
 ### Boolean Expressions
 ```
-!true;  # false
-!false; # true
+!true  # false
+!false # true
 
-true && false;  # false
-true || false;  # true
+true && false  # false
+true || false  # true
 ```
 
 ### Comparison Expressions
 ```
-1 == 1;  # true
-1 != 2;  # true
-1 > 2;   # false
-2 >= 1;  # true
-2 < 1;   # true
-1 <= 2;  # true
+1 == 1  # true
+1 != 2  # true
+1 > 2   # false
+2 >= 1  # true
+2 < 1   # true
+1 <= 2  # true
 
-1 == 1 && 2 == 2;  # true
-1 == 2 || 2 == 1;  # true
+1 == 1 && 2 == 2  # true
+1 == 2 || 2 == 1  # true
 ```
 
 ### Trees
@@ -194,8 +194,8 @@ set tree = "root" => [
         "child_2_2"
     ],
     "parent_3"
-];
-print(tree);  # "root" => ["parent_1" => ["child_1_1" => ["grandchild_1_1_1"]], "parent_2" => ["child_2_2"], "parent_3"]
+]
+print(tree)  # "root" => ["parent_1" => ["child_1_1" => ["grandchild_1_1_1"]], "parent_2" => ["child_2_2"], "parent_3"]
 ```
 
 #### Lists and Dictionaries
@@ -206,12 +206,11 @@ set list = "list" => [
    "b",
    1 + (2 + 2),
    "hello" + " " + "world!"
-];
-
+]
 set dict = "dictionary" => [
     "a" => [1],
     "b" => [2],
     "c" => [3]
-];
-print(dict);  # "dictionary" => ["a" => [1], "b" => [2], "c" => [3]]
+]
+print(dict)  # "dictionary" => ["a" => [1], "b" => [2], "c" => [3]]
 ```

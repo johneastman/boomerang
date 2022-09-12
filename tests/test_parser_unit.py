@@ -42,7 +42,7 @@ def test_set_statement_operate_assign(operator_assign_literal, operator_assign_t
 
 
 def test_loop():
-    p = testing_utils.parser("while i < 10 {\n set i += 1; };")
+    p = testing_utils.parser("while i < 10 {\n set i += 1 }")
     actual_loop_ast = p.loop()
     expected_loop_ast = Loop(
         BinaryOperation(Identifier("i", 1), Token("<", LT, 1), Integer(10, 1)),

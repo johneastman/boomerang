@@ -17,7 +17,7 @@ def test_precedence_add():
         )
     ]
 
-    parser = testing_utils.parser("1+1;")
+    parser = testing_utils.parser("1+1")
     actual_ast = parser.parse()
     assert actual_ast == expected_ast
 
@@ -37,7 +37,7 @@ def test_precedence_multiply():
         )
     ]
 
-    parser = testing_utils.parser("1+2*4;")
+    parser = testing_utils.parser("1+2*4")
     actual_ast = parser.parse()
     assert actual_ast == expected_ast
 
@@ -51,7 +51,7 @@ precedence_and_or_tests = [
 @pytest.mark.parametrize("test_name,operator_token", precedence_and_or_tests)
 def test_precedence_and_or(test_name, operator_token):
 
-    parser = testing_utils.parser(f"1 == 1 {operator_token.value} 2 != 3;")
+    parser = testing_utils.parser(f"1 == 1 {operator_token.value} 2 != 3")
 
     expected_ast = [
         _parser.ExpressionStatement(

@@ -10,23 +10,23 @@ from utils.utils import LanguageRuntimeException
 
 
 evaluator_tests = [
-    ("1 + 1;", [o.Integer(2, 1)]),
-    ("1 + 2 * 2;", [o.Integer(5, 1)]),
-    ("(1 + 2) * 2;", [o.Integer(6, 1)]),
-    ("set x = (1 + 2) * 2;x;", [o.NoReturn(line_num=1), o.Integer(6, 1)]),
-    ("4 / 2;", [o.Float(2.0, 1)]),
-    ("7 / 2;", [o.Float(3.5, 1)]),
-    ("1 + 1 * 2 + 3 / 4;", [o.Float(3.75, 1)]),
-    ("\"hello \" + \"world!\";",  [o.String("hello world!", 1)]),
-    ("0!;", [o.Integer(1, 1)]),
-    ("1!;", [o.Integer(1, 1)]),
-    ("2!;", [o.Integer(2, 1)]),
-    ("3!;", [o.Integer(6, 1)]),
-    ("4!;", [o.Integer(24, 1)]),
-    ("5!;", [o.Integer(120, 1)]),
-    ("6!;", [o.Integer(720, 1)]),
-    ("5! + 5;", [o.Integer(125, 1)]),
-    ("3!!;", [o.Integer(720, 1)])
+    ("1 + 1", [o.Integer(2, 1)]),
+    ("1 + 2 * 2", [o.Integer(5, 1)]),
+    ("(1 + 2) * 2", [o.Integer(6, 1)]),
+    ("set x = (1 + 2) * 2\nx", [o.NoReturn(line_num=1), o.Integer(6, 2)]),
+    ("4 / 2", [o.Float(2.0, 1)]),
+    ("7 / 2", [o.Float(3.5, 1)]),
+    ("1 + 1 * 2 + 3 / 4", [o.Float(3.75, 1)]),
+    ("\"hello \" + \"world!\"",  [o.String("hello world!", 1)]),
+    ("0!", [o.Integer(1, 1)]),
+    ("1!", [o.Integer(1, 1)]),
+    ("2!", [o.Integer(2, 1)]),
+    ("3!", [o.Integer(6, 1)]),
+    ("4!", [o.Integer(24, 1)]),
+    ("5!", [o.Integer(120, 1)]),
+    ("6!", [o.Integer(720, 1)]),
+    ("5! + 5", [o.Integer(125, 1)]),
+    ("3!!", [o.Integer(720, 1)])
 ]
 
 
@@ -37,20 +37,20 @@ def test_evaluator(source, expected_results):
 
 
 valid_boolean_operations_tests = [
-    ("1 == 1;", [o.Boolean(True, 1)]),
-    ("1 != 1;", [o.Boolean(False, 1)]),
-    ("1 != 2;", [o.Boolean(True, 1)]),
-    ("1 >= 1;", [o.Boolean(True, 1)]),
-    ("1 >= 2;", [o.Boolean(False, 1)]),
-    ("1 > 1;",  [o.Boolean(False, 1)]),
-    ("1 > 2;",  [o.Boolean(False, 1)]),
-    ("2 > 1;",  [o.Boolean(True, 1)]),
-    ("1 <= 1;", [o.Boolean(True, 1)]),
-    ("1 <= 10;", [o.Boolean(True, 1)]),
-    ("10 <= 1;", [o.Boolean(False, 1)]),
-    ("1 < 2;",  [o.Boolean(True, 1)]),
-    ("2 < 1;",  [o.Boolean(False, 1)]),
-    ("10 == 2 + 4 * 2 == true;",  [o.Boolean(True, 1)])
+    ("1 == 1", [o.Boolean(True, 1)]),
+    ("1 != 1", [o.Boolean(False, 1)]),
+    ("1 != 2", [o.Boolean(True, 1)]),
+    ("1 >= 1", [o.Boolean(True, 1)]),
+    ("1 >= 2", [o.Boolean(False, 1)]),
+    ("1 > 1",  [o.Boolean(False, 1)]),
+    ("1 > 2",  [o.Boolean(False, 1)]),
+    ("2 > 1",  [o.Boolean(True, 1)]),
+    ("1 <= 1", [o.Boolean(True, 1)]),
+    ("1 <= 10", [o.Boolean(True, 1)]),
+    ("10 <= 1", [o.Boolean(False, 1)]),
+    ("1 < 2",  [o.Boolean(True, 1)]),
+    ("2 < 1",  [o.Boolean(False, 1)]),
+    ("10 == 2 + 4 * 2 == true",  [o.Boolean(True, 1)])
 ]
 
 
@@ -61,19 +61,19 @@ def test_valid_boolean_operations(source, expected_results):
 
 
 invalid_boolean_operations_tests = [
-    ("1 == true;", "Integer", "EQ", "Boolean"),
-    ("1 != true;", "Integer", "NE", "Boolean"),
-    ("1 > true;", "Integer", "GT", "Boolean"),
-    ("2 >= false;", "Integer", "GE", "Boolean"),
-    ("2 < false;", "Integer", "LT", "Boolean"),
-    ("2 <= false;", "Integer", "LE", "Boolean"),
+    ("1 == true", "Integer", "EQ", "Boolean"),
+    ("1 != true", "Integer", "NE", "Boolean"),
+    ("1 > true", "Integer", "GT", "Boolean"),
+    ("2 >= false", "Integer", "GE", "Boolean"),
+    ("2 < false", "Integer", "LT", "Boolean"),
+    ("2 <= false", "Integer", "LE", "Boolean"),
 
     # Check that we can't use boolean operators in less-than, greater-than, greater-than-or-equal, or
     # less-than-or-equal
-    ("true <= false;", "Boolean", "LE", "Boolean"),
-    ("true < false;", "Boolean", "LT", "Boolean"),
-    ("true >= false;", "Boolean", "GE", "Boolean"),
-    ("true > false;", "Boolean", "GT", "Boolean")
+    ("true <= false", "Boolean", "LE", "Boolean"),
+    ("true < false", "Boolean", "LT", "Boolean"),
+    ("true >= false", "Boolean", "GE", "Boolean"),
+    ("true > false", "Boolean", "GT", "Boolean")
 ]
 
 
@@ -86,22 +86,22 @@ def test_invalid_boolean_operations(source, left_type, operation_type, right_typ
 
 
 valid_unary_operations_tests = [
-    ("-1;", [
+    ("-1", [
         o.Integer(-1, 1)
      ]),
-    ("+1;", [
+    ("+1", [
         o.Integer(1, 1)
     ]),
-    ("-5.258;", [
+    ("-5.258", [
         o.Float(-5.258, 1)
     ]),
-    ("5.258;", [
+    ("5.258", [
         o.Float(5.258, 1)
     ]),
-    ("!true;", [
+    ("!true", [
         o.Boolean(False, 1)
     ]),
-    ("!false;", [
+    ("!false", [
         o.Boolean(True, 1)
     ]),
 ]
@@ -114,11 +114,11 @@ def test_valid_unary_operations(source, expected_results):
 
 
 invalid_unary_operations_tests = [
-    ("!1;", "BANG", "Integer"),
-    ("-true;", "MINUS", "Boolean"),
-    ("-false;", "MINUS", "Boolean"),
-    ("+true;", "PLUS", "Boolean"),
-    ("+false;", "PLUS", "Boolean"),
+    ("!1", "BANG", "Integer"),
+    ("-true", "MINUS", "Boolean"),
+    ("-false", "MINUS", "Boolean"),
+    ("+true", "PLUS", "Boolean"),
+    ("+false", "PLUS", "Boolean"),
 ]
 
 
@@ -133,10 +133,10 @@ def test_invalid_unary_operations(source, op, _type):
 def test_function_no_return():
     source = """
     func no_return() {
-        set x = 1;
+        set x = 1
     }
     
-    set var = no_return();
+    set var = no_return()
     """
 
     with pytest.raises(LanguageRuntimeException) as error:
@@ -148,7 +148,7 @@ def test_function_no_return():
 def test_function_empty_body_no_return():
     source = """
     func no_return() {}
-    set var = no_return();
+    set var = no_return()
     """
 
     with pytest.raises(LanguageRuntimeException) as error:
@@ -161,11 +161,11 @@ def test_function_return():
     source = """
     func is_equal(a, b) {
         if (a == b) {
-            return true;
+            return true
         }
     }
-    is_equal(1, 1);  # true
-    is_equal(1, 2);  # No return
+    is_equal(1, 1)  # true
+    is_equal(1, 2)  # No return
     """
     expected_results = [
         o.NoReturn(line_num=2),
@@ -188,9 +188,9 @@ function_calls_tests = [
 def test_function_calls(first_param, second_param, return_val):
     source = f"""
     func add(a, b) {{
-        return a + b;
+        return a + b
     }}
-    add({first_param}, {second_param});
+    add({first_param}, {second_param})
     """
 
     actual_results = actual_result(source)
@@ -202,25 +202,25 @@ def test_function_calls(first_param, second_param, return_val):
 
 
 assignment_tests = [
-    ("set a = 2; set a += 2; a;", [
+    ("set a = 2\nset a += 2\na", [
         o.NoReturn(line_num=1),
-        o.NoReturn(line_num=1),
-        o.Integer(4, 1)
+        o.NoReturn(line_num=2),
+        o.Integer(4, 3)
     ]),
-    ("set a = 2; set a -= 2; a;", [
+    ("set a = 2\nset a -= 2\na", [
         o.NoReturn(line_num=1),
-        o.NoReturn(line_num=1),
-        o.Integer(0, 1)
+        o.NoReturn(line_num=2),
+        o.Integer(0, 3)
     ]),
-    ("set a = 2; set a *= 2; a;", [
+    ("set a = 2\nset a *= 2\na", [
         o.NoReturn(line_num=1),
-        o.NoReturn(line_num=1),
-        o.Integer(4, 1)
+        o.NoReturn(line_num=2),
+        o.Integer(4, 3)
     ]),
-    ("set a = 2; set a /= 2; a;", [
+    ("set a = 2\nset a /= 2\na", [
         o.NoReturn(line_num=1),
-        o.NoReturn(line_num=1),
-        o.Float(1.0, 1)
+        o.NoReturn(line_num=2),
+        o.Float(1.0, 3)
     ])
 ]
 
@@ -236,11 +236,11 @@ def test_loop():
     expected; otherwise, there was an error.
     """
     source = """
-    set i = 0;
+    set i = 0
     while i < 10 {
-        set i += 1;
+        set i += 1
     }
-    i;
+    i
     """
     actual_results = actual_result(source)
     expected_results = [
@@ -310,8 +310,8 @@ tree_tests = [
 @pytest.mark.parametrize("tree_source,expected_tree", tree_tests)
 def test_trees(tree_source, expected_tree):
     source = f"""
-    set tree = {tree_source};
-    tree;
+    set tree = {tree_source}
+    tree
     """
     expected_results = [
         o.NoReturn(line_num=2),
@@ -324,11 +324,11 @@ def test_trees(tree_source, expected_tree):
 
 def test_add_node_to_tree():
     source = """
-    set list = "numbers" => [];
-    add_node(list, 1, "");
-    list;
-    add_node(list, 2, "1");
-    list;
+    set list = "numbers" => []
+    add_node(list, 1, "")
+    list
+    add_node(list, 2, "1")
+    list
     """
     expected_results = [
         o.NoReturn(line_num=2),

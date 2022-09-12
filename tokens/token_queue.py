@@ -42,6 +42,10 @@ class TokenQueue:
             utils.raise_unexpected_end_of_file()
 
     def add(self, new_token_label: str) -> None:
+        # NOTE: this logic is currently not being used (it was originally used for adding semicolons so the user
+        # wouldn't have to add them after block statements). However, I will keep this function defined in case it
+        # is needed in the future.
+        #
         # To insert a token into the token stream, add the current token to the peek queue, and then update
         # self.current to the new token
         self.peek_queue.append(self.current)
