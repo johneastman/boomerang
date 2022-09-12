@@ -322,24 +322,33 @@ def test_trees(tree_source, expected_tree):
     assert actual_results == expected_results
 
 
-def test_add_node_to_tree():
-    source = """
-    set list = "numbers" => []
-    add_node(list, 1, "")
+add_node_tests = [
+    (o.Integer(1, 3), o.Integer(2, 5)),
+    (o.String("a", 3), o.String("b", 5)),
+    # (o.Float(3.5, 3), o.Float(5.5, 5)), TODO: add path splits on periods, but that causes issues for floats
+    (o.Boolean(True, 3), o.Boolean(False, 5))
+]
+
+
+@pytest.mark.parametrize("first, second", add_node_tests)
+def test_add_node_to_tree(first, second):
+    source = f"""
+    set list = "tree" => []
+    add_node(list, {str(first)}, "")
     list
-    add_node(list, 2, "1")
+    add_node(list, {str(second)}, to_str({str(first)}))
     list
     """
     expected_results = [
         o.NoReturn(line_num=2),
         o.NoReturn(line_num=3),
-        o.Node(o.String("numbers", 2), 1, children=[
-            o.Node(o.Integer(1, 3), 1)
+        o.Node(o.String("tree", 2), 1, children=[
+            o.Node(first, 1)
         ]),
         o.NoReturn(line_num=5),
-        o.Node(o.String("numbers", 2), 1, children=[
-            o.Node(o.Integer(1, 3), 1, children=[
-                o.Node(o.Integer(2, 5), 1)
+        o.Node(o.String("tree", 2), 1, children=[
+            o.Node(first, 1, children=[
+                o.Node(second, 1)
             ])
         ]),
     ]
