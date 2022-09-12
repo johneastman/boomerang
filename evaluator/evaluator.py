@@ -36,9 +36,9 @@ class Evaluator:
                 # the following code would return "false" instead of "true", which is the expected return value.
                 # ```
                 # if 1 == 1 {
-                #     return true;
+                #     return true
                 # };
-                # return false;
+                # return false
                 # ```
                 raise ReturnException(evaluated_expression)
 
