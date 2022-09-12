@@ -207,6 +207,8 @@ set list = "list" => [
    1 + (2 + 2),
    "hello" + " " + "world!"
 ]
+print(list)  # "list" => ["a", "b", 5, "hello world!"]
+
 set dict = "dictionary" => [
     "a" => [1],
     "b" => [2],
