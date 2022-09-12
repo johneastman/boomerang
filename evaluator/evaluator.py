@@ -37,7 +37,7 @@ class Evaluator:
                 # ```
                 # if 1 == 1 {
                 #     return true
-                # };
+                # }
                 # return false
                 # ```
                 raise ReturnException(evaluated_expression)
