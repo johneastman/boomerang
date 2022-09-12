@@ -381,10 +381,12 @@ class Parser:
 
             value = self.expression(self.infix_precedence.get(op.type, LOWEST))
             if self.current.type == EDGE:
-                # mypy error: Argument 1 to "append" of "list" has incompatible type "Expression"; expected "Node"
-                # Reason for ignore: due to how 'parse_infix' is written, that method will return a Node object in
-                # this context. Because the current token is an EDGE operator, 'parse_infix' will call this method.
-                children.append(self.parse_infix(value))  # type: ignore
+                value = self.parse_infix(value)
+                if not isinstance(value, Node):
+                    # Node objects are internal to the language, so this should be a program exception, not a
+                    # language exception.
+                    raise Exception(f"expected {Node.__name__} object, got {type(value).__name__}")
+                children.append(value)
             else:
                 children.append(Node(value, line_num))
 

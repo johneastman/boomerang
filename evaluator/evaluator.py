@@ -128,9 +128,7 @@ class Evaluator:
         if len(add_node.params) != add_node.num_params:
             raise_error(add_node.line_num, f"Incorrect number of arguments. Expected {add_node.num_params}, got {len(add_node.params)}")
 
-        # mypy error: Incompatible types in assignment (expression has type "Base", variable has type "Tree")
-        # reason for ignore: if "tree" is not a "Tree" object, an exception will be thrown
-        tree: _parser.Node = self.evaluate_expression(add_node.params[0])  # type: ignore
+        tree: _parser.Base = self.evaluate_expression(add_node.params[0])
         if not isinstance(tree, _parser.Node):
             raise_error(add_node.line_num, f"Invalid type {tree.__class__.__name__} for add_node")
 
