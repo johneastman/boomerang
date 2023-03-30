@@ -201,36 +201,6 @@ def test_function_calls(first_param, second_param, return_val):
     assert actual_results == expected_results
 
 
-assignment_tests = [
-    ("set a = 2\nset a += 2\na", [
-        o.NoReturn(line_num=1),
-        o.NoReturn(line_num=2),
-        o.Integer(4, 3)
-    ]),
-    ("set a = 2\nset a -= 2\na", [
-        o.NoReturn(line_num=1),
-        o.NoReturn(line_num=2),
-        o.Integer(0, 3)
-    ]),
-    ("set a = 2\nset a *= 2\na", [
-        o.NoReturn(line_num=1),
-        o.NoReturn(line_num=2),
-        o.Integer(4, 3)
-    ]),
-    ("set a = 2\nset a /= 2\na", [
-        o.NoReturn(line_num=1),
-        o.NoReturn(line_num=2),
-        o.Float(1.0, 3)
-    ])
-]
-
-
-@pytest.mark.parametrize("source,expected_results", assignment_tests)
-def test_assignment(source, expected_results):
-    actual_results = actual_result(source)
-    assert actual_results == expected_results
-
-
 def test_loop():
     """This test verifies that the loop works by checking the final value of "i". If "i" is 10, then the loop ran as
     expected; otherwise, there was an error.
@@ -238,7 +208,7 @@ def test_loop():
     source = """
     set i = 0
     while i < 10 {
-        set i += 1
+        set i = i + 1
     }
     i
     """
@@ -248,111 +218,6 @@ def test_loop():
         o.NoReturn(),
         o.Integer(10, 6)
     ]
-    assert actual_results == expected_results
-
-
-tree_tests = [
-    (
-        "\"a\" => [1 + (2 + 2) => [\"c\" => [\"hello\" + \" world!\"]]]",
-        o.Node(o.String("a", 2), 1, children=[
-            o.Node(o.Integer(5, 2), 1, children=[
-                o.Node(o.String("c", 2), 1, children=[
-                    o.Node(o.String("hello world!", 2), 1)
-                ])
-            ])
-        ])
-    ),
-    (
-        """"root" => [
-            "parent_1" => [
-                "child_1_1" => [
-                    "grandchild_1_1_1"
-                ]
-            ],
-            "parent_2" => [
-                "child_2_2"
-            ],
-            "parent_3"
-        ]""",
-        o.Node(o.String("root", 2), 1, children=[
-            o.Node(o.String("parent_1", 3), 1, children=[
-                o.Node(o.String("child_1_1", 4), 1, children=[
-                    o.Node(o.String("grandchild_1_1_1", 5), 1)
-                ])
-            ]),
-            o.Node(o.String("parent_2", 8), 1, children=[
-                o.Node(o.String("child_2_2", 9), 1)
-            ]),
-            o.Node(o.String("parent_3", 11), 1)
-        ])
-    ),
-    (
-        "\"list\" => [\"a\", \"b\", \"c\", \"d\"]",
-        o.Node(o.String("list", 2), 1, children=[
-            o.Node(o.String("a", 2), 1),
-            o.Node(o.String("b", 2), 1),
-            o.Node(o.String("c", 2), 1),
-            o.Node(o.String("d", 2), 1),
-        ])
-    ),
-    (
-        "\"booleans\" => [true && true, true && false, true || true, true || false]",
-        o.Node(o.String("booleans", 2), 1, children=[
-            o.Node(o.Boolean(True, 2), 1),
-            o.Node(o.Boolean(False, 2), 1),
-            o.Node(o.Boolean(True, 2), 1),
-            o.Node(o.Boolean(True, 2), 1),
-        ])
-    )
-]
-
-
-@pytest.mark.parametrize("tree_source,expected_tree", tree_tests)
-def test_trees(tree_source, expected_tree):
-    source = f"""
-    set tree = {tree_source}
-    tree
-    """
-    expected_results = [
-        o.NoReturn(line_num=2),
-        expected_tree
-    ]
-
-    actual_results = actual_result(source)
-    assert actual_results == expected_results
-
-
-add_node_tests = [
-    (o.Integer(1, 3), o.Integer(2, 5)),
-    (o.String("a", 3), o.String("b", 5)),
-    # (o.Float(3.5, 3), o.Float(5.5, 5)), TODO: add path splits on periods, but that causes issues for floats
-    (o.Boolean(True, 3), o.Boolean(False, 5))
-]
-
-
-@pytest.mark.parametrize("first, second", add_node_tests)
-def test_add_node_to_tree(first, second):
-    source = f"""
-    set list = "tree" => []
-    add_node(list, {str(first)}, "")
-    list
-    add_node(list, {str(second)}, to_str({str(first)}))
-    list
-    """
-    expected_results = [
-        o.NoReturn(line_num=2),
-        o.NoReturn(line_num=3),
-        o.Node(o.String("tree", 2), 1, children=[
-            o.Node(first, 1)
-        ]),
-        o.NoReturn(line_num=5),
-        o.Node(o.String("tree", 2), 1, children=[
-            o.Node(first, 1, children=[
-                o.Node(second, 1)
-            ])
-        ]),
-    ]
-    actual_results = actual_result(source)
     assert actual_results == expected_results
 
 

@@ -396,63 +396,6 @@ class String(Base, Factor):
         return f"\"{self.value}\""
 
 
-class Node(Base, Factor):
-    def __init__(self, value: Union[Expression, "Base"], line_num: int, children: Optional[list["Node"]] = None) -> None:
-        super().__init__(value, line_num, [])
-        self.children = [] if children is None else children
-
-    @property
-    def literal_value_as_str(self) -> str:
-        if isinstance(self.value, String):
-            # calling str(self.value) on a string returns that value with added quotes. This is good for displaying
-            # strings, but not good for comparing the actual value.
-            #
-            # mypy error: Returning Any from function declared to return "str"
-            # reason for ignore: because of the 'if isinstance(self.value, String)' check, 'self.value.value' will be
-            # a string.
-            return self.value.value  # type: ignore
-        return str(self.value)
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Node):
-            return False
-        return self.value == other.value and self.children == other.children
-
-    def add_node(self, node: "Node", add_path: str) -> None:
-
-        root: Node = self
-        tmp: Node = root
-
-        parsed_add_path = filter(None, add_path.split("."))
-        for node_value in parsed_add_path:
-            for child in tmp.children:
-                if child.literal_value_as_str == node_value:
-                    tmp = child
-                    break
-        tmp.children.append(node)
-
-    def __str__(self) -> str:
-        pointer_literal = get_token_literal("EDGE")
-        open_bracket_literal = get_token_literal("OPEN_BRACKET")
-        closed_bracket_literal = get_token_literal("CLOSED_BRACKET")
-
-        def traverse(node: Node) -> str:
-            if len(node.children) == 0:
-                return str(node.value)
-            return f"{node.value} {pointer_literal} {open_bracket_literal}" \
-                   f"{', '.join(traverse(child) for child in node.children)}{closed_bracket_literal}"
-
-        if len(self.children) == 0:
-            # To ensure the string representation is reflective of the actual syntax, a tree with no children is
-            # displayed as '"root" => []' because that is how a tree with one root node and no children is defined
-            # syntactically.
-            return f"{self.value} {pointer_literal} {open_bracket_literal}{closed_bracket_literal}"
-        return traverse(self)
-
-    def __repr__(self) -> str:
-        return self.__str__()
-
-
 class NoReturn(Base, Factor):
     def __init__(self, line_num: int = 0) -> None:
         super().__init__("", line_num, [])
@@ -498,11 +441,6 @@ class BuiltinFunction(Factor):
 class Print(BuiltinFunction):
     def __init__(self, params: list[Expression], line_num: int) -> None:
         super().__init__(params, line_num, -1)
-
-
-class AddNode(BuiltinFunction):
-    def __init__(self, params: list[Expression], line_num: int) -> None:
-        super().__init__(params, line_num, 3)
 
 
 class Random(BuiltinFunction):

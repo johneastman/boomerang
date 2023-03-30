@@ -53,24 +53,10 @@ def test_to_type(input_object, _type, expected_object):
 invalid_to_type_tests = [
     (String("true", 1), Boolean),
     (String("false", 1), Boolean),
-    (String("\"root\" => [1, 2]", 1), Node),
     (Boolean(True, 1), Integer),
     (Boolean(False, 1), Integer),
     (Boolean(True, 1), Float),
-    (Boolean(False, 1), Float),
-    (Boolean(True, 1), Node),
-    (Boolean(False, 1), Node),
-    (
-        Node(Integer(5, 1), 1, children=[
-            Node(Float(4.5, 1), 1),
-            Node(String("bools", 1), 1, children=[
-                Node(Boolean(True, 1), 1),
-                Node(Boolean(False, 1), 1)
-            ]),
-            Node(Integer(100, 1), 1)
-        ]),
-        String
-    )
+    (Boolean(False, 1), Float)
 ]
 
 

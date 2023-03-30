@@ -23,27 +23,12 @@ tokens:
       name: 'FALSE'
       type: BOOLEAN
   symbols:
-    - literal: '=>'
-      name: EDGE
-      type: EDGE
     - literal: '.'
       name: PERIOD
       type: PERIOD
     - literal: '='
       name: ASSIGN
       type: ASSIGN
-    - literal: +=
-      name: ASSIGN_ADD
-      type: ASSIGN_ADD
-    - literal: -=
-      name: ASSIGN_SUB
-      type: ASSIGN_SUB
-    - literal: '*='
-      name: ASSIGN_MUL
-      type: ASSIGN_MUL
-    - literal: /=
-      name: ASSIGN_DIV
-      type: ASSIGN_DIV
     - literal: +
       name: PLUS
       type: PLUS
@@ -116,12 +101,6 @@ tokens:
     - literal: ':'
       name: COLON
       type: COLON
-    - literal: '['
-      name: OPEN_BRACKET
-      type: OPEN_BRACKET
-    - literal: ']'
-      name: CLOSED_BRACKET
-      type: CLOSED_BRACKET
   data_types:
     - literal: ''
       name: EOF
@@ -141,6 +120,3 @@ tokens:
     - literal: ''
       name: FLOAT
       type: FLOAT
-    - literal: ''
-      name: DICTIONARY
-      type: DICTIONARY

@@ -57,10 +57,6 @@ def get_token_literal(name: str) -> str:
 
 # Symbols
 ASSIGN: str = get_token_type("ASSIGN")
-ASSIGN_ADD: str = get_token_type("ASSIGN_ADD")
-ASSIGN_SUB: str = get_token_type("ASSIGN_SUB")
-ASSIGN_MUL: str = get_token_type("ASSIGN_MUL")
-ASSIGN_DIV: str = get_token_type("ASSIGN_DIV")
 PLUS: str = get_token_type("PLUS")
 MINUS: str = get_token_type("MINUS")
 MULTIPLY: str = get_token_type("MULTIPLY")
@@ -75,10 +71,7 @@ COMMENT: str = get_token_type("COMMENT")
 BLOCK_COMMENT: str = get_token_type("BLOCK_COMMENT")
 DOUBLE_QUOTE: str = get_token_type("DOUBLE_QUOTE")
 COLON: str = get_token_type("COLON")
-OPEN_BRACKET: str = get_token_type("OPEN_BRACKET")
-CLOSED_BRACKET: str = get_token_type("CLOSED_BRACKET")
 PERIOD: str = get_token_type("PERIOD")
-EDGE: str = get_token_type("EDGE")
 
 # Comparison/Boolean Operators
 EQ: str = get_token_type("EQ")
@@ -108,4 +101,3 @@ STRING: str = get_token_type("STRING")
 INTEGER: str = get_token_type("INTEGER")
 BOOLEAN: str = get_token_type("BOOLEAN")
 FLOAT: str = get_token_type("FLOAT")
-DICTIONARY: str = get_token_type("DICTIONARY")

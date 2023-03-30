@@ -30,7 +30,7 @@ class ReturnException(Exception):
 
         This allows us to retrieve the token returned by the return statement.
 
-        :param token: The evaluated value of the return statement
+        :param base_object: The evaluated value of the return statement
         """
         self.base_object = base_object
 

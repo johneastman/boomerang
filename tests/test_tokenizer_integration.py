@@ -82,25 +82,6 @@ tokenizer_tests = [
         Token(")", CLOSED_PAREN, 4),
         Token(";", SEMICOLON, 4),
         Token("", EOF, 4)
-    ]),
-    ("i += 3; j -= 4;\nk *= 5; l /= 6;", [
-        Token("i", IDENTIFIER, 1),
-        Token("+=", ASSIGN_ADD, 1),
-        Token("3", INTEGER, 1),
-        Token(";", SEMICOLON, 1),
-        Token("j", IDENTIFIER, 1),
-        Token("-=", ASSIGN_SUB, 1),
-        Token("4", INTEGER, 1),
-        Token(";", SEMICOLON, 1),
-        Token("k", IDENTIFIER, 2),
-        Token("*=", ASSIGN_MUL, 2),
-        Token("5", INTEGER, 2),
-        Token(";", SEMICOLON, 2),
-        Token("l", IDENTIFIER, 2),
-        Token("/=", ASSIGN_DIV, 2),
-        Token("6", INTEGER, 2),
-        Token(";", SEMICOLON, 2),
-        Token("", EOF, 2)
     ])
 ]
 

@@ -8,7 +8,6 @@ from typing import Callable
 
 # Precedence names
 LOWEST = "LOWEST"  # default
-EDGE = "EDGE"  # =>
 AND_OR = "AND_OR"  # &&, ||
 EQUALS = "EQUALS"  # ==, !=
 LESS_GREATER = "LESS_GREATER"  # <, >, >=, <=
@@ -24,11 +23,7 @@ class Parser:
         self.tokens = tokens
 
         self.assignment_operators: list[str] = [
-            ASSIGN,
-            ASSIGN_ADD,
-            ASSIGN_SUB,
-            ASSIGN_MUL,
-            ASSIGN_DIV
+            ASSIGN
         ]
 
         # Higher precedence is lower on the list (for example, && and || take precedence above everything, so they have
@@ -40,7 +35,6 @@ class Parser:
         # index + 1).
         self.precedences: list[str] = [
             LOWEST,
-            EDGE,
             AND_OR,
             EQUALS,
             LESS_GREATER,
@@ -63,7 +57,6 @@ class Parser:
             MINUS: SUM,
             MULTIPLY: PRODUCT,
             DIVIDE: PRODUCT,
-            EDGE: EDGE,
             BANG: PREFIX
         }
 
@@ -173,11 +166,8 @@ class Parser:
         raise_error(self.current.line_num, f"Invalid token: {self.current.type} ({self.current.value})")
 
     def parse_infix(self, left: Expression) -> Expression:
-        if self.current.type == EDGE:
-            return self.parse_tree(left)
-
         # Postfix operators are just infix operators without a right expression
-        elif self.current.type == BANG:
+        if self.current.type == BANG:
             self.advance()
             return Factorial(left)
 
@@ -207,23 +197,9 @@ class Parser:
         else:
             return ExpressionStatement(self.expression())
 
-    def get_operator_token(self, op_type: str, line_num: int) -> Token:
-        operator_token = {
-            ASSIGN_ADD: Token(get_token_literal("PLUS"), PLUS, line_num),
-            ASSIGN_SUB: Token(get_token_literal("MINUS"), MINUS, line_num),
-            ASSIGN_MUL: Token(get_token_literal("MULTIPLY"), MULTIPLY, line_num),
-            ASSIGN_DIV: Token(get_token_literal("DIVIDE"), DIVIDE, line_num)
-        }
-        return operator_token[op_type]
-
     def create_assignment_ast(self, assignment_operator: Token, name: Identifier, value: Expression) -> SetVariable:
         if assignment_operator.type == ASSIGN:
             return SetVariable(name, value)
-
-        elif assignment_operator.type in self.assignment_operators:
-            operator_token = self.get_operator_token(assignment_operator.type, assignment_operator.line_num)
-            return SetVariable(name, BinaryOperation(name, operator_token, value))
-
         else:
             raise_error(assignment_operator.line_num, f"Invalid assignment operator: {assignment_operator.type} "
                                                       f"({assignment_operator.value})")
@@ -357,7 +333,6 @@ class Parser:
         builtin_functions: typing.Dict[str, BuiltinFunction] = {
             "print": Print(parameters, line_num),
             "random": Random(parameters, line_num),
-            "add_node": AddNode(parameters, line_num),
             "to_str": ToType(parameters, line_num, String),
             "to_int": ToType(parameters, line_num, Integer),
             "to_float": ToType(parameters, line_num, Float),
@@ -366,40 +341,6 @@ class Parser:
         return builtin_functions.get(
             identifier_token.value,
             FunctionCall(identifier_token.value, parameters, identifier_token.line_num))
-
-    def parse_tree(self, left: Expression) -> Node:
-        op = self.current
-        line_num = op.line_num
-        self.advance()
-
-        self.is_expected_token(OPEN_BRACKET)
-        self.advance()
-
-        children: list[Node] = []
-        while True:
-            if self.current.type == CLOSED_BRACKET:
-                # Closed bracket means we're at the end of the child nodes and going back to the outer scope/scope
-                # of the root node.
-                self.advance()
-                break
-
-            value = self.expression(self.infix_precedence.get(op.type, LOWEST))
-            if self.current.type == EDGE:
-                value = self.parse_infix(value)
-                if not isinstance(value, Node):
-                    # Node objects are internal to the language, so this should be a program exception, not a
-                    # language exception.
-                    raise Exception(f"expected {Node.__name__} object, got {type(value).__name__}")
-                children.append(value)
-            else:
-                children.append(Node(value, line_num))
-
-            if self.current.type == COMMA:
-                # Commas denote multiple child nodes
-                self.advance()
-                continue
-
-        return Node(left, line_num, children=children)
 
     def is_expected_token(self, expected_token_type: typing.Union[str, list[str]]) -> None:
 
