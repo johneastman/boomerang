@@ -1,6 +1,4 @@
 import argparse
-
-# Local packages
 import typing
 
 from tokens.tokenizer import Tokenizer
@@ -9,7 +7,6 @@ from _parser._parser import Parser, Base
 from _parser.ast_objects import NoReturn
 from evaluator.evaluator import Evaluator
 from evaluator._environment import Environment
-# from utils.ast_visualizer import ASTVisualizer
 from utils.utils import LanguageRuntimeException
 
 
@@ -60,7 +57,7 @@ if __name__ == "__main__":
     parser.add_argument(*path_flags, help="Path to Boomerang file", type=str, required=False)
 
     repl_flags = ("--repl", "-r")
-    parser.add_argument(*repl_flags, "-r", help="Run Boomerang repl (Read-Evaluate-Print Loop)", action="store_true")
+    parser.add_argument(*repl_flags, help="Run Boomerang repl (Read-Evaluate-Print Loop)", action="store_true")
 
     args = parser.parse_args()
     repl_var = args.repl

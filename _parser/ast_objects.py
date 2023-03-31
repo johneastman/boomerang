@@ -166,31 +166,6 @@ class Base(Expression):
         class_name = self.__class__.__name__
         return f"{class_name}(value={self.value}, line_num={self.line_num})"
 
-    def convert_to(self, _type: typing.Type["Base"]) -> "Base":
-        if type(self) == _type:
-            # Do not try to convert the object if the type of 'self' is the same as '_type'. This check is why the type
-            # of self does not need to be declared in 'self.conversion_types'
-            return self
-
-        if _type.__name__ not in self.conversion_types:
-            utils.raise_error(self.line_num, f"cannot convert {self.__class__.__name__} to {_type.__name__}")
-
-        try:
-            if _type == Integer:
-                return Integer(int(self), self.line_num)
-            elif _type == Float:
-                return Float(float(self), self.line_num)
-            elif _type == String:
-                return String(str(self), self.line_num)
-            elif _type == Boolean:
-                return Boolean(bool(self), self.line_num)
-            else:
-                raise Exception(f"Invalid type: {_type.__name__}")
-        except (TypeError, ValueError):
-            utils.raise_error(
-                self.line_num,
-                f"cannot convert '{str(self)}' of type {self.__class__.__name__} to {_type.__name__}")
-
 
 class Integer(Base, Factor):
     def __init__(self, value: int, line_num: int) -> None:
@@ -446,12 +421,6 @@ class Print(BuiltinFunction):
 class Random(BuiltinFunction):
     def __init__(self, params: list[Expression], line_num: int) -> None:
         super().__init__(params, line_num, 0)
-
-
-class ToType(BuiltinFunction):
-    def __init__(self, params: list[Expression], line_num: int, _type: typing.Type[Base]) -> None:
-        super().__init__(params, line_num, 1)
-        self.type: typing.Type[Base] = _type
 
 
 class Return(Statement):

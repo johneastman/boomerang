@@ -332,11 +332,7 @@ class Parser:
         line_num = identifier_token.line_num
         builtin_functions: typing.Dict[str, BuiltinFunction] = {
             "print": Print(parameters, line_num),
-            "random": Random(parameters, line_num),
-            "to_str": ToType(parameters, line_num, String),
-            "to_int": ToType(parameters, line_num, Integer),
-            "to_float": ToType(parameters, line_num, Float),
-            "to_bool": ToType(parameters, line_num, Boolean),
+            "random": Random(parameters, line_num)
         }
         return builtin_functions.get(
             identifier_token.value,

@@ -90,9 +90,6 @@ class Evaluator:
         elif isinstance(expression, _parser.ExpressionStatement):
             return self.evaluate_expression(expression.expr)
 
-        elif isinstance(expression, _parser.ToType):
-            return self.evaluate_to_type(expression)
-
         # Base Types
         elif isinstance(expression, _parser.Random):
             return _parser.Float(random.random(), expression.line_num)
@@ -112,10 +109,6 @@ class Evaluator:
         # This is a program-specific error because a missing object type would come about during development, not
         # when a user is using this programming language.
         raise Exception(f"Unsupported type: {type(expression).__name__}")
-
-    def evaluate_to_type(self, to_type: _parser.ToType) -> _parser.Base:
-        object_to_convert: _parser.Base = self.evaluate_expression(to_type.params[0])
-        return object_to_convert.convert_to(to_type.type)
 
     def evaluate_factorial(self, factorial_expression: _parser.Factorial) -> _parser.Integer:
         result: _parser.Base = self.evaluate_expression(factorial_expression.expr)
