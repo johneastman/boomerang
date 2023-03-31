@@ -13,7 +13,7 @@ evaluator_tests = [
     ("1 + 1", [o.Integer(2, 1)]),
     ("1 + 2 * 2", [o.Integer(5, 1)]),
     ("(1 + 2) * 2", [o.Integer(6, 1)]),
-    ("set x = (1 + 2) * 2\nx", [o.NoReturn(line_num=1), o.Integer(6, 2)]),
+    ("set x = (1 + 2) * 2;\nx", [o.NoReturn(line_num=1), o.Integer(6, 2)]),
     ("4 / 2", [o.Float(2.0, 1)]),
     ("7 / 2", [o.Float(3.5, 1)]),
     ("1 + 1 * 2 + 3 / 4", [o.Float(3.75, 1)]),
@@ -32,7 +32,7 @@ evaluator_tests = [
 
 @pytest.mark.parametrize("source,expected_results", evaluator_tests)
 def test_evaluator(source, expected_results):
-    actual_results = actual_result(source)
+    actual_results = actual_result(f"{source};")
     assert expected_results == actual_results
 
 
@@ -56,7 +56,7 @@ valid_boolean_operations_tests = [
 
 @pytest.mark.parametrize("source,expected_results", valid_boolean_operations_tests)
 def test_valid_boolean_operations(source, expected_results):
-    actual_results = actual_result(source)
+    actual_results = actual_result(f"{source};")
     assert expected_results == actual_results
 
 
@@ -80,7 +80,7 @@ invalid_boolean_operations_tests = [
 @pytest.mark.parametrize("source,left_type,operation_type,right_type", invalid_boolean_operations_tests)
 def test_invalid_boolean_operations(source, left_type, operation_type, right_type):
     with pytest.raises(LanguageRuntimeException) as error:
-        actual_result(source)
+        actual_result(f"{source};")
     assert error.typename == "LanguageRuntimeException"
     assert f"Error at line 1: Cannot perform {operation_type} operation on {left_type} and {right_type}" == str(error.value)
 
@@ -109,7 +109,7 @@ valid_unary_operations_tests = [
 
 @pytest.mark.parametrize("source,expected_results", valid_unary_operations_tests)
 def test_valid_unary_operations(source, expected_results):
-    actual_results = actual_result(source)
+    actual_results = actual_result(f"{source};")
     assert actual_results == expected_results
 
 
@@ -125,7 +125,7 @@ invalid_unary_operations_tests = [
 @pytest.mark.parametrize("source,op,_type", invalid_unary_operations_tests)
 def test_invalid_unary_operations(source, op, _type):
     with pytest.raises(LanguageRuntimeException) as error:
-        actual_result(source)
+        actual_result(f"{source};")
     assert error.typename == "LanguageRuntimeException"
     assert str(error.value) == f"Error at line 1: Cannot perform {op} operation on {_type}"
 
@@ -133,10 +133,10 @@ def test_invalid_unary_operations(source, op, _type):
 def test_function_no_return():
     source = """
     func no_return() {
-        set x = 1
+        set x = 1;
     }
     
-    set var = no_return()
+    set var = no_return();
     """
 
     with pytest.raises(LanguageRuntimeException) as error:
@@ -148,7 +148,7 @@ def test_function_no_return():
 def test_function_empty_body_no_return():
     source = """
     func no_return() {}
-    set var = no_return()
+    set var = no_return();
     """
 
     with pytest.raises(LanguageRuntimeException) as error:
@@ -161,11 +161,11 @@ def test_function_return():
     source = """
     func is_equal(a, b) {
         if (a == b) {
-            return true
+            return true;
         }
     }
-    is_equal(1, 1)  # true
-    is_equal(1, 2)  # No return
+    is_equal(1, 1);  # true
+    is_equal(1, 2);  # No return
     """
     expected_results = [
         o.NoReturn(line_num=2),
@@ -188,9 +188,9 @@ function_calls_tests = [
 def test_function_calls(first_param, second_param, return_val):
     source = f"""
     func add(a, b) {{
-        return a + b
+        return a + b;
     }}
-    add({first_param}, {second_param})
+    add({first_param}, {second_param});
     """
 
     actual_results = actual_result(source)
@@ -206,11 +206,11 @@ def test_loop():
     expected; otherwise, there was an error.
     """
     source = """
-    set i = 0
+    set i = 0;
     while i < 10 {
-        set i = i + 1
+        set i = i + 1;
     }
-    i
+    i;
     """
     actual_results = actual_result(source)
     expected_results = [
