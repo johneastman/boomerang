@@ -60,13 +60,14 @@ To run the Flask app, run `flask --app flask_app run`.
 
 # Language Specs
 
+## Line Endings
+All expressions end with a semicolon `;`.
+
 ## Data Types
 |Data Type|Examples|
 |---|---|
 |Integer|1, 2, 3, 10, 13, 100, 1234567890|
 |Float|1.1, 2.5, 3.14159|
-|String|"Hello, world!"|
-|Boolean|true, false|
 
 ## Operators
 |Operator Name|Literal|
@@ -76,121 +77,26 @@ To run the Flask app, run `flask --app flask_app run`.
 |Multiply|*|
 |Divide|/|
 |Assignment|=|
-|Assignment: Add|+=|
-|Assignment: Subtract|-=|
-|Assignment: Multiply|*=|
-|Assignment: Divide|/=|
-|Compare: Equal|==|
-|Compare: Not Equal|!=|
-|Compare: Greater than|>|
-|Compare: Greater than or equal|>=|
-|Compare: Less than|<|
-|Compare: Less than or equal|<=|
-|Unary: Not|!|
 |Unary: Negative|-|
 |Unary: Positive|+|
-|Boolean AND|&&|
-|Boolean OR| \|\| |
-|Edge|=>|
-
-## Comments
-```
-set variable = 3  # inline comment
-/*
-block comment
-*/
-```
-
-## Statements
-
-### Variable Assignment
-```
-set number = 10
-set float = 3.14
-set string = "hello, world!"
-set boolean = true
-```
-
-#### Operator Assignment
-Unlike many languages, variable assignment and reassignment requires the `set` keyword.
-```
-set number = 1
-set number += 1
-set number -= 1
-set number *= 2
-set number /= 1
-```
-
-### While Loops
-```
-set i = 0
-while i < 10 {
-   print(i)
-   set i = i + 1
-}
-```
-
-### Functions
-```
-func add(a, b) {
-   set result = a + b
-   return result
-}
-
-set sum = add(3, 4)
-print(sum)
-```
-
-#### Builtin Functions
-|Name|Description|
-|----|-----------|
-|print(...)|prints object representations to console. Takes `n` arguments|
-|random()|Generate a random float between 0 and 1. Takes 0 arguments.|
-
-### If Statements
-```
-set r = random()  # generates a random number between 0 and 1
-if r < 0.5 {
-    print("r is less than 0.5")
-} else {
-    print("r is greater than or equal to 0.5")
-}
-```
 
 ## Expressions
 
+### Variable Assignment and Reassignment
+```
+number = 10;
+float = 3.14;
+```
+
 ### Math Expressions
 ```
-1 + 1
-1 + 2 + 3 + 4
-5 - 3
-6 * 4
-10 / 2
-3 + (10 - 9 - 8)
--3
--(5 + 4 + 3 + 2 + 1)
-+6
-5!  # factorial. 5! = 120
-```
-
-### Boolean Expressions
-```
-!true  # false
-!false # true
-
-true && false  # false
-true || false  # true
-```
-
-### Comparison Expressions
-```
-1 == 1  # true
-1 != 2  # true
-1 > 2   # false
-2 >= 1  # true
-2 < 1   # true
-1 <= 2  # true
-
-1 == 1 && 2 == 2  # true
-1 == 2 || 2 == 1  # true
+1 + 1;
+1 + 2 + 3 + 4;
+5 - 3;
+6 * 4;
+10 / 2;
+3 + (10 - 9 - 8);
+-3;
+-(5 + 4 + 3 + 2 + 1);
++6;
 ```

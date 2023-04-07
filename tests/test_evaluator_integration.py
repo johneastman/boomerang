@@ -13,7 +13,7 @@ evaluator_tests = [
     ("1 + 1", [o.create_integer(2, 1)]),
     ("1 + 2 * 2", [o.create_integer(5, 1)]),
     ("(1 + 2) * 2", [o.create_integer(6, 1)]),
-    ("let x = (1 + 2) * 2;\nx", [o.create_integer(6, 1), o.create_integer(6, 2)]),
+    ("x = (1 + 2) * 2;\nx", [o.create_integer(6, 1), o.create_integer(6, 2)]),
     ("4 / 2", [o.create_float(2.0, 1)]),
     ("7 / 2", [o.create_float(3.5, 1)]),
     ("1 + 1 * 2 + 3 / 4", [o.create_float(3.75, 1)])
@@ -32,6 +32,12 @@ valid_unary_operations_tests = [
      ]),
     ("+1", [
         o.create_integer(1, 1)
+    ]),
+    ("+-1", [
+        o.create_integer(1, 1)
+    ]),
+    ("--6", [
+        o.create_integer(6, 1)
     ]),
     ("-5.258", [
         o.create_float(-5.258, 1)

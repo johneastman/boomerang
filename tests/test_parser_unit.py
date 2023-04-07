@@ -3,7 +3,7 @@ from . import testing_utils
 
 
 def test_set_statement():
-    p = testing_utils.parser("set variable = 1;")
+    p = testing_utils.parser("variable = 1;")
 
     actual_assign_ast = p.assign()
 

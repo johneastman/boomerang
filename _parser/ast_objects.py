@@ -1,13 +1,21 @@
+import typing
+
 from tokens.tokenizer import Token
 
 
 class Node:
-    def __init__(self, type_: str, line_num: int, value: str = "", params: dict[str, "Node"] = {}):
+    def __init__(self, type_: str, line_num: int, value: str = "", params: typing.Optional[dict[str, "Node"]] = None):
         self.type = type_
         self.line_num = line_num
 
         self.value = value
-        self.params = params
+        self.params = params if params is not None else {}
+
+    def get_param(self, key: str) -> "Node":
+        value = self.params.get(key, None)
+        if value is None:
+            raise Exception(f"No param with key '{key}' found. Node: {repr(self)}")
+        return value
 
     def __eq__(self, other: object) -> bool:
         # Implementation needed for tests

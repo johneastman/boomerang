@@ -62,8 +62,8 @@ class Evaluator:
 
     def evaluate_assign_variable(self, variable: _parser.Node) -> _parser.Node:
 
-        identifier = variable.params["identifier"]
-        value = variable.params["value"]
+        identifier = variable.get_param("identifier")
+        value = variable.get_param("value")
 
         if identifier.type == "identifier":
             var_value: _parser.Node = self.evaluate_expression(value)
@@ -90,11 +90,16 @@ class Evaluator:
         raise language_error(identifier.line_num, f"undefined variable: {identifier.value}")
 
     def evaluate_unary_expression(self, unary_expression: _parser.Node) -> _parser.Node:
-        expression_result = self.evaluate_expression(unary_expression.params["expression"])
-        op = unary_expression.params["operator"]
+        expression_result = self.evaluate_expression(unary_expression.get_param("expression"))
+        op = unary_expression.get_param("operator")
 
         if op.type == PLUS:
-            return expression_result
+            if expression_result.type == "float":
+                new_value = abs(float(expression_result.value))
+                return _parser.create_float(new_value, expression_result.line_num)
+            elif expression_result.type == "integer":
+                new_value = abs(int(expression_result.value))
+                return _parser.create_integer(new_value, expression_result.line_num)
 
         elif op.type == MINUS:
             if expression_result.type == "float":
@@ -106,10 +111,10 @@ class Evaluator:
         raise Exception(f"Invalid unary operator: {op.type} ({op.value})")
 
     def evaluate_binary_expression(self, binary_operation: _parser.Node) -> _parser.Node:
-        left = self.evaluate_expression(binary_operation.params["left"])
+        left = self.evaluate_expression(binary_operation.get_param("left"))
 
-        right = self.evaluate_expression(binary_operation.params["right"])
-        op = binary_operation.params["operator"]
+        right = self.evaluate_expression(binary_operation.get_param("right"))
+        op = binary_operation.get_param("operator")
 
         # Math operations
         if op.type == PLUS:

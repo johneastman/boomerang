@@ -26,7 +26,7 @@ class TokenQueue:
             try:
                 return next(self.tokenizer)
             except StopIteration:
-                utils.raise_unexpected_end_of_file()
+                raise utils.raise_unexpected_end_of_file()
 
     def peek(self) -> Token:
         if len(self.peek_queue) > 0:
@@ -39,7 +39,7 @@ class TokenQueue:
             self.peek_queue.append(token)
             return token
         except StopIteration:
-            utils.raise_unexpected_end_of_file()
+            raise utils.raise_unexpected_end_of_file()
 
     def add(self, new_token_label: str) -> None:
         # NOTE: this logic is currently not being used (it was originally used for adding semicolons so the user

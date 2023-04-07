@@ -67,7 +67,6 @@ CLOSED_PAREN: str = get_token_type("CLOSED_PAREN")
 PERIOD: str = get_token_type("PERIOD")
 
 # Keywords
-LET: str = get_token_type("LET")
 
 # Misc
 EOF: str = get_token_type("EOF")  # End of File

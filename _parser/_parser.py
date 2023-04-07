@@ -146,17 +146,16 @@ class Parser:
         return create_binary_expression(left, op, right)
 
     def statement(self) -> Node:
-        if self.current.type == LET:
+        if self.current.type == IDENTIFIER and self.peek.type == ASSIGN:
             return self.assign()
 
         return self.expression()
 
     def assign(self) -> Node:
-        self.advance()
-
         self.is_expected_token(IDENTIFIER)
         variable_name = self.current
 
+        # Skip over assignment operator
         self.advance()
 
         self.is_expected_token(self.assignment_operators)

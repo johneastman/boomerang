@@ -1,8 +1,5 @@
 tokens:
-  keywords:
-    - literal: let
-      name: LET
-      type: LET
+  keywords: []
   symbols:
     - literal: '.'
       name: PERIOD

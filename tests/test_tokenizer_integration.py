@@ -36,13 +36,11 @@ tokenizer_tests = [
         Token(";", SEMICOLON, 1),
         Token("", EOF, 1)
     ]),
-    ("let a = 1;\nlet b = 2;", [
-        Token("let", LET, 1),
+    ("a = 1;\nb = 2;", [
         Token("a", IDENTIFIER, 1),
         Token("=", ASSIGN, 1),
         Token("1", INTEGER, 1),
         Token(";", SEMICOLON, 1),
-        Token("let", LET, 2),
         Token("b", IDENTIFIER, 2),
         Token("=", ASSIGN, 2),
         Token("2", INTEGER, 2),
