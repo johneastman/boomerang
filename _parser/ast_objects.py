@@ -20,7 +20,7 @@ class Node:
         class_name = self.__class__.__name__
         return f"{class_name}(type={self.type}, line_num={self.line_num}, value={self.value}, params={self.params})"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
 
