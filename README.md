@@ -44,6 +44,20 @@ Boomerang has a web interface that will allow you to run it from the browser!
 
 To run the Flask app, run `flask --app flask_app run`.
 
+## Deploying to Pythonanywhere
+1. Make sure you have signed up for a free PythonAnywhere account, and you’re logged in. 
+2. Go to the Web menu item and then press the Add new web app button. 
+3. Click Next, then click on Flask and click on the latest version of Python that you see there. Then click Next again to accept the project path.
+4. In the Code section of the Web menu page click on Go to Directory next to Source Code.
+5. Click "Open Bash console here" at top of page.
+6. Replaced the content of `mysite` with this repo: `git clone https://github.com/johneastman/boomerang.git mysite`
+    * You may need to delete (`rm -rf mysite`) or rename (`cp -r mysite/ mysite2/`) existing `mysite` directory.
+7. Back on the web app configuration page, I clicked `Reload jeastman.pythonanywhere.com`
+
+### Additional Resources
+* Steps 1 - 4 source: https://pythonhow.com/python-tutorial/flask/deploy-flask-web-app-pythonanywhere/
+* Additional resources: https://help.pythonanywhere.com/pages/UploadingAndDownloadingFiles
+
 # Language Specs
 
 ## Data Types
