@@ -1,0 +1,11 @@
+<h1>Boomerang</h1>
+<ul>
+    {% for result in results %}
+        <li>{{ result }}</li>
+    {% endfor %}
+</ul>
+<form action="/interpreter" method="post">
+    <textarea name="source" rows="4" cols="50">{{ source_code }}</textarea>
+    <br>
+    <input type="submit" value="Run Code">
+</form>
