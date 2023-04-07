@@ -10,13 +10,13 @@ from utils.utils import LanguageRuntimeException
 
 
 evaluator_tests = [
-    ("1 + 1", [o.Integer(2, 1)]),
-    ("1 + 2 * 2", [o.Integer(5, 1)]),
-    ("(1 + 2) * 2", [o.Integer(6, 1)]),
-    ("let x = (1 + 2) * 2;\nx", [o.NoReturn(line_num=1), o.Integer(6, 2)]),
-    ("4 / 2", [o.Float(2.0, 1)]),
-    ("7 / 2", [o.Float(3.5, 1)]),
-    ("1 + 1 * 2 + 3 / 4", [o.Float(3.75, 1)])
+    ("1 + 1", [o.create_integer(2, 1)]),
+    ("1 + 2 * 2", [o.create_integer(5, 1)]),
+    ("(1 + 2) * 2", [o.create_integer(6, 1)]),
+    ("let x = (1 + 2) * 2;\nx", [o.create_integer(6, 1), o.create_integer(6, 2)]),
+    ("4 / 2", [o.create_float(2.0, 1)]),
+    ("7 / 2", [o.create_float(3.5, 1)]),
+    ("1 + 1 * 2 + 3 / 4", [o.create_float(3.75, 1)])
 ]
 
 
@@ -28,16 +28,16 @@ def test_evaluator(source, expected_results):
 
 valid_unary_operations_tests = [
     ("-1", [
-        o.Integer(-1, 1)
+        o.create_integer(-1, 1)
      ]),
     ("+1", [
-        o.Integer(1, 1)
+        o.create_integer(1, 1)
     ]),
     ("-5.258", [
-        o.Float(-5.258, 1)
+        o.create_float(-5.258, 1)
     ]),
     ("5.258", [
-        o.Float(5.258, 1)
+        o.create_float(5.258, 1)
     ])
 ]
 

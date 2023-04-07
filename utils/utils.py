@@ -11,8 +11,8 @@ def read_yaml_file(path: str) -> typing.Any:
         return yaml.safe_load(file)
 
 
-def raise_error(line_num: int, description: str) -> typing.NoReturn:
-    raise LanguageRuntimeException(f"Error at line {line_num}: {description}")
+def language_error(line_num: int, description: str) -> LanguageRuntimeException:
+    return LanguageRuntimeException(f"Error at line {line_num}: {description}")
 
 
 def raise_unexpected_end_of_file() -> typing.NoReturn:

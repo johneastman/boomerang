@@ -89,7 +89,7 @@ class Tokenizer:
                     return Token(literal, _type, self.line_num)
 
             # If no tokens are found, then assume an invalid character
-            utils.raise_error(self.line_num, f"invalid character {repr(self.current)}")
+            raise utils.language_error(self.line_num, f"invalid character {repr(self.current)}")
 
     @property
     def current(self) -> Optional[str]:

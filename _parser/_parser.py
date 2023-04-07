@@ -3,8 +3,7 @@ import typing
 from tokens.tokenizer import *
 from tokens.token_queue import TokenQueue
 from _parser.ast_objects import *
-from utils.utils import raise_error
-from typing import Callable
+from utils.utils import language_error
 
 # Precedence names
 LOWEST = "LOWEST"  # default
@@ -51,10 +50,10 @@ class Parser:
             DIVIDE: PRODUCT,
         }
 
-    def parse(self) -> list[Statement]:
+    def parse(self) -> list[Node]:
         return self.parse_statements(EOF)
 
-    def parse_statements(self, end_type: str) -> list[Statement]:
+    def parse_statements(self, end_type: str) -> list[Node]:
         """Parse statements within a certain scope (set by 'end_type')
 
         For block statements, that value will be a closed curly bracket. For program statements, that value will be an
@@ -96,7 +95,7 @@ class Parser:
         precedence_name = precedence_dict.get(self.current.type, LOWEST)
         return self.get_precedence_level(precedence_name)
 
-    def expression(self, precedence_name: str = LOWEST) -> Expression:
+    def expression(self, precedence_name: str = LOWEST) -> Node:
         precedence_level = self.get_precedence_level(precedence_name)
 
         # Prefix
@@ -108,12 +107,12 @@ class Parser:
 
         return left
 
-    def parse_prefix(self) -> Expression:  # Factor
+    def parse_prefix(self) -> Node:  # Factor
         if self.current.type in [MINUS, PLUS]:
             op = self.current
             self.advance()
             expression = self.expression()
-            return UnaryOperation(op, expression)
+            return create_unary_expression(op, expression)
 
         elif self.current.type == OPEN_PAREN:
             self.advance()
@@ -126,44 +125,33 @@ class Parser:
         elif self.current.type == INTEGER:
             number_token = self.current
             self.advance()
-            return Integer(int(number_token.value), number_token.line_num)
+            return create_integer(int(number_token.value), number_token.line_num)
 
         elif self.current.type == FLOAT:
             float_token = self.current
             self.advance()
-            return Float(float(float_token.value), float_token.line_num)
+            return create_float(float(float_token.value), float_token.line_num)
 
         elif self.current.type == IDENTIFIER:
             identifier_token = self.current
-            if self.peek.type == OPEN_PAREN:
-                return self.function_call(identifier_token)
-            else:
-                self.advance()
-                return Identifier(identifier_token.value, identifier_token.line_num)
+            self.advance()
+            return create_identifier(identifier_token.value, identifier_token.line_num)
 
-        raise_error(self.current.line_num, f"Invalid token: {self.current.type} ({self.current.value})")
+        raise language_error(self.current.line_num, f"Invalid token: {self.current.type} ({self.current.value})")
 
-    def parse_infix(self, left: Expression) -> Expression:
+    def parse_infix(self, left: Node) -> Node:
         op = self.current
         self.advance()
         right = self.expression(self.infix_precedence.get(op.type, LOWEST))
-        return BinaryOperation(left, op, right)
+        return create_binary_expression(left, op, right)
 
-    def statement(self) -> Statement:
+    def statement(self) -> Node:
         if self.current.type == LET:
             return self.assign()
 
-        else:
-            return ExpressionStatement(self.expression())
+        return self.expression()
 
-    def create_assignment_ast(self, assignment_operator: Token, name: Identifier, value: Expression) -> SetVariable:
-        if assignment_operator.type == ASSIGN:
-            return SetVariable(name, value)
-        else:
-            raise_error(assignment_operator.line_num, f"Invalid assignment operator: {assignment_operator.type} "
-                                                      f"({assignment_operator.value})")
-
-    def assign(self) -> Statement:
+    def assign(self) -> Node:
         self.advance()
 
         self.is_expected_token(IDENTIFIER)
@@ -171,17 +159,12 @@ class Parser:
 
         self.advance()
 
-        assignment_operator = self.current
         self.is_expected_token(self.assignment_operators)
 
         self.advance()
         right = self.expression()
 
-        return self.create_assignment_ast(
-            assignment_operator,
-            Identifier(variable_name.value, variable_name.line_num),
-            right
-        )
+        return create_assignment_statement(variable_name.value, variable_name.line_num, right)
 
     def add_semicolon(self) -> None:
         self.tokens.add("SEMICOLON")
@@ -193,6 +176,6 @@ class Parser:
         expected_token_types = [expected_token_type] if isinstance(expected_token_type, str) else expected_token_type
 
         if self.current.type not in expected_token_types:
-            raise_error(
+            raise language_error(
                 self.current.line_num,
                 f"Expected {expected_token_type}, got {self.current.type} ('{self.current.value}')")

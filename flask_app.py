@@ -1,17 +1,7 @@
 import json
-import typing
-
 from flask import Flask, request, render_template, redirect, make_response
-
 from main import evaluate
-
-from _parser._parser import Parser
-from _parser.ast_objects import Base, NoReturn
 from evaluator._environment import Environment
-from evaluator.evaluator import Evaluator
-from tokens.token_queue import TokenQueue
-from tokens.tokenizer import Tokenizer
-from utils.utils import LanguageRuntimeException
 
 app = Flask(__name__)
 
@@ -33,7 +23,6 @@ def button():
     source_code = request.form["source"]
 
     results = evaluate(source_code, Environment())
-    results = list(filter(lambda b: not isinstance(b, NoReturn), results))
 
     resp = make_response(redirect("/"))
     resp.set_cookie("source_code", source_code)

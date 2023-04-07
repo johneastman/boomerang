@@ -1,10 +1,10 @@
 import argparse
 import typing
 
+from _parser.ast_objects import Node
 from tokens.tokenizer import Tokenizer
 from tokens.token_queue import TokenQueue
-from _parser._parser import Parser, Base
-from _parser.ast_objects import NoReturn
+from _parser._parser import Parser
 from evaluator.evaluator import Evaluator
 from evaluator._environment import Environment
 from utils.utils import LanguageRuntimeException
@@ -15,7 +15,7 @@ def get_source(filepath: str) -> str:
         return file.read()
 
 
-def evaluate(source: str, environment: Environment) -> typing.Optional[typing.List[Base]]:
+def evaluate(source: str, environment: Environment) -> typing.List[Node]:
     try:
         t = Tokenizer(source)
         tokens = TokenQueue(t)
@@ -26,9 +26,7 @@ def evaluate(source: str, environment: Environment) -> typing.Optional[typing.Li
         e = Evaluator(ast, environment)
         return e.evaluate()
     except LanguageRuntimeException as e:
-        print(str(e))
-
-    return None  # needed to solve mypy error: Missing return statement
+        return [Node("error", 0, str(e))]
 
 
 def repl(prompt: str = ">>") -> None:
@@ -43,10 +41,6 @@ def repl(prompt: str = ">>") -> None:
             # if 'evaluated_expressions' is None, an error likely occurred
             if evaluated_expressions is not None:
                 for token in evaluated_expressions:
-                    if isinstance(token, NoReturn):
-                        # If the statement/expression returns nothing (e.g., if-else, variable assignment, etc.), do not
-                        # print anything.
-                        continue
                     print(token.value)
 
 
@@ -69,4 +63,4 @@ if __name__ == "__main__":
     if args.repl:
         repl()
     elif args.path:
-        evaluate(get_source(args.path), Environment())
+        print(list(map(str, evaluate(get_source(args.path), Environment()))))

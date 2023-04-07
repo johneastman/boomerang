@@ -8,12 +8,10 @@ from . import testing_utils
 def test_precedence_add():
 
     expected_ast = [
-        _parser.ExpressionStatement(
-            _parser.BinaryOperation(
-                _parser.Integer(1, 1),
-                Token("+", PLUS, 1),
-                _parser.Integer(1, 1)
-            )
+        _parser.create_binary_expression(
+            _parser.create_integer(1, 1),
+            Token("+", PLUS, 1),
+            _parser.create_integer(1, 1)
         )
     ]
 
@@ -24,15 +22,13 @@ def test_precedence_add():
 
 def test_precedence_multiply():
     expected_ast = [
-        _parser.ExpressionStatement(
-            _parser.BinaryOperation(
-                _parser.Integer(1, 1),
-                Token("+", PLUS, 1),
-                _parser.BinaryOperation(
-                    _parser.Integer(2, 1),
-                    Token("*", MULTIPLY, 1),
-                    _parser.Integer(4, 1)
-                )
+        _parser.create_binary_expression(
+            _parser.create_integer(1, 1),
+            Token("+", PLUS, 1),
+            _parser.create_binary_expression(
+                _parser.create_integer(2, 1),
+                Token("*", MULTIPLY, 1),
+                _parser.create_integer(4, 1)
             )
         )
     ]

@@ -11,8 +11,7 @@ evaluator = Evaluator([], Environment())
 
 
 def test_evaluate_expression_invalid_type():
-    InvalidType = namedtuple("InvalidType", "line_num")
-    invalid_type = InvalidType(1)
+    invalid_type = Node("InvalidType", 1)
 
     with pytest.raises(Exception) as error:
         evaluator.evaluate_expression(invalid_type)
@@ -21,7 +20,7 @@ def test_evaluate_expression_invalid_type():
 
 
 def test_undefined_variable():
-    undefined_variable = Identifier("undefined", 1)
+    undefined_variable = create_identifier("undefined", 1)
 
     with pytest.raises(LanguageRuntimeException) as error:
         evaluator.evaluate_identifier(undefined_variable)
