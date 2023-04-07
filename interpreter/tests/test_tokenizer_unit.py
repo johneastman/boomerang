@@ -1,5 +1,5 @@
 import pytest
-from tokens.tokenizer import Tokenizer
+from interpreter.tokens.tokenizer import Tokenizer
 
 digit_data = [
     ("0", True),

@@ -1,5 +1,5 @@
-from _parser.ast_objects import *
 from . import testing_utils
+from .._parser.ast_objects import create_assignment_statement, create_integer
 
 
 def test_set_statement():

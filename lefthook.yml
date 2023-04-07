@@ -37,6 +37,6 @@ pre-commit:
   parallel: true
   commands:
     mypy:
-      run: mypy tokens _parser evaluator utils main.py --strict
+      run: mypy interpreter main.py --strict
     tests:
-      run: pytest tests/
+      run: pytest

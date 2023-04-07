@@ -1,11 +1,11 @@
 import pytest
 
-import _parser.ast_objects as o
-from tokens.tokenizer import Tokenizer
-from tokens.token_queue import TokenQueue
-from _parser._parser import Parser
-from evaluator.evaluator import Evaluator
-from evaluator._environment import Environment
+import interpreter._parser.ast_objects as o
+from interpreter.tokens.tokenizer import Tokenizer
+from interpreter.tokens.token_queue import TokenQueue
+from interpreter._parser._parser import Parser
+from interpreter.evaluator.evaluator import Evaluator
+from interpreter.evaluator._environment import Environment
 
 
 evaluator_tests = [

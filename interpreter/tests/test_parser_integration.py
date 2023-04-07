@@ -1,7 +1,6 @@
-import pytest
-from tokens.tokens import *
-from tokens.tokenizer import Token
-from _parser import _parser
+from interpreter.tokens.tokens import *
+from interpreter.tokens.tokenizer import Token
+from .._parser import _parser
 from . import testing_utils
 
 

@@ -1,9 +1,9 @@
 import typing
 
-from _parser import _parser
-from tokens.tokens import *
-from evaluator._environment import Environment
-from utils.utils import language_error
+from interpreter._parser import _parser
+from interpreter.tokens.tokens import *
+from interpreter.evaluator._environment import Environment
+from interpreter.utils.utils import language_error
 import copy
 
 

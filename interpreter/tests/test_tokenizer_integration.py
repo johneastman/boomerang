@@ -1,6 +1,6 @@
 import pytest
-from tokens.tokens import *
-from tokens.tokenizer import Tokenizer, Token
+from interpreter.tokens.tokens import *
+from interpreter.tokens.tokenizer import Tokenizer, Token
 
 data_types_tests = [
     ("1", [

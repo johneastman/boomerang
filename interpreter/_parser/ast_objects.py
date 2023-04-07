@@ -1,6 +1,6 @@
 import typing
 
-from tokens.tokenizer import Token
+from interpreter.tokens.tokenizer import Token
 
 
 class Node:

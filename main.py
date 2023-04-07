@@ -1,13 +1,13 @@
 import argparse
 import typing
 
-from _parser.ast_objects import Node
-from tokens.tokenizer import Tokenizer
-from tokens.token_queue import TokenQueue
-from _parser._parser import Parser
-from evaluator.evaluator import Evaluator
-from evaluator._environment import Environment
-from utils.utils import LanguageRuntimeException
+from interpreter._parser._parser import Node
+from interpreter.tokens.tokenizer import Tokenizer
+from interpreter.tokens.token_queue import TokenQueue
+from interpreter._parser._parser import Parser
+from interpreter.evaluator.evaluator import Evaluator
+from interpreter.evaluator._environment import Environment
+from interpreter.utils.utils import LanguageRuntimeException
 
 
 def get_source(filepath: str) -> str:

@@ -1,6 +1,6 @@
 from typing import Optional
 
-from _parser.ast_objects import Node
+from interpreter._parser.ast_objects import Node
 
 
 class Environment:

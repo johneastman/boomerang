@@ -1,7 +1,7 @@
 import json
 from flask import Flask, request, render_template, redirect, make_response
 from main import evaluate
-from evaluator._environment import Environment
+from interpreter.evaluator._environment import Environment
 
 app = Flask(__name__)
 

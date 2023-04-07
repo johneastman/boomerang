@@ -1,9 +1,9 @@
 import typing
-
-from tokens.tokenizer import *
-from tokens.token_queue import TokenQueue
-from _parser.ast_objects import *
-from utils.utils import language_error
+from interpreter.tokens.tokenizer import Token
+from interpreter.tokens.token_queue import TokenQueue
+from interpreter._parser.ast_objects import *
+from interpreter.tokens.tokens import *
+from interpreter.utils.utils import language_error
 
 # Precedence names
 LOWEST = "LOWEST"  # default

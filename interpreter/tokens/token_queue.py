@@ -1,6 +1,6 @@
-from tokens.tokenizer import Tokenizer, Token
-from tokens.tokens import get_token_literal, get_token_type
-from utils import utils
+from interpreter.tokens.tokenizer import Tokenizer, Token
+from interpreter.tokens.tokens import get_token_literal, get_token_type
+from interpreter.utils import utils
 
 
 class TokenQueue:

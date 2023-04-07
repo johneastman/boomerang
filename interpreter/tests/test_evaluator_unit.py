@@ -1,11 +1,9 @@
 import pytest
-from collections import namedtuple
 
-from evaluator.evaluator import Evaluator
-from evaluator._environment import Environment
-from utils.utils import LanguageRuntimeException
-from _parser.ast_objects import *
-
+from interpreter._parser.ast_objects import Node, create_identifier
+from interpreter.evaluator.evaluator import Evaluator
+from interpreter.evaluator._environment import Environment
+from interpreter.utils.utils import LanguageRuntimeException
 
 evaluator = Evaluator([], Environment())
 
