@@ -4,19 +4,19 @@ from interpreter.tokens.tokenizer import Tokenizer, Token
 
 data_types_tests = [
     ("1", [
-        Token("1", INTEGER, 1),
+        Token("1", NUMBER, 1),
         Token("", EOF, 1)
     ]),
     ("15", [
-        Token("15", INTEGER, 1),
+        Token("15", NUMBER, 1),
         Token("", EOF, 1)
     ]),
     ("153", [
-        Token("153", INTEGER, 1),
+        Token("153", NUMBER, 1),
         Token("", EOF, 1)
     ]),
     ("1.5", [
-        Token("1.5", FLOAT, 1),
+        Token("1.5", NUMBER, 1),
         Token("", EOF, 1)
     ]),
 ]
@@ -30,20 +30,20 @@ def test_data_types(source, expected_tokens):
 
 tokenizer_tests = [
     ("1 + 1;", [
-        Token("1", INTEGER, 1),
+        Token("1", NUMBER, 1),
         Token("+", PLUS, 1),
-        Token("1", INTEGER, 1),
+        Token("1", NUMBER, 1),
         Token(";", SEMICOLON, 1),
         Token("", EOF, 1)
     ]),
     ("a = 1;\nb = 2;", [
         Token("a", IDENTIFIER, 1),
         Token("=", ASSIGN, 1),
-        Token("1", INTEGER, 1),
+        Token("1", NUMBER, 1),
         Token(";", SEMICOLON, 1),
         Token("b", IDENTIFIER, 2),
         Token("=", ASSIGN, 2),
-        Token("2", INTEGER, 2),
+        Token("2", NUMBER, 2),
         Token(";", SEMICOLON, 2),
         Token("", EOF, 2)
     ])

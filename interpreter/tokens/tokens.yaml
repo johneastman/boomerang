@@ -33,11 +33,8 @@ tokens:
       name: EOF
       type: EOF
     - literal: ''
-      name: INTEGER
-      type: INTEGER
-    - literal: ''
-      name: FLOAT
-      type: FLOAT
+      name: NUMBER
+      type: NUMBER
     - literal: ''
       name: IDENTIFIER
       type: IDENTIFIER

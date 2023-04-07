@@ -59,8 +59,7 @@ class Tokenizer:
 
         elif self.is_digit():
             number: str = self.read_number()
-            token_type: str = FLOAT if "." in number else INTEGER
-            return Token(number, token_type, self.line_num)
+            return Token(number, NUMBER, self.line_num)
 
         elif self.is_identifier():
             letters: str = self.read_identifier()

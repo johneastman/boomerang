@@ -32,12 +32,8 @@ class Node:
         return self.value
 
 
-def create_integer(value: int, line_num: int) -> Node:
-    return Node("integer", line_num, str(value))
-
-
-def create_float(value: float, line_num: int) -> Node:
-    return Node("float", line_num, str(value))
+def create_number(value: str, line_num: int) -> Node:
+    return Node("number", line_num, value)
 
 
 def create_identifier(value: str, line_num: int) -> Node:

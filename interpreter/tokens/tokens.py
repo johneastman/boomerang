@@ -73,5 +73,4 @@ EOF: str = get_token_type("EOF")  # End of File
 IDENTIFIER: str = get_token_type("IDENTIFIER")
 
 # Data Types
-INTEGER: str = get_token_type("INTEGER")
-FLOAT: str = get_token_type("FLOAT")
+NUMBER: str = get_token_type("NUMBER")

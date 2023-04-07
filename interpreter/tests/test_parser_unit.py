@@ -1,5 +1,5 @@
 from . import testing_utils
-from .._parser.ast_objects import create_assignment_statement, create_integer
+from .._parser.ast_objects import create_assignment_statement, create_number
 
 
 def test_set_statement():
@@ -10,7 +10,7 @@ def test_set_statement():
     expected_assign_ast = create_assignment_statement(
         "variable",
         1,
-        create_integer(1, 1)
+        create_number("1", 1)
     )
 
     assert actual_assign_ast == expected_assign_ast

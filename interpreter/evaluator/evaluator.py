@@ -47,10 +47,7 @@ class Evaluator:
             return self.evaluate_identifier(expression)
 
         # Base Types
-        elif expression.type == "integer":
-            return expression
-
-        elif expression.type == "float":
+        elif expression.type == "number":
             return expression
 
         # This is a program-specific error because a missing object type would come about during development, not
@@ -91,20 +88,15 @@ class Evaluator:
         op = unary_expression.get_param("operator")
 
         if op.type == PLUS:
-            if expression_result.type == "float":
+            if expression_result.type == "number":
                 new_value = abs(float(expression_result.value))
-                return _parser.create_float(new_value, expression_result.line_num)
-            elif expression_result.type == "integer":
-                new_value = abs(int(expression_result.value))
-                return _parser.create_integer(new_value, expression_result.line_num)
+                return _parser.create_number(str(new_value), expression_result.line_num)
 
         elif op.type == MINUS:
-            if expression_result.type == "float":
+            if expression_result.type == "number":
                 new_value = -float(expression_result.value)
-                return _parser.create_float(new_value, expression_result.line_num)
-            elif expression_result.type == "integer":
-                new_value = -int(expression_result.value)
-                return _parser.create_integer(new_value, expression_result.line_num)
+                return _parser.create_number(str(new_value), expression_result.line_num)
+
         raise Exception(f"Invalid unary operator: {op.type} ({op.value})")
 
     def evaluate_binary_expression(self, binary_operation: _parser.Node) -> _parser.Node:
@@ -115,67 +107,39 @@ class Evaluator:
 
         # Math operations
         if op.type == PLUS:
-            return self.operate(left, op.type, right)
+            return self.add(left, right)
 
         elif op.type == MINUS:
-            return self.operate(left, op.type, right)
+            return self.subtract(left, right)
 
         elif op.type == MULTIPLY:
-            return self.operate(left, op.type, right)
+            return self.multiply(left, right)
 
         elif op.type == DIVIDE:
-            return self.operate(left, op.type, right)
+            return self.divide(left, right)
 
         raise language_error(op.line_num, f"Invalid binary operator '{op.value}'")
 
-    def operate(self, left: _parser.Node, op: str, right: _parser.Node) -> _parser.Node:
+    def add(self, left: _parser.Node, right: _parser.Node) -> _parser.Node:
+        if left.type == "number" and right.type == "number":
+            return _parser.create_number(str(float(left.value) + float(right.value)), left.line_num)
 
-        if left.type == "integer" and right.type == "integer":
-            if op == PLUS:
-                return _parser.create_integer(int(left.value) + int(right.value), left.line_num)
-            elif op == MINUS:
-                return _parser.create_integer(int(left.value) - int(right.value), left.line_num)
-            elif op == MULTIPLY:
-                return _parser.create_integer(int(left.value) * int(right.value), left.line_num)
-            elif op == DIVIDE:
-                return _parser.create_float(int(left.value) / int(right.value), left.line_num)
+        raise language_error(left.line_num, f"Invalid types {left.type} and {right.type} for {PLUS}")
 
-            raise language_error(left.line_num, f"Invalid operator: {op}")
+    def subtract(self, left: _parser.Node, right: _parser.Node) -> _parser.Node:
+        if left.type == "number" and right.type == "number":
+            return _parser.create_number(str(float(left.value) - float(right.value)), left.line_num)
 
-        elif left.type == "float" and right.type == "float":
-            if op == PLUS:
-                return _parser.create_float(float(left.value) + float(right.value), left.line_num)
-            elif op == MINUS:
-                return _parser.create_float(float(left.value) - float(right.value), left.line_num)
-            elif op == MULTIPLY:
-                return _parser.create_float(float(left.value) * float(right.value), left.line_num)
-            elif op == DIVIDE:
-                return _parser.create_float(float(left.value) / float(right.value), left.line_num)
+        raise language_error(left.line_num, f"Invalid types {left.type} and {right.type} for {MINUS}")
 
-            raise language_error(left.line_num, f"Invalid operator: {op}")
+    def multiply(self, left: _parser.Node, right: _parser.Node) -> _parser.Node:
+        if left.type == "number" and right.type == "number":
+            return _parser.create_number(str(float(left.value) * float(right.value)), left.line_num)
 
-        elif left.type == "integer" and right.type == "float":
-            if op == PLUS:
-                return _parser.create_float(float(left.value) + float(right.value), left.line_num)
-            elif op == MINUS:
-                return _parser.create_float(float(left.value) - float(right.value), left.line_num)
-            elif op == MULTIPLY:
-                return _parser.create_float(float(left.value) * float(right.value), left.line_num)
-            elif op == DIVIDE:
-                return _parser.create_float(float(left.value) / float(right.value), left.line_num)
+        raise language_error(left.line_num, f"Invalid types {left.type} and {right.type} for {MULTIPLY}")
 
-            raise language_error(left.line_num, f"Invalid operator: {op}")
+    def divide(self, left: _parser.Node, right: _parser.Node) -> _parser.Node:
+        if left.type == "number" and right.type == "number":
+            return _parser.create_number(str(float(left.value) / float(right.value)), left.line_num)
 
-        elif left.type == "float" and right.type == "integer":
-            if op == PLUS:
-                return _parser.create_float(float(left.value) + float(right.value), left.line_num)
-            elif op == MINUS:
-                return _parser.create_float(float(left.value) - float(right.value), left.line_num)
-            elif op == MULTIPLY:
-                return _parser.create_float(float(left.value) * float(right.value), left.line_num)
-            elif op == DIVIDE:
-                return _parser.create_float(float(left.value) / float(right.value), left.line_num)
-
-            raise language_error(left.line_num, f"Invalid operator: {op}")
-
-        raise language_error(left.line_num, f"Invalid types {left.type} and {right.type} for binary operator {op}")
+        raise language_error(left.line_num, f"Invalid types {left.type} and {right.type} for {DIVIDE}")

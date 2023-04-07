@@ -116,15 +116,10 @@ class Parser:
                 return expression
             self.is_expected_token(CLOSED_PAREN)
 
-        elif self.current.type == INTEGER:
+        elif self.current.type == NUMBER:
             number_token = self.current
             self.advance()
-            return create_integer(int(number_token.value), number_token.line_num)
-
-        elif self.current.type == FLOAT:
-            float_token = self.current
-            self.advance()
-            return create_float(float(float_token.value), float_token.line_num)
+            return create_number(number_token.value, number_token.line_num)
 
         elif self.current.type == IDENTIFIER:
             identifier_token = self.current

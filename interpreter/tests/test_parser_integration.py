@@ -8,9 +8,9 @@ def test_precedence_add():
 
     expected_ast = [
         _parser.create_binary_expression(
-            _parser.create_integer(1, 1),
+            _parser.create_number("1", 1),
             Token("+", PLUS, 1),
-            _parser.create_integer(1, 1)
+            _parser.create_number("1", 1)
         )
     ]
 
@@ -22,12 +22,12 @@ def test_precedence_add():
 def test_precedence_multiply():
     expected_ast = [
         _parser.create_binary_expression(
-            _parser.create_integer(1, 1),
+            _parser.create_number("1", 1),
             Token("+", PLUS, 1),
             _parser.create_binary_expression(
-                _parser.create_integer(2, 1),
+                _parser.create_number("2", 1),
                 Token("*", MULTIPLY, 1),
-                _parser.create_integer(4, 1)
+                _parser.create_number("4", 1)
             )
         )
     ]
