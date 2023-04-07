@@ -19,7 +19,7 @@ def hello_world():
 
 
 @app.route("/interpreter", methods=["POST"])
-def button():
+def interpreter():
     source_code = request.form["source"]
 
     results = evaluate(source_code, Environment())
@@ -28,3 +28,33 @@ def button():
     resp.set_cookie("source_code", source_code)
     resp.set_cookie("results", json.dumps(list(map(str, results))))
     return resp
+
+
+@app.route("/guide")
+def guide():
+
+    language_spec_data = {
+        "data_types": {
+            "title": "Data Types",
+            "headers": ("Data Type", "Examples"),
+            "rows": [
+                ("Integer", "1, 2, 3, 10, 13, 100, 1234567890"),
+                ("Float", "1.1, 2.5, 3.14159")
+            ]
+        },
+        "operators": {
+            "title": "Operators",
+            "headers": ("Name", "Literal"),
+            "rows": [
+                ("Add", "+"),
+                ("Subtract", "-"),
+                ("Multiply", "*"),
+                ("Divide", "/"),
+                ("Assignment", "="),
+                ("Unary: Negative", "-"),
+                ("Unary: Positive", "+")
+            ]
+        }
+    }
+
+    return render_template("guide.html", **language_spec_data)

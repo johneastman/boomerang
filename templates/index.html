@@ -1,11 +1,31 @@
-<h1>Boomerang</h1>
-<ul>
-    {% for result in results %}
-        <li>{{ result }}</li>
-    {% endfor %}
-</ul>
-<form action="/interpreter" method="post">
-    <textarea name="source" rows="4" cols="50">{{ source_code }}</textarea>
-    <br>
-    <input type="submit" value="Run Code">
-</form>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Boomerang</title>
+        <link rel="stylesheet" type= "text/css" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+    <body>
+        <h1>Boomerang</h1>
+        Boomerang is a programming language. The defining characteristics of Boomerang are:
+        <ul>
+            <li><strong>Interpreted:</strong> code executes in the runtime of another language (in this case, Python).</li>
+            <li><strong>Procedural:</strong> commands are executed in the order they are defined.</li>
+            <li><strong>Dynamically Typed:</strong> types are not declared explicitly; rather, they are interpreted from the values they are assigned (for example, <code>1</code> is an integer, <code>3.14159</code> is a float, <code>"hello world"</code> is a string, etc.).</li>
+            <li><strong>Strongly Typed:</strong> strict rules are defined for how types interact (for example, <code>1 + 1</code> or <code>1 + 1.5</code> are valid, but <code>1 + "hello world!"</code> is invalid).</li>
+        </ul>
+        Check out the <a href="guide">language guide</a> to learn about the syntax and try it out below!
+
+        <form action="/interpreter" method="post">
+            <textarea name="source" rows="4" cols="50">{{ source_code }}</textarea>
+            <br>
+            <input type="submit" value="Run Code">
+        </form>
+
+        <ul>
+            {% for result in results %}
+                <li>{{ result }}</li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>

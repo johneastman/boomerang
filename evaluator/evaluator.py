@@ -30,9 +30,6 @@ class Evaluator:
             evaluated_expressions.append(copy.deepcopy(evaluated_expression))
 
         # TODO: Figure out how to handle returns for both REPL and regular code execution
-        # TODO: handle no return
-        # if len(evaluated_expressions) == 0:
-        #     evaluated_expressions.append(_parser.NoReturn())
         return evaluated_expressions
 
     def evaluate_expression(self, expression: _parser.Node) -> _parser.Node:

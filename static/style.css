@@ -1,0 +1,10 @@
+code {
+    background: lightgray;
+    border-radius: 0.25rem;
+    padding: 0.2rem;
+}
+
+.code-block {
+    display: block;
+    white-space: pre-wrap;
+}

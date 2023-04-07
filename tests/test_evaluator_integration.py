@@ -6,7 +6,6 @@ from tokens.token_queue import TokenQueue
 from _parser._parser import Parser
 from evaluator.evaluator import Evaluator
 from evaluator._environment import Environment
-from utils.utils import LanguageRuntimeException
 
 
 evaluator_tests = [
@@ -14,6 +13,12 @@ evaluator_tests = [
     ("1 + 2 * 2", [o.create_integer(5, 1)]),
     ("(1 + 2) * 2", [o.create_integer(6, 1)]),
     ("x = (1 + 2) * 2;\nx", [o.create_integer(6, 1), o.create_integer(6, 2)]),
+    ("x = y = z = 2;\nx;\ny;\nz", [
+        o.create_integer(2, 1),
+        o.create_integer(2, 2),
+        o.create_integer(2, 3),
+        o.create_integer(2, 4)
+    ]),
     ("4 / 2", [o.create_float(2.0, 1)]),
     ("7 / 2", [o.create_float(3.5, 1)]),
     ("1 + 1 * 2 + 3 / 4", [o.create_float(3.75, 1)])

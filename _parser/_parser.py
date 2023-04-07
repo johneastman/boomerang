@@ -7,13 +7,8 @@ from utils.utils import language_error
 
 # Precedence names
 LOWEST = "LOWEST"  # default
-AND_OR = "AND_OR"  # &&, ||
-EQUALS = "EQUALS"  # ==, !=
-LESS_GREATER = "LESS_GREATER"  # <, >, >=, <=
 SUM = "SUM"  # +, -
 PRODUCT = "PRODUCT"  # *, /
-PREFIX = "PREFIX"  # -X, +X, !X, X!
-CALL = "CALL"  # function calls (e.g. function())
 
 
 class Parser:
@@ -34,13 +29,8 @@ class Parser:
         # index + 1).
         self.precedences: list[str] = [
             LOWEST,
-            AND_OR,
-            EQUALS,
-            LESS_GREATER,
             SUM,
-            PRODUCT,
-            PREFIX,
-            CALL
+            PRODUCT
         ]
 
         self.infix_precedence: dict[str, str] = {
@@ -61,7 +51,7 @@ class Parser:
         """
         statements = []
         while self.current.type != end_type:
-            statements.append(self.statement())
+            statements.append(self.expression())
             self.is_expected_token(SEMICOLON)
             self.advance()
         return statements
@@ -108,6 +98,10 @@ class Parser:
         return left
 
     def parse_prefix(self) -> Node:  # Factor
+
+        if self.current.type == IDENTIFIER and self.peek.type == ASSIGN:
+            return self.assign()
+
         if self.current.type in [MINUS, PLUS]:
             op = self.current
             self.advance()
@@ -144,12 +138,6 @@ class Parser:
         self.advance()
         right = self.expression(self.infix_precedence.get(op.type, LOWEST))
         return create_binary_expression(left, op, right)
-
-    def statement(self) -> Node:
-        if self.current.type == IDENTIFIER and self.peek.type == ASSIGN:
-            return self.assign()
-
-        return self.expression()
 
     def assign(self) -> Node:
         self.is_expected_token(IDENTIFIER)
