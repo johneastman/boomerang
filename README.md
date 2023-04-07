@@ -42,9 +42,7 @@ These are errors with the Python code itself and exist to aid the development pr
 # Flask App
 Boomerang has a web interface that will allow you to run it from the browser!
 
-To run the Flask app:
-1. cd into `web_app`
-2. Run `flask --app app run`
+To run the Flask app, run `flask --app flask_app run`.
 
 # Language Specs
 
