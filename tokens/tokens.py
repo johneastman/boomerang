@@ -64,40 +64,15 @@ DIVIDE: str = get_token_type("DIVIDE")
 SEMICOLON: str = get_token_type("SEMICOLON")
 OPEN_PAREN: str = get_token_type("OPEN_PAREN")
 CLOSED_PAREN: str = get_token_type("CLOSED_PAREN")
-OPEN_CURLY_BRACKET: str = get_token_type("OPEN_CURLY_BRACKET")
-CLOSED_CURLY_BRACKET: str = get_token_type("CLOSED_CURLY_BRACKET")
-COMMA: str = get_token_type("COMMA")
-COMMENT: str = get_token_type("COMMENT")
-BLOCK_COMMENT: str = get_token_type("BLOCK_COMMENT")
-DOUBLE_QUOTE: str = get_token_type("DOUBLE_QUOTE")
-COLON: str = get_token_type("COLON")
 PERIOD: str = get_token_type("PERIOD")
 
-# Comparison/Boolean Operators
-EQ: str = get_token_type("EQ")
-NE: str = get_token_type("NE")
-GE: str = get_token_type("GE")
-LE: str = get_token_type("LE")
-GT: str = get_token_type("GT")
-LT: str = get_token_type("LT")
-BANG: str = get_token_type("BANG")
-AND: str = get_token_type("AND")
-OR: str = get_token_type("OR")
-
 # Keywords
-RETURN: str = get_token_type("RETURN")
-FUNCTION: str = get_token_type("FUNCTION")
-IF: str = get_token_type("IF")
-ELSE: str = get_token_type("ELSE")
-WHILE: str = get_token_type("WHILE")
-SET: str = get_token_type("SET")
+LET: str = get_token_type("LET")
 
 # Misc
 EOF: str = get_token_type("EOF")  # End of File
 IDENTIFIER: str = get_token_type("IDENTIFIER")
 
 # Data Types
-STRING: str = get_token_type("STRING")
 INTEGER: str = get_token_type("INTEGER")
-BOOLEAN: str = get_token_type("BOOLEAN")
 FLOAT: str = get_token_type("FLOAT")

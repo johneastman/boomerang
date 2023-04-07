@@ -1,3 +1,4 @@
+# TODO: implement AST visualization (may cause issued with deployment on pythonanywhere)
 # # mypy error: Skipping analyzing "graphviz": module is installed, but missing library stubs or py.typed marker
 # # reason for ignore: mypy doesn't know about dependency types
 # import graphviz  # type: ignore

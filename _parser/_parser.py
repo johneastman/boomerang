@@ -45,19 +45,10 @@ class Parser:
         ]
 
         self.infix_precedence: dict[str, str] = {
-            EQ: EQUALS,
-            NE: EQUALS,
-            LT: LESS_GREATER,
-            LE: LESS_GREATER,
-            GT: LESS_GREATER,
-            GE: LESS_GREATER,
-            AND: AND_OR,
-            OR: AND_OR,
             PLUS: SUM,
             MINUS: SUM,
             MULTIPLY: PRODUCT,
             DIVIDE: PRODUCT,
-            BANG: PREFIX
         }
 
     def parse(self) -> list[Statement]:
@@ -75,10 +66,6 @@ class Parser:
             self.is_expected_token(SEMICOLON)
             self.advance()
         return statements
-
-    def block_statement(self) -> list[Statement]:
-        """Statements between two curly brackets (functions, if-statements, loops, etc.)"""
-        return self.parse_statements(CLOSED_CURLY_BRACKET)
 
     def advance(self) -> None:
         self.tokens.next()
@@ -122,7 +109,7 @@ class Parser:
         return left
 
     def parse_prefix(self) -> Expression:  # Factor
-        if self.current.type in [MINUS, PLUS, BANG]:
+        if self.current.type in [MINUS, PLUS]:
             op = self.current
             self.advance()
             expression = self.expression()
@@ -146,17 +133,6 @@ class Parser:
             self.advance()
             return Float(float(float_token.value), float_token.line_num)
 
-        elif self.current.type == BOOLEAN:
-            bool_val_token = self.current
-            value = True if bool_val_token.value == get_token_literal("TRUE") else False
-            self.advance()
-            return Boolean(value, bool_val_token.line_num)
-
-        elif self.current.type == STRING:
-            string_token = self.current
-            self.advance()
-            return String(string_token.value, string_token.line_num)
-
         elif self.current.type == IDENTIFIER:
             identifier_token = self.current
             if self.peek.type == OPEN_PAREN:
@@ -168,32 +144,13 @@ class Parser:
         raise_error(self.current.line_num, f"Invalid token: {self.current.type} ({self.current.value})")
 
     def parse_infix(self, left: Expression) -> Expression:
-        # Postfix operators are just infix operators without a right expression
-        if self.current.type == BANG:
-            self.advance()
-            return Factorial(left)
-
-        else:
-            op = self.current
-            self.advance()
-            right = self.expression(self.infix_precedence.get(op.type, LOWEST))
-            return BinaryOperation(left, op, right)
+        op = self.current
+        self.advance()
+        right = self.expression(self.infix_precedence.get(op.type, LOWEST))
+        return BinaryOperation(left, op, right)
 
     def statement(self) -> Statement:
-        if self.current.type == FUNCTION:
-            return self.function()
-
-        elif self.current.type == IF:
-            return self.if_statement()
-
-        elif self.current.type == RETURN:
-            self.advance()
-            return Return(self.expression())
-
-        elif self.current.type == WHILE:
-            return self.loop()
-
-        elif self.current.type == SET:
+        if self.current.type == LET:
             return self.assign()
 
         else:
@@ -225,127 +182,6 @@ class Parser:
             Identifier(variable_name.value, variable_name.line_num),
             right
         )
-
-    def loop(self) -> Statement:
-        self.advance()
-
-        comparison = self.expression()
-
-        # Open curly bracket
-        self.is_expected_token(OPEN_CURLY_BRACKET)
-        self.advance()
-
-        loop_statements = self.block_statement()
-
-        # Closed curly bracket
-        self.is_expected_token(CLOSED_CURLY_BRACKET)
-        self.advance()
-
-        # Add a semicolon so users don't have to add one in the code
-        self.add_semicolon()
-
-        return Loop(comparison, loop_statements)
-
-    def if_statement(self) -> Statement:
-        self.advance()
-
-        comparison = self.expression()
-
-        # Open curly bracket
-        self.is_expected_token(OPEN_CURLY_BRACKET)
-        self.advance()
-
-        if_statements = self.block_statement()
-
-        # Closed curly bracket
-        self.is_expected_token(CLOSED_CURLY_BRACKET)
-        self.advance()
-
-        else_statements = None
-        if self.current.type == ELSE:
-            self.advance()
-
-            # Open curly bracket
-            self.is_expected_token(OPEN_CURLY_BRACKET)
-            self.advance()
-
-            else_statements = self.block_statement()
-
-            # Closed curly bracket
-            self.is_expected_token(CLOSED_CURLY_BRACKET)
-            self.advance()
-
-        self.add_semicolon()
-
-        return IfStatement(comparison, if_statements, else_statements)
-
-    def function(self) -> Statement:
-        self.advance()
-
-        self.is_expected_token(IDENTIFIER)
-        function_name = self.current
-        self.advance()
-
-        self.is_expected_token(OPEN_PAREN)
-        self.advance()
-
-        parameters = []
-        # This condition in after 'while' handles functions with no parameters. If this was set to 'while True',
-        # the parser would expect a NUMBER after the open-paren of the function call and throw the error
-        # in `if self.current.type != NUMBER`.
-        while self.current.type != CLOSED_PAREN:
-            self.is_expected_token(IDENTIFIER)
-            parameters.append(self.current)
-            self.advance()
-
-            if self.current.type == CLOSED_PAREN:
-                break
-
-            self.is_expected_token(COMMA)
-            self.advance()
-
-        self.advance()
-
-        self.is_expected_token(OPEN_CURLY_BRACKET)
-        self.advance()
-
-        function_statements = self.block_statement()
-
-        self.is_expected_token(CLOSED_CURLY_BRACKET)
-        self.advance()
-
-        self.add_semicolon()
-
-        return AssignFunction(function_name, parameters, function_statements)
-
-    def function_call(self, identifier_token: Token) -> Factor:
-        self.advance()  # skip identifier
-        self.advance()  # skip open paren
-
-        parameters: list[Expression] = []
-        # This condition in after 'while' handles functions with no parameters. If this was set to 'while True',
-        # the parser would expect a NUMBER after the open-paren of the function call and throw the error.
-        # in `if self.current.type != NUMBER`.
-        while self.current.type != CLOSED_PAREN:
-            parameters.append(self.expression())
-
-            if self.current.type == CLOSED_PAREN:
-                break
-
-            # Expect comma or closed paren
-            self.is_expected_token(COMMA)
-            self.advance()
-
-        self.advance()
-
-        line_num = identifier_token.line_num
-        builtin_functions: typing.Dict[str, BuiltinFunction] = {
-            "print": Print(parameters, line_num),
-            "random": Random(parameters, line_num)
-        }
-        return builtin_functions.get(
-            identifier_token.value,
-            FunctionCall(identifier_token.value, parameters, identifier_token.line_num))
 
     def add_semicolon(self) -> None:
         self.tokens.add("SEMICOLON")

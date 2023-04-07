@@ -1,27 +1,8 @@
 tokens:
   keywords:
-    - literal: set
-      name: SET
-      type: SET
-    - literal: func
-      name: FUNCTION
-      type: FUNCTION
-    - literal: if
-      name: IF
-      type: IF
-    - literal: else
-      name: ELSE
-      type: ELSE
-    - literal: while
-      name: WHILE
-      type: WHILE
-    # boolean values must be in strings; otherwise they will be interpreted by Python as boolean values
-    - literal: 'true'
-      name: 'TRUE'
-      type: BOOLEAN
-    - literal: 'false'
-      name: 'FALSE'
-      type: BOOLEAN
+    - literal: let
+      name: LET
+      type: LET
   symbols:
     - literal: '.'
       name: PERIOD
@@ -50,57 +31,6 @@ tokens:
     - literal: )
       name: CLOSED_PAREN
       type: CLOSED_PAREN
-    - literal: '{'
-      name: OPEN_CURLY_BRACKET
-      type: OPEN_CURLY_BRACKET
-    - literal: '}'
-      name: CLOSED_CURLY_BRACKET
-      type: CLOSED_CURLY_BRACKET
-    - literal: ','
-      name: COMMA
-      type: COMMA
-    - literal: '#'
-      name: COMMENT
-      type: COMMENT
-    - literal: /*
-      name: BLOCK_COMMENT
-      type: BLOCK_COMMENT
-    - literal: ==
-      name: EQ
-      type: EQ
-    - literal: '!='
-      name: NE
-      type: NE
-    - literal: '>='
-      name: GE
-      type: GE
-    - literal: <=
-      name: LE
-      type: LE
-    - literal: '>'
-      name: GT
-      type: GT
-    - literal: <
-      name: LT
-      type: LT
-    - literal: '!'
-      name: BANG
-      type: BANG
-    - literal: '&&'
-      name: AND
-      type: AND
-    - literal: '||'
-      name: OR
-      type: OR
-    - literal: return
-      name: RETURN
-      type: RETURN
-    - literal: '"'
-      name: DOUBLE_QUOTE
-      type: DOUBLE_QUOTE
-    - literal: ':'
-      name: COLON
-      type: COLON
   data_types:
     - literal: ''
       name: EOF
@@ -109,14 +39,8 @@ tokens:
       name: INTEGER
       type: INTEGER
     - literal: ''
-      name: IDENTIFIER
-      type: IDENTIFIER
-    - literal: ''
-      name: BOOLEAN
-      type: BOOLEAN
-    - literal: ''
-      name: STRING
-      type: STRING
-    - literal: ''
       name: FLOAT
       type: FLOAT
+    - literal: ''
+      name: IDENTIFIER
+      type: IDENTIFIER

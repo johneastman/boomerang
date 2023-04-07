@@ -14,8 +14,6 @@ class Token:
         self.line_num = line_num
 
     def __str__(self) -> str:
-        if self.type == STRING:
-            return f'"{self.value}"'
         return str(self.value)
 
     def __repr__(self) -> str:
@@ -53,7 +51,6 @@ class Tokenizer:
 
     def next_token(self) -> Token:
         self.skip_whitespace()
-        self.skip_comments()
 
         if self.current is None:
             return Token("", EOF, self.line_num)
@@ -69,12 +66,6 @@ class Tokenizer:
             # Any string that is not a keyword is an identifier (variable, function, etc.)
             token_type = tokens_dict.get(letters, IDENTIFIER)
             return Token(letters, token_type, self.line_num)
-
-        elif self.is_string():
-            self.advance()  # skip starting quote
-            string_literal: str = self.read_string()
-            self.advance()  # skip ending quote
-            return Token(string_literal, STRING, self.line_num)
 
         else:
             # Find all tokens starting with the current character. Sort by the length of each token in descending
@@ -114,35 +105,6 @@ class Tokenizer:
 
     def skip_whitespace(self) -> None:
         while self.current is not None and self.current.isspace():
-            if self.current == "\n":
-                self.line_num += 1
-
-            self.advance()
-
-    def skip_comments(self) -> None:
-        if self.current == get_token_literal("COMMENT"):
-            self.skip_inline_comment()
-
-        elif self.current == get_token_literal("DIVIDE") and self.next_char == get_token_literal("MULTIPLY"):
-            self.skip_block_comment()
-
-        self.skip_whitespace()  # for any whitespace that may be after the comments
-
-    def skip_inline_comment(self) -> None:
-        # If a hash symbol is found, skip until the end of the line
-        while self.current is not None and self.current != "\n":
-            self.advance()
-        self.advance()  # skip end-line char
-
-        self.line_num += 1
-
-    def skip_block_comment(self) -> None:
-        while True:
-            if self.current == get_token_literal("MULTIPLY") and self.next_char == get_token_literal("DIVIDE"):
-                self.advance()  # skip over /
-                self.advance()  # skip over *
-                break
-
             if self.current == "\n":
                 self.line_num += 1
 

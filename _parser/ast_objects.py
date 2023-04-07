@@ -1,7 +1,6 @@
 import typing
 
 from tokens.tokens import *
-from typing import Optional, Union
 
 if typing.TYPE_CHECKING:
     from tokens.tokenizer import Token
@@ -52,14 +51,9 @@ class Base(Expression):
 
     def __init__(self,
                  value: typing.Any,
-                 line_num: int,
-                 conversion_types: list[str]):
+                 line_num: int):
         self.value = value
         self.line_num = line_num
-
-        # NOTE: These two lists had to be lists of strings because using just the types was causing issues with mypy
-        # and type checking
-        self.conversion_types = conversion_types
 
     def add(self, other: "Base") -> "Base":
         utils.raise_error(
@@ -87,65 +81,6 @@ class Base(Expression):
     def positive(self) -> "Base":
         utils.raise_error(self.line_num, f"Cannot perform {PLUS} operation on {type(self).__name__}")
 
-    def bang(self) -> "Base":
-        utils.raise_error(self.line_num, f"Cannot perform {BANG} operation on {type(self).__name__}")
-
-    def equals(self, other: "Base") -> "Base":
-
-        if type(self) == type(other):
-            return Boolean(self.value == other.value, self.line_num)
-
-        utils.raise_error(
-            self.line_num,
-            f"Cannot perform {EQ} operation on {type(self).__name__} and {type(other).__name__}")
-
-    def not_equals(self, other: "Base") -> "Base":
-
-        if type(self) == type(other):
-            return Boolean(self.value != other.value, self.line_num)
-
-        utils.raise_error(
-            self.line_num,
-            f"Cannot perform {NE} operation on {type(self).__name__} and {type(other).__name__}")
-
-    def greater_than(self, other: "Base") -> "Base":
-        utils.raise_error(
-            self.line_num,
-            f"Cannot perform {GT} operation on {type(self).__name__} and {type(other).__name__}")
-
-    def greater_than_or_equal(self, other: "Base") -> "Base":
-        utils.raise_error(
-            self.line_num,
-            f"Cannot perform {GE} operation on {type(self).__name__} and {type(other).__name__}")
-
-    def less_than(self, other: "Base") -> "Base":
-        utils.raise_error(
-            self.line_num,
-            f"Cannot perform {LT} operation on {type(self).__name__} and {type(other).__name__}")
-
-    def less_than_or_equal(self, other: "Base") -> "Base":
-        utils.raise_error(
-            self.line_num,
-            f"Cannot perform {LE} operation on {type(self).__name__} and {type(other).__name__}")
-
-    def and_(self, other: "Base") -> "Base":
-
-        if isinstance(other, Boolean):
-            return Boolean(self.value and other.value, self.line_num)
-
-        utils.raise_error(
-            self.line_num,
-            f"Cannot perform {AND} operation on {type(self).__name__} and {type(other).__name__}")
-
-    def or_(self, other: "Base") -> "Base":
-
-        if isinstance(other, Boolean):
-            return Boolean(self.value or other.value, self.line_num)
-
-        utils.raise_error(
-            self.line_num,
-            f"Cannot perform {OR} operation on {type(self).__name__} and {type(other).__name__}")
-
     def __str__(self) -> str:
         return str(self.value)
 
@@ -167,13 +102,14 @@ class Base(Expression):
         return f"{class_name}(value={self.value}, line_num={self.line_num})"
 
 
+class NoReturn(Base, Factor):
+    def __init__(self, line_num: int = 0) -> None:
+        super().__init__("", line_num)
+
+
 class Integer(Base, Factor):
     def __init__(self, value: int, line_num: int) -> None:
-        conversion_types = [
-            Float.__name__,
-            String.__name__
-        ]
-        super().__init__(value, line_num, conversion_types)
+        super().__init__(value, line_num)
 
     def negative(self) -> "Base":
         return Integer(-self.value, self.line_num)
@@ -230,54 +166,10 @@ class Integer(Base, Factor):
             f"Cannot perform {PLUS} operation on {type(self).__name__} and {type(other).__name__}"
         )
 
-    def greater_than(self, other: "Base") -> "Base":
-        result = self.value > other.value
-        if isinstance(other, Integer):
-            return Boolean(result, self.line_num)
-
-        elif isinstance(other, Float):
-            return Boolean(result, self.line_num)
-
-        return super().greater_than(other)
-
-    def greater_than_or_equal(self, other: "Base") -> "Base":
-        result = self.value >= other.value
-        if isinstance(other, Integer):
-            return Boolean(result, self.line_num)
-
-        elif isinstance(other, Float):
-            return Boolean(result, self.line_num)
-
-        return super().greater_than_or_equal(other)
-
-    def less_than(self, other: "Base") -> "Base":
-        result = self.value < other.value
-        if isinstance(other, Integer):
-            return Boolean(result, self.line_num)
-
-        elif isinstance(other, Float):
-            return Boolean(result, self.line_num)
-
-        return super().less_than(other)
-
-    def less_than_or_equal(self, other: "Base") -> "Base":
-        result = self.value <= other.value
-        if isinstance(other, Integer):
-            return Boolean(result, self.line_num)
-
-        elif isinstance(other, Float):
-            return Boolean(result, self.line_num)
-
-        return super().less_than_or_equal(other)
-
 
 class Float(Base, Factor):
     def __init__(self, value: float, line_num: int) -> None:
-        conversion_types = [
-            Integer.__name__,
-            String.__name__
-        ]
-        super().__init__(value, line_num, conversion_types)
+        super().__init__(value, line_num)
 
     def negative(self) -> "Base":
         return Float(-self.value, self.line_num)
@@ -338,44 +230,6 @@ class Float(Base, Factor):
         )
 
 
-class Boolean(Base, Factor):
-    def __init__(self, value: bool, line_num: int):
-        conversion_types = [
-            String.__name__
-        ]
-        super().__init__(value, line_num, conversion_types)
-
-    def bang(self) -> "Base":
-        return Boolean(not self.value, self.line_num)
-
-    def __str__(self) -> str:
-        return get_token_literal("TRUE") if self.value else get_token_literal("FALSE")
-
-
-class String(Base, Factor):
-    def __init__(self, value: str, line_num: int) -> None:
-
-        conversion_types = [
-            Integer.__name__,
-            Float.__name__
-        ]
-
-        super().__init__(value, line_num, conversion_types)
-
-    def add(self, other: Base) -> Base:
-        if isinstance(other, String):
-            return String(self.value + other.value, self.line_num)
-        return super().add(other)
-
-    def __str__(self) -> str:
-        return f"\"{self.value}\""
-
-
-class NoReturn(Base, Factor):
-    def __init__(self, line_num: int = 0) -> None:
-        super().__init__("", line_num, [])
-
-
 class Identifier(Factor):
     def __init__(self, value: str, line_num: int) -> None:
         self.value = value
@@ -385,90 +239,6 @@ class Identifier(Factor):
         if not isinstance(other, Identifier):
             return False
         return self.value == other.value and self.line_num == other.line_num
-
-
-class FunctionCall(Factor):
-    def __init__(self, name: str, parameter_values: list[Expression], line_num: int) -> None:
-        self.name = name
-        self.parameter_values = parameter_values
-        self.line_num = line_num
-
-    def __repr__(self) -> str:
-        return f"[{self.__class__.__name__}(name={self.name}, parameter_values={self.parameter_values})]"
-
-
-class BuiltinFunction(Factor):
-    def __init__(self, params: list[Expression], line_num: int, num_params: int) -> None:
-        self.params = params
-        self.line_num = line_num
-        self.num_params = num_params
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, BuiltinFunction):
-            return False
-        return self.params == other.params and self.line_num == other.line_num
-
-    def __repr__(self) -> str:
-        class_name = self.__class__.__name__
-        return f"{class_name}({self.params}, {self.line_num})"
-
-
-class Print(BuiltinFunction):
-    def __init__(self, params: list[Expression], line_num: int) -> None:
-        super().__init__(params, line_num, -1)
-
-
-class Random(BuiltinFunction):
-    def __init__(self, params: list[Expression], line_num: int) -> None:
-        super().__init__(params, line_num, 0)
-
-
-class Return(Statement):
-    def __init__(self, expr: Expression) -> None:
-        self.expr = expr
-
-    def __repr__(self) -> str:
-        return f"[{self.__class__.__name__}(value={self.expr})]"
-
-
-class Loop(Statement):
-    def __init__(self, condition: Expression, statements: list[Statement]) -> None:
-        self.condition = condition
-        self.statements = statements
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(condition: {self.condition}, statements: {self.statements})"
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Loop):
-            return False
-        return self.condition == other.condition and self.statements == other.statements
-
-
-class AssignFunction(Statement):
-    def __init__(self, name: "Token", parameters: list["Token"], statements: list[Statement]) -> None:
-        self.name = name
-        self.parameters = parameters
-        self.statements = statements
-
-    def __repr__(self) -> str:
-        class_name = self.__class__.__name__
-        return f"{class_name}(parameters={self.parameters}, statements={self.statements})"
-
-
-class IfStatement(Statement):
-    def __init__(self,
-                 comparison: Expression,
-                 true_statements: list[Statement],
-                 false_statements: Optional[list[Statement]]) -> None:
-        self.comparison = comparison
-        self.true_statements = true_statements
-        self.false_statements = false_statements
-
-
-class Factorial(Expression):
-    def __init__(self, expr: Expression) -> None:
-        self.expr = expr
 
 
 class BinaryOperation(Expression):

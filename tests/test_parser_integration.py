@@ -40,36 +40,3 @@ def test_precedence_multiply():
     parser = testing_utils.parser("1+2*4;")
     actual_ast = parser.parse()
     assert actual_ast == expected_ast
-
-
-precedence_and_or_tests = [
-    ("AND", Token("&&", AND, 1)),
-    ("OR",  Token("||", OR, 1))
-]
-
-
-@pytest.mark.parametrize("test_name,operator_token", precedence_and_or_tests)
-def test_precedence_and_or(test_name, operator_token):
-
-    parser = testing_utils.parser(f"1 == 1 {operator_token.value} 2 != 3;")
-
-    expected_ast = [
-        _parser.ExpressionStatement(
-            _parser.BinaryOperation(
-                _parser.BinaryOperation(
-                    _parser.Integer(1, 1),
-                    Token("==", EQ, 1),
-                    _parser.Integer(1, 1)
-                ),
-                operator_token,
-                _parser.BinaryOperation(
-                    _parser.Integer(2, 1),
-                    Token("!=", NE, 1),
-                    _parser.Integer(3, 1)
-                ),
-            )
-        )
-    ]
-
-    actual_ast = parser.parse()
-    assert actual_ast == expected_ast
