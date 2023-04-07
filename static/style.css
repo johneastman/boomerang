@@ -8,3 +8,31 @@ code {
     display: block;
     white-space: pre-wrap;
 }
+
+.container {
+    display: flex;
+    height: 20rem;
+}
+
+form {
+    width: 50%;
+}
+
+.code-output {
+    list-style-type: none;
+    padding: 0;
+    padding: 1rem;
+    background: black;
+    color: white;
+    width: 50%;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+textarea {
+    margin: 0;
+    width: 99%;
+    resize: none;
+    padding: 0;
+    height: 99%;
+}

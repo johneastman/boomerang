@@ -16,16 +16,18 @@
         </ul>
         Check out the <a href="guide">language guide</a> to learn about the syntax and try it out below!
 
-        <form action="/interpreter" method="post">
-            <textarea name="source" rows="4" cols="50">{{ source_code }}</textarea>
-            <br>
-            <input type="submit" value="Run Code">
-        </form>
+        <div class="container">
+            <form method="post">
+                <textarea name="source" placeholder="Enter code here">{{ source_code }}</textarea>
+                <input type="submit" value="Run Code"   formaction="/interpret">
+                <input type="submit" value="Clear Code" formaction="/clear">
+            </form>
 
-        <ul>
-            {% for result in results %}
-                <li>{{ result }}</li>
-            {% endfor %}
-        </ul>
+            <ul class="code-output">
+                {% for result in results %}
+                    <li>{{ result }}</li>
+                {% endfor %}
+            </ul>
+        </div>
     </body>
 </html>
