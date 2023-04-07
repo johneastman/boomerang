@@ -26,7 +26,7 @@ def evaluate(source: str, environment: Environment) -> typing.List[Node]:
         e = Evaluator(ast, environment)
         return e.evaluate()
     except LanguageRuntimeException as e:
-        return [Node("error", 0, str(e))]
+        return [Node("error", e.line_num, str(e))]
 
 
 def repl(prompt: str = ">>") -> None:

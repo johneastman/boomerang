@@ -26,7 +26,7 @@ class TokenQueue:
             try:
                 return next(self.tokenizer)
             except StopIteration:
-                raise utils.raise_unexpected_end_of_file()
+                raise utils.raise_unexpected_end_of_file(self.tokenizer.line_num)
 
     def peek(self) -> Token:
         if len(self.peek_queue) > 0:

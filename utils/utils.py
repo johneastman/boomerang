@@ -3,7 +3,9 @@ import typing
 
 
 class LanguageRuntimeException(Exception):
-    pass
+    def __init__(self, line_num: int, message: str):
+        self.line_num = line_num
+        super().__init__(message)
 
 
 def read_yaml_file(path: str) -> typing.Any:
@@ -12,11 +14,11 @@ def read_yaml_file(path: str) -> typing.Any:
 
 
 def language_error(line_num: int, description: str) -> LanguageRuntimeException:
-    return LanguageRuntimeException(f"Error at line {line_num}: {description}")
+    return LanguageRuntimeException(line_num, f"Error at line {line_num}: {description}")
 
 
-def raise_unexpected_end_of_file() -> LanguageRuntimeException:
-    return LanguageRuntimeException("Unexpected end of file")
+def raise_unexpected_end_of_file(line_num: int) -> LanguageRuntimeException:
+    return language_error(line_num, "Unexpected end of file")
 
 
 def get(dictionary: dict[str, typing.Any], key_path: str) -> typing.Any:
