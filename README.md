@@ -39,6 +39,13 @@ To raise a language exception, call the `raise_error` method in `utils.py`, whic
 ### Program Exceptions
 These are errors with the Python code itself and exist to aid the development process. To raise a program exception, raise any valid Python exception (e.g., `raise ValueError`, `raise Exception`, `raise RuntimeError`, etc.).
 
+# Flask App
+Boomerang has a web interface that will allow you to run it from the browser!
+
+To run the Flask app:
+1. cd into `web_app`
+2. Run `flask --app app run`
+
 # Language Specs
 
 ## Data Types
