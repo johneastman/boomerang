@@ -1,10 +1,11 @@
 import typing
 
 from interpreter._parser import _parser
-from interpreter._parser.ast_objects import BinaryExpression, UnaryExpression, Identifier, Number, String, Assignment
+from interpreter._parser.ast_objects import BinaryExpression, UnaryExpression, Identifier, Number, String, Assignment, \
+    Error
 from interpreter.tokens.tokens import *
 from interpreter.evaluator._environment import Environment
-from interpreter.utils.utils import language_error
+from interpreter.utils.utils import language_error, LanguageRuntimeException
 import copy
 
 
@@ -20,7 +21,10 @@ class Evaluator:
         return self.env
 
     def evaluate(self) -> typing.List[_parser.Expression]:
-        return self.evaluate_statements(self.ast)
+        try:
+            return self.evaluate_statements(self.ast)
+        except LanguageRuntimeException as e:
+            return [Error(e.line_num, str(e))]
 
     def evaluate_statements(self, statements: list[_parser.Expression]) -> list[_parser.Expression]:
         evaluated_expressions = []
@@ -104,39 +108,15 @@ class Evaluator:
 
         # Math operations
         if op.type == PLUS:
-            return self.add(left, right)
+            return left + right
 
         elif op.type == MINUS:
-            return self.subtract(left, right)
+            return left - right
 
         elif op.type == MULTIPLY:
-            return self.multiply(left, right)
+            return left * right
 
         elif op.type == DIVIDE:
-            return self.divide(left, right)
+            return left / right
 
         raise language_error(op.line_num, f"Invalid binary operator '{op.value}'")
-
-    def add(self, left: _parser.Expression, right: _parser.Expression) -> _parser.Expression:
-        if isinstance(left, Number) and isinstance(right, Number):
-            return _parser.Number(left.line_num, left.value + right.value)
-
-        raise language_error(left.line_num, f"Invalid types {type(left).__name__} and {type(right).__name__} for {PLUS}")
-
-    def subtract(self, left: _parser.Expression, right: _parser.Expression) -> _parser.Expression:
-        if isinstance(left, Number) and isinstance(right, Number):
-            return _parser.Number(left.line_num, left.value - right.value)
-
-        raise language_error(left.line_num, f"Invalid types {type(left).__name__} and {type(right).__name__} for {MINUS}")
-
-    def multiply(self, left: _parser.Expression, right: _parser.Expression) -> _parser.Expression:
-        if isinstance(left, Number) and isinstance(right, Number):
-            return _parser.Number(left.line_num, left.value * right.value)
-
-        raise language_error(left.line_num, f"Invalid types {type(left).__name__} and {type(right).__name__} for {MULTIPLY}")
-
-    def divide(self, left: _parser.Expression, right: _parser.Expression) -> _parser.Expression:
-        if isinstance(left, Number) and isinstance(right, Number):
-            return _parser.Number(left.line_num, left.value / right.value)
-
-        raise language_error(left.line_num, f"Invalid types {type(left).__name__} and {type(right).__name__} for {DIVIDE}")

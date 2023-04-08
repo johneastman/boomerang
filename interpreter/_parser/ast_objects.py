@@ -1,4 +1,6 @@
 from interpreter.tokens.tokenizer import Token
+from interpreter.tokens.tokens import PLUS, MINUS, MULTIPLY, DIVIDE
+from interpreter.utils.utils import language_error
 
 
 class Expression:
@@ -8,6 +10,18 @@ class Expression:
     def __repr__(self) -> str:
         return self.__str__()
 
+    def __add__(self, other: object) -> "Expression":
+        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {PLUS}")
+
+    def __sub__(self, other: object) -> "Expression":
+        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {MINUS}")
+
+    def __mul__(self, other: object) -> "Expression":
+        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {MULTIPLY}")
+
+    def __truediv__(self, other: object) -> "Expression":
+        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {DIVIDE}")
+
 
 class Number(Expression):
     def __init__(self, line_num: int, value: float):
@@ -15,12 +29,41 @@ class Number(Expression):
         self.value = value
 
     def __str__(self) -> str:
+        if self.is_whole_number():
+            return str(int(self.value))
         return str(self.value)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Number):
             return False
         return self.line_num == other.line_num and self.value == other.value
+
+    def __add__(self, other: object) -> Expression:
+        if isinstance(other, Number):
+            return Number(self.line_num, self.value + other.value)
+
+        return super().__add__(other)
+
+    def __sub__(self, other: object) -> Expression:
+        if isinstance(other, Number):
+            return Number(self.line_num, self.value - other.value)
+
+        return super().__sub__(other)
+
+    def __mul__(self, other: object) -> Expression:
+        if isinstance(other, Number):
+            return Number(self.line_num, self.value * other.value)
+
+        return super().__sub__(other)
+
+    def __truediv__(self, other: object) -> Expression:
+        if isinstance(other, Number):
+            return Number(self.line_num, self.value / other.value)
+
+        return super().__sub__(other)
+
+    def is_whole_number(self) -> bool:
+        return self.value.is_integer()
 
 
 class String(Expression):
@@ -35,6 +78,12 @@ class String(Expression):
         if not isinstance(other, String):
             return False
         return self.line_num == other.line_num and self.value == other.value
+
+    def __add__(self, other: object) -> Expression:
+        if isinstance(other, String):
+            return String(self.line_num, self.value + other.value)
+
+        return super().__add__(other)
 
 
 class Identifier(Expression):
