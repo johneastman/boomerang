@@ -74,3 +74,4 @@ IDENTIFIER: str = get_token_type("IDENTIFIER")
 
 # Data Types
 NUMBER: str = get_token_type("NUMBER")
+STRING: str = get_token_type("STRING")

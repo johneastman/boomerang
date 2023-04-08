@@ -142,6 +142,21 @@ def test_read_number(source, expected_number):
     assert expected_number == actual_number
 
 
+string_data = [
+    ("\"hello, world!\";", "hello, world!"),
+    ("\"123456789\";", "123456789"),
+    ("\"!@#$%^&*()_+.\";", "!@#$%^&*()_+."),
+]
+
+
+@pytest.mark.parametrize("source, expected_string", string_data)
+def test_read_string(source, expected_string):
+    tokenizer = Tokenizer(source)
+    tokenizer.advance()
+    actual_string = tokenizer.read_string()
+    assert expected_string == actual_string
+
+
 identifier_data = [
     ("variable;", "variable"),
     ("variable1;", "variable1"),

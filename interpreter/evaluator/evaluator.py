@@ -1,6 +1,7 @@
 import typing
 
 from interpreter._parser import _parser
+from interpreter._parser.ast_objects import BinaryExpression, UnaryExpression, Identifier, Number, String, Assignment
 from interpreter.tokens.tokens import *
 from interpreter.evaluator._environment import Environment
 from interpreter.utils.utils import language_error
@@ -8,7 +9,7 @@ import copy
 
 
 class Evaluator:
-    def __init__(self, ast: list[_parser.Node], env: typing.Optional[Environment]) -> None:
+    def __init__(self, ast: list[_parser.Expression], env: typing.Optional[Environment]) -> None:
         self.ast = ast
         self.env = env
 
@@ -18,10 +19,10 @@ class Evaluator:
             raise Exception("Environment is None")
         return self.env
 
-    def evaluate(self) -> typing.List[_parser.Node]:
+    def evaluate(self) -> typing.List[_parser.Expression]:
         return self.evaluate_statements(self.ast)
 
-    def evaluate_statements(self, statements: list[_parser.Node]) -> list[_parser.Node]:
+    def evaluate_statements(self, statements: list[_parser.Expression]) -> list[_parser.Expression]:
         evaluated_expressions = []
         for expression in statements:
             evaluated_expression = self.evaluate_expression(expression)
@@ -32,41 +33,37 @@ class Evaluator:
         # TODO: Figure out how to handle returns for both REPL and regular code execution
         return evaluated_expressions
 
-    def evaluate_expression(self, expression: _parser.Node) -> _parser.Node:
+    def evaluate_expression(self, expression: _parser.Expression) -> _parser.Expression:
 
-        if expression.type == "binary_expression":
+        if isinstance(expression, BinaryExpression):
             return self.evaluate_binary_expression(expression)
 
-        elif expression.type == "unary_expression":
+        elif isinstance(expression, UnaryExpression):
             return self.evaluate_unary_expression(expression)
 
-        elif expression.type == "assign":
+        elif isinstance(expression, Assignment):
             return self.evaluate_assign_variable(expression)
 
-        elif expression.type == "identifier":
+        elif isinstance(expression, Identifier):
             return self.evaluate_identifier(expression)
 
         # Base Types
-        elif expression.type == "number":
+        elif isinstance(expression, Number):
+            return expression
+
+        elif isinstance(expression, String):
             return expression
 
         # This is a program-specific error because a missing object type would come about during development, not
         # when a user is using this programming language.
-        raise Exception(f"Unsupported type: {expression.type}")
+        raise Exception(f"Unsupported type: {type(expression).__name__}")
 
-    def evaluate_assign_variable(self, variable: _parser.Node) -> _parser.Node:
+    def evaluate_assign_variable(self, variable: _parser.Assignment) -> _parser.Expression:
+        var_value: _parser.Expression = self.evaluate_expression(variable.value)
+        self.get_env.set_var(variable.variable, var_value)
+        return var_value
 
-        identifier = variable.get_param("identifier")
-        value = variable.get_param("value")
-
-        if identifier.type == "identifier":
-            var_value: _parser.Node = self.evaluate_expression(value)
-            self.get_env.set_var(identifier.value, var_value)
-            return var_value
-
-        raise language_error(variable.line_num, f"cannot assign value to type {type(variable).__name__}")
-
-    def evaluate_identifier(self, identifier: _parser.Node) -> _parser.Node:
+    def evaluate_identifier(self, identifier: _parser.Identifier) -> _parser.Expression:
         # For variables, check the current environment. If it does not exist, check the parent environment.
         # Continue doing this until there are no more parent environments. If the variable does not exist in all
         # scopes, it does not exist anywhere in the code.
@@ -83,27 +80,27 @@ class Evaluator:
 
         raise language_error(identifier.line_num, f"undefined variable: {identifier.value}")
 
-    def evaluate_unary_expression(self, unary_expression: _parser.Node) -> _parser.Node:
-        expression_result = self.evaluate_expression(unary_expression.get_param("expression"))
-        op = unary_expression.get_param("operator")
+    def evaluate_unary_expression(self, unary_expression: _parser.UnaryExpression) -> _parser.Expression:
+        expression_result = self.evaluate_expression(unary_expression.expression)
+        op = unary_expression.operator
 
         if op.type == PLUS:
-            if expression_result.type == "number":
+            if isinstance(expression_result, Number):
                 new_value = abs(float(expression_result.value))
-                return _parser.create_number(str(new_value), expression_result.line_num)
+                return _parser.Number(expression_result.line_num, new_value)
 
         elif op.type == MINUS:
-            if expression_result.type == "number":
+            if isinstance(expression_result, Number):
                 new_value = -float(expression_result.value)
-                return _parser.create_number(str(new_value), expression_result.line_num)
+                return _parser.Number(expression_result.line_num, new_value)
 
         raise Exception(f"Invalid unary operator: {op.type} ({op.value})")
 
-    def evaluate_binary_expression(self, binary_operation: _parser.Node) -> _parser.Node:
-        left = self.evaluate_expression(binary_operation.get_param("left"))
+    def evaluate_binary_expression(self, binary_operation: _parser.BinaryExpression) -> _parser.Expression:
+        left = self.evaluate_expression(binary_operation.left)
 
-        right = self.evaluate_expression(binary_operation.get_param("right"))
-        op = binary_operation.get_param("operator")
+        right = self.evaluate_expression(binary_operation.right)
+        op = binary_operation.operator
 
         # Math operations
         if op.type == PLUS:
@@ -120,26 +117,26 @@ class Evaluator:
 
         raise language_error(op.line_num, f"Invalid binary operator '{op.value}'")
 
-    def add(self, left: _parser.Node, right: _parser.Node) -> _parser.Node:
-        if left.type == "number" and right.type == "number":
-            return _parser.create_number(str(float(left.value) + float(right.value)), left.line_num)
+    def add(self, left: _parser.Expression, right: _parser.Expression) -> _parser.Expression:
+        if isinstance(left, Number) and isinstance(right, Number):
+            return _parser.Number(left.line_num, left.value + right.value)
 
-        raise language_error(left.line_num, f"Invalid types {left.type} and {right.type} for {PLUS}")
+        raise language_error(left.line_num, f"Invalid types {type(left).__name__} and {type(right).__name__} for {PLUS}")
 
-    def subtract(self, left: _parser.Node, right: _parser.Node) -> _parser.Node:
-        if left.type == "number" and right.type == "number":
-            return _parser.create_number(str(float(left.value) - float(right.value)), left.line_num)
+    def subtract(self, left: _parser.Expression, right: _parser.Expression) -> _parser.Expression:
+        if isinstance(left, Number) and isinstance(right, Number):
+            return _parser.Number(left.line_num, left.value - right.value)
 
-        raise language_error(left.line_num, f"Invalid types {left.type} and {right.type} for {MINUS}")
+        raise language_error(left.line_num, f"Invalid types {type(left).__name__} and {type(right).__name__} for {MINUS}")
 
-    def multiply(self, left: _parser.Node, right: _parser.Node) -> _parser.Node:
-        if left.type == "number" and right.type == "number":
-            return _parser.create_number(str(float(left.value) * float(right.value)), left.line_num)
+    def multiply(self, left: _parser.Expression, right: _parser.Expression) -> _parser.Expression:
+        if isinstance(left, Number) and isinstance(right, Number):
+            return _parser.Number(left.line_num, left.value * right.value)
 
-        raise language_error(left.line_num, f"Invalid types {left.type} and {right.type} for {MULTIPLY}")
+        raise language_error(left.line_num, f"Invalid types {type(left).__name__} and {type(right).__name__} for {MULTIPLY}")
 
-    def divide(self, left: _parser.Node, right: _parser.Node) -> _parser.Node:
-        if left.type == "number" and right.type == "number":
-            return _parser.create_number(str(float(left.value) / float(right.value)), left.line_num)
+    def divide(self, left: _parser.Expression, right: _parser.Expression) -> _parser.Expression:
+        if isinstance(left, Number) and isinstance(right, Number):
+            return _parser.Number(left.line_num, left.value / right.value)
 
-        raise language_error(left.line_num, f"Invalid types {left.type} and {right.type} for {DIVIDE}")
+        raise language_error(left.line_num, f"Invalid types {type(left).__name__} and {type(right).__name__} for {DIVIDE}")

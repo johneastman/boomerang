@@ -1,7 +1,7 @@
 import argparse
 import typing
 
-from interpreter._parser._parser import Node
+from interpreter._parser._parser import Expression, Error
 from interpreter.tokens.tokenizer import Tokenizer
 from interpreter.tokens.token_queue import TokenQueue
 from interpreter._parser._parser import Parser
@@ -15,7 +15,7 @@ def get_source(filepath: str) -> str:
         return file.read()
 
 
-def evaluate(source: str, environment: Environment) -> typing.List[Node]:
+def evaluate(source: str, environment: Environment) -> typing.List[Expression]:
     try:
         t = Tokenizer(source)
         tokens = TokenQueue(t)
@@ -26,7 +26,7 @@ def evaluate(source: str, environment: Environment) -> typing.List[Node]:
         e = Evaluator(ast, environment)
         return e.evaluate()
     except LanguageRuntimeException as e:
-        return [Node("error", e.line_num, str(e))]
+        return [Error(e.line_num, str(e))]
 
 
 def repl(prompt: str = ">>") -> None:
@@ -40,8 +40,8 @@ def repl(prompt: str = ">>") -> None:
             evaluated_expressions = evaluate(_input, env)
             # if 'evaluated_expressions' is None, an error likely occurred
             if evaluated_expressions is not None:
-                for token in evaluated_expressions:
-                    print(token.value)
+                for expression in evaluated_expressions:
+                    print(str(expression))
 
 
 if __name__ == "__main__":

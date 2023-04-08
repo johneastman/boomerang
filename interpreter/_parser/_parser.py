@@ -40,10 +40,10 @@ class Parser:
             DIVIDE: PRODUCT,
         }
 
-    def parse(self) -> list[Node]:
+    def parse(self) -> list[Expression]:
         return self.parse_statements(EOF)
 
-    def parse_statements(self, end_type: str) -> list[Node]:
+    def parse_statements(self, end_type: str) -> list[Expression]:
         """Parse statements within a certain scope (set by 'end_type')
 
         For block statements, that value will be a closed curly bracket. For program statements, that value will be an
@@ -85,7 +85,7 @@ class Parser:
         precedence_name = precedence_dict.get(self.current.type, LOWEST)
         return self.get_precedence_level(precedence_name)
 
-    def expression(self, precedence_name: str = LOWEST) -> Node:
+    def expression(self, precedence_name: str = LOWEST) -> Expression:
         precedence_level = self.get_precedence_level(precedence_name)
 
         # Prefix
@@ -97,7 +97,7 @@ class Parser:
 
         return left
 
-    def parse_prefix(self) -> Node:  # Factor
+    def parse_prefix(self) -> Expression:
 
         if self.current.type == IDENTIFIER and self.peek.type == ASSIGN:
             return self.assign()
@@ -106,7 +106,7 @@ class Parser:
             op = self.current
             self.advance()
             expression = self.expression()
-            return create_unary_expression(op, expression)
+            return UnaryExpression(op.line_num, op, expression)
 
         elif self.current.type == OPEN_PAREN:
             self.advance()
@@ -119,22 +119,27 @@ class Parser:
         elif self.current.type == NUMBER:
             number_token = self.current
             self.advance()
-            return create_number(number_token.value, number_token.line_num)
+            return Number(number_token.line_num, float(number_token.value))
+
+        elif self.current.type == STRING:
+            string_token = self.current
+            self.advance()
+            return String(string_token.line_num, string_token.value)
 
         elif self.current.type == IDENTIFIER:
             identifier_token = self.current
             self.advance()
-            return create_identifier(identifier_token.value, identifier_token.line_num)
+            return Identifier(identifier_token.line_num, identifier_token.value)
 
         raise language_error(self.current.line_num, f"Invalid token: {self.current.type} ({self.current.value})")
 
-    def parse_infix(self, left: Node) -> Node:
+    def parse_infix(self, left: Expression) -> Expression:
         op = self.current
         self.advance()
         right = self.expression(self.infix_precedence.get(op.type, LOWEST))
-        return create_binary_expression(left, op, right)
+        return BinaryExpression(op.line_num, left, op, right)
 
-    def assign(self) -> Node:
+    def assign(self) -> Expression:
         self.is_expected_token(IDENTIFIER)
         variable_name = self.current
 
@@ -146,7 +151,7 @@ class Parser:
         self.advance()
         right = self.expression()
 
-        return create_assignment_statement(variable_name.value, variable_name.line_num, right)
+        return Assignment(variable_name.line_num, variable_name.value, right)
 
     def add_semicolon(self) -> None:
         self.tokens.add("SEMICOLON")

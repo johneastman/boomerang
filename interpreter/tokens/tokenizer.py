@@ -68,6 +68,12 @@ class Tokenizer:
             token_type = tokens_dict.get(letters, IDENTIFIER)
             return Token(letters, token_type, self.line_num)
 
+        elif self.is_string():
+            self.advance()  # skip starting quote
+            string_literal: str = self.read_string()
+            self.advance()  # skip ending quote
+            return Token(string_literal, STRING, self.line_num)
+
         else:
             # Find all tokens starting with the current character. Sort by the length of each token in descending
             # order. This ensures shorter tokens with similar characters to longer tokens are not mistakenly

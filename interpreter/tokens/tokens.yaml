@@ -28,6 +28,9 @@ tokens:
     - literal: )
       name: CLOSED_PAREN
       type: CLOSED_PAREN
+    - literal: '"'
+      name: DOUBLE_QUOTE
+      type: DOUBLE_QUOTE
   data_types:
     - literal: ''
       name: EOF
@@ -38,3 +41,6 @@ tokens:
     - literal: ''
       name: IDENTIFIER
       type: IDENTIFIER
+    - literal: ''
+      name: STRING
+      type: STRING

@@ -3,6 +3,10 @@ from interpreter.tokens.tokens import *
 from interpreter.tokens.tokenizer import Tokenizer, Token
 
 data_types_tests = [
+    ("\"hello, world!\"", [
+        Token("hello, world!", STRING, 1),
+        Token("", EOF, 1)
+    ]),
     ("1", [
         Token("1", NUMBER, 1),
         Token("", EOF, 1)
