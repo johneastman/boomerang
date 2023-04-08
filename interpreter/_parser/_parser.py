@@ -126,6 +126,14 @@ class Parser:
             self.advance()
             return String(string_token.line_num, string_token.value)
 
+        elif self.current.type == BOOLEAN:
+            boolean_token = self.current
+            self.advance()
+            return Boolean(
+                boolean_token.line_num,
+                True if boolean_token.value == get_token_literal("TRUE") else False
+            )
+
         elif self.current.type == IDENTIFIER:
             identifier_token = self.current
             self.advance()

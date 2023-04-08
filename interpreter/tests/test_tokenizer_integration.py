@@ -3,33 +3,20 @@ from interpreter.tokens.tokens import *
 from interpreter.tokens.tokenizer import Tokenizer, Token
 
 data_types_tests = [
-    ("\"hello, world!\"", [
-        Token("hello, world!", STRING, 1),
-        Token("", EOF, 1)
-    ]),
-    ("1", [
-        Token("1", NUMBER, 1),
-        Token("", EOF, 1)
-    ]),
-    ("15", [
-        Token("15", NUMBER, 1),
-        Token("", EOF, 1)
-    ]),
-    ("153", [
-        Token("153", NUMBER, 1),
-        Token("", EOF, 1)
-    ]),
-    ("1.5", [
-        Token("1.5", NUMBER, 1),
-        Token("", EOF, 1)
-    ]),
+    ("\"hello, world!\"", Token("hello, world!", STRING, 1)),
+    ("1", Token("1", NUMBER, 1)),
+    ("15", Token("15", NUMBER, 1)),
+    ("153", Token("153", NUMBER, 1)),
+    ("1.5", Token("1.5", NUMBER, 1)),
+    ("true", Token("true", BOOLEAN, 1)),
+    ("false", Token("false", BOOLEAN, 1))
 ]
 
 
-@pytest.mark.parametrize("source,expected_tokens", data_types_tests)
-def test_data_types(source, expected_tokens):
+@pytest.mark.parametrize("source,expected_token", data_types_tests)
+def test_data_types(source, expected_token):
     actual_tokens = get_tokens(source)
-    assert actual_tokens == expected_tokens
+    assert actual_tokens == [expected_token, Token("", EOF, 1)]
 
 
 tokenizer_tests = [

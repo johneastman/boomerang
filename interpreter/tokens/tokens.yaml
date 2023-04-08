@@ -1,5 +1,11 @@
 tokens:
-  keywords: []
+  keywords:
+    - literal: 'true'
+      name: 'TRUE'
+      type: BOOLEAN
+    - literal: 'false'
+      name: 'FALSE'
+      type: BOOLEAN
   symbols:
     - literal: '.'
       name: PERIOD
@@ -44,3 +50,6 @@ tokens:
     - literal: ''
       name: STRING
       type: STRING
+    - literal: ''
+      name: BOOLEAN
+      type: BOOLEAN

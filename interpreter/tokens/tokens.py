@@ -67,6 +67,8 @@ CLOSED_PAREN: str = get_token_type("CLOSED_PAREN")
 PERIOD: str = get_token_type("PERIOD")
 
 # Keywords
+TRUE: str = get_token_type("TRUE")
+FALSE: str = get_token_type("FALSE")
 
 # Misc
 EOF: str = get_token_type("EOF")  # End of File
@@ -75,3 +77,4 @@ IDENTIFIER: str = get_token_type("IDENTIFIER")
 # Data Types
 NUMBER: str = get_token_type("NUMBER")
 STRING: str = get_token_type("STRING")
+BOOLEAN: str = get_token_type("BOOLEAN")

@@ -68,6 +68,8 @@ All expressions end with a semicolon `;`.
 |---|---|
 |Integer|1, 2, 3, 10, 13, 100, 1234567890|
 |Float|1.1, 2.5, 3.14159|
+|String|"Hello, world!", "1234567890"|
+|Boolean|true, false|
 
 ## Operators
 |Operator Name|Literal|

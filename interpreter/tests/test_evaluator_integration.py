@@ -24,6 +24,8 @@ evaluator_tests = [
     ("1 + 1 * 2 + 3 / 4", [o.Number(1, 3.75)]),
     ("\"hello world!\"",  [o.String(1, "hello world!")]),
     ("\"hello \" + \"world!\"",  [o.String(1, "hello world!")]),
+    ("true", [o.Boolean(1, True)]),
+    ("false", [o.Boolean(1, False)]),
     ("\"hello\" - \"world\"", [o.Error(1, "Error at line 1: Invalid types String and String for MINUS")]),
     ("\"hello\" * \"world\"", [o.Error(1, "Error at line 1: Invalid types String and String for MULTIPLY")]),
     ("\"hello\" / \"world\"", [o.Error(1, "Error at line 1: Invalid types String and String for DIVIDE")])

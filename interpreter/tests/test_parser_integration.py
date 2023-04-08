@@ -1,7 +1,26 @@
+import pytest
+
 from interpreter.tokens.tokens import *
 from interpreter.tokens.tokenizer import Token
 from .._parser import _parser
 from . import testing_utils
+
+
+boolean_values = [
+    ("true", _parser.Boolean(1, True)),
+    ("false", _parser.Boolean(1, False))
+]
+
+
+@pytest.mark.parametrize("source, expected_value", boolean_values)
+def test_boolean(source, expected_value):
+    expected_ast = [
+        expected_value
+    ]
+
+    parser = testing_utils.parser(f"{source};")
+    actual_ast = parser.parse()
+    assert actual_ast == expected_ast
 
 
 def test_precedence_add():
