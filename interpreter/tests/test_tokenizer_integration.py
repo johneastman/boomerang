@@ -37,6 +37,21 @@ tokenizer_tests = [
         Token("2", NUMBER, 2),
         Token(";", SEMICOLON, 2),
         Token("", EOF, 2)
+    ]),
+    ("a = (1, 2, 3, 4);", [
+        Token("a", IDENTIFIER, 1),
+        Token("=", ASSIGN, 1),
+        Token("(", OPEN_PAREN, 1),
+        Token("1", NUMBER, 1),
+        Token(",", COMMA, 1),
+        Token("2", NUMBER, 1),
+        Token(",", COMMA, 1),
+        Token("3", NUMBER, 1),
+        Token(",", COMMA, 1),
+        Token("4", NUMBER, 1),
+        Token(")", CLOSED_PAREN, 1),
+        Token(";", SEMICOLON, 1),
+        Token("", EOF, 1)
     ])
 ]
 

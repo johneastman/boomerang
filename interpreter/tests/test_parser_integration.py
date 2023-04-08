@@ -24,7 +24,6 @@ def test_boolean(source, expected_value):
 
 
 def test_precedence_add():
-
     expected_ast = [
         _parser.BinaryExpression(
             1,
@@ -55,5 +54,27 @@ def test_precedence_multiply():
     ]
 
     parser = testing_utils.parser("1+2*4;")
+    actual_ast = parser.parse()
+    assert actual_ast == expected_ast
+
+
+list_values = [
+    ("()", []),
+    ("(1,)", [_parser.Number(1, 1)]),
+    ("(1, 2)", [_parser.Number(1, 1), _parser.Number(1, 2)]),
+    ("(1, 2, 3)", [_parser.Number(1, 1), _parser.Number(1, 2), _parser.Number(1, 3)])
+]
+
+
+@pytest.mark.parametrize("source, expected_list_values", list_values)
+def test_list(source, expected_list_values):
+    expected_ast = [
+        _parser.List(
+            1,
+            expected_list_values
+        )
+    ]
+
+    parser = testing_utils.parser(f"{source};")
     actual_ast = parser.parse()
     assert actual_ast == expected_ast

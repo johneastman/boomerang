@@ -37,6 +37,9 @@ tokens:
     - literal: '"'
       name: DOUBLE_QUOTE
       type: DOUBLE_QUOTE
+    - literal: ','
+      name: COMMA
+      type: COMMA
   data_types:
     - literal: ''
       name: EOF

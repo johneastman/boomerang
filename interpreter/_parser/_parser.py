@@ -110,10 +110,20 @@ class Parser:
 
         elif self.current.type == OPEN_PAREN:
             self.advance()
+
+            if self.current.type == CLOSED_PAREN:
+                self.advance()
+                return List(self.current.line_num, [])
+
             expression = self.expression()
+
             if self.current.type == CLOSED_PAREN:
                 self.advance()
                 return expression
+            elif self.current.type == COMMA:
+                self.advance()
+                return self.parse_list(expression)
+
             self.is_expected_token(CLOSED_PAREN)
 
         elif self.current.type == NUMBER:
@@ -174,3 +184,26 @@ class Parser:
             raise language_error(
                 self.current.line_num,
                 f"Expected {expected_token_type}, got {self.current.type} ('{self.current.value}')")
+
+    def parse_list(self, first_expression: Expression) -> List:
+        line_num = self.current.line_num
+        values = [first_expression]
+
+        if self.current.type == CLOSED_PAREN:
+            self.advance()
+            return List(line_num, values)
+
+        while True:
+            expression = self.expression(LOWEST)
+            values.append(expression)
+
+            if self.current.type == CLOSED_PAREN:
+                self.advance()
+                break
+
+            self.is_expected_token(COMMA)
+
+            self.advance()
+
+        # Return list object
+        return List(line_num, values)

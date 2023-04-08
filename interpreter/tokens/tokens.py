@@ -65,6 +65,7 @@ SEMICOLON: str = get_token_type("SEMICOLON")
 OPEN_PAREN: str = get_token_type("OPEN_PAREN")
 CLOSED_PAREN: str = get_token_type("CLOSED_PAREN")
 PERIOD: str = get_token_type("PERIOD")
+COMMA:str = get_token_type("COMMA")
 
 # Keywords
 TRUE: str = get_token_type("TRUE")

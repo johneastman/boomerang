@@ -2,7 +2,7 @@ import typing
 
 from interpreter._parser import _parser
 from interpreter._parser.ast_objects import BinaryExpression, UnaryExpression, Identifier, Number, String, Assignment, \
-    Error, Boolean
+    Error, Boolean, List
 from interpreter.tokens.tokens import *
 from interpreter.evaluator._environment import Environment
 from interpreter.utils.utils import language_error, LanguageRuntimeException
@@ -59,6 +59,11 @@ class Evaluator:
             return expression
 
         elif isinstance(expression, Boolean):
+            return expression
+
+        elif isinstance(expression, List):
+            for i in range(len(expression.values)):
+                expression.values[i] = self.evaluate_expression(expression.values[i])
             return expression
 
         # This is a program-specific error because a missing object type would come about during development, not

@@ -1,3 +1,5 @@
+import typing
+
 from interpreter.tokens.tokenizer import Token
 from interpreter.tokens.tokens import PLUS, MINUS, MULTIPLY, DIVIDE, get_token_literal
 from interpreter.utils.utils import language_error
@@ -98,6 +100,20 @@ class Boolean(Expression):
         if not isinstance(other, Boolean):
             return False
         return self.line_num == other.line_num and self.value == other.value
+
+
+class List(Expression):
+    def __init__(self, line_num: int, values: list[Expression]):
+        super().__init__(line_num)
+        self.values = values
+
+    def __str__(self) -> str:
+        return f"({', '.join(map(str, self.values))})"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, List):
+            return False
+        return self.line_num == other.line_num and self.values == other.values
 
 
 class Identifier(Expression):
