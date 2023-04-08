@@ -36,33 +36,3 @@ def clear():
     resp.delete_cookie("source_code")
     resp.delete_cookie("results")
     return resp
-
-
-@app.route("/guide")
-def guide():
-
-    language_spec_data = {
-        "data_types": {
-            "title": "Data Types",
-            "headers": ("Data Type", "Examples"),
-            "rows": [
-                ("Integer", "1, 2, 3, 10, 13, 100, 1234567890"),
-                ("Float", "1.1, 2.5, 3.14159")
-            ]
-        },
-        "operators": {
-            "title": "Operators",
-            "headers": ("Name", "Literal"),
-            "rows": [
-                ("Add", "+"),
-                ("Subtract", "-"),
-                ("Multiply", "*"),
-                ("Divide", "/"),
-                ("Assignment", "="),
-                ("Unary: Negative", "-"),
-                ("Unary: Positive", "+")
-            ]
-        }
-    }
-
-    return render_template("guide.html", **language_spec_data)
