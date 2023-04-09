@@ -113,6 +113,9 @@ class Evaluator:
                 new_value = -float(expression_result.value)
                 return Number(expression_result.line_num, new_value)
 
+        elif op.type == BANG:
+            return expression_result.bang()
+
         raise Exception(f"Invalid unary operator: {op.type} ({op.value})")
 
     def evaluate_binary_expression(self, binary_operation: BinaryExpression) -> Expression:
@@ -136,5 +139,31 @@ class Evaluator:
 
         elif op.type == POINTER:
             return left.pointer(right)
+
+        # Comparison Operations
+        elif op.type == EQ:
+            return left.equals(right)
+
+        elif op.type == NE:
+            return left.ne(right)
+
+        elif op.type == GT:
+            return left > right
+
+        elif op.type == GE:
+            return left >= right
+
+        elif op.type == LT:
+            return left < right
+
+        elif op.type == LE:
+            return left <= right
+
+        # Boolean Operations
+        elif op.type == AND:
+            return left.and_(right)
+
+        elif op.type == OR:
+            return left.or_(right)
 
         raise language_error(op.line_num, f"Invalid binary operator '{op.value}'")

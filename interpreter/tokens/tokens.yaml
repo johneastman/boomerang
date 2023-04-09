@@ -43,6 +43,33 @@ tokens:
     - literal: '<-'
       name: POINTER
       type: POINTER
+    - literal: '=='
+      name: EQ
+      type: EQ
+    - literal: '!='
+      name: NE
+      type: NE
+    - literal: '>='
+      name: GE
+      type: GE
+    - literal: '<='
+      name: LE
+      type: LE
+    - literal: '>'
+      name: GT
+      type: GT
+    - literal: '<'
+      name: LT
+      type: LT
+    - literal: '!'
+      name: BANG
+      type: BANG
+    - literal: '&'
+      name: AND
+      type: AND
+    - literal: '|'
+      name: OR
+      type: OR
   data_types:
     - literal: ''
       name: EOF

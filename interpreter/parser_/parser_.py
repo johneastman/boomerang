@@ -10,6 +10,10 @@ LOWEST = "LOWEST"  # default
 SUM = "SUM"  # +, -
 PRODUCT = "PRODUCT"  # *, /
 SEND = "SEND"  # <-
+AND_OR = "AND_OR"  # &&, ||
+EQUALS = "EQUALS"  # ==, !=
+LESS_GREATER = "LESS_GREATER"  # <, >, >=, <=
+PREFIX = "PREFIX"  # -X, +X, !X, X!
 
 
 class Parser:
@@ -32,14 +36,27 @@ class Parser:
             LOWEST,
             SUM,
             PRODUCT,
-            SEND
+            SEND,
+            PREFIX,
+            AND_OR,
+            EQUALS,
+            LESS_GREATER
         ]
 
         self.infix_precedence: dict[str, str] = {
+            EQ: EQUALS,
+            NE: EQUALS,
+            LT: LESS_GREATER,
+            LE: LESS_GREATER,
+            GT: LESS_GREATER,
+            GE: LESS_GREATER,
+            AND: AND_OR,
+            OR: AND_OR,
             PLUS: SUM,
             MINUS: SUM,
             MULTIPLY: PRODUCT,
             DIVIDE: PRODUCT,
+            BANG: PREFIX,
             POINTER: SEND
         }
 
@@ -105,7 +122,7 @@ class Parser:
         if self.current.type == IDENTIFIER and self.peek.type == ASSIGN:
             return self.assign()
 
-        if self.current.type in [MINUS, PLUS]:
+        if self.current.type in [MINUS, PLUS, BANG]:
             op = self.current
             self.advance()
             expression = self.expression()

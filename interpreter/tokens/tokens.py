@@ -68,6 +68,17 @@ PERIOD: str = get_token_type("PERIOD")
 COMMA: str = get_token_type("COMMA")
 POINTER: str = get_token_type("POINTER")
 
+# Comparison/Boolean Operators
+EQ: str = get_token_type("EQ")  # Equal
+NE: str = get_token_type("NE")  # Not Equal
+GT: str = get_token_type("GT")  # Greater Than
+GE: str = get_token_type("GE")  # Greater Than or Equal
+LT: str = get_token_type("LT")  # Less Than
+LE: str = get_token_type("LE")  # Less Than or Equal
+BANG: str = get_token_type("BANG")
+AND: str = get_token_type("AND")
+OR: str = get_token_type("OR")
+
 # Keywords
 TRUE: str = get_token_type("TRUE")
 FALSE: str = get_token_type("FALSE")

@@ -1,7 +1,8 @@
 import typing
 
 from interpreter.tokens.tokenizer import Token
-from interpreter.tokens.tokens import PLUS, MINUS, MULTIPLY, DIVIDE, get_token_literal, POINTER
+from interpreter.tokens.tokens import PLUS, MINUS, MULTIPLY, DIVIDE, get_token_literal, POINTER, EQ, NE, BANG, GT, GE, \
+    LT, LE, AND, OR
 from interpreter.utils.utils import language_error
 
 
@@ -11,6 +12,30 @@ class Expression:
 
     def __repr__(self) -> str:
         return self.__str__()
+
+    def equals(self, other: object) -> "Expression":
+        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {EQ}")
+
+    def and_(self, other: object) -> "Expression":
+        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {AND}")
+
+    def or_(self, other: object) -> "Expression":
+        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {OR}")
+
+    def ne(self, other: object) -> "Expression":
+        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {NE}")
+
+    def __gt__(self, other: object) -> "Expression":
+        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {GT}")
+
+    def __ge__(self, other: object) -> "Expression":
+        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {GE}")
+
+    def __lt__(self, other: object) -> "Expression":
+        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {LT}")
+
+    def __le__(self, other: object) -> "Expression":
+        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {LE}")
 
     def __add__(self, other: object) -> "Expression":
         raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {PLUS}")
@@ -27,6 +52,9 @@ class Expression:
     def pointer(self, other: object) -> "Expression":
         raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {POINTER}")
 
+    def bang(self) -> "Expression":
+        raise language_error(self.line_num, f"Invalid type {type(self).__name__} for {BANG}")
+
 
 class Number(Expression):
     def __init__(self, line_num: int, value: float):
@@ -42,6 +70,36 @@ class Number(Expression):
         if not isinstance(other, Number):
             return False
         return self.line_num == other.line_num and self.value == other.value
+
+    def equals(self, other: object) -> Expression:
+        if isinstance(other, Number):
+            return Boolean(self.line_num, self.value == other.value)
+        return super().equals(other)
+
+    def ne(self, other: object) -> "Expression":
+        if isinstance(other, Number):
+            return Boolean(self.line_num, self.value != other.value)
+        return super().equals(other)
+
+    def __gt__(self, other: object) -> "Expression":
+        if isinstance(other, Number):
+            return Boolean(self.line_num, self.value > other.value)
+        return super().equals(other)
+
+    def __ge__(self, other: object) -> "Expression":
+        if isinstance(other, Number):
+            return Boolean(self.line_num, self.value >= other.value)
+        return super().equals(other)
+
+    def __lt__(self, other: object) -> "Expression":
+        if isinstance(other, Number):
+            return Boolean(self.line_num, self.value < other.value)
+        return super().equals(other)
+
+    def __le__(self, other: object) -> "Expression":
+        if isinstance(other, Number):
+            return Boolean(self.line_num, self.value <= other.value)
+        return super().equals(other)
 
     def __add__(self, other: object) -> Expression:
         if isinstance(other, Number):
@@ -84,6 +142,16 @@ class String(Expression):
             return False
         return self.line_num == other.line_num and self.value == other.value
 
+    def equals(self, other: object) -> Expression:
+        if isinstance(other, String):
+            return Boolean(self.line_num, self.value == other.value)
+        return super().equals(other)
+
+    def ne(self, other: object) -> "Expression":
+        if isinstance(other, String):
+            return Boolean(self.line_num, self.value != other.value)
+        return super().equals(other)
+
     def __add__(self, other: object) -> Expression:
         if isinstance(other, String):
             return String(self.line_num, self.value + other.value)
@@ -104,6 +172,29 @@ class Boolean(Expression):
             return False
         return self.line_num == other.line_num and self.value == other.value
 
+    def equals(self, other: object) -> Expression:
+        if isinstance(other, Boolean):
+            return Boolean(self.line_num, self.value == other.value)
+        return super().equals(other)
+
+    def bang(self) -> "Expression":
+        return Boolean(self.line_num, not self.value)
+
+    def and_(self, other: object) -> "Expression":
+        if isinstance(other, Boolean):
+            return Boolean(self.line_num, self.value and other.value)
+        return super().and_(other)
+
+    def or_(self, other: object) -> "Expression":
+        if isinstance(other, Boolean):
+            return Boolean(self.line_num, self.value or other.value)
+        return super().or_(other)
+
+    def ne(self, other: object) -> "Expression":
+        if isinstance(other, Boolean):
+            return Boolean(self.line_num, self.value != other.value)
+        return super().equals(other)
+
 
 class List(Expression):
     def __init__(self, line_num: int, values: list[Expression]):
@@ -117,6 +208,16 @@ class List(Expression):
         if not isinstance(other, List):
             return False
         return self.line_num == other.line_num and self.values == other.values
+
+    def equals(self, other: object) -> Expression:
+        if isinstance(other, List):
+            return Boolean(self.line_num, self.values == other.values)
+        return super().equals(other)
+
+    def ne(self, other: object) -> "Expression":
+        if isinstance(other, List):
+            return Boolean(self.line_num, self.values != other.values)
+        return super().equals(other)
 
     def pointer(self, other: object) -> "Expression":
         if isinstance(other, Number) or isinstance(other, String) or isinstance(other, Boolean):

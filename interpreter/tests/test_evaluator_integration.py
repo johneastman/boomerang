@@ -41,6 +41,37 @@ def test_evaluator(source, expected_results):
     assert expected_results == actual_results
 
 
+binary_expression_tests = [
+    ("1 == 1", [o.Boolean(1, True)]),
+    ("1 != 1", [o.Boolean(1, False)]),
+    ("0 != 1", [o.Boolean(1, True)]),
+    ("1 > 0", [o.Boolean(1, True)]),
+    ("1 > 2", [o.Boolean(1, False)]),
+    ("1 >= 0", [o.Boolean(1, True)]),
+    ("1 >= 2", [o.Boolean(1, False)]),
+    ("1 >= 1", [o.Boolean(1, True)]),
+    ("1 < 2", [o.Boolean(1, True)]),
+    ("1 < 0", [o.Boolean(1, False)]),
+    ("1 <= 1", [o.Boolean(1, True)]),
+    ("1 <= 2", [o.Boolean(1, True)]),
+    ("1 <= 0", [o.Boolean(1, False)]),
+    ("true & true", [o.Boolean(1, True)]),
+    ("true & false", [o.Boolean(1, False)]),
+    ("false & true", [o.Boolean(1, False)]),
+    ("false & false", [o.Boolean(1, False)]),
+    ("true | true", [o.Boolean(1, True)]),
+    ("true | false", [o.Boolean(1, True)]),
+    ("false | true", [o.Boolean(1, True)]),
+    ("false | false", [o.Boolean(1, False)]),
+]
+
+
+@pytest.mark.parametrize("source, expected_results", binary_expression_tests)
+def test_binary_expressions(source, expected_results):
+    actual_results = actual_result(f"{source};")
+    assert expected_results == actual_results
+
+
 valid_unary_operations_tests = [
     ("-1", [
         o.Number(1, -1)
@@ -57,9 +88,21 @@ valid_unary_operations_tests = [
     ("-5.258", [
         o.Number(1, -5.258)
     ]),
-    ("5.258", [
+    ("+5.258", [
         o.Number(1, 5.258)
-    ])
+    ]),
+    ("!true", [
+        o.Boolean(1, False)
+    ]),
+    ("!false", [
+        o.Boolean(1, True)
+    ]),
+    ("!!true", [
+        o.Boolean(1, True)
+    ]),
+    ("!!false", [
+        o.Boolean(1, False)
+    ]),
 ]
 
 
