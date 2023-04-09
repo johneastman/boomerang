@@ -1,6 +1,6 @@
 from typing import Optional
 
-from interpreter._parser.ast_objects import Expression
+from interpreter.parser_.ast_objects import Expression
 
 
 class Environment:

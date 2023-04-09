@@ -2,7 +2,7 @@
 # # mypy error: Skipping analyzing "graphviz": module is installed, but missing library stubs or py.typed marker
 # # reason for ignore: mypy doesn't know about dependency types
 # import graphviz  # type: ignore
-# from _parser.ast_objects import *
+# from parser_.ast_objects import *
 #
 #
 # class ASTVisualizer:

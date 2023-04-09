@@ -1,7 +1,7 @@
 import typing
 
 from interpreter.tokens.tokenizer import Token
-from interpreter.tokens.tokens import PLUS, MINUS, MULTIPLY, DIVIDE, get_token_literal
+from interpreter.tokens.tokens import PLUS, MINUS, MULTIPLY, DIVIDE, get_token_literal, POINTER
 from interpreter.utils.utils import language_error
 
 
@@ -23,6 +23,9 @@ class Expression:
 
     def __truediv__(self, other: object) -> "Expression":
         raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {DIVIDE}")
+
+    def pointer(self, other: object) -> "Expression":
+        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {POINTER}")
 
 
 class Number(Expression):
@@ -115,6 +118,16 @@ class List(Expression):
             return False
         return self.line_num == other.line_num and self.values == other.values
 
+    def pointer(self, other: object) -> "Expression":
+        if isinstance(other, Number) or isinstance(other, String) or isinstance(other, Boolean):
+            self.values.append(other)
+            return List(self.line_num, self.values)
+        elif isinstance(other, List):
+            self.values.extend(other.values)
+            return List(self.line_num, self.values)
+
+        return super().pointer(other)
+
 
 class Identifier(Expression):
     def __init__(self, line_num: int, value: str):
@@ -128,6 +141,39 @@ class Identifier(Expression):
         if not isinstance(other, Identifier):
             return False
         return self.line_num == other.line_num and self.value == other.value
+
+
+class BuiltinFunction(Expression):
+
+    print_ = "print"
+
+    builtin_function_names = [
+        print_
+    ]
+
+    def __init__(self, line_num: int, name: str):
+        super().__init__(line_num)
+        self.name = name
+
+    def __str__(self) -> str:
+        return f"<built-in function {self.name}>"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, BuiltinFunction):
+            return False
+        return self.line_num == other.line_num and self.name == other.name
+
+    def pointer(self, other: object) -> "Expression":
+        if isinstance(other, List):
+            match self.name:
+                case self.print_:
+                    print(", ".join(map(str, other.values)))
+                case _:
+                    raise Exception(f"Unimplemented builtin function {self.name}")
+
+            return self
+
+        return super().pointer(other)
 
 
 class UnaryExpression(Expression):

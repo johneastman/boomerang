@@ -1,6 +1,6 @@
 import pytest
 
-from interpreter._parser.ast_objects import Expression, Identifier
+from interpreter.parser_.ast_objects import Expression, Identifier
 from interpreter.evaluator.evaluator import Evaluator
 from interpreter.evaluator._environment import Environment
 from interpreter.utils.utils import LanguageRuntimeException

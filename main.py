@@ -1,12 +1,14 @@
 import argparse
 import typing
 
-from interpreter._parser._parser import Expression, Error
-from interpreter.tokens.tokenizer import Tokenizer
+from interpreter.parser_.parser_ import Expression, Error, SEND
+from interpreter.parser_.ast_objects import BinaryExpression, BuiltinFunction, List
+from interpreter.tokens.tokenizer import Tokenizer, Token
 from interpreter.tokens.token_queue import TokenQueue
-from interpreter._parser._parser import Parser
+from interpreter.parser_.parser_ import Parser
 from interpreter.evaluator.evaluator import Evaluator
 from interpreter.evaluator._environment import Environment
+from interpreter.tokens.tokens import POINTER, get_token_literal, get_token_type
 from interpreter.utils.utils import LanguageRuntimeException
 
 
@@ -15,7 +17,7 @@ def get_source(filepath: str) -> str:
         return file.read()
 
 
-def evaluate(source: str, environment: Environment) -> typing.List[Expression]:
+def evaluate(source: str, environment: Environment) -> list[Expression]:
     try:
         t = Tokenizer(source)
         tokens = TokenQueue(t)
@@ -63,4 +65,9 @@ if __name__ == "__main__":
     if args.repl:
         repl()
     elif args.path:
-        print(list(map(str, evaluate(get_source(args.path), Environment()))))
+        results = evaluate(get_source(args.path), Environment())
+
+        # if "results" is empty, "first" will be None and "rest" will be [None]
+        first, *_ = results + ([None, None] if len(results) == 0 else [])
+        if isinstance(first, Error):
+            print(results[0])

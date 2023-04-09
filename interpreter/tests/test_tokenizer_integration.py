@@ -2,6 +2,33 @@ import pytest
 from interpreter.tokens.tokens import *
 from interpreter.tokens.tokenizer import Tokenizer, Token
 
+
+symbols = [
+    (";", SEMICOLON),
+    ("<-", POINTER),
+    (",", COMMA),
+    ("(", OPEN_PAREN),
+    (")", CLOSED_PAREN),
+    ("+", PLUS),
+    ("-", MINUS),
+    ("*", MULTIPLY),
+    ("/", DIVIDE),
+    ("=", ASSIGN),
+]
+
+
+@pytest.mark.parametrize("symbol, type_", symbols)
+def test_symbols(symbol, type_):
+    """Test symbols
+
+    Symbols that are not stand-alone tokens:
+    - PERIOD (indicates floating-point value in numbers)
+    - DOUBLE_QUOTE (indicates start and end of strings)
+    """
+    actual_tokens = get_tokens(symbol)
+    assert actual_tokens == [Token(symbol, type_, 1), Token("", EOF, 1)]
+
+
 data_types_tests = [
     ("\"hello, world!\"", Token("hello, world!", STRING, 1)),
     ("1", Token("1", NUMBER, 1)),

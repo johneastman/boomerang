@@ -1,7 +1,7 @@
 import typing
 from interpreter.tokens.tokenizer import Token
 from interpreter.tokens.token_queue import TokenQueue
-from interpreter._parser.ast_objects import *
+from interpreter.parser_.ast_objects import *
 from interpreter.tokens.tokens import *
 from interpreter.utils.utils import language_error
 
@@ -9,6 +9,7 @@ from interpreter.utils.utils import language_error
 LOWEST = "LOWEST"  # default
 SUM = "SUM"  # +, -
 PRODUCT = "PRODUCT"  # *, /
+SEND = "SEND"  # <-
 
 
 class Parser:
@@ -30,7 +31,8 @@ class Parser:
         self.precedences: list[str] = [
             LOWEST,
             SUM,
-            PRODUCT
+            PRODUCT,
+            SEND
         ]
 
         self.infix_precedence: dict[str, str] = {
@@ -38,6 +40,7 @@ class Parser:
             MINUS: SUM,
             MULTIPLY: PRODUCT,
             DIVIDE: PRODUCT,
+            POINTER: SEND
         }
 
     def parse(self) -> list[Expression]:
@@ -147,6 +150,10 @@ class Parser:
         elif self.current.type == IDENTIFIER:
             identifier_token = self.current
             self.advance()
+
+            if identifier_token.value in BuiltinFunction.builtin_function_names:
+                return BuiltinFunction(identifier_token.line_num, identifier_token.value)
+
             return Identifier(identifier_token.line_num, identifier_token.value)
 
         raise language_error(self.current.line_num, f"Invalid token: {self.current.type} ({self.current.value})")

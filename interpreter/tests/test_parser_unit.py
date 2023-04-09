@@ -1,7 +1,7 @@
 import pytest
 
 from . import testing_utils
-from .._parser.ast_objects import Assignment, Number
+from ..parser_.ast_objects import Assignment, Number
 
 
 def test_set_expression():

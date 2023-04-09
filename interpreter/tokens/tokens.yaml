@@ -13,7 +13,7 @@ tokens:
     - literal: '='
       name: ASSIGN
       type: ASSIGN
-    - literal: +
+    - literal: '+'
       name: PLUS
       type: PLUS
     - literal: '-'
@@ -22,16 +22,16 @@ tokens:
     - literal: '*'
       name: MULTIPLY
       type: MULTIPLY
-    - literal: /
+    - literal: '/'
       name: DIVIDE
       type: DIVIDE
-    - literal: ;
+    - literal: ';'
       name: SEMICOLON
       type: SEMICOLON
-    - literal: (
+    - literal: '('
       name: OPEN_PAREN
       type: OPEN_PAREN
-    - literal: )
+    - literal: ')'
       name: CLOSED_PAREN
       type: CLOSED_PAREN
     - literal: '"'
@@ -40,6 +40,9 @@ tokens:
     - literal: ','
       name: COMMA
       type: COMMA
+    - literal: '<-'
+      name: POINTER
+      type: POINTER
   data_types:
     - literal: ''
       name: EOF

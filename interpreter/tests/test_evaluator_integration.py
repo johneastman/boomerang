@@ -1,9 +1,9 @@
 import pytest
 
-import interpreter._parser.ast_objects as o
+import interpreter.parser_.ast_objects as o
 from interpreter.tokens.tokenizer import Tokenizer
 from interpreter.tokens.token_queue import TokenQueue
-from interpreter._parser._parser import Parser
+from interpreter.parser_.parser_ import Parser
 from interpreter.evaluator.evaluator import Evaluator
 from interpreter.evaluator._environment import Environment
 
@@ -67,6 +67,19 @@ valid_unary_operations_tests = [
 def test_valid_unary_operations(source, expected_results):
     actual_results = actual_result(f"{source};")
     assert actual_results == expected_results
+
+
+print_tests = [
+    ("\"hello, world!\"", "\"hello, world!\""),
+    ("1", "1")
+]
+
+
+@pytest.mark.parametrize("source, output_str", print_tests)
+def test_print(capfd, source, output_str):
+    actual_result(f"print <- ({source},);")
+    out, err = capfd.readouterr()
+    assert out.strip() == output_str
 
 
 def actual_result(source):
