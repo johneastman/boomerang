@@ -66,10 +66,10 @@ All expressions end with a semicolon `;`.
 ## Data Types
 |Data Type|Examples|
 |---|---|
-|Integer|1, 2, 3, 10, 13, 100, 1234567890|
-|Float|1.1, 2.5, 3.14159|
+|Number|1, 2, 3, 10, 13, 100, 1234567890, 1.1, 2.5, 3.14159|
 |String|"Hello, world!", "1234567890"|
 |Boolean|true, false|
+|List|(), (1,), (1, "hello, world!"), (1, "hello, world!", true)|
 
 ## Operators
 |Operator Name|Literal|
@@ -81,6 +81,7 @@ All expressions end with a semicolon `;`.
 |Assignment|=|
 |Unary: Negative|-|
 |Unary: Positive|+|
+|Pointer|<-|
 
 ## Expressions
 
@@ -102,3 +103,8 @@ float = 3.14;
 -(5 + 4 + 3 + 2 + 1);
 +6;
 ```
+
+### Builtin Functions
+|Name|Description|
+|----|-----------|
+|print|output data to output stream|
