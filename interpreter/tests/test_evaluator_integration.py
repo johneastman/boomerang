@@ -76,10 +76,9 @@ print_tests = [
 
 
 @pytest.mark.parametrize("source, output_str", print_tests)
-def test_print(capfd, source, output_str):
-    actual_result(f"print <- ({source},);")
-    out, err = capfd.readouterr()
-    assert out.strip() == output_str
+def test_print(source, output_str):
+    results = actual_result(f"print <- ({source},);")
+    assert results == [o.Output(1, output_str)]
 
 
 def actual_result(source):

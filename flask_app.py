@@ -1,5 +1,7 @@
 import json
 from flask import Flask, request, render_template, redirect, make_response
+
+from interpreter.parser_.ast_objects import Output, Error
 from main import evaluate
 from interpreter.evaluator._environment import Environment
 
@@ -24,9 +26,12 @@ def interpret():
 
     results = evaluate(source_code, Environment())
 
+    # Filter out results that do not produce an output. These will be sent to the page for display
+    output_data = filter(lambda obj: isinstance(obj, Output) or isinstance(obj, Error), results)
+
     resp = make_response(redirect("/"))
     resp.set_cookie("source_code", source_code)
-    resp.set_cookie("results", json.dumps(list(map(str, results))))
+    resp.set_cookie("results", json.dumps(list(map(str, output_data))))
     return resp
 
 

@@ -129,6 +129,22 @@ class List(Expression):
         return super().pointer(other)
 
 
+class Output(Expression):
+    """Stores representation of what is printed to the console.
+    """
+    def __init__(self, line_num: int, value: str):
+        super().__init__(line_num)
+        self.value = value
+
+    def __str__(self) -> str:
+        return self.value
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Output):
+            return False
+        return self.line_num == other.line_num and self.value == other.value
+
+
 class Identifier(Expression):
     def __init__(self, line_num: int, value: str):
         super().__init__(line_num)
@@ -167,11 +183,12 @@ class BuiltinFunction(Expression):
         if isinstance(other, List):
             match self.name:
                 case self.print_:
-                    print(", ".join(map(str, other.values)))
+                    return Output(
+                        self.line_num,
+                        ", ".join(map(str, other.values))
+                    )
                 case _:
                     raise Exception(f"Unimplemented builtin function {self.name}")
-
-            return self
 
         return super().pointer(other)
 

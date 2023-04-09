@@ -21,21 +21,22 @@ class Evaluator:
         return self.env
 
     def evaluate(self) -> typing.List[Expression]:
-        try:
-            return self.evaluate_statements(self.ast)
-        except LanguageRuntimeException as e:
-            return [Error(e.line_num, str(e))]
+        return self.evaluate_statements(self.ast)
 
     def evaluate_statements(self, statements: list[Expression]) -> list[Expression]:
         evaluated_expressions = []
-        for expression in statements:
-            evaluated_expression = self.evaluate_expression(expression)
-            # `copy.deepcopy` ensures each evaluated expression in `evaluated_expressions` is accurate to the state of
-            # the program during the evaluation of that particular expression.
-            evaluated_expressions.append(copy.deepcopy(evaluated_expression))
+        try:
+            for expression in statements:
+                evaluated_expression = self.evaluate_expression(expression)
+                # `copy.deepcopy` ensures each evaluated expression in `evaluated_expressions` is accurate to the state
+                # of the program during the evaluation of that particular expression.
+                evaluated_expressions.append(copy.deepcopy(evaluated_expression))
 
-        # TODO: Figure out how to handle returns for both REPL and regular code execution
-        return evaluated_expressions
+            # TODO: Figure out how to handle returns for both REPL and regular code execution
+            return evaluated_expressions
+        except LanguageRuntimeException as e:
+            evaluated_expressions.append(Error(e.line_num, str(e)))
+            return evaluated_expressions
 
     def evaluate_expression(self, expression: Expression) -> Expression:
 

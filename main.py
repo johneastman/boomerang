@@ -2,7 +2,7 @@ import argparse
 import typing
 
 from interpreter.parser_.parser_ import Expression, Error, SEND
-from interpreter.parser_.ast_objects import BinaryExpression, BuiltinFunction, List
+from interpreter.parser_.ast_objects import BinaryExpression, BuiltinFunction, List, Output
 from interpreter.tokens.tokenizer import Tokenizer, Token
 from interpreter.tokens.token_queue import TokenQueue
 from interpreter.parser_.parser_ import Parser
@@ -66,8 +66,6 @@ if __name__ == "__main__":
         repl()
     elif args.path:
         results = evaluate(get_source(args.path), Environment())
-
-        # if "results" is empty, "first" will be None and "rest" will be [None]
-        first, *_ = results + ([None, None] if len(results) == 0 else [])
-        if isinstance(first, Error):
-            print(results[0])
+        for result in results:
+            if isinstance(result, Output) or isinstance(result, Error):
+                print(result)
