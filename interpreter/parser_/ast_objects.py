@@ -1,5 +1,3 @@
-import typing
-
 from interpreter.tokens.tokenizer import Token
 from interpreter.tokens.tokens import PLUS, MINUS, MULTIPLY, DIVIDE, get_token_literal, POINTER, EQ, NE, BANG, GT, GE, \
     LT, LE, AND, OR
@@ -25,28 +23,28 @@ class Expression:
     def ne(self, other: object) -> "Expression":
         raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {NE}")
 
-    def __gt__(self, other: object) -> "Expression":
+    def gt(self, other: object) -> "Expression":
         raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {GT}")
 
-    def __ge__(self, other: object) -> "Expression":
+    def ge(self, other: object) -> "Expression":
         raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {GE}")
 
-    def __lt__(self, other: object) -> "Expression":
+    def lt(self, other: object) -> "Expression":
         raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {LT}")
 
-    def __le__(self, other: object) -> "Expression":
+    def le(self, other: object) -> "Expression":
         raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {LE}")
 
-    def __add__(self, other: object) -> "Expression":
+    def add(self, other: object) -> "Expression":
         raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {PLUS}")
 
-    def __sub__(self, other: object) -> "Expression":
+    def sub(self, other: object) -> "Expression":
         raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {MINUS}")
 
-    def __mul__(self, other: object) -> "Expression":
+    def mul(self, other: object) -> "Expression":
         raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {MULTIPLY}")
 
-    def __truediv__(self, other: object) -> "Expression":
+    def div(self, other: object) -> "Expression":
         raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {DIVIDE}")
 
     def pointer(self, other: object) -> "Expression":
@@ -81,49 +79,49 @@ class Number(Expression):
             return Boolean(self.line_num, self.value != other.value)
         return super().equals(other)
 
-    def __gt__(self, other: object) -> "Expression":
+    def gt(self, other: object) -> "Expression":
         if isinstance(other, Number):
             return Boolean(self.line_num, self.value > other.value)
         return super().equals(other)
 
-    def __ge__(self, other: object) -> "Expression":
+    def ge(self, other: object) -> "Expression":
         if isinstance(other, Number):
             return Boolean(self.line_num, self.value >= other.value)
         return super().equals(other)
 
-    def __lt__(self, other: object) -> "Expression":
+    def lt(self, other: object) -> "Expression":
         if isinstance(other, Number):
             return Boolean(self.line_num, self.value < other.value)
         return super().equals(other)
 
-    def __le__(self, other: object) -> "Expression":
+    def le(self, other: object) -> "Expression":
         if isinstance(other, Number):
             return Boolean(self.line_num, self.value <= other.value)
         return super().equals(other)
 
-    def __add__(self, other: object) -> Expression:
+    def add(self, other: object) -> Expression:
         if isinstance(other, Number):
             return Number(self.line_num, self.value + other.value)
 
-        return super().__add__(other)
+        return super().add(other)
 
-    def __sub__(self, other: object) -> Expression:
+    def sub(self, other: object) -> Expression:
         if isinstance(other, Number):
             return Number(self.line_num, self.value - other.value)
 
-        return super().__sub__(other)
+        return super().sub(other)
 
-    def __mul__(self, other: object) -> Expression:
+    def mul(self, other: object) -> Expression:
         if isinstance(other, Number):
             return Number(self.line_num, self.value * other.value)
 
-        return super().__sub__(other)
+        return super().mul(other)
 
-    def __truediv__(self, other: object) -> Expression:
+    def div(self, other: object) -> Expression:
         if isinstance(other, Number):
             return Number(self.line_num, self.value / other.value)
 
-        return super().__sub__(other)
+        return super().div(other)
 
     def is_whole_number(self) -> bool:
         return self.value.is_integer()
@@ -152,11 +150,11 @@ class String(Expression):
             return Boolean(self.line_num, self.value != other.value)
         return super().equals(other)
 
-    def __add__(self, other: object) -> Expression:
+    def add(self, other: object) -> Expression:
         if isinstance(other, String):
             return String(self.line_num, self.value + other.value)
 
-        return super().__add__(other)
+        return super().add(other)
 
 
 class Boolean(Expression):

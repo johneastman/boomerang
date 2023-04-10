@@ -2,7 +2,6 @@ import typing
 
 from interpreter.parser_.ast_objects import Expression, BinaryExpression, UnaryExpression, Identifier, Number, String, Assignment, \
     Error, Boolean, List, BuiltinFunction
-from interpreter.tokens.tokenizer import Token
 from interpreter.tokens.tokens import *
 from interpreter.evaluator._environment import Environment
 from interpreter.utils.utils import language_error, LanguageRuntimeException
@@ -126,16 +125,16 @@ class Evaluator:
 
         # Math operations
         if op.type == PLUS:
-            return left + right
+            return left.add(right)
 
         elif op.type == MINUS:
-            return left - right
+            return left.sub(right)
 
         elif op.type == MULTIPLY:
-            return left * right
+            return left.mul(right)
 
         elif op.type == DIVIDE:
-            return left / right
+            return left.div(right)
 
         elif op.type == POINTER:
             return left.pointer(right)
@@ -148,16 +147,16 @@ class Evaluator:
             return left.ne(right)
 
         elif op.type == GT:
-            return left > right
+            return left.gt(right)
 
         elif op.type == GE:
-            return left >= right
+            return left.ge(right)
 
         elif op.type == LT:
-            return left < right
+            return left.lt(right)
 
         elif op.type == LE:
-            return left <= right
+            return left.le(right)
 
         # Boolean Operations
         elif op.type == AND:
