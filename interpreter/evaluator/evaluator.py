@@ -141,7 +141,7 @@ class Evaluator:
 
         # Comparison Operations
         elif op.type == EQ:
-            return left.equals(right)
+            return left.eq(right)
 
         elif op.type == NE:
             return left.ne(right)

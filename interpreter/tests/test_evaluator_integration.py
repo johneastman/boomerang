@@ -9,7 +9,6 @@ from interpreter.evaluator._environment import Environment
 
 
 evaluator_tests = [
-    ("1 + 1", [o.Number(1, 2)]),
     ("1 + 2 * 2", [o.Number(1, 5)]),
     ("(1 + 2) * 2", [o.Number(1, 6)]),
     ("x = (1 + 2) * 2;\nx", [o.Number(1, 6), o.Number(2, 6)]),
@@ -19,19 +18,13 @@ evaluator_tests = [
         o.Number(3, 2),
         o.Number(4, 2)
     ]),
-    ("4 / 2", [o.Number(1, 2)]),
-    ("7 / 2", [o.Number(1, 3.5)]),
     ("1 + 1 * 2 + 3 / 4", [o.Number(1, 3.75)]),
     ("\"hello world!\"",  [o.String(1, "hello world!")]),
-    ("\"hello \" + \"world!\"",  [o.String(1, "hello world!")]),
     ("true", [o.Boolean(1, True)]),
     ("false", [o.Boolean(1, False)]),
     ("()", [o.List(1, [])]),
     ("(1,)", [o.List(1, [o.Number(1, 1)])]),
     ("(1, 2, 3)", [o.List(1, [o.Number(1, 1), o.Number(1, 2), o.Number(1, 3)])]),
-    ("\"hello\" - \"world\"", [o.Error(1, "Error at line 1: Invalid types String and String for MINUS")]),
-    ("\"hello\" * \"world\"", [o.Error(1, "Error at line 1: Invalid types String and String for MULTIPLY")]),
-    ("\"hello\" / \"world\"", [o.Error(1, "Error at line 1: Invalid types String and String for DIVIDE")])
 ]
 
 
@@ -42,6 +35,10 @@ def test_evaluator(source, expected_results):
 
 
 binary_expression_tests = [
+    # Number
+    ("1 + 1", [o.Number(1, 2)]),
+    ("4 / 2", [o.Number(1, 2)]),
+    ("7 / 2", [o.Number(1, 3.5)]),
     ("1 == 1", [o.Boolean(1, True)]),
     ("1 != 1", [o.Boolean(1, False)]),
     ("0 != 1", [o.Boolean(1, True)]),
@@ -55,6 +52,15 @@ binary_expression_tests = [
     ("1 <= 1", [o.Boolean(1, True)]),
     ("1 <= 2", [o.Boolean(1, True)]),
     ("1 <= 0", [o.Boolean(1, False)]),
+
+    # String
+    ("\"hello\" == \"hello\"", [o.Boolean(1, True)]),
+    ("\"hello \" + \"world!\"", [o.String(1, "hello world!")]),
+    ("\"hello\" - \"world\"", [o.Error(1, "Error at line 1: Invalid types String and String for MINUS")]),
+    ("\"hello\" * \"world\"", [o.Error(1, "Error at line 1: Invalid types String and String for MULTIPLY")]),
+    ("\"hello\" / \"world\"", [o.Error(1, "Error at line 1: Invalid types String and String for DIVIDE")]),
+
+    # Boolean
     ("true & true", [o.Boolean(1, True)]),
     ("true & false", [o.Boolean(1, False)]),
     ("false & true", [o.Boolean(1, False)]),
@@ -63,6 +69,34 @@ binary_expression_tests = [
     ("true | false", [o.Boolean(1, True)]),
     ("false | true", [o.Boolean(1, True)]),
     ("false | false", [o.Boolean(1, False)]),
+    ("true == true", [o.Boolean(1, True)]),
+    ("true != true", [o.Boolean(1, False)]),
+    ("true != false", [o.Boolean(1, True)]),
+    ("false == false", [o.Boolean(1, True)]),
+    ("false != false", [o.Boolean(1, False)]),
+    ("false != true", [o.Boolean(1, True)]),
+    ("true > false", [o.Error(1, "Error at line 1: Invalid types Boolean and Boolean for GT")]),
+    ("true >= false", [o.Error(1, "Error at line 1: Invalid types Boolean and Boolean for GE")]),
+    ("true < false", [o.Error(1, "Error at line 1: Invalid types Boolean and Boolean for LT")]),
+    ("true <= false", [o.Error(1, "Error at line 1: Invalid types Boolean and Boolean for LE")]),
+    ("true + false", [o.Error(1, "Error at line 1: Invalid types Boolean and Boolean for PLUS")]),
+    ("true - false", [o.Error(1, "Error at line 1: Invalid types Boolean and Boolean for MINUS")]),
+    ("true * false", [o.Error(1, "Error at line 1: Invalid types Boolean and Boolean for MULTIPLY")]),
+    ("true / false", [o.Error(1, "Error at line 1: Invalid types Boolean and Boolean for DIVIDE")]),
+
+    # Mismatched types
+    ("1 == \"1\"", [o.Boolean(1, False)]),
+    ("1 == true", [o.Boolean(1, False)]),
+    ("1 == (1,)", [o.Boolean(1, False)]),
+    ("\"1\" == 1", [o.Boolean(1, False)]),
+    ("\"true\" == true", [o.Boolean(1, False)]),
+    ("\"true\" == (\"true\",)", [o.Boolean(1, False)]),
+    ("true == 1", [o.Boolean(1, False)]),
+    ("true == \"true\"", [o.Boolean(1, False)]),
+    ("true == (\"true\",)", [o.Boolean(1, False)]),
+    ("(1,) == 1", [o.Boolean(1, False)]),
+    ("(1,) == \"1\"", [o.Boolean(1, False)]),
+    ("(1,) == (\"1\",)", [o.Boolean(1, False)]),
 ]
 
 
