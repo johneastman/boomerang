@@ -204,9 +204,9 @@ class Parser:
                 self.current.line_num,
                 f"Expected {expected_token_type}, got {self.current.type} ('{self.current.value}')")
 
-    def parse_list(self, first_expression: typing.Optional[Expression] = None) -> List:
+    def parse_list(self, first_expression: Expression) -> List:
         line_num = self.current.line_num
-        values = [first_expression] if first_expression else []
+        values = [first_expression]
 
         if self.current.type == CLOSED_PAREN:
             self.advance()
@@ -235,33 +235,28 @@ class Parser:
         self.advance()
 
         params = []
-        if self.current.type == CLOSED_PAREN:
-            # An empty list. This function has no call parameters.
-            self.advance()
-        else:
-            while True:
-
-                if self.current.type == CLOSED_PAREN:
-                    self.advance()
-                    break
-
-                expression = self.expression(LOWEST)
-
-                if not isinstance(expression, Identifier):
-                    raise language_error(
-                        expression.line_num,
-                        f"Unsupported type {type(expression)} for function definition parameter. Expected Identifier."
-                    )
-
-                params.append(expression)
-
-                if self.current.type == CLOSED_PAREN:
-                    self.advance()
-                    break
-
-                self.is_expected_token(COMMA)
-
+        while True:
+            if self.current.type == CLOSED_PAREN:
                 self.advance()
+                break
+
+            expression = self.expression(LOWEST)
+
+            if not isinstance(expression, Identifier):
+                raise language_error(
+                    expression.line_num,
+                    f"Unsupported type {type(expression)} for function definition parameter. Expected Identifier."
+                )
+
+            params.append(expression)
+
+            if self.current.type == CLOSED_PAREN:
+                self.advance()
+                break
+
+            self.is_expected_token(COMMA)
+
+            self.advance()
 
         self.is_expected_token(COLON)
         self.advance()
