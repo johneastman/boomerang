@@ -7,23 +7,17 @@ from interpreter.utils.utils import language_error
 
 # Precedence names
 LOWEST = "LOWEST"  # default
+ASSIGN = "ASSIGN"
+COMPARE = "COMPARE"  # ==, !=, &&, ||, <, >, >=, <=
 SUM = "SUM"  # +, -
 PRODUCT = "PRODUCT"  # *, /
 SEND = "SEND"  # <-
-AND_OR = "AND_OR"  # &&, ||
-EQUALS = "EQUALS"  # ==, !=
-LESS_GREATER = "LESS_GREATER"  # <, >, >=, <=
-PREFIX = "PREFIX"  # -X, +X, !X, X!
 
 
 class Parser:
 
     def __init__(self, tokens: TokenQueue):
         self.tokens = tokens
-
-        self.assignment_operators: list[str] = [
-            ASSIGN
-        ]
 
         # Higher precedence is lower on the list (for example, && and || take precedence above everything, so they have
         # a precedence level of 2.
@@ -34,30 +28,28 @@ class Parser:
         # index + 1).
         self.precedences: list[str] = [
             LOWEST,
+            ASSIGN,
+            COMPARE,
             SUM,
             PRODUCT,
             SEND,
-            PREFIX,
-            AND_OR,
-            EQUALS,
-            LESS_GREATER
         ]
 
         self.infix_precedence: dict[str, str] = {
-            EQ: EQUALS,
-            NE: EQUALS,
-            LT: LESS_GREATER,
-            LE: LESS_GREATER,
-            GT: LESS_GREATER,
-            GE: LESS_GREATER,
-            AND: AND_OR,
-            OR: AND_OR,
+            POINTER: SEND,
             PLUS: SUM,
             MINUS: SUM,
+            BANG: SUM,
+            OR: SUM,
+            AND: SUM,
             MULTIPLY: PRODUCT,
             DIVIDE: PRODUCT,
-            BANG: PREFIX,
-            POINTER: SEND
+            EQ: COMPARE,
+            NE: COMPARE,
+            LT: COMPARE,
+            LE: COMPARE,
+            GT: COMPARE,
+            GE: COMPARE,
         }
 
     def parse(self) -> list[Expression]:
@@ -161,7 +153,7 @@ class Parser:
             self.advance()
             return Boolean(
                 boolean_token.line_num,
-                True if boolean_token.value == get_token_literal("TRUE") else False
+                boolean_token.value == get_token_literal("TRUE")
             )
 
         elif self.current.type == IDENTIFIER:
@@ -188,7 +180,7 @@ class Parser:
         # Skip over assignment operator
         self.advance()
 
-        self.is_expected_token(self.assignment_operators)
+        self.is_expected_token(ASSIGN)
 
         self.advance()
         right = self.expression()
