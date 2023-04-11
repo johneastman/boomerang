@@ -2,7 +2,7 @@ import pytest
 
 from interpreter.parser_.ast_objects import Expression, Identifier
 from interpreter.evaluator.evaluator import Evaluator
-from interpreter.evaluator._environment import Environment
+from interpreter.evaluator.environment_ import Environment
 from interpreter.utils.utils import LanguageRuntimeException
 
 evaluator = Evaluator([], Environment())

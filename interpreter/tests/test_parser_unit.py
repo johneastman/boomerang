@@ -30,6 +30,7 @@ def test_number_string(value, str_repr, is_whole_num):
 @pytest.mark.parametrize("params_str, params_list", [
     ("()", []),
     ("(a,)", [Identifier(1, "a")]),
+    ("(c)", [Identifier(1, "c")]),  # comma after list param is optional
     ("(a, b)", [Identifier(1, "a"), Identifier(1, "b")]),
     ("(a, b, c)", [Identifier(1, "a"), Identifier(1, "b"), Identifier(1, "c")]),
 ])

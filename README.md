@@ -119,3 +119,19 @@ float = 3.14;
 |Name|Description|
 |----|-----------|
 |print|output data to output stream|
+
+### Functions
+Functions are treated like any other value (number, boolean, string, etc.). They are defined by being assigned to variables.
+
+Functions start with the `func` keyword, followed by parameters, a colon, and an expression. Below are some examples:
+```
+add = func(a, b): a + b;
+
+negative = func(n): -n;
+```
+
+Use the Send (`<-`) operator to call functions:
+```
+add <- (1, 2);
+negative <- (1,);
+```

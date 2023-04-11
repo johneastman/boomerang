@@ -3,7 +3,7 @@ from flask import Flask, request, render_template, redirect, make_response
 
 from interpreter.parser_.ast_objects import Output, Error
 from main import evaluate
-from interpreter.evaluator._environment import Environment
+from interpreter.evaluator.environment_ import Environment
 
 app = Flask(__name__)
 

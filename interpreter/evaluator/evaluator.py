@@ -4,7 +4,7 @@ from interpreter.parser_.ast_objects import Expression, BinaryExpression, UnaryE
     Assignment, \
     Error, Boolean, List, BuiltinFunction, Function, FunctionCall
 from interpreter.tokens.tokens import *
-from interpreter.evaluator._environment import Environment
+from interpreter.evaluator.environment_ import Environment
 from interpreter.utils.utils import language_error, LanguageRuntimeException
 import copy
 
@@ -175,8 +175,9 @@ class Evaluator:
         raise language_error(op.line_num, f"Invalid binary operator '{op.value}'")
 
     def evaluate_function_call(self, function: FunctionCall) -> Expression:
-        function_definition = function.function
-        call_params = function.call_params
+        line_num: int = function.line_num
+        function_definition: Function = function.function
+        call_params: List = function.call_params
 
         if len(call_params.values) != len(function_definition.parameters):
             raise language_error(function.line_num, f"Expected {len(function_definition.parameters)}, got {len(call_params.values)}")
@@ -195,4 +196,5 @@ class Evaluator:
         # Reset environment back to old environment
         self.env = self.get_env.parent_env
 
+        return_value.line_num = line_num
         return return_value

@@ -1,14 +1,15 @@
 import pytest
 
 import interpreter.parser_.ast_objects as o
-from interpreter.tokens.tokenizer import Tokenizer
+from interpreter.tokens.tokenizer import Tokenizer, Token
 from interpreter.tokens.token_queue import TokenQueue
 from interpreter.parser_.parser_ import Parser
 from interpreter.evaluator.evaluator import Evaluator
-from interpreter.evaluator._environment import Environment
+from interpreter.evaluator.environment_ import Environment
+from interpreter.tokens.tokens import PLUS
 
 
-evaluator_tests = [
+@pytest.mark.parametrize("source,expected_results", [
     ("1 + 2 * 2", [o.Number(1, 5)]),
     ("(1 + 2) * 2", [o.Number(1, 6)]),
     ("x = (1 + 2) * 2;\nx", [o.Number(1, 6), o.Number(2, 6)]),
@@ -25,16 +26,13 @@ evaluator_tests = [
     ("()", [o.List(1, [])]),
     ("(1,)", [o.List(1, [o.Number(1, 1)])]),
     ("(1, 2, 3)", [o.List(1, [o.Number(1, 1), o.Number(1, 2), o.Number(1, 3)])]),
-]
-
-
-@pytest.mark.parametrize("source,expected_results", evaluator_tests)
+])
 def test_evaluator(source, expected_results):
     actual_results = actual_result(f"{source};")
     assert expected_results == actual_results
 
 
-binary_expression_tests = [
+@pytest.mark.parametrize("source, expected_results", [
     # Number
     ("1 + 1", [o.Number(1, 2)]),
     ("4 / 2", [o.Number(1, 2)]),
@@ -97,16 +95,13 @@ binary_expression_tests = [
     ("(1,) == 1", [o.Boolean(1, False)]),
     ("(1,) == \"1\"", [o.Boolean(1, False)]),
     ("(1,) == (\"1\",)", [o.Boolean(1, False)]),
-]
-
-
-@pytest.mark.parametrize("source, expected_results", binary_expression_tests)
+])
 def test_binary_expressions(source, expected_results):
     actual_results = actual_result(f"{source};")
     assert expected_results == actual_results
 
 
-valid_unary_operations_tests = [
+@pytest.mark.parametrize("source,expected_results", [
     ("-1", [
         o.Number(1, -1)
      ]),
@@ -137,25 +132,43 @@ valid_unary_operations_tests = [
     ("!!false", [
         o.Boolean(1, False)
     ]),
-]
-
-
-@pytest.mark.parametrize("source,expected_results", valid_unary_operations_tests)
+])
 def test_valid_unary_operations(source, expected_results):
     actual_results = actual_result(f"{source};")
     assert actual_results == expected_results
 
 
-print_tests = [
+@pytest.mark.parametrize("source, output_str", [
     ("\"hello, world!\"", "\"hello, world!\""),
     ("1", "1")
-]
-
-
-@pytest.mark.parametrize("source, output_str", print_tests)
+])
 def test_print(source, output_str):
     results = actual_result(f"print <- ({source},);")
     assert results == [o.Output(1, output_str)]
+
+
+def test_functions():
+    src = """
+    add = func(a, b): a + b;
+    add <- (1, 2);
+    """
+
+    expected_results = [
+        o.Function(
+            2,
+            [o.Identifier(2, "a"), o.Identifier(2, "b")],
+            o.BinaryExpression(
+                2,
+                o.Identifier(2, "a"),
+                Token("+", PLUS, 2),
+                o.Identifier(2, "b")
+            )
+        ),
+        o.Number(3, 3.0)
+    ]
+
+    results = actual_result(src)
+    assert results == expected_results
 
 
 def actual_result(source):
