@@ -8,6 +8,9 @@ class Expression:
     def __init__(self, line_num: int):
         self.line_num = line_num
 
+    def __str__(self) -> str:
+        raise Exception(f"__str__ method in {type(self).__name__} not implemented.")
+
     def __repr__(self) -> str:
         return self.__str__()
 
@@ -228,6 +231,52 @@ class List(Expression):
         return super().pointer(other)
 
 
+class Identifier(Expression):
+    def __init__(self, line_num: int, value: str):
+        super().__init__(line_num)
+        self.value = value
+
+    def __str__(self) -> str:
+        return self.value
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Identifier):
+            return False
+        return self.line_num == other.line_num and self.value == other.value
+
+
+class Function(Expression):
+    def __init__(self, line_num: int, parameters: list[Identifier], body: Expression):
+        super().__init__(line_num)
+        self.parameters = parameters
+        self.body = body
+
+    def __str__(self) -> str:
+        class_name = self.__class__.__name__
+        return f"{class_name}(line_num={self.line_num}, parameters={self.parameters}, body={self.body})"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Function):
+            return False
+        return self.line_num == other.line_num and self.parameters == other.parameters and self.body == other.body
+
+    def pointer(self, other: object) -> "Expression":
+        if isinstance(other, List):
+            return FunctionCall(self.line_num, self, other)
+        return super().pointer(other)
+
+
+class FunctionCall(Expression):
+    def __init__(self, line_num: int, function: Function, call_params: List):
+        super().__init__(line_num)
+        self.function = function
+        self.call_params = call_params
+
+    def __str__(self) -> str:
+        class_name = self.__class__.__name__
+        return f"{class_name}(line_num={self.line_num}, function={self.function}, call_params={self.call_params})"
+
+
 class Output(Expression):
     """Stores representation of what is printed to the console.
     """
@@ -240,20 +289,6 @@ class Output(Expression):
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Output):
-            return False
-        return self.line_num == other.line_num and self.value == other.value
-
-
-class Identifier(Expression):
-    def __init__(self, line_num: int, value: str):
-        super().__init__(line_num)
-        self.value = value
-
-    def __str__(self) -> str:
-        return self.value
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Identifier):
             return False
         return self.line_num == other.line_num and self.value == other.value
 
@@ -310,6 +345,10 @@ class BinaryExpression(Expression):
         self.left = left
         self.operator = operator
         self.right = right
+
+    def __str__(self) -> str:
+        class_name = self.__class__.__name__
+        return f"{class_name}(left={self.left}, operator={self.operator} right={self.right})"
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, BinaryExpression):

@@ -6,6 +6,9 @@ tokens:
     - literal: 'false'
       name: 'FALSE'
       type: BOOLEAN
+    - literal: 'func'
+      name: FUNCTION
+      type: FUNCTION
   symbols:
     - literal: '.'
       name: PERIOD
@@ -28,6 +31,9 @@ tokens:
     - literal: ';'
       name: SEMICOLON
       type: SEMICOLON
+    - literal: ':'
+      name: COLON
+      type: COLON
     - literal: '('
       name: OPEN_PAREN
       type: OPEN_PAREN

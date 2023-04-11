@@ -3,7 +3,7 @@ from interpreter.tokens.tokens import *
 from interpreter.tokens.tokenizer import Tokenizer, Token
 
 
-symbols = [
+@pytest.mark.parametrize("symbol, type_", [
     (";", SEMICOLON),
     ("<-", POINTER),
     (",", COMMA),
@@ -22,11 +22,9 @@ symbols = [
     ("<=", LE),
     ("!", BANG),
     ("&", AND),
-    ("|", OR)
-]
-
-
-@pytest.mark.parametrize("symbol, type_", symbols)
+    ("|", OR),
+    (":", COLON)
+])
 def test_symbols(symbol, type_):
     """Test symbols
 
@@ -38,7 +36,23 @@ def test_symbols(symbol, type_):
     assert actual_tokens == [Token(symbol, type_, 1), Token("", EOF, 1)]
 
 
-data_types_tests = [
+@pytest.mark.parametrize("keyword, type_", [
+    ("true", BOOLEAN),
+    ("false", BOOLEAN),
+    ("func", FUNCTION)
+])
+def test_keywords(keyword, type_):
+    """Test symbols
+
+    Symbols that are not stand-alone tokens:
+    - PERIOD (indicates floating-point value in numbers)
+    - DOUBLE_QUOTE (indicates start and end of strings)
+    """
+    actual_tokens = get_tokens(keyword)
+    assert actual_tokens == [Token(keyword, type_, 1), Token("", EOF, 1)]
+
+
+@pytest.mark.parametrize("source,expected_token", [
     ("\"hello, world!\"", Token("hello, world!", STRING, 1)),
     ("1", Token("1", NUMBER, 1)),
     ("15", Token("15", NUMBER, 1)),
@@ -46,16 +60,13 @@ data_types_tests = [
     ("1.5", Token("1.5", NUMBER, 1)),
     ("true", Token("true", BOOLEAN, 1)),
     ("false", Token("false", BOOLEAN, 1))
-]
-
-
-@pytest.mark.parametrize("source,expected_token", data_types_tests)
+])
 def test_data_types(source, expected_token):
     actual_tokens = get_tokens(source)
     assert actual_tokens == [expected_token, Token("", EOF, 1)]
 
 
-tokenizer_tests = [
+@pytest.mark.parametrize("source, expected_tokens", [
     ("1 + 1;", [
         Token("1", NUMBER, 1),
         Token("+", PLUS, 1),
@@ -89,10 +100,7 @@ tokenizer_tests = [
         Token(";", SEMICOLON, 1),
         Token("", EOF, 1)
     ])
-]
-
-
-@pytest.mark.parametrize("source, expected_tokens", tokenizer_tests)
+])
 def test_tokenizer(source, expected_tokens):
     actual_tokens = get_tokens(source)
     assert actual_tokens == expected_tokens

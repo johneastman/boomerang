@@ -1,7 +1,8 @@
 import typing
 
-from interpreter.parser_.ast_objects import Expression, BinaryExpression, UnaryExpression, Identifier, Number, String, Assignment, \
-    Error, Boolean, List, BuiltinFunction
+from interpreter.parser_.ast_objects import Expression, BinaryExpression, UnaryExpression, Identifier, Number, String, \
+    Assignment, \
+    Error, Boolean, List, BuiltinFunction, Function, FunctionCall
 from interpreter.tokens.tokens import *
 from interpreter.evaluator._environment import Environment
 from interpreter.utils.utils import language_error, LanguageRuntimeException
@@ -65,6 +66,9 @@ class Evaluator:
             return expression
 
         elif isinstance(expression, Error):
+            return expression
+
+        elif isinstance(expression, Function):
             return expression
 
         elif isinstance(expression, List):
@@ -137,7 +141,10 @@ class Evaluator:
             return left.div(right)
 
         elif op.type == POINTER:
-            return left.pointer(right)
+            result = left.pointer(right)
+            if isinstance(result, FunctionCall):
+                return self.evaluate_function_call(result)
+            return result
 
         # Comparison Operations
         elif op.type == EQ:
@@ -166,3 +173,26 @@ class Evaluator:
             return left.or_(right)
 
         raise language_error(op.line_num, f"Invalid binary operator '{op.value}'")
+
+    def evaluate_function_call(self, function: FunctionCall) -> Expression:
+        function_definition = function.function
+        call_params = function.call_params
+
+        if len(call_params.values) != len(function_definition.parameters):
+            raise language_error(function.line_num, f"Expected {len(function_definition.parameters)}, got {len(call_params.values)}")
+
+        old_env = self.get_env
+        self.env = Environment(old_env)
+
+        # Set parameters as variables in new environment
+        for ident, value in zip(function_definition.parameters, call_params.values):
+            self.evaluate_assign_variable(
+                Assignment(ident.line_num, ident.value, value)
+            )
+
+        return_value = self.evaluate_expression(function_definition.body)
+
+        # Reset environment back to old environment
+        self.env = self.get_env.parent_env
+
+        return return_value

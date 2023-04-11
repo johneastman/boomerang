@@ -62,6 +62,7 @@ MINUS: str = get_token_type("MINUS")
 MULTIPLY: str = get_token_type("MULTIPLY")
 DIVIDE: str = get_token_type("DIVIDE")
 SEMICOLON: str = get_token_type("SEMICOLON")
+COLON: str = get_token_type("COLON")
 OPEN_PAREN: str = get_token_type("OPEN_PAREN")
 CLOSED_PAREN: str = get_token_type("CLOSED_PAREN")
 PERIOD: str = get_token_type("PERIOD")
@@ -82,6 +83,7 @@ OR: str = get_token_type("OR")
 # Keywords
 TRUE: str = get_token_type("TRUE")
 FALSE: str = get_token_type("FALSE")
+FUNCTION: str = get_token_type("FUNCTION")
 
 # Misc
 EOF: str = get_token_type("EOF")  # End of File
