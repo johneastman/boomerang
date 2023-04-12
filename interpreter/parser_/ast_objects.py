@@ -127,9 +127,15 @@ class Number(Expression):
         return super().div(other)
 
     def is_whole_number(self) -> bool:
-        # Converting self.value to float because, despite self.value being a float, I'm still
-        # getting this error: AttributeError: 'int' object has no attribute 'is_integer'
-        return float(self.value).is_integer()
+        """
+        Originally used "self.value.is_integer()" but that caused this error:
+            AttributeError: 'int' object has no attribute 'is_integer'
+
+        To fix that error, I changed the code to "float(self.value).is_integer()", converting "self.value"
+        to a float. However, that produced this error:
+            OverflowError: int too large to convert to float
+        """
+        return self.value % 1 == 0
 
 
 class String(Expression):
