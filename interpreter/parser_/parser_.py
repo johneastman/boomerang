@@ -202,12 +202,13 @@ class Parser:
         self.is_expected_token(IDENTIFIER)
         variable_name = self.current
 
-        # Skip over assignment operator
+        # Skip over identifier token
         self.advance()
 
+        # Confirm current token is an assignment operator. If it is, skip over it.
         self.is_expected_token(ASSIGN)
-
         self.advance()
+
         right = self.expression()
 
         return Assignment(variable_name.line_num, variable_name.value, right)
