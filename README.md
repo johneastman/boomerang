@@ -1,11 +1,12 @@
 # Boomerang
-Boomerang is a programming language written in Python.
+Boomerang is a programming language written in Python. The syntax was inspired by Haskell and Python (see [the language specs](#language-specs) for more information on the language).
 
-Boomerang is:
+Some defining characteristics of Boomerang are:
 * **Interpreted:** code executes in the runtime of another language (in this case, Python).
 * **Procedural:** commands are executed in the order they are defined.
-* **Dynamically Typed:** variable, function, parameter, etc. types are not declared explicitly; rather, they are interpreted from the values they are assigned (e.g., `1` is an integer, `3.14159` is a float, `"hello world!"` is a string, etc.).
-* **Strongly Typed:** strict rules for how different types interact (e.g. `1 + 1` or `1 + 1.5` are valid, but `1 + "hello world!"` is invalid).
+* **Dynamically Typed:** types are not declared explicitly (unlike languages like C++ or Java); rather, types are inferred from values (for example, `1` and `3.14159` are numbers, `"hello world!"` is a string, `true` and `false` are booleans, etc.).
+* **Strongly Typed:** there are strict rules for how different types interact (e.g. `1 + 1` or `1 + 1.5` are valid, but `1 + "hello world!"` is invalid).
+* **Immutable:** data is immutable, and operations return new data instead of modifying existing data.
 
 # Install
 1. Download and install [Python](https://www.python.org/downloads/)
@@ -123,7 +124,7 @@ float = 3.14;
 ### Functions
 Functions are treated like any other value (number, boolean, string, etc.). They are defined by being assigned to variables.
 
-Functions start with the `func` keyword, followed by parameters, a colon, and an expression. Below are some examples:
+Functions start with the `func` keyword, followed by parameters, a colon, and an expression. Be aware that functions only have one expression for the body, and the result of that expression is returned by the function. Below are some examples:
 ```
 add = func(a, b): a + b;
 
