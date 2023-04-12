@@ -64,9 +64,7 @@ These are errors with the Python code itself and exist to aid the development pr
 ## Line Endings
 All expressions end with a semicolon `;`.
 
-## Data Types
-
-### Number
+## Core Data Types
 |Data Type|Examples|
 |---|---|
 |Number|1, 2, 3, 10, 13, 100, 1234567890, 1.1, 2.5, 3.14159|
