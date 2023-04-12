@@ -6,6 +6,7 @@ from interpreter.tokens.tokens import *
 from interpreter.evaluator.environment_ import Environment
 from interpreter.utils.utils import language_error, LanguageRuntimeException
 import copy
+from functools import reduce
 
 
 class Evaluator:
@@ -85,15 +86,12 @@ class Evaluator:
     def evaluate_factorial(self, factorial: Factorial) -> Number:
         result = self.evaluate_expression(factorial.expression)
         if isinstance(result, Number):
-
             if result.is_whole_number():
-                new_value = 1
-                for i in range(int(result.value), 1, -1):
-                    new_value *= i
-                return Number(result.line_num, new_value)
-
+                return Number(
+                    result.line_num,
+                    reduce(lambda a, b: a * b, [i for i in range(1, int(result.value) + 1)])
+                )
             raise language_error(result.line_num, "number must be whole number")
-
         raise language_error(result.line_num, f"invalid type for factorial: {type(result).__name__}")
 
     def evaluate_assign_variable(self, variable: Assignment) -> Expression:
