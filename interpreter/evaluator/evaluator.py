@@ -1,8 +1,7 @@
 import typing
 
 from interpreter.parser_.ast_objects import Expression, BinaryExpression, UnaryExpression, Identifier, Number, String, \
-    Assignment, \
-    Error, Boolean, List, BuiltinFunction, Function, FunctionCall
+    Assignment, Error, Boolean, List, BuiltinFunction, Function, FunctionCall, Factorial
 from interpreter.tokens.tokens import *
 from interpreter.evaluator.environment_ import Environment
 from interpreter.utils.utils import language_error, LanguageRuntimeException
@@ -52,6 +51,9 @@ class Evaluator:
         elif isinstance(expression, Identifier):
             return self.evaluate_identifier(expression)
 
+        elif isinstance(expression, Factorial):
+            return self.evaluate_factorial(expression)
+
         # Base Types
         elif isinstance(expression, Number):
             return expression
@@ -79,6 +81,20 @@ class Evaluator:
         # This is a program-specific error because a missing object type would come about during development, not
         # when a user is using this programming language.
         raise Exception(f"Unsupported type: {type(expression).__name__}")
+
+    def evaluate_factorial(self, factorial: Factorial) -> Number:
+        result = self.evaluate_expression(factorial.expression)
+        if isinstance(result, Number):
+
+            if result.is_whole_number():
+                new_value = 1
+                for i in range(int(result.value), 1, -1):
+                    new_value *= i
+                return Number(result.line_num, new_value)
+
+            raise language_error(result.line_num, "number must be whole number")
+
+        raise language_error(result.line_num, f"invalid type for factorial: {type(result).__name__}")
 
     def evaluate_assign_variable(self, variable: Assignment) -> Expression:
         var_value: Expression = self.evaluate_expression(variable.value)

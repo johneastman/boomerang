@@ -127,7 +127,9 @@ class Number(Expression):
         return super().div(other)
 
     def is_whole_number(self) -> bool:
-        return self.value.is_integer()
+        # Converting self.value to float because, despite self.value being a float, I'm still
+        # getting this error: AttributeError: 'int' object has no attribute 'is_integer'
+        return float(self.value).is_integer()
 
 
 class String(Expression):
@@ -333,6 +335,10 @@ class UnaryExpression(Expression):
         self.operator = operator
         self.expression = expression
 
+    def __str__(self) -> str:
+        class_name = self.__class__.__name__
+        return f"{class_name}(line_num={self.line_num} operator={self.operator} expression={self.expression})"
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, UnaryExpression):
             return False
@@ -380,3 +386,17 @@ class Error(Expression):
         if not isinstance(other, Error):
             return False
         return self.line_num == other.line_num and self.message == other.message
+
+
+class Factorial(Expression):
+    def __init__(self, line_num: int, expression: Expression):
+        super().__init__(line_num)
+        self.expression = expression
+
+    def __str__(self) -> str:
+        return f"{self.expression}{get_token_literal(BANG)}"
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Factorial):
+            return False
+        return self.line_num == other.line_num and self.expression == other.expression

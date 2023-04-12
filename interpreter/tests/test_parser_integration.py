@@ -5,7 +5,7 @@ from interpreter.tokens.tokenizer import Token
 from ..parser_ import parser_
 from . import testing_utils
 from ..parser_.ast_objects import BuiltinFunction, Boolean, Number, List, Identifier, BinaryExpression, UnaryExpression, \
-    Function, FunctionCall
+    Function, FunctionCall, Factorial
 from ..utils.utils import LanguageRuntimeException
 
 
@@ -51,6 +51,18 @@ def test_unary_expressions(source, operator, expression):
     expected_ast = [
         UnaryExpression(1, operator, expression)
     ]
+
+    parser = testing_utils.parser(f"{source};")
+    actual_ast = parser.parse()
+    assert actual_ast == expected_ast
+
+
+@pytest.mark.parametrize("source, ast_object", [
+    ("6!", Factorial(1, Number(1, 6))),
+    ("6!!", Factorial(1, Factorial(1, Number(1, 6)))),
+])
+def test_suffix_operators(source, ast_object):
+    expected_ast = [ast_object]
 
     parser = testing_utils.parser(f"{source};")
     actual_ast = parser.parse()

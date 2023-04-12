@@ -101,6 +101,16 @@ def test_binary_expressions(source, expected_results):
     assert expected_results == actual_results
 
 
+@pytest.mark.parametrize("source, expected_results", [
+    ("3!", [o.Number(1, 6)]),
+    ("6!", [o.Number(1, 720)]),
+    ("3!!", [o.Number(1, 720)])
+])
+def test_suffix_operators(source, expected_results):
+    actual_results = actual_result(f"{source};")
+    assert expected_results == actual_results
+
+
 @pytest.mark.parametrize("source,expected_results", [
     ("-1", [
         o.Number(1, -1)

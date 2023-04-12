@@ -1,7 +1,9 @@
 import pytest
 
 from . import testing_utils
-from ..parser_.ast_objects import Assignment, Number, Function, Identifier
+from ..parser_.ast_objects import Assignment, Number, Function, Identifier, Factorial, BinaryExpression
+from ..tokens.tokenizer import Token
+from ..tokens.tokens import PLUS
 
 
 def test_set_expression():
@@ -45,3 +47,13 @@ def test_parse_function(params_str, params_list):
     )
 
     assert actual_function_ast == expected_function_ast
+
+
+@pytest.mark.parametrize("source, expected_result", [
+    ("!", Factorial(1, Number(1, 3))),
+    ("+1", BinaryExpression(1, Number(1, 3), Token("+", PLUS, 1), Number(1, 1)))
+])
+def test_parse_infix(source, expected_result):
+    p = testing_utils.parser(source)
+    infix_object = p.parse_infix(Number(1, 3))
+    assert infix_object == expected_result

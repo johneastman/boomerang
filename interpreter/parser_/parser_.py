@@ -140,6 +140,11 @@ class Parser:
     def parse_infix(self, left: Expression) -> Expression:
         op = self.current
         self.advance()
+
+        # Suffix operators go here
+        if op.type == BANG:
+            return Factorial(op.line_num, left)
+
         right = self.expression(self.infix_precedence.get(op.type, LOWEST))
         return BinaryExpression(op.line_num, left, op, right)
 

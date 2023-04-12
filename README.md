@@ -73,6 +73,10 @@ All expressions end with a semicolon `;`.
 |List|(), (1,), (1, "hello, world!"), (1, "hello, world!", true)|
 
 ## Operators
+
+### Binary Operators
+Operators that appear between two expressions.
+
 |Operator Name|Literal|
 |---|---|
 |Add|+|
@@ -80,9 +84,6 @@ All expressions end with a semicolon `;`.
 |Multiply|*|
 |Divide|/|
 |Assignment|=|
-|Unary: Negative|-|
-|Unary: Positive|+|
-|Unary: Bang|!|
 |Pointer|<-|
 |Equals|==|
 |Not Equals|!=|
@@ -92,6 +93,22 @@ All expressions end with a semicolon `;`.
 |Less Than or Equal|<=|
 |Greater Than|>|
 |Greater Than or Equal|>=|
+
+### Unary Operators
+Operators that appear before an expression
+
+|Operator Name|Literal|
+|---|---|
+|Make Negative|-|
+|Make Positive|+|
+|Boolean Opposite|!|
+
+### Suffix Operators
+Operators that appear after an expression
+
+|Operator Name|Literal|
+|---|---|
+|Factorial|!|
 
 ## Expressions
 
