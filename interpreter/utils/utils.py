@@ -1,6 +1,9 @@
 import yaml
 import typing
 
+if typing.TYPE_CHECKING:
+    from interpreter.tokens.tokenizer import Token
+
 
 class LanguageRuntimeException(Exception):
     def __init__(self, line_num: int, message: str):
@@ -15,6 +18,13 @@ def read_yaml_file(path: str) -> typing.Any:
 
 def language_error(line_num: int, description: str) -> LanguageRuntimeException:
     return LanguageRuntimeException(line_num, f"Error at line {line_num}: {description}")
+
+
+def unexpected_token_error(line_num: int, expected_token: str, actual_token: "Token") -> LanguageRuntimeException:
+    return language_error(
+        line_num,
+        f"Expected {expected_token}, got {actual_token.type} ('{actual_token.value}')"
+    )
 
 
 def raise_unexpected_end_of_file(line_num: int) -> LanguageRuntimeException:

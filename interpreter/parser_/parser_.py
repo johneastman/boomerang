@@ -3,7 +3,7 @@ from interpreter.tokens.tokenizer import Token
 from interpreter.tokens.token_queue import TokenQueue
 from interpreter.parser_.ast_objects import *
 from interpreter.tokens.tokens import *
-from interpreter.utils.utils import language_error
+from interpreter.utils.utils import language_error, unexpected_token_error
 
 # Precedence names
 LOWEST = "LOWEST"  # default
@@ -112,58 +112,25 @@ class Parser:
     def parse_prefix(self) -> Expression:
 
         if self.current.type == IDENTIFIER and self.peek.type == ASSIGN:
-            return self.assign()
+            return self.parse_assign()
 
         if self.current.type in [MINUS, PLUS, BANG]:
-            op = self.current
-            self.advance()
-            expression = self.expression()
-            return UnaryExpression(op.line_num, op, expression)
+            return self.parse_unary_expression()
 
         elif self.current.type == OPEN_PAREN:
-            self.advance()
-
-            if self.current.type == CLOSED_PAREN:
-                self.advance()
-                return List(self.current.line_num, [])
-
-            expression = self.expression()
-
-            if self.current.type == CLOSED_PAREN:
-                self.advance()
-                return expression
-            elif self.current.type == COMMA:
-                self.advance()
-                return self.parse_list(expression)
-
-            self.is_expected_token(CLOSED_PAREN)
+            return self.parse_grouped_expression()
 
         elif self.current.type == NUMBER:
-            number_token = self.current
-            self.advance()
-            return Number(number_token.line_num, float(number_token.value))
+            return self.parse_number()
 
         elif self.current.type == STRING:
-            string_token = self.current
-            self.advance()
-            return String(string_token.line_num, string_token.value)
+            return self.parse_string()
 
         elif self.current.type == BOOLEAN:
-            boolean_token = self.current
-            self.advance()
-            return Boolean(
-                boolean_token.line_num,
-                boolean_token.value == get_token_literal("TRUE")
-            )
+            return self.parse_boolean()
 
         elif self.current.type == IDENTIFIER:
-            identifier_token = self.current
-            self.advance()
-
-            if identifier_token.value in BuiltinFunction.builtin_function_names:
-                return BuiltinFunction(identifier_token.line_num, identifier_token.value)
-
-            return Identifier(identifier_token.line_num, identifier_token.value)
+            return self.parse_identifier()
 
         elif self.current.type == FUNCTION:
             return self.parse_function()
@@ -176,7 +143,62 @@ class Parser:
         right = self.expression(self.infix_precedence.get(op.type, LOWEST))
         return BinaryExpression(op.line_num, left, op, right)
 
-    def assign(self) -> Expression:
+    def parse_number(self) -> Number:
+        number_token = self.current
+        self.advance()
+        return Number(number_token.line_num, float(number_token.value))
+
+    def parse_string(self) -> String:
+        string_token = self.current
+        self.advance()
+        return String(string_token.line_num, string_token.value)
+
+    def parse_boolean(self) -> Boolean:
+        boolean_token = self.current
+        self.advance()
+        return Boolean(
+            boolean_token.line_num,
+            boolean_token.value == get_token_literal("TRUE")
+        )
+
+    def parse_unary_expression(self) -> UnaryExpression:
+        op = self.current
+        self.advance()
+        expression = self.expression()
+        return UnaryExpression(op.line_num, op, expression)
+
+    def parse_grouped_expression(self) -> Expression:
+        self.advance()
+
+        # An open paren immediately followed by a closed paren is an empty list
+        if self.current.type == CLOSED_PAREN:
+            self.advance()
+            return List(self.current.line_num, [])
+
+        # If a token other than a closed paren comes after the open paren, parse the expression
+        expression = self.expression()
+
+        if self.current.type == CLOSED_PAREN:
+            self.advance()
+            return expression
+
+        # If the token after the expression is a comma, we're parsing a list
+        elif self.current.type == COMMA:
+            self.advance()
+            return self.parse_list(expression)
+
+        raise unexpected_token_error(self.current.line_num, CLOSED_PAREN, self.current)
+
+    def parse_identifier(self) -> Identifier | BuiltinFunction:
+        identifier_token = self.current
+        self.advance()
+
+        if identifier_token.value in BuiltinFunction.builtin_function_names:
+            return BuiltinFunction(identifier_token.line_num, identifier_token.value)
+
+        return Identifier(identifier_token.line_num, identifier_token.value)
+
+    def parse_assign(self) -> Expression:
         self.is_expected_token(IDENTIFIER)
         variable_name = self.current
 
@@ -190,29 +212,15 @@ class Parser:
 
         return Assignment(variable_name.line_num, variable_name.value, right)
 
-    def add_semicolon(self) -> None:
-        self.tokens.add("SEMICOLON")
-
-    def is_expected_token(self, expected_token_type: typing.Union[str, list[str]]) -> None:
-
-        # Multiple token types may be expected, so a list of tokens types can be passed. If just a string is passed,
-        # that string will be added to a list
-        expected_token_types = [expected_token_type] if isinstance(expected_token_type, str) else expected_token_type
-
-        if self.current.type not in expected_token_types:
-            raise language_error(
-                self.current.line_num,
-                f"Expected {expected_token_type}, got {self.current.type} ('{self.current.value}')")
-
     def parse_list(self, first_expression: Expression) -> List:
         line_num = self.current.line_num
         values = [first_expression]
 
-        if self.current.type == CLOSED_PAREN:
-            self.advance()
-            return List(line_num, values)
-
         while True:
+            if self.current.type == CLOSED_PAREN:
+                self.advance()
+                break
+
             expression = self.expression(LOWEST)
             values.append(expression)
 
@@ -264,3 +272,10 @@ class Parser:
         expression = self.expression(LOWEST)
 
         return Function(line_num, params, expression)
+
+    def add_semicolon(self) -> None:
+        self.tokens.add("SEMICOLON")
+
+    def is_expected_token(self, expected_token_type: str) -> None:
+        if self.current.type != expected_token_type:
+            raise unexpected_token_error(self.current.line_num, expected_token_type, self.current)

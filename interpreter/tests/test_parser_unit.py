@@ -6,7 +6,7 @@ from ..parser_.ast_objects import Assignment, Number, Function, Identifier
 
 def test_set_expression():
     p = testing_utils.parser("variable = 1;")
-    actual_assign_ast = p.assign()
+    actual_assign_ast = p.parse_assign()
 
     expected_assign_ast = Assignment(
         1,

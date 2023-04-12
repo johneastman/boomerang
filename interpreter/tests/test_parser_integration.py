@@ -6,6 +6,7 @@ from ..parser_ import parser_
 from . import testing_utils
 from ..parser_.ast_objects import BuiltinFunction, Boolean, Number, List, Identifier, BinaryExpression, UnaryExpression, \
     Function, FunctionCall
+from ..utils.utils import LanguageRuntimeException
 
 
 @pytest.mark.parametrize("source, expected_value", [
@@ -108,6 +109,17 @@ def test_builtin_functions(name, ast_object):
     parser = testing_utils.parser(f"{name};")
     actual_ast = parser.parse()
     assert actual_ast == [ast_object]
+
+
+@pytest.mark.parametrize("source, expected_error_message", [
+    ("2 + (3 + 1;", "Error at line 1: Expected CLOSED_PAREN, got SEMICOLON (';')")
+])
+def test_unexpected_token(source, expected_error_message):
+    parser = testing_utils.parser(source)
+    with pytest.raises(LanguageRuntimeException) as e:
+        parser.parse()
+    actual_error_mst = str(e.value)
+    assert actual_error_mst == expected_error_message
 
 
 @pytest.mark.parametrize("params_str, params_list, body_str, body_ast", [
