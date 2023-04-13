@@ -1,3 +1,5 @@
+import typing
+
 from interpreter.tokens.tokenizer import Token
 from interpreter.tokens.tokens import PLUS, MINUS, MULTIPLY, DIVIDE, get_token_literal, POINTER, EQ, NE, BANG, GT, GE, \
     LT, LE, AND, OR
@@ -8,11 +10,15 @@ class Expression:
     def __init__(self, line_num: int):
         self.line_num = line_num
 
+        # For displaying object representations
+        self.class_name = self.__class__.__name__
+
     def __str__(self) -> str:
         raise Exception(f"__str__ method in {type(self).__name__} not implemented.")
 
-    def __repr__(self) -> str:
-        return self.__str__()
+    def __repr__(self, **kwargs: typing.Any) -> str:
+        variables = {**{"line_num": self.line_num}, **kwargs}
+        return f"{self.class_name}({', '.join(list(map(lambda p: f'{p[0]}={p[1]}', variables.items())))})"
 
     def eq(self, _: object) -> "Expression":
         return Boolean(self.line_num, False)
@@ -63,14 +69,20 @@ class Number(Expression):
         self.value = value
 
     def __str__(self) -> str:
-        if self.is_whole_number():
-            return str(int(self.value))
-        return str(self.value)
+        return str(self.__display_value())
+
+    def __repr__(self, **kwargs: typing.Any) -> str:
+        return super().__repr__(value=self.__display_value())
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Number):
             return False
         return self.line_num == other.line_num and self.value == other.value
+
+    def __display_value(self) -> float:
+        if self.is_whole_number():
+            return int(self.value)
+        return self.value
 
     def eq(self, other: object) -> Expression:
         if isinstance(other, Number):
@@ -146,6 +158,9 @@ class String(Expression):
     def __str__(self) -> str:
         return f"\"{self.value}\""
 
+    def __repr__(self, **kwargs: typing.Any) -> str:
+        return super().__repr__(value=self.value)
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, String):
             return False
@@ -175,6 +190,9 @@ class Boolean(Expression):
 
     def __str__(self) -> str:
         return get_token_literal("TRUE") if self.value else get_token_literal("FALSE")
+
+    def __repr__(self, **kwargs: typing.Any) -> str:
+        return super().__repr__(value=self.value)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Boolean):
@@ -213,6 +231,9 @@ class List(Expression):
     def __str__(self) -> str:
         return f"({', '.join(map(str, self.values))})"
 
+    def __repr__(self, **kwargs: typing.Any) -> str:
+        return super().__repr__(values=self.values)
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, List):
             return False
@@ -247,6 +268,9 @@ class Identifier(Expression):
     def __str__(self) -> str:
         return self.value
 
+    def __repr__(self, **kwargs: typing.Any) -> str:
+        return super().__repr__(value=self.value)
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Identifier):
             return False
@@ -260,8 +284,10 @@ class Function(Expression):
         self.body = body
 
     def __str__(self) -> str:
-        class_name = self.__class__.__name__
-        return f"{class_name}(line_num={self.line_num}, parameters={self.parameters}, body={self.body})"
+        return self.__repr__()
+
+    def __repr__(self, **kwargs: typing.Any) -> str:
+        return super().__repr__(parameters=self.parameters, body=self.body)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Function):
@@ -281,8 +307,27 @@ class FunctionCall(Expression):
         self.call_params = call_params
 
     def __str__(self) -> str:
-        class_name = self.__class__.__name__
-        return f"{class_name}(line_num={self.line_num}, function={self.function}, call_params={self.call_params})"
+        return self.__repr__()
+
+    def __repr__(self, **kwargs: typing.Any) -> str:
+        return super().__repr__(function=self.function, call_params=self.call_params)
+
+
+class When(Expression):
+    def __init__(self, line_num: int, expressions: list[tuple[Expression, Expression]]):
+        super().__init__(line_num)
+        self.expressions = expressions
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, When):
+            return False
+        return self.line_num == other.line_num and self.expressions == other.expressions
+
+    def __str__(self) -> str:
+        return self.__repr__()
+
+    def __repr__(self, **kwargs: typing.Any) -> str:
+        return super().__repr__(expressions=self.expressions)
 
 
 class Output(Expression):
@@ -294,6 +339,9 @@ class Output(Expression):
 
     def __str__(self) -> str:
         return self.value
+
+    def __repr__(self, **kwargs: typing.Any) -> str:
+        return super().__repr__(value=self.value)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Output):
@@ -315,6 +363,9 @@ class BuiltinFunction(Expression):
 
     def __str__(self) -> str:
         return f"<built-in function {self.name}>"
+
+    def __repr__(self, **kwargs: typing.Any) -> str:
+        return super().__repr__(name=self.name)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, BuiltinFunction):
@@ -342,8 +393,10 @@ class UnaryExpression(Expression):
         self.expression = expression
 
     def __str__(self) -> str:
-        class_name = self.__class__.__name__
-        return f"{class_name}(line_num={self.line_num} operator={self.operator} expression={self.expression})"
+        return self.__repr__()
+
+    def __repr__(self, **kwargs: typing.Any) -> str:
+        return super().__repr__(operator=self.operator, expression=self.expression)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, UnaryExpression):
@@ -359,8 +412,10 @@ class BinaryExpression(Expression):
         self.right = right
 
     def __str__(self) -> str:
-        class_name = self.__class__.__name__
-        return f"{class_name}(left={self.left}, operator={self.operator} right={self.right})"
+        return self.__repr__()
+
+    def __repr__(self, **kwargs: typing.Any) -> str:
+        return super().__repr__(left=self.left, operator=self.operator, right=self.right)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, BinaryExpression):
@@ -373,6 +428,12 @@ class Assignment(Expression):
         super().__init__(line_num)
         self.variable = variable
         self.value = value
+
+    def __str__(self) -> str:
+        return self.__repr__()
+
+    def __repr__(self, **kwargs: typing.Any) -> str:
+        return super().__repr__(variable=self.variable, value=self.value)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Assignment):
@@ -388,6 +449,9 @@ class Error(Expression):
     def __str__(self) -> str:
         return self.message
 
+    def __repr__(self, **kwargs: typing.Any) -> str:
+        return super().__repr__(message=self.message)
+
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Error):
             return False
@@ -400,7 +464,10 @@ class Factorial(Expression):
         self.expression = expression
 
     def __str__(self) -> str:
-        return f"{self.expression}{get_token_literal(BANG)}"
+        return self.__repr__()
+
+    def __repr__(self, **kwargs: typing.Any) -> str:
+        return super().__repr__(expression=self.expression)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Factorial):

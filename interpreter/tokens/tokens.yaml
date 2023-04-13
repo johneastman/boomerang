@@ -9,6 +9,15 @@ tokens:
     - literal: 'func'
       name: FUNCTION
       type: FUNCTION
+    - literal: 'when'
+      name: WHEN
+      type: WHEN
+    - literal: 'is'
+      name: IS
+      type: IS
+    - literal: 'else'
+      name: ELSE
+      type: ELSE
   symbols:
     - literal: '.'
       name: PERIOD

@@ -2,10 +2,11 @@ import pytest
 
 from interpreter.tokens.tokens import *
 from interpreter.tokens.tokenizer import Token
+from .testing_utils import create_when
 from ..parser_ import parser_
 from . import testing_utils
-from ..parser_.ast_objects import BuiltinFunction, Boolean, Number, List, Identifier, BinaryExpression, UnaryExpression, \
-    Function, FunctionCall, Factorial
+from ..parser_.ast_objects import BuiltinFunction, Boolean, Number, List, Identifier, BinaryExpression, \
+    UnaryExpression, Function, Factorial, When, String
 from ..utils.utils import LanguageRuntimeException
 
 
@@ -172,4 +173,33 @@ def test_function_calls():
             List(1, [])
         )
     ]
+    assert actual_ast == expected_ast
+
+
+@pytest.mark.parametrize("when_expressions", [
+    ([
+        ("1 == 1: true", BinaryExpression(2, Number(2, 1), Token("==", EQ, 2), Number(2, 1)), Boolean(2, True)),
+        ("else: false", Boolean(3, True), Boolean(3, False))
+    ]),
+    ([
+        ("a == 1: \"1\"", BinaryExpression(2, Identifier(2, "a"), Token("==", EQ, 2), Number(2, 1)), String(2, "1")),
+        ("a == 2: \"2\"", BinaryExpression(3, Identifier(3, "a"), Token("==", EQ, 3), Number(3, 2)), String(3, "2")),
+        ("else: false", Boolean(4, True), Boolean(4, False))
+    ]),
+    ([
+        ("a == 1: \"1\"", BinaryExpression(2, Identifier(2, "a"), Token("==", EQ, 2), Number(2, 1)), String(2, "1")),
+        ("a == 2: \"2\"", BinaryExpression(3, Identifier(3, "a"), Token("==", EQ, 3), Number(3, 2)), String(3, "2")),
+        ("a == 3: \"3\"", BinaryExpression(4, Identifier(4, "a"), Token("==", EQ, 4), Number(4, 3)), String(4, "3")),
+        ("else: false", Boolean(5, True), Boolean(5, False))
+    ]),
+])
+def test_when(when_expressions):
+    source, expected_when_ast = create_when(1, when_expressions)
+    source = f"{source};"
+
+    p = testing_utils.parser(source)
+    actual_ast = p.parse()
+
+    expected_ast = [expected_when_ast]
+
     assert actual_ast == expected_ast

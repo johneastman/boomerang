@@ -39,7 +39,10 @@ def test_symbols(symbol, type_):
 @pytest.mark.parametrize("keyword, type_", [
     ("true", BOOLEAN),
     ("false", BOOLEAN),
-    ("func", FUNCTION)
+    ("func", FUNCTION),
+    ("when", WHEN),
+    ("is", IS),
+    ("else", ELSE)
 ])
 def test_keywords(keyword, type_):
     """Test symbols

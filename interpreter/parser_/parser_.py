@@ -135,6 +135,9 @@ class Parser:
         elif self.current.type == FUNCTION:
             return self.parse_function()
 
+        elif self.current.type == WHEN:
+            return self.parse_when()
+
         raise language_error(self.current.line_num, f"Invalid token: {self.current.type} ({self.current.value})")
 
     def parse_infix(self, left: Expression) -> Expression:
@@ -278,6 +281,43 @@ class Parser:
         expression = self.expression(LOWEST)
 
         return Function(line_num, params, expression)
+
+    def parse_when(self) -> When:
+        line_num = self.current.line_num
+
+        self.advance()  # skip over "when" token
+
+        self.is_expected_token(COLON)
+        self.advance()
+
+        expressions: list[tuple[Expression, Expression]] = []
+
+        # Comparison expression
+        while True:
+            comparison_expression = self.expression(LOWEST)
+
+            self.is_expected_token(COLON)
+            self.advance()
+
+            return_expression = self.expression(LOWEST)
+
+            expressions.append((comparison_expression, return_expression))
+
+            if self.current.type == ELSE:
+                break
+
+        self.is_expected_token(ELSE)
+        else_line_num = self.current.line_num
+        self.advance()
+
+        self.is_expected_token(COLON)
+        self.advance()
+
+        # Else expression
+        else_return_expression = self.expression(LOWEST)
+        expressions.append((Boolean(else_line_num, True), else_return_expression))
+
+        return When(line_num, expressions)
 
     def add_semicolon(self) -> None:
         self.tokens.add("SEMICOLON")

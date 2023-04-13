@@ -84,6 +84,9 @@ OR: str = get_token_type("OR")
 TRUE: str = get_token_type("TRUE")
 FALSE: str = get_token_type("FALSE")
 FUNCTION: str = get_token_type("FUNCTION")
+WHEN: str = get_token_type("WHEN")
+IS: str = get_token_type("IS")
+ELSE: str = get_token_type("ELSE")
 
 # Misc
 EOF: str = get_token_type("EOF")  # End of File

@@ -1,7 +1,7 @@
 import typing
 
 from interpreter.parser_.ast_objects import Expression, BinaryExpression, UnaryExpression, Identifier, Number, String, \
-    Assignment, Error, Boolean, List, BuiltinFunction, Function, FunctionCall, Factorial
+    Assignment, Error, Boolean, List, BuiltinFunction, Function, FunctionCall, Factorial, When
 from interpreter.tokens.tokens import *
 from interpreter.evaluator.environment_ import Environment
 from interpreter.utils.utils import language_error, LanguageRuntimeException
@@ -49,11 +49,19 @@ class Evaluator:
         elif isinstance(expression, Assignment):
             return self.evaluate_assign_variable(expression)
 
+        elif isinstance(expression, When):
+            return self.evaluate_when(expression)
+
         elif isinstance(expression, Identifier):
             return self.evaluate_identifier(expression)
 
         elif isinstance(expression, Factorial):
             return self.evaluate_factorial(expression)
+
+        elif isinstance(expression, List):
+            for i in range(len(expression.values)):
+                expression.values[i] = self.evaluate_expression(expression.values[i])
+            return expression
 
         # Base Types
         elif isinstance(expression, Number):
@@ -72,11 +80,6 @@ class Evaluator:
             return expression
 
         elif isinstance(expression, Function):
-            return expression
-
-        elif isinstance(expression, List):
-            for i in range(len(expression.values)):
-                expression.values[i] = self.evaluate_expression(expression.values[i])
             return expression
 
         # This is a program-specific error because a missing object type would come about during development, not
@@ -212,3 +215,18 @@ class Evaluator:
 
         return_value.line_num = line_num
         return return_value
+
+    def evaluate_when(self, when: When) -> Expression:
+        for condition, return_expr in when.expressions:
+            evaluated_condition = self.evaluate_expression(condition)
+            if not isinstance(evaluated_condition, Boolean):
+                raise language_error(when.line_num, "must be boolean expression")
+
+            if evaluated_condition.value:
+                result = self.evaluate_expression(return_expr)
+                result.line_num = when.line_num
+                return result
+
+        # When expressions should always return something because of the "else" clause. If nothing
+        # is returned, there is a bug in the code.
+        raise Exception(f"Error at line {when.line_num}: When statement did not return")
