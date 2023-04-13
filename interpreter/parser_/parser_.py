@@ -250,39 +250,27 @@ class Parser:
         line_num: int = self.current.line_num
         self.advance()  # skip function keyword
 
-        self.is_expected_token(OPEN_PAREN)
-        self.advance()
-
+        # Parse function parameters
         params = []
-        while True:
-            if self.current.type == CLOSED_PAREN:
-                self.advance()
-                break
+        while self.current.type != COLON:
+            self.is_expected_token(IDENTIFIER)
 
-            expression = self.expression(LOWEST)
+            params.append(Identifier(self.current.line_num, self.current.value))
+            self.advance()
 
-            if not isinstance(expression, Identifier):
-                raise language_error(
-                    expression.line_num,
-                    f"Unsupported type {type(expression)} for function definition parameter. Expected Identifier."
-                )
-
-            params.append(expression)
-
-            if self.current.type == CLOSED_PAREN:
-                self.advance()
+            if self.current.type == COLON:
                 break
 
             self.is_expected_token(COMMA)
-
             self.advance()
 
         self.is_expected_token(COLON)
         self.advance()
 
-        expression = self.expression(LOWEST)
+        # Function body
+        body = self.expression(LOWEST)
 
-        return Function(line_num, params, expression)
+        return Function(line_num, params, body)
 
     def parse_when(self) -> When:
         line_num = self.current.line_num

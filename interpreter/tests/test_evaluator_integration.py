@@ -159,7 +159,7 @@ def test_print(source, output_str):
 
 def test_functions():
     src = """
-    add = func(a, b): a + b;
+    add = func a, b: a + b;
     add <- (1, 2);
     """
 

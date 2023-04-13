@@ -137,14 +137,15 @@ def test_unexpected_token(source, expected_error_message):
 
 @pytest.mark.parametrize("params_str, params_list, body_str, body_ast", [
     (
-        "()", [],
+        # No parameters
+        "", [],
         "0", Number(1, 0)
     ),
     (
-        "(a,)", [Identifier(1, "a")],
+        "a", [Identifier(1, "a")],
         "a", Identifier(1, "a")
     ),
-    ("(a, b)", [Identifier(1, "a"), Identifier(1, "b")],
+    ("a, b", [Identifier(1, "a"), Identifier(1, "b")],
      "a + b", BinaryExpression(
             1,
             Identifier(1, "a"),
@@ -163,7 +164,7 @@ def test_functions(params_str, params_list, body_str, body_ast):
 
 
 def test_function_calls():
-    parser = testing_utils.parser(f"(func (): 0) <- ();")
+    parser = testing_utils.parser(f"(func: 0) <- ();")
     actual_ast = parser.parse()
     expected_ast = [
         BinaryExpression(
