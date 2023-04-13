@@ -46,15 +46,14 @@ class Tokenizer:
         if self.is_end_of_stream:
             raise StopIteration
 
-        if self.current is None:
-            self.is_end_of_stream = True
-
         return self.next_token()
 
     def next_token(self) -> Token:
         self.skip_whitespace()
+        self.skip_comments()
 
         if self.current is None:
+            self.is_end_of_stream = True
             return Token("", EOF, self.line_num)
 
         elif self.is_digit():
@@ -114,8 +113,18 @@ class Tokenizer:
         while self.current is not None and self.current.isspace():
             if self.current == "\n":
                 self.line_num += 1
-
             self.advance()
+
+    def skip_comments(self) -> None:
+        if self.current == get_token_literal("COMMENT"):
+            # If a hash symbol is found, skip until the end of the line
+            while self.current is not None and self.current != "\n":
+                self.advance()
+            self.advance()  # skip end-line char
+
+            self.line_num += 1
+
+        self.skip_whitespace()  # for any whitespace that may be after the comments
 
     def is_string(self) -> bool:
         return self.current is not None and self.current == get_token_literal("DOUBLE_QUOTE")

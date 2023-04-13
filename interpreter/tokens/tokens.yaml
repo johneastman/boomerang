@@ -85,6 +85,9 @@ tokens:
     - literal: '|'
       name: OR
       type: OR
+    - literal: '#'
+      name: COMMENT
+      type: COMMENT
   data_types:
     - literal: ''
       name: EOF

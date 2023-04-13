@@ -79,6 +79,7 @@ LE: str = get_token_type("LE")  # Less Than or Equal
 BANG: str = get_token_type("BANG")
 AND: str = get_token_type("AND")
 OR: str = get_token_type("OR")
+COMMENT: str = get_token_type("COMMENT")
 
 # Keywords
 TRUE: str = get_token_type("TRUE")

@@ -109,5 +109,20 @@ def test_tokenizer(source, expected_tokens):
     assert actual_tokens == expected_tokens
 
 
+def test_skip_comments():
+    source = """
+    # this is a comment
+    a = 1;
+    """
+    actual_tokens = get_tokens(source)
+    assert actual_tokens == [
+        Token("a", IDENTIFIER, 3),
+        Token("=", ASSIGN, 3),
+        Token("1", NUMBER, 3),
+        Token(";", SEMICOLON, 3),
+        Token("", EOF, 4)
+    ]
+
+
 def get_tokens(source: str) -> list[Token]:
     return [t for t in Tokenizer(source)]
