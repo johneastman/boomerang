@@ -1,4 +1,6 @@
 import typing
+from copy import copy
+
 from interpreter.tokens.tokenizer import Token
 from interpreter.tokens.token_queue import TokenQueue
 from interpreter.parser_.ast_objects import *
@@ -290,6 +292,8 @@ class Parser:
         self.is_expected_token(COLON)
         self.advance()
 
+        switch_expression = Boolean(line_num, True)
+
         expressions: list[tuple[Expression, Expression]] = []
 
         # Comparison expression
@@ -315,9 +319,14 @@ class Parser:
 
         # Else expression
         else_return_expression = self.expression(LOWEST)
-        expressions.append((Boolean(else_line_num, True), else_return_expression))
 
-        return When(line_num, expressions)
+        # Make a copy so the line numbers are different between the "when" and "else"
+        else_expression = copy(switch_expression)
+        else_expression.line_num = else_line_num
+
+        expressions.append((else_expression, else_return_expression))
+
+        return When(line_num, switch_expression, expressions)
 
     def add_semicolon(self) -> None:
         self.tokens.add("SEMICOLON")

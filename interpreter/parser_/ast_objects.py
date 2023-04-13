@@ -18,7 +18,7 @@ class Expression:
 
     def __repr__(self, **kwargs: typing.Any) -> str:
         variables = {**{"line_num": self.line_num}, **kwargs}
-        return f"{self.class_name}({', '.join(list(map(lambda p: f'{p[0]}={p[1]}', variables.items())))})"
+        return f"{self.class_name}({', '.join(list(map(lambda p: f'{p[0]}={repr(p[1])}', variables.items())))})"
 
     def eq(self, _: object) -> "Expression":
         return Boolean(self.line_num, False)
@@ -314,20 +314,21 @@ class FunctionCall(Expression):
 
 
 class When(Expression):
-    def __init__(self, line_num: int, expressions: list[tuple[Expression, Expression]]):
+    def __init__(self, line_num: int, expression: Expression, case_expressions: list[tuple[Expression, Expression]]):
         super().__init__(line_num)
-        self.expressions = expressions
+        self.expression = expression
+        self.case_expressions = case_expressions
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, When):
             return False
-        return self.line_num == other.line_num and self.expressions == other.expressions
+        return self.line_num == other.line_num and self.expression == other.expression and self.case_expressions == other.case_expressions
 
     def __str__(self) -> str:
         return self.__repr__()
 
     def __repr__(self, **kwargs: typing.Any) -> str:
-        return super().__repr__(expressions=self.expressions)
+        return super().__repr__(expression=self.expression, case_expressions=self.case_expressions)
 
 
 class Output(Expression):

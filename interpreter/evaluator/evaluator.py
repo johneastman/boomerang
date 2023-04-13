@@ -217,12 +217,17 @@ class Evaluator:
         return return_value
 
     def evaluate_when(self, when: When) -> Expression:
-        for condition, return_expr in when.expressions:
+
+        switch_expression = self.evaluate_expression(when.expression)
+
+        for condition, return_expr in when.case_expressions:
             evaluated_condition = self.evaluate_expression(condition)
-            if not isinstance(evaluated_condition, Boolean):
+
+            is_equal = evaluated_condition.eq(switch_expression)
+            if not isinstance(is_equal, Boolean):
                 raise language_error(when.line_num, "must be boolean expression")
 
-            if evaluated_condition.value:
+            if is_equal.value:
                 result = self.evaluate_expression(return_expr)
                 result.line_num = when.line_num
                 return result
