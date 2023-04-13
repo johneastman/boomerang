@@ -181,7 +181,7 @@ def test_functions():
     assert results == expected_results
 
 
-def test_when():
+def test_when_if_implementation():
     src = """
     a = 1;
     when:
@@ -217,6 +217,60 @@ def test_when():
         a == 2: "2"
         a == 3: "3"
         a == 4: "4"
+        else: "0";
+    """
+    results = actual_result(src)
+    expected_results = [
+        o.Number(2, 1),
+        o.String(3, "1"),
+        o.Number(9, 2),
+        o.String(10, "2"),
+        o.Number(16, 3),
+        o.String(17, "3"),
+        o.Number(23, 4),
+        o.String(24, "4"),
+        o.Number(30, 5),
+        o.String(31, "0"),
+    ]
+    assert results == expected_results
+
+
+def test_when_switch_implementation():
+    src = """
+    a = 1;
+    when a:
+        is 1: "1"
+        is 2: "2"
+        is 3: "3"
+        is 4: "4"
+        else: "0";
+    a = 2;
+    when a:
+        is 1: "1"
+        is 2: "2"
+        is 3: "3"
+        is 4: "4"
+        else: "0";
+    a = 3;
+    when a:
+        is 1: "1"
+        is 2: "2"
+        is 3: "3"
+        is 4: "4"
+        else: "0";
+    a = 4;
+    when a:
+        is 1: "1"
+        is 2: "2"
+        is 3: "3"
+        is 4: "4"
+        else: "0";
+    a = 5;
+    when a:
+        is 1: "1"
+        is 2: "2"
+        is 3: "3"
+        is 4: "4"
         else: "0";
     """
     results = actual_result(src)

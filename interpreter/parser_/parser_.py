@@ -289,15 +289,30 @@ class Parser:
 
         self.advance()  # skip over "when" token
 
+        # If the token after "when" is a colon, assume the if-else implementation is being used.
+        # Otherwise, assume the switch implementation is being used.
+        if self.current.type != COLON:
+            # Switch
+            is_switch = True
+            switch_expression = self.expression(LOWEST)
+        else:
+            # if-else
+            switch_expression = Boolean(line_num, True)
+            is_switch = False
+
         self.is_expected_token(COLON)
         self.advance()
-
-        switch_expression = Boolean(line_num, True)
 
         expressions: list[tuple[Expression, Expression]] = []
 
         # Comparison expression
         while True:
+
+            if is_switch:
+                # For the switch statement, cases start with the "is" token
+                self.is_expected_token(IS)
+                self.advance()
+
             comparison_expression = self.expression(LOWEST)
 
             self.is_expected_token(COLON)

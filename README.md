@@ -151,3 +151,30 @@ Use the Send (`<-`) operator to call functions:
 add <- (1, 2);
 negative <- (1,);
 ```
+
+### When Expressions
+When expressions are a hybrid of `if-else` and `switch` statements in other languages. Unlike many other languages, though, `when` expressions are expressions and return a value.
+
+Below is an example of the `if-else` implementation:
+```
+a = 5;
+when:
+   a == 1: "1"
+   a == 2: "2"
+   a == 3: "3"
+   a == 4: "4"
+   else: "0";
+```
+
+For the `switch` implementation, an expression comes after `when` and each case starts with the `is` keyword.
+```
+a = 3;
+when a:
+   is 1: "1"
+   is 2: "2"
+   is 3: "3"
+   is 4: "4"
+   else: "0";
+```
+
+Note the `else` at the end of both. This handles the default case (when none of the above cases match or return true) and is required.

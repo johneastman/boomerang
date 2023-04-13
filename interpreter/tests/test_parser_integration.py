@@ -181,16 +181,31 @@ def test_function_calls():
         ("1 == 1: true", BinaryExpression(2, Number(2, 1), Token("==", EQ, 2), Number(2, 1)), Boolean(2, True)),
         ("else: false", Boolean(3, True), Boolean(3, False))
     ]),
+    (Identifier(1, "a"), [
+        ("is 1: true", Number(2, 1), Boolean(2, True)),
+        ("else: false", Identifier(3, "a"), Boolean(3, False))
+    ]),
     (Boolean(1, True), [
         ("a == 1: \"1\"", BinaryExpression(2, Identifier(2, "a"), Token("==", EQ, 2), Number(2, 1)), String(2, "1")),
         ("a == 2: \"2\"", BinaryExpression(3, Identifier(3, "a"), Token("==", EQ, 3), Number(3, 2)), String(3, "2")),
         ("else: false", Boolean(4, True), Boolean(4, False))
+    ]),
+    (Identifier(1, "a"), [
+        ("is 1: \"1\"", Number(2, 1), String(2, "1")),
+        ("is 2: \"2\"", Number(3, 2), String(3, "2")),
+        ("else: false", Identifier(4, "a"), Boolean(4, False))
     ]),
     (Boolean(1, True), [
         ("a == 1: \"1\"", BinaryExpression(2, Identifier(2, "a"), Token("==", EQ, 2), Number(2, 1)), String(2, "1")),
         ("a == 2: \"2\"", BinaryExpression(3, Identifier(3, "a"), Token("==", EQ, 3), Number(3, 2)), String(3, "2")),
         ("a == 3: \"3\"", BinaryExpression(4, Identifier(4, "a"), Token("==", EQ, 4), Number(4, 3)), String(4, "3")),
         ("else: false", Boolean(5, True), Boolean(5, False))
+    ]),
+    (Identifier(1, "a"), [
+        ("is 1: \"1\"", Number(2, 1), String(2, "1")),
+        ("is 2: \"2\"", Number(3, 2), String(3, "2")),
+        ("is 3: \"3\"", Number(4, 3), String(4, "3")),
+        ("else: false", Identifier(5, "a"), Boolean(5, False))
     ]),
 ])
 def test_when(switch_expression, case_expressions):

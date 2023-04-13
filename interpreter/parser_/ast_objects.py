@@ -45,19 +45,24 @@ class Expression:
         raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {LE}")
 
     def add(self, other: object) -> "Expression":
-        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {PLUS}")
+        raise language_error(self.line_num,
+                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {PLUS}")
 
     def sub(self, other: object) -> "Expression":
-        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {MINUS}")
+        raise language_error(self.line_num,
+                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {MINUS}")
 
     def mul(self, other: object) -> "Expression":
-        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {MULTIPLY}")
+        raise language_error(self.line_num,
+                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {MULTIPLY}")
 
     def div(self, other: object) -> "Expression":
-        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {DIVIDE}")
+        raise language_error(self.line_num,
+                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {DIVIDE}")
 
     def pointer(self, other: object) -> "Expression":
-        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {POINTER}")
+        raise language_error(self.line_num,
+                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {POINTER}")
 
     def bang(self) -> "Expression":
         raise language_error(self.line_num, f"Invalid type {type(self).__name__} for {BANG}")
@@ -322,7 +327,8 @@ class When(Expression):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, When):
             return False
-        return self.line_num == other.line_num and self.expression == other.expression and self.case_expressions == other.case_expressions
+        return self.line_num == other.line_num and self.expression == other.expression and \
+            self.case_expressions == other.case_expressions
 
     def __str__(self) -> str:
         return self.__repr__()
@@ -334,6 +340,7 @@ class When(Expression):
 class Output(Expression):
     """Stores representation of what is printed to the console.
     """
+
     def __init__(self, line_num: int, value: str):
         super().__init__(line_num)
         self.value = value
@@ -351,7 +358,6 @@ class Output(Expression):
 
 
 class BuiltinFunction(Expression):
-
     print_ = "print"
 
     builtin_function_names = [
