@@ -102,7 +102,17 @@ def test_binary_expressions(source, expected_results):
 
 
 @pytest.mark.parametrize("source, expected_results", [
+    # Factorial
+    ("(-4)!", [o.Number(1, 120)]),
+    ("(-3)!", [o.Number(1, 24)]),
+    ("(-2)!", [o.Number(1, 6)]),
+    ("(-1)!", [o.Number(1, 2)]),
+    ("0!", [o.Number(1, 1)]),
+    ("1!", [o.Number(1, 1)]),
+    ("2!", [o.Number(1, 2)]),
     ("3!", [o.Number(1, 6)]),
+    ("4!", [o.Number(1, 24)]),
+    ("5!", [o.Number(1, 120)]),
     ("6!", [o.Number(1, 720)]),
     ("3!!", [o.Number(1, 720)])
 ])

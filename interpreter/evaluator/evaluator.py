@@ -90,9 +90,22 @@ class Evaluator:
         result = self.evaluate_expression(factorial.expression)
         if isinstance(result, Number):
             if result.is_whole_number():
+                base_number = int(result.value)
+
+                if base_number == 0 or base_number == 1:
+                    return Number(result.line_num, 1)
+
+                if base_number < 0:
+                    # For negative numbers, factorial is offset by 1 from its positive counterparts.
+                    # For example, -1! == 2!, -2! == 3!, -3! = 4!, etc.
+                    start_number = abs(base_number) + 1
+                else:
+                    start_number = base_number
+
+                # No need to start at 1 because 1 multiplied by anything is itself
                 return Number(
                     result.line_num,
-                    reduce(lambda a, b: a * b, [i for i in range(1, int(result.value) + 1)])
+                    reduce(lambda a, b: a * b, [i for i in range(2, start_number + 1)])
                 )
             raise language_error(result.line_num, "number must be whole number")
         raise language_error(result.line_num, f"invalid type for factorial: {type(result).__name__}")
