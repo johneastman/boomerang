@@ -2,10 +2,11 @@ import pytest
 
 from . import testing_utils
 from .testing_utils import create_when
-from ..parser_.ast_objects import Assignment, Number, Function, Identifier, Factorial, BinaryExpression, When, Boolean, \
-    String, Expression
+from ..parser_.ast_objects import Assignment, Number, Function, Identifier, BinaryExpression, Boolean, \
+    String, Expression, PostfixExpression
 from ..tokens.tokenizer import Token
-from ..tokens.tokens import PLUS, EQ
+from ..tokens.tokens import PLUS, EQ, BANG, INC, DEC
+from ..utils.utils import LanguageRuntimeException
 
 
 def test_set_expression():
@@ -51,13 +52,24 @@ def test_parse_function(params_str, params_list):
 
 
 @pytest.mark.parametrize("source, expected_result", [
-    ("!", Factorial(1, Number(1, 3))),
+    ("!", PostfixExpression(1, Token("!", BANG, 1), Number(1, 3))),
     ("+1", BinaryExpression(1, Number(1, 3), Token("+", PLUS, 1), Number(1, 1)))
 ])
 def test_parse_infix(source, expected_result):
     p = testing_utils.parser(source)
     infix_object = p.parse_infix(Number(1, 3))
     assert infix_object == expected_result
+
+
+@pytest.mark.parametrize("source, token", [
+    ("--", Token("--", DEC, 1)),
+    ("++", Token("++", INC, 1))
+])
+def test_parse_prefix(source, token):
+    p = testing_utils.parser(source)
+    with pytest.raises(LanguageRuntimeException) as e:
+        p.parse_prefix()
+    assert str(e.value) == f"Error at line 1: invalid prefix operator: {token.type} ({token.value})"
 
 
 @pytest.mark.parametrize("switch_expression, case_expressions", [

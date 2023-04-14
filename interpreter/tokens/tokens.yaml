@@ -70,6 +70,12 @@ tokens:
     - literal: '<='
       name: LE
       type: LE
+    - literal: '--'
+      name: DEC
+      type: DEC
+    - literal: '++'
+      name: INC
+      type: INC
     - literal: '>'
       name: GT
       type: GT

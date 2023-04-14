@@ -23,7 +23,9 @@ from interpreter.tokens.tokenizer import Tokenizer, Token
     ("!", BANG),
     ("&", AND),
     ("|", OR),
-    (":", COLON)
+    (":", COLON),
+    ("--", DEC),
+    ("++", INC)
 ])
 def test_symbols(symbol, type_):
     """Test symbols

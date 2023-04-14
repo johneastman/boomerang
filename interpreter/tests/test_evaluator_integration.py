@@ -114,7 +114,27 @@ def test_binary_expressions(source, expected_results):
     ("4!", [o.Number(1, 24)]),
     ("5!", [o.Number(1, 120)]),
     ("6!", [o.Number(1, 720)]),
-    ("3!!", [o.Number(1, 720)])
+    ("3!!", [o.Number(1, 720)]),
+
+    # Decrement
+    ("(-1)--", [o.Number(1, -2)]),
+    ("0--", [o.Number(1, -1)]),
+    ("1--", [o.Number(1, 0)]),
+    ("2--", [o.Number(1, 1)]),
+    ("3--", [o.Number(1, 2)]),
+    ("3----", [o.Number(1, 1)]),
+
+    # Increment
+    ("(-1)++", [o.Number(1, 0)]),
+    ("0++", [o.Number(1, 1)]),
+    ("1++", [o.Number(1, 2)]),
+    ("2++", [o.Number(1, 3)]),
+    ("3++", [o.Number(1, 4)]),
+    ("3++++", [o.Number(1, 5)]),
+
+    # Combination Increment and Decrement
+    ("16--++", [o.Number(1, 16)]),
+    ("13++--", [o.Number(1, 13)]),
 ])
 def test_suffix_operators(source, expected_results):
     actual_results = actual_result(f"{source};")
@@ -131,7 +151,7 @@ def test_suffix_operators(source, expected_results):
     ("+-1", [
         o.Number(1, 1)
     ]),
-    ("--6", [
+    ("-(-6)", [
         o.Number(1, 6)
     ]),
     ("-5.258", [

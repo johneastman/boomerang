@@ -110,6 +110,8 @@ Operators that appear after an expression
 |Operator Name|Literal|
 |---|---|
 |Factorial|!|
+|Increment by 1|--|
+|Decrement by 1|++|
 
 ## Expressions
 

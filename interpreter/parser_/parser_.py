@@ -42,6 +42,8 @@ class Parser:
             PLUS: SUM,
             MINUS: SUM,
             BANG: SUM,
+            DEC: SUM,
+            INC: SUM,
             OR: SUM,
             AND: SUM,
             MULTIPLY: PRODUCT,
@@ -140,15 +142,15 @@ class Parser:
         elif self.current.type == WHEN:
             return self.parse_when()
 
-        raise language_error(self.current.line_num, f"Invalid token: {self.current.type} ({self.current.value})")
+        raise language_error(self.current.line_num, f"invalid prefix operator: {self.current.type} ({self.current.value})")
 
     def parse_infix(self, left: Expression) -> Expression:
         op = self.current
         self.advance()
 
         # Suffix operators go here
-        if op.type == BANG:
-            return Factorial(op.line_num, left)
+        if op.type in [BANG, DEC, INC]:
+            return PostfixExpression(op.line_num, op, left)
 
         right = self.expression(self.infix_precedence.get(op.type, LOWEST))
         return BinaryExpression(op.line_num, left, op, right)

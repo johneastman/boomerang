@@ -68,6 +68,8 @@ CLOSED_PAREN: str = get_token_type("CLOSED_PAREN")
 PERIOD: str = get_token_type("PERIOD")
 COMMA: str = get_token_type("COMMA")
 POINTER: str = get_token_type("POINTER")
+DEC: str = get_token_type("DEC")
+INC: str = get_token_type("INC")
 
 # Comparison/Boolean Operators
 EQ: str = get_token_type("EQ")  # Equal

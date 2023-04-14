@@ -1,4 +1,5 @@
 import typing
+from functools import reduce
 
 from interpreter.tokens.tokenizer import Token
 from interpreter.tokens.tokens import PLUS, MINUS, MULTIPLY, DIVIDE, get_token_literal, POINTER, EQ, NE, BANG, GT, GE, \
@@ -31,6 +32,15 @@ class Expression:
 
     def neg(self) -> "Expression":
         raise language_error(self.line_num, f"Invalid type {type(self).__name__} for negation")
+
+    def fac(self) -> "Expression":
+        raise language_error(self.line_num, f"Invalid type {type(self).__name__} for factorial")
+
+    def inc(self) -> "Expression":
+        raise language_error(self.line_num, f"Invalid type {type(self).__name__} for increment")
+
+    def dec(self) -> "Expression":
+        raise language_error(self.line_num, f"Invalid type {type(self).__name__} for decrement")
 
     def and_(self, other: object) -> "Expression":
         raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {AND}")
@@ -111,6 +121,34 @@ class Number(Expression):
     def neg(self) -> "Expression":
         return Number(self.line_num, -self.value)
 
+    def fac(self) -> "Expression":
+        if not self.is_whole_number():
+            raise language_error(self.line_num, "expression for factorial must be whole number")
+
+        base_number = int(self.value)
+
+        if base_number == 0 or base_number == 1:
+            return Number(self.line_num, 1)
+
+        if base_number < 0:
+            # For negative numbers, factorial is offset by 1 from its positive counterparts.
+            # For example, -1! == 2!, -2! == 3!, -3! = 4!, etc.
+            start_number = abs(base_number) + 1
+        else:
+            start_number = base_number
+
+        # No need to start at 1 because 1 multiplied by anything is itself
+        return Number(
+            self.line_num,
+            reduce(lambda a, b: a * b, [i for i in range(2, start_number + 1)])
+        )
+
+    def inc(self) -> "Expression":
+        return Number(self.line_num, self.value + 1)
+
+    def dec(self) -> "Expression":
+        return Number(self.line_num, self.value - 1)
+
     def gt(self, other: object) -> "Expression":
         if isinstance(other, Number):
             return Boolean(self.line_num, self.value > other.value)
@@ -188,7 +226,7 @@ class String(Expression):
             return Boolean(self.line_num, self.value == other.value)
         return super().eq(other)
 
-    def ne(self, other: object) -> "Expression":
+    def ne(self, other: object) -> Expression:
         if isinstance(other, String):
             return Boolean(self.line_num, self.value != other.value)
         return super().ne(other)
@@ -442,6 +480,24 @@ class BinaryExpression(Expression):
         return self.line_num == other.line_num and self.left == other.left and self.operator == other.operator and self.right == other.right
 
 
+class PostfixExpression(Expression):
+    def __init__(self, line_num: int, operator: Token, expression: Expression):
+        super().__init__(line_num)
+        self.operator = operator
+        self.expression = expression
+
+    def __str__(self) -> str:
+        return self.__repr__()
+
+    def __repr__(self, **kwargs: typing.Any) -> str:
+        return super().__repr__(operator=self.operator, expression=self.expression)
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, PostfixExpression):
+            return False
+        return self.line_num == other.line_num and self.operator == other.operator and self.expression == other.expression
+
+
 class Assignment(Expression):
     def __init__(self, line_num: int, variable: str, value: Expression):
         super().__init__(line_num)
@@ -477,18 +533,18 @@ class Error(Expression):
         return self.line_num == other.line_num and self.message == other.message
 
 
-class Factorial(Expression):
-    def __init__(self, line_num: int, expression: Expression):
-        super().__init__(line_num)
-        self.expression = expression
-
-    def __str__(self) -> str:
-        return self.__repr__()
-
-    def __repr__(self, **kwargs: typing.Any) -> str:
-        return super().__repr__(expression=self.expression)
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Factorial):
-            return False
-        return self.line_num == other.line_num and self.expression == other.expression
+# class Factorial(Expression):
+#     def __init__(self, line_num: int, expression: Expression):
+#         super().__init__(line_num)
+#         self.expression = expression
+#
+#     def __str__(self) -> str:
+#         return self.__repr__()
+#
+#     def __repr__(self, **kwargs: typing.Any) -> str:
+#         return super().__repr__(expression=self.expression)
+#
+#     def __eq__(self, other: object) -> bool:
+#         if not isinstance(other, Factorial):
+#             return False
+#         return self.line_num == other.line_num and self.expression == other.expression

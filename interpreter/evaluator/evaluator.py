@@ -1,7 +1,7 @@
 import typing
 
 from interpreter.parser_.ast_objects import Expression, BinaryExpression, UnaryExpression, Identifier, Number, String, \
-    Assignment, Error, Boolean, List, BuiltinFunction, Function, FunctionCall, Factorial, When
+    Assignment, Error, Boolean, List, BuiltinFunction, Function, FunctionCall, When, PostfixExpression
 from interpreter.tokens.tokens import *
 from interpreter.evaluator.environment_ import Environment
 from interpreter.utils.utils import language_error, LanguageRuntimeException
@@ -55,8 +55,8 @@ class Evaluator:
         elif isinstance(expression, Identifier):
             return self.evaluate_identifier(expression)
 
-        elif isinstance(expression, Factorial):
-            return self.evaluate_factorial(expression)
+        elif isinstance(expression, PostfixExpression):
+            return self.evaluate_postfix_expression(expression)
 
         elif isinstance(expression, List):
             # Initially, I had this code for evaluating lists:
@@ -97,29 +97,21 @@ class Evaluator:
         # when a user is using this programming language.
         raise Exception(f"Unsupported type: {type(expression).__name__}")
 
-    def evaluate_factorial(self, factorial: Factorial) -> Number:
-        result = self.evaluate_expression(factorial.expression)
-        if isinstance(result, Number):
-            if result.is_whole_number():
-                base_number = int(result.value)
+    def evaluate_postfix_expression(self, postfix_expression: PostfixExpression) -> Expression:
+        result = self.evaluate_expression(postfix_expression.expression)
+        op = postfix_expression.operator
 
-                if base_number == 0 or base_number == 1:
-                    return Number(result.line_num, 1)
+        if op.type == BANG:
+            # Factorial
+            return result.fac()
+        elif op.type == DEC:
+            # Decrement
+            return result.dec()
+        elif op.type == INC:
+            # Increment
+            return result.inc()
 
-                if base_number < 0:
-                    # For negative numbers, factorial is offset by 1 from its positive counterparts.
-                    # For example, -1! == 2!, -2! == 3!, -3! = 4!, etc.
-                    start_number = abs(base_number) + 1
-                else:
-                    start_number = base_number
-
-                # No need to start at 1 because 1 multiplied by anything is itself
-                return Number(
-                    result.line_num,
-                    reduce(lambda a, b: a * b, [i for i in range(2, start_number + 1)])
-                )
-            raise language_error(result.line_num, "number must be whole number")
-        raise language_error(result.line_num, f"invalid type for factorial: {type(result).__name__}")
+        raise language_error(result.line_num, f"invalid postfix operator: {op.type} ({op.value})")
 
     def evaluate_assign_variable(self, variable: Assignment) -> Expression:
         var_value: Expression = self.evaluate_expression(variable.value)

@@ -6,7 +6,7 @@ from .testing_utils import create_when
 from ..parser_ import parser_
 from . import testing_utils
 from ..parser_.ast_objects import BuiltinFunction, Boolean, Number, List, Identifier, BinaryExpression, \
-    UnaryExpression, Function, Factorial, When, String
+    UnaryExpression, Function, String, PostfixExpression
 from ..utils.utils import LanguageRuntimeException
 
 
@@ -59,8 +59,12 @@ def test_unary_expressions(source, operator, expression):
 
 
 @pytest.mark.parametrize("source, ast_object", [
-    ("6!", Factorial(1, Number(1, 6))),
-    ("6!!", Factorial(1, Factorial(1, Number(1, 6)))),
+    ("6!", PostfixExpression(1, Token("!", BANG, 1), Number(1, 6))),
+    ("6!!", PostfixExpression(1, Token("!", BANG, 1), PostfixExpression(1, Token("!", BANG, 1), Number(1, 6)))),
+    ("6--", PostfixExpression(1, Token("--", DEC, 1), Number(1, 6))),
+    ("6++", PostfixExpression(1, Token("++", INC, 1), Number(1, 6))),
+    ("6++--", PostfixExpression(1, Token("--", DEC, 1), PostfixExpression(1, Token("++", INC, 1), Number(1, 6)))),
+    ("6--++", PostfixExpression(1, Token("++", INC, 1), PostfixExpression(1, Token("--", DEC, 1), Number(1, 6)))),
 ])
 def test_suffix_operators(source, ast_object):
     expected_ast = [ast_object]
