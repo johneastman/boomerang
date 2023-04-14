@@ -59,9 +59,20 @@ class Evaluator:
             return self.evaluate_factorial(expression)
 
         elif isinstance(expression, List):
-            for i in range(len(expression.values)):
-                expression.values[i] = self.evaluate_expression(expression.values[i])
-            return expression
+            # Initially, I had this code for evaluating lists:
+            #
+            #   for i in range(len(expression.values)):
+            #       expression.values[i] = self.evaluate_expression(expression.values[i])
+            #   return expression
+            #
+            # But that was causing infinite recursion due to a strange behavior where values were being changed
+            # without explicitly being changed. Creating a new list object with the evaluates values of the old
+            # list fixed the issue.
+            values: list[Expression] = []
+            for element_expression in expression.values:
+                element_value = self.evaluate_expression(element_expression)
+                values.append(element_value)
+            return List(expression.line_num, values)
 
         # Base Types
         elif isinstance(expression, Number):
@@ -200,16 +211,15 @@ class Evaluator:
 
         raise language_error(op.line_num, f"Invalid binary operator '{op.value}'")
 
-    def evaluate_function_call(self, function: FunctionCall) -> Expression:
-        line_num: int = function.line_num
-        function_definition: Function = function.function
-        call_params: List = function.call_params
+    def evaluate_function_call(self, function_call: FunctionCall) -> Expression:
+        line_num: int = function_call.line_num
+        function_definition: Function = function_call.function
+        call_params: List = function_call.call_params
 
         if len(call_params.values) != len(function_definition.parameters):
-            raise language_error(function.line_num, f"Expected {len(function_definition.parameters)}, got {len(call_params.values)}")
+            raise language_error(line_num, f"Expected {len(function_definition.parameters)}, got {len(call_params.values)}")
 
-        old_env = self.get_env
-        self.env = Environment(old_env)
+        self.env = Environment(parent_env=self.get_env)
 
         # Set parameters as variables in new environment
         for ident, value in zip(function_definition.parameters, call_params.values):

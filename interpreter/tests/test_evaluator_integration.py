@@ -6,7 +6,7 @@ from interpreter.tokens.token_queue import TokenQueue
 from interpreter.parser_.parser_ import Parser
 from interpreter.evaluator.evaluator import Evaluator
 from interpreter.evaluator.environment_ import Environment
-from interpreter.tokens.tokens import PLUS
+from interpreter.tokens.tokens import PLUS, LE, POINTER, MINUS
 
 
 @pytest.mark.parametrize("source,expected_results", [
@@ -167,27 +167,81 @@ def test_print(source, output_str):
     assert results == [o.Output(1, output_str)]
 
 
-def test_functions():
-    src = """
-    add = func a, b: a + b;
-    add <- (1, 2);
-    """
-
-    expected_results = [
-        o.Function(
-            2,
-            [o.Identifier(2, "a"), o.Identifier(2, "b")],
-            o.BinaryExpression(
+@pytest.mark.parametrize("source, expected_results", [
+    (
+        """
+        add = func a, b: a + b;
+        add <- (1, 2);
+        """,
+        [
+            o.Function(
                 2,
-                o.Identifier(2, "a"),
-                Token("+", PLUS, 2),
-                o.Identifier(2, "b")
-            )
-        ),
-        o.Number(3, 3.0)
-    ]
-
-    results = actual_result(src)
+                [o.Identifier(2, "a"), o.Identifier(2, "b")],
+                o.BinaryExpression(
+                    2,
+                    o.Identifier(2, "a"),
+                    Token("+", PLUS, 2),
+                    o.Identifier(2, "b")
+                )
+            ),
+            o.Number(3, 3.0)
+        ]
+    ),
+    (
+        # Recursive function call
+        """
+        decrement = func n:
+            when:
+                n <= 0: n
+                else: decrement <- (n - 1,);
+    
+        decrement <- (3,);
+        """,
+        [
+            o.Function(
+                2,
+                [o.Identifier(2, "n")],
+                o.When(
+                    3,
+                    o.Boolean(3, True),
+                    [
+                        (
+                            o.BinaryExpression(
+                                4,
+                                o.Identifier(4, "n"),
+                                Token("<=", LE, 4),
+                                o.Number(4, 0)
+                            ),
+                            o.Identifier(4, "n")
+                        ),
+                        (
+                            o.Boolean(5, True),
+                            o.BinaryExpression(
+                                5,
+                                o.Identifier(5, "decrement"),
+                                Token("<-", POINTER, 5),
+                                o.List(
+                                    5,
+                                    [
+                                        o.BinaryExpression(
+                                            5,
+                                            o.Identifier(5, "n"),
+                                            Token("-", MINUS, 5),
+                                            o.Number(5, 1)
+                                        )
+                                    ]
+                                )
+                            )
+                        ),
+                    ],
+                )
+            ),
+            o.Number(7, 0)
+        ]
+    )
+])
+def test_functions(source, expected_results):
+    results = actual_result(source)
     assert results == expected_results
 
 
