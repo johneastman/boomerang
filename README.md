@@ -66,7 +66,6 @@ All expressions end with a semicolon `;`.
 
 ## Core Data Types
 
-### Number
 |Data Type|Examples|
 |---|---|
 |Number|1, 2, 3, 10, 13, 100, 1234567890, 1.1, 2.5, 3.14159|
