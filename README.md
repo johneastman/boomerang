@@ -65,6 +65,8 @@ These are errors with the Python code itself and exist to aid the development pr
 All expressions end with a semicolon `;`.
 
 ## Core Data Types
+
+### Number
 |Data Type|Examples|
 |---|---|
 |Number|1, 2, 3, 10, 13, 100, 1234567890, 1.1, 2.5, 3.14159|
@@ -99,9 +101,9 @@ Operators that appear before an expression
 
 |Operator Name|Literal|
 |---|---|
-|Make Negative|-|
-|Make Positive|+|
-|Boolean Opposite|!|
+|Negate|-|
+|Absolute Value|+|
+|Boolean Opposite (Not)|!|
 
 ### Suffix Operators
 Operators that appear after an expression

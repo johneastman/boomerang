@@ -137,14 +137,10 @@ class Evaluator:
         op = unary_expression.operator
 
         if op.type == PLUS:
-            if isinstance(expression_result, Number):
-                new_value = abs(float(expression_result.value))
-                return Number(expression_result.line_num, new_value)
+            return expression_result.abs()
 
         elif op.type == MINUS:
-            if isinstance(expression_result, Number):
-                new_value = -float(expression_result.value)
-                return Number(expression_result.line_num, new_value)
+            return expression_result.neg()
 
         elif op.type == BANG:
             return expression_result.bang()

@@ -26,6 +26,12 @@ class Expression:
     def ne(self, _: object) -> "Expression":
         return Boolean(self.line_num, False)
 
+    def abs(self) -> "Expression":
+        raise language_error(self.line_num, f"Invalid type {type(self).__name__} for absolute value")
+
+    def neg(self) -> "Expression":
+        raise language_error(self.line_num, f"Invalid type {type(self).__name__} for negation")
+
     def and_(self, other: object) -> "Expression":
         raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {AND}")
 
@@ -98,6 +104,12 @@ class Number(Expression):
         if isinstance(other, Number):
             return Boolean(self.line_num, self.value != other.value)
         return super().ne(other)
+
+    def abs(self) -> "Expression":
+        return Number(self.line_num, abs(self.value))
+
+    def neg(self) -> "Expression":
+        return Number(self.line_num, -self.value)
 
     def gt(self, other: object) -> "Expression":
         if isinstance(other, Number):
@@ -209,6 +221,11 @@ class Boolean(Expression):
             return Boolean(self.line_num, self.value == other.value)
         return super().eq(other)
 
+    def ne(self, other: object) -> "Expression":
+        if isinstance(other, Boolean):
+            return Boolean(self.line_num, self.value != other.value)
+        return super().ne(other)
+
     def bang(self) -> "Expression":
         return Boolean(self.line_num, not self.value)
 
@@ -221,11 +238,6 @@ class Boolean(Expression):
         if isinstance(other, Boolean):
             return Boolean(self.line_num, self.value or other.value)
         return super().or_(other)
-
-    def ne(self, other: object) -> "Expression":
-        if isinstance(other, Boolean):
-            return Boolean(self.line_num, self.value != other.value)
-        return super().ne(other)
 
 
 class List(Expression):
