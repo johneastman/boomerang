@@ -61,9 +61,9 @@ class Evaluator:
         elif isinstance(expression, List):
             # Initially, I had this code for evaluating lists:
             #
-            #   for i in range(len(expression.values)):
-            #       expression.values[i] = self.evaluate_expression(expression.values[i])
-            #   return expression
+            #     for i in range(len(expression.values)):
+            #         expression.values[i] = self.evaluate_expression(expression.values[i])
+            #     return expression
             #
             # But that was causing infinite recursion due to a strange behavior where values were being changed
             # without explicitly being changed. Creating a new list object with the evaluates values of the old

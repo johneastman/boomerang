@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 
 @app.route("/")
-def hello_world():
+def index():
     source_code = request.cookies.get("source_code", "")
     results = request.cookies.get("results", "")
     if results:
@@ -24,10 +24,14 @@ def hello_world():
 def interpret():
     source_code = request.form["source"]
 
-    results = evaluate(source_code, Environment())
+    try:
+        results = evaluate(source_code, Environment())
 
-    # Filter out results that do not produce an output. These will be sent to the page for display
-    output_data = filter(lambda obj: isinstance(obj, Output) or isinstance(obj, Error), results)
+        # Filter out results that do not produce an output. These will be sent to the page for display
+        output_data = filter(lambda obj: isinstance(obj, Output) or isinstance(obj, Error), results)
+    except Exception as e:
+        message = str(e)
+        output_data = [Output(-1, f"Unexpected internal error: {message}")]
 
     resp = make_response(redirect("/"))
     resp.set_cookie("source_code", source_code)
