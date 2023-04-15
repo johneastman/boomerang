@@ -48,6 +48,7 @@ class Parser:
             AND: SUM,
             MULTIPLY: PRODUCT,
             DIVIDE: PRODUCT,
+            MOD: PRODUCT,
             EQ: COMPARE,
             NE: COMPARE,
             LT: COMPARE,

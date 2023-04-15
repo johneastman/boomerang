@@ -70,6 +70,7 @@ COMMA: str = get_token_type("COMMA")
 POINTER: str = get_token_type("POINTER")
 DEC: str = get_token_type("DEC")
 INC: str = get_token_type("INC")
+MOD: str = get_token_type("MOD")
 
 # Comparison/Boolean Operators
 EQ: str = get_token_type("EQ")  # Equal

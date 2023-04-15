@@ -37,6 +37,7 @@ def test_evaluator(source, expected_results):
     ("1 + 1", [o.Number(1, 2)]),
     ("4 / 2", [o.Number(1, 2)]),
     ("7 / 2", [o.Number(1, 3.5)]),
+    ("7 % 0", [o.Error(1, "Error at line 1: cannot divide by zero")]),
     ("1 == 1", [o.Boolean(1, True)]),
     ("1 != 1", [o.Boolean(1, False)]),
     ("0 != 1", [o.Boolean(1, True)]),
@@ -50,6 +51,17 @@ def test_evaluator(source, expected_results):
     ("1 <= 1", [o.Boolean(1, True)]),
     ("1 <= 2", [o.Boolean(1, True)]),
     ("1 <= 0", [o.Boolean(1, False)]),
+    ("10 % 0", [o.Error(1, "Error at line 1: cannot divide by zero")]),
+    ("10 % 1", [o.Number(1, 0)]),
+    ("10 % 2", [o.Number(1, 0)]),
+    ("10 % 3", [o.Number(1, 1)]),
+    ("10 % 4", [o.Number(1, 2)]),
+    ("10 % 5", [o.Number(1, 0)]),
+    ("10 % 6", [o.Number(1, 4)]),
+    ("10 % 7", [o.Number(1, 3)]),
+    ("10 % 8", [o.Number(1, 2)]),
+    ("10 % 9", [o.Number(1, 1)]),
+    ("10 % 10", [o.Number(1, 0)]),
 
     # String
     ("\"hello\" == \"hello\"", [o.Boolean(1, True)]),
@@ -94,7 +106,7 @@ def test_evaluator(source, expected_results):
     ("true == (\"true\",)", [o.Boolean(1, False)]),
     ("(1,) == 1", [o.Boolean(1, False)]),
     ("(1,) == \"1\"", [o.Boolean(1, False)]),
-    ("(1,) == (\"1\",)", [o.Boolean(1, False)]),
+    ("(1,) == (\"1\",)", [o.Boolean(1, False)])
 ])
 def test_binary_expressions(source, expected_results):
     actual_results = actual_result(f"{source};")

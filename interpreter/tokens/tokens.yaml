@@ -34,6 +34,9 @@ tokens:
     - literal: '*'
       name: MULTIPLY
       type: MULTIPLY
+    - literal: '%'
+      name: MOD
+      type: MOD
     - literal: '/'
       name: DIVIDE
       type: DIVIDE

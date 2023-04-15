@@ -25,7 +25,8 @@ from interpreter.tokens.tokenizer import Tokenizer, Token
     ("|", OR),
     (":", COLON),
     ("--", DEC),
-    ("++", INC)
+    ("++", INC),
+    ("%", MOD)
 ])
 def test_symbols(symbol, type_):
     """Test symbols

@@ -169,8 +169,11 @@ class Evaluator:
         elif op.type == DIVIDE:
             return left.div(right)
 
+        elif op.type == MOD:
+            return left.mod(right)
+
         elif op.type == POINTER:
-            result = left.pointer(right)
+            result = left.ptr(right)
             if isinstance(result, FunctionCall):
                 return self.evaluate_function_call(result)
             return result

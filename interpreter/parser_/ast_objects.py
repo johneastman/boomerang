@@ -2,9 +2,9 @@ import typing
 from functools import reduce
 
 from interpreter.tokens.tokenizer import Token
-from interpreter.tokens.tokens import PLUS, MINUS, MULTIPLY, DIVIDE, get_token_literal, POINTER, EQ, NE, BANG, GT, GE, \
-    LT, LE, AND, OR
-from interpreter.utils.utils import language_error
+from interpreter.tokens.tokens import get_token_literal, PLUS, MINUS, MULTIPLY, DIVIDE, POINTER, BANG, GT, GE, \
+    LT, LE, AND, OR, MOD
+from interpreter.utils.utils import language_error, divide_by_zero_error
 
 
 class Expression:
@@ -76,7 +76,11 @@ class Expression:
         raise language_error(self.line_num,
                              f"Invalid types {type(self).__name__} and {type(other).__name__} for {DIVIDE}")
 
-    def pointer(self, other: object) -> "Expression":
+    def mod(self, other: object) -> "Expression":
+        raise language_error(self.line_num,
+                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {MOD}")
+
+    def ptr(self, other: object) -> "Expression":
         raise language_error(self.line_num,
                              f"Invalid types {type(self).__name__} and {type(other).__name__} for {POINTER}")
 
@@ -189,9 +193,19 @@ class Number(Expression):
 
     def div(self, other: object) -> Expression:
         if isinstance(other, Number):
+            if other.value == 0:
+                raise divide_by_zero_error(self.line_num)
             return Number(self.line_num, self.value / other.value)
 
         return super().div(other)
+
+    def mod(self, other: object) -> "Expression":
+        if isinstance(other, Number):
+            if other.value == 0:
+                raise divide_by_zero_error(self.line_num)
+            return Number(self.line_num, self.value % other.value)
+
+        return super().mod(other)
 
     def is_whole_number(self) -> bool:
         """
@@ -304,7 +318,7 @@ class List(Expression):
             return Boolean(self.line_num, self.values != other.values)
         return super().ne(other)
 
-    def pointer(self, other: object) -> "Expression":
+    def ptr(self, other: object) -> "Expression":
         if isinstance(other, Number) or isinstance(other, String) or isinstance(other, Boolean):
             self.values.append(other)
             return List(self.line_num, self.values)
@@ -312,7 +326,7 @@ class List(Expression):
             self.values.extend(other.values)
             return List(self.line_num, self.values)
 
-        return super().pointer(other)
+        return super().ptr(other)
 
 
 class Identifier(Expression):
@@ -349,10 +363,10 @@ class Function(Expression):
             return False
         return self.line_num == other.line_num and self.parameters == other.parameters and self.body == other.body
 
-    def pointer(self, other: object) -> "Expression":
+    def ptr(self, other: object) -> "Expression":
         if isinstance(other, List):
             return FunctionCall(self.line_num, self, other)
-        return super().pointer(other)
+        return super().ptr(other)
 
 
 class FunctionCall(Expression):
@@ -429,7 +443,7 @@ class BuiltinFunction(Expression):
             return False
         return self.line_num == other.line_num and self.name == other.name
 
-    def pointer(self, other: object) -> "Expression":
+    def ptr(self, other: object) -> "Expression":
         if isinstance(other, List):
             match self.name:
                 case self.print_:
@@ -440,7 +454,7 @@ class BuiltinFunction(Expression):
                 case _:
                     raise Exception(f"Unimplemented builtin function {self.name}")
 
-        return super().pointer(other)
+        return super().ptr(other)
 
 
 class UnaryExpression(Expression):

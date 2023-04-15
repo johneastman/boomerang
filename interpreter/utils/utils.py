@@ -27,6 +27,10 @@ def unexpected_token_error(line_num: int, expected_token: str, actual_token: "To
     )
 
 
+def divide_by_zero_error(line_num: int) -> LanguageRuntimeException:
+    return language_error(line_num, "cannot divide by zero")
+
+
 def raise_unexpected_end_of_file(line_num: int) -> LanguageRuntimeException:
     return language_error(line_num, "Unexpected end of file")
 

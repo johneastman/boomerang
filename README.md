@@ -84,6 +84,7 @@ Operators that appear between two expressions.
 |Subtract|-|
 |Multiply|*|
 |Divide|/|
+|Modulo|%|
 |Assignment|=|
 |Pointer|<-|
 |Equals|==|
