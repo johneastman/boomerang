@@ -1,7 +1,7 @@
 import typing
 from copy import copy
 
-from interpreter.tokens.tokenizer import Token
+from interpreter.tokens.token import Token
 from interpreter.tokens.token_queue import TokenQueue
 from interpreter.parser_.ast_objects import *
 from interpreter.tokens.tokens import *

@@ -36,7 +36,7 @@ def test_symbols(symbol, type_):
     - DOUBLE_QUOTE (indicates start and end of strings)
     """
     actual_tokens = get_tokens(symbol)
-    assert actual_tokens == [Token(symbol, type_, 1), Token("", EOF, 1)]
+    assert actual_tokens == [Token(1, symbol, type_), Token(1, "", EOF)]
 
 
 @pytest.mark.parametrize("keyword, type_", [
@@ -55,56 +55,56 @@ def test_keywords(keyword, type_):
     - DOUBLE_QUOTE (indicates start and end of strings)
     """
     actual_tokens = get_tokens(keyword)
-    assert actual_tokens == [Token(keyword, type_, 1), Token("", EOF, 1)]
+    assert actual_tokens == [Token(1, keyword, type_), Token(1, "", EOF)]
 
 
 @pytest.mark.parametrize("source,expected_token", [
-    ("\"hello, world!\"", Token("hello, world!", STRING, 1)),
-    ("1", Token("1", NUMBER, 1)),
-    ("15", Token("15", NUMBER, 1)),
-    ("153", Token("153", NUMBER, 1)),
-    ("1.5", Token("1.5", NUMBER, 1)),
-    ("true", Token("true", BOOLEAN, 1)),
-    ("false", Token("false", BOOLEAN, 1))
+    ("\"hello, world!\"", Token(1, "hello, world!", STRING)),
+    ("1", Token(1, "1", NUMBER)),
+    ("15", Token(1, "15", NUMBER)),
+    ("153", Token(1, "153", NUMBER)),
+    ("1.5", Token(1, "1.5", NUMBER)),
+    ("true", Token(1, "true", BOOLEAN)),
+    ("false", Token(1, "false", BOOLEAN))
 ])
 def test_data_types(source, expected_token):
     actual_tokens = get_tokens(source)
-    assert actual_tokens == [expected_token, Token("", EOF, 1)]
+    assert actual_tokens == [expected_token, Token(1, "", EOF)]
 
 
 @pytest.mark.parametrize("source, expected_tokens", [
     ("1 + 1;", [
-        Token("1", NUMBER, 1),
-        Token("+", PLUS, 1),
-        Token("1", NUMBER, 1),
-        Token(";", SEMICOLON, 1),
-        Token("", EOF, 1)
+        Token(1, "1", NUMBER),
+        Token(1, "+", PLUS),
+        Token(1, "1", NUMBER),
+        Token(1, ";", SEMICOLON),
+        Token(1, "", EOF)
     ]),
     ("a = 1;\nb = 2;", [
-        Token("a", IDENTIFIER, 1),
-        Token("=", ASSIGN, 1),
-        Token("1", NUMBER, 1),
-        Token(";", SEMICOLON, 1),
-        Token("b", IDENTIFIER, 2),
-        Token("=", ASSIGN, 2),
-        Token("2", NUMBER, 2),
-        Token(";", SEMICOLON, 2),
-        Token("", EOF, 2)
+        Token(1, "a", IDENTIFIER),
+        Token(1, "=", ASSIGN),
+        Token(1, "1", NUMBER),
+        Token(1, ";", SEMICOLON),
+        Token(2, "b", IDENTIFIER),
+        Token(2, "=", ASSIGN),
+        Token(2, "2", NUMBER),
+        Token(2, ";", SEMICOLON),
+        Token(2, "", EOF)
     ]),
     ("a = (1, 2, 3, 4);", [
-        Token("a", IDENTIFIER, 1),
-        Token("=", ASSIGN, 1),
-        Token("(", OPEN_PAREN, 1),
-        Token("1", NUMBER, 1),
-        Token(",", COMMA, 1),
-        Token("2", NUMBER, 1),
-        Token(",", COMMA, 1),
-        Token("3", NUMBER, 1),
-        Token(",", COMMA, 1),
-        Token("4", NUMBER, 1),
-        Token(")", CLOSED_PAREN, 1),
-        Token(";", SEMICOLON, 1),
-        Token("", EOF, 1)
+        Token(1, "a", IDENTIFIER),
+        Token(1, "=", ASSIGN),
+        Token(1, "(", OPEN_PAREN),
+        Token(1, "1", NUMBER),
+        Token(1, ",", COMMA),
+        Token(1, "2", NUMBER),
+        Token(1, ",", COMMA),
+        Token(1, "3", NUMBER),
+        Token(1, ",", COMMA),
+        Token(1, "4", NUMBER),
+        Token(1, ")", CLOSED_PAREN),
+        Token(1, ";", SEMICOLON),
+        Token(1, "", EOF)
     ])
 ])
 def test_tokenizer(source, expected_tokens):
@@ -119,11 +119,11 @@ def test_skip_comments():
     """
     actual_tokens = get_tokens(source)
     assert actual_tokens == [
-        Token("a", IDENTIFIER, 3),
-        Token("=", ASSIGN, 3),
-        Token("1", NUMBER, 3),
-        Token(";", SEMICOLON, 3),
-        Token("", EOF, 4)
+        Token(3, "a", IDENTIFIER),
+        Token(3, "=", ASSIGN),
+        Token(3, "1", NUMBER),
+        Token(3, ";", SEMICOLON),
+        Token(4, "", EOF)
     ]
 
 

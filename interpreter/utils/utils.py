@@ -1,8 +1,7 @@
 import yaml
 import typing
 
-if typing.TYPE_CHECKING:
-    from interpreter.tokens.tokenizer import Token
+from interpreter.tokens.token import Token
 
 
 class LanguageRuntimeException(Exception):
@@ -20,7 +19,7 @@ def language_error(line_num: int, description: str) -> LanguageRuntimeException:
     return LanguageRuntimeException(line_num, f"Error at line {line_num}: {description}")
 
 
-def unexpected_token_error(line_num: int, expected_token: str, actual_token: "Token") -> LanguageRuntimeException:
+def unexpected_token_error(line_num: int, expected_token: str, actual_token: Token) -> LanguageRuntimeException:
     return language_error(
         line_num,
         f"Expected {expected_token}, got {actual_token.type} ('{actual_token.value}')"
@@ -36,6 +35,14 @@ def raise_unexpected_end_of_file(line_num: int) -> LanguageRuntimeException:
 
 
 def get(dictionary: dict[str, typing.Any], key_path: str) -> typing.Any:
+    """Find a value in a recursive dictionary structure (i.e., dictionaries within dictionaries).
+
+    key_path is a list of keys in order from the top level to the bottom level. There should be a period
+    between each key. For example, if key_path is "a.b.c", this method will first look in the outer-most
+    dictionary for the "a" key. Then, the dictionary associated with "a" will be search for the "b" key,
+    and finally the dictionary associated with "b" will be search for the "c" key. The value at "c" is
+    returned by this function.
+    """
     value = dictionary
     for key in key_path.split("."):
         value = value[key]

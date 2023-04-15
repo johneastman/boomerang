@@ -1,11 +1,12 @@
-from interpreter.tokens.tokenizer import Tokenizer, Token
+from interpreter.tokens.tokenizer import Tokenizer
+from interpreter.tokens.token import Token
 from interpreter.tokens.tokens import get_token_literal, get_token_type
 from interpreter.utils import utils
 
 
 class TokenQueue:
     def __init__(self, tokenizer: Tokenizer) -> None:
-        self.tokenizer = tokenizer
+        self.tokenizer: Tokenizer = tokenizer
 
         # The peek queue exists because sometimes we want to see what the next token is without actually retrieving it.
         # 'next(self.tokenizer)' will retrieve the next token, but 'peek' will take that result and add it to this
@@ -13,18 +14,18 @@ class TokenQueue:
         # ensuring tokens are retrieved in the correct order.
         self.peek_queue: list[Token] = []
 
-        # NOTE: 'self._next' needs to be called AFTER 'self.peek_queue' is instantiated.
-        self.current = self._next()
+        self.current: Token = Token(0, "", "")  # Initializing for mypy
+
+        # NOTE: "self.next" needs to be called AFTER 'self.peek_queue' is instantiated. This method will set a value
+        # for "self.current"
+        self.next()
 
     def next(self) -> None:
-        self.current = self._next()
-
-    def _next(self) -> Token:
         if len(self.peek_queue) > 0:
-            return self.peek_queue.pop()
+            self.current = self.peek_queue.pop()
         else:
             try:
-                return next(self.tokenizer)
+                self.current = next(self.tokenizer)
             except StopIteration:
                 raise utils.raise_unexpected_end_of_file(self.tokenizer.line_num)
 
@@ -50,7 +51,7 @@ class TokenQueue:
         # self.current to the new token
         self.peek_queue.append(self.current)
 
-        semicolon_literal = get_token_literal(new_token_label)
-        semicolon_type = get_token_type(new_token_label)
+        token_literal = get_token_literal(new_token_label)
+        token_type = get_token_type(new_token_label)
 
-        self.current = Token(semicolon_literal, semicolon_type, self.current.line_num)
+        self.current = Token(self.current.line_num, token_literal, token_type)

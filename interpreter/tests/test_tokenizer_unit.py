@@ -1,7 +1,10 @@
 import pytest
-from interpreter.tokens.tokenizer import Tokenizer
+from interpreter.tokens.tokenizer import Tokenizer, Token
+from interpreter.tokens.tokens import EQ, ASSIGN, LE, LT, GE, GT, POINTER, BANG, NE, INC, PLUS, DEC, MINUS, IDENTIFIER, \
+    NUMBER
 
-digit_data = [
+
+@pytest.mark.parametrize("source,is_digit", [
     ("0", True),
     ("1", True),
     ("2", True),
@@ -19,30 +22,24 @@ digit_data = [
     ("@", False),
     ("#", False),
     ("$", False)
-]
-
-
-@pytest.mark.parametrize("source,is_digit", digit_data)
+])
 def test_is_digit(source, is_digit):
     tokenizer = Tokenizer(source)
     assert tokenizer.is_digit() is is_digit
 
 
-string_char_data = [
+@pytest.mark.parametrize("source, is_string", [
     ("\"", True),
     ("'", False),
     ("1", False),
     ("a", False)
-]
-
-
-@pytest.mark.parametrize("source,is_string", string_char_data)
+])
 def test_is_string(source, is_string):
     tokenizer = Tokenizer(source)
     assert tokenizer.is_string() is is_string
 
 
-identifier_char_data = [
+@pytest.mark.parametrize("source, include_nums, is_identifier", [
     ("a", False, True),
     ("A", False, True),
     ("b", False, True),
@@ -116,40 +113,31 @@ identifier_char_data = [
     ("7", False, False),
     ("8", False, False),
     ("9", False, False)
-]
-
-
-@pytest.mark.parametrize("source,include_nums,is_identifier", identifier_char_data)
-def test_is_string(source, include_nums, is_identifier):
+])
+def test_is_identifier(source, include_nums, is_identifier):
     tokenizer = Tokenizer(source)
     assert tokenizer.is_identifier(include_nums=include_nums) is is_identifier
 
 
-number_data = [
+@pytest.mark.parametrize("source, expected_number", [
     ("1;", "1"),
     ("2;", "2"),
     ("1234567890;", "1234567890"),
     ("14.5;", "14.5"),
     ("3.14159;", "3.14159"),
     ("1234567890.0987654321;", "1234567890.0987654321"),
-]
-
-
-@pytest.mark.parametrize("source,expected_number", number_data)
+])
 def test_read_number(source, expected_number):
     tokenizer = Tokenizer(source)
     actual_number = tokenizer.read_number()
     assert expected_number == actual_number
 
 
-string_data = [
+@pytest.mark.parametrize("source, expected_string", [
     ("\"hello, world!\";", "hello, world!"),
     ("\"123456789\";", "123456789"),
     ("\"!@#$%^&*()_+.\";", "!@#$%^&*()_+."),
-]
-
-
-@pytest.mark.parametrize("source, expected_string", string_data)
+])
 def test_read_string(source, expected_string):
     tokenizer = Tokenizer(source)
     tokenizer.advance()
@@ -157,30 +145,76 @@ def test_read_string(source, expected_string):
     assert expected_string == actual_string
 
 
-identifier_data = [
+@pytest.mark.parametrize("source, expected_identifier", [
     ("variable;", "variable"),
     ("variable1;", "variable1"),
     ("my_number__;", "my_number__"),
     ("_;", "_"),
     ("100;", "100"),
     (";", ""),
-]
-
-
-@pytest.mark.parametrize("source, expected_identifier", identifier_data)
+])
 def test_read_identifier(source, expected_identifier):
     tokenizer = Tokenizer(source)
     actual_identifier = tokenizer.read_identifier()
     assert actual_identifier == expected_identifier
 
 
-def test_advance():
+def test_advance_current_peek_index():
+    """Test that the values of current, peek, and current token index are expected when traversing through source code.
+    """
     source = "1 + 1 - (2 * 4);"
     tokenizer = Tokenizer(source)
     for i, char in enumerate(source):
         assert tokenizer.current == char
+        assert tokenizer.peek == (source[i + 1] if i + 1 < len(source) else None)
         assert tokenizer.index == i
         tokenizer.advance()
 
     assert tokenizer.current is None  # current is a property and acts like a method call
     assert tokenizer.index == len(source)
+
+
+@pytest.mark.parametrize("symbol, type_", [
+    ("==", EQ),
+    ("=", ASSIGN),
+    ("<=", LE),
+    ("<", LT),
+    ("<-", POINTER),
+    (">=", GE),
+    (">", GT),
+    ("!=", NE),
+    ("!", BANG),
+    ("++", INC),
+    ("+", PLUS),
+    ("--", DEC),
+    ("-", MINUS)
+])
+def test_get_symbol_token(symbol, type_):
+    tokenizer = Tokenizer(symbol)
+    assert tokenizer.get_symbol_token() == Token(1, symbol, type_)
+
+
+def test_skip_whitespace():
+    tokenizer = Tokenizer("a \t= \n1")
+    assert tokenizer.current == "a"
+
+    tokenizer.advance()
+    tokenizer.skip_whitespace()
+    assert tokenizer.current == "="
+
+    tokenizer.advance()
+    tokenizer.skip_whitespace()
+    assert tokenizer.current == "1"
+
+
+def test_skip_comments():
+    tokenizer = Tokenizer("# this is a comment\na = 1")
+    tokenizer.skip_comments()
+    assert tokenizer.current == "a"
+
+
+def test_next_token():
+    tokenizer = Tokenizer("# this is a comment\na \t= \n1")
+    assert tokenizer.next_token() == Token(2, "a", IDENTIFIER)
+    assert tokenizer.next_token() == Token(2, "=", ASSIGN)
+    assert tokenizer.next_token() == Token(3, "1", NUMBER)

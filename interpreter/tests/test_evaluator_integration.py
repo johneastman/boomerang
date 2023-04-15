@@ -212,7 +212,7 @@ def test_print(source, output_str):
                 o.BinaryExpression(
                     2,
                     o.Identifier(2, "a"),
-                    Token("+", PLUS, 2),
+                    Token(2, "+", PLUS),
                     o.Identifier(2, "b")
                 )
             ),
@@ -241,7 +241,7 @@ def test_print(source, output_str):
                             o.BinaryExpression(
                                 4,
                                 o.Identifier(4, "n"),
-                                Token("<=", LE, 4),
+                                Token(4, "<=", LE),
                                 o.Number(4, 0)
                             ),
                             o.Identifier(4, "n")
@@ -251,14 +251,14 @@ def test_print(source, output_str):
                             o.BinaryExpression(
                                 5,
                                 o.Identifier(5, "decrement"),
-                                Token("<-", POINTER, 5),
+                                Token(5, "<-", POINTER),
                                 o.List(
                                     5,
                                     [
                                         o.BinaryExpression(
                                             5,
                                             o.Identifier(5, "n"),
-                                            Token("-", MINUS, 5),
+                                            Token(5, "-", MINUS),
                                             o.Number(5, 1)
                                         )
                                     ]

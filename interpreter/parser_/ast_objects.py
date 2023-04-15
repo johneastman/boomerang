@@ -1,7 +1,7 @@
 import typing
 from functools import reduce
 
-from interpreter.tokens.tokenizer import Token
+from interpreter.tokens.token import Token
 from interpreter.tokens.tokens import get_token_literal, PLUS, MINUS, MULTIPLY, DIVIDE, POINTER, BANG, GT, GE, \
     LT, LE, AND, OR, MOD
 from interpreter.utils.utils import language_error, divide_by_zero_error

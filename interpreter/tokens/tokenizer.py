@@ -1,31 +1,11 @@
-from typing import Optional, Callable, Tuple
+from typing import Optional, Callable
 import string
 
 from ..utils import utils
-
+from .token import Token
 from .tokens import *
 
 tokens_dict = get_keyword_dict([KEYWORDS, SYMBOLS])
-
-
-class Token:
-
-    def __init__(self, value: str, _type: str, line_num: int) -> None:
-        self.value = value
-        self.type = _type
-        self.line_num = line_num
-
-    def __str__(self) -> str:
-        return str(self.value)
-
-    def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(value: {self.value}, type: {self.type}, line_num: {self.line_num})"
-
-    def __eq__(self, other: object) -> bool:
-        """Check if token objects are equal."""
-        if not isinstance(other, Token):
-            return False
-        return self.value == other.value and self.type == other.type and self.line_num == other.line_num
 
 
 class Tokenizer:
@@ -54,55 +34,63 @@ class Tokenizer:
 
         if self.current is None:
             self.is_end_of_stream = True
-            return Token("", EOF, self.line_num)
+            return Token(self.line_num, "", EOF)
 
         elif self.is_digit():
             number: str = self.read_number()
-            return Token(number, NUMBER, self.line_num)
+            return Token(self.line_num, number, NUMBER)
 
         elif self.is_identifier():
             letters: str = self.read_identifier()
 
             # Any string that is not a keyword is an identifier (variable, function, etc.)
             token_type = tokens_dict.get(letters, IDENTIFIER)
-            return Token(letters, token_type, self.line_num)
+            return Token(self.line_num, letters, token_type)
 
         elif self.is_string():
             self.advance()  # skip starting quote
             string_literal: str = self.read_string()
             self.advance()  # skip ending quote
-            return Token(string_literal, STRING, self.line_num)
+            return Token(self.line_num, string_literal, STRING)
 
-        else:
-            # Find all tokens starting with the current character. Sort by the length of each token in descending
-            # order. This ensures shorter tokens with similar characters to longer tokens are not mistakenly
-            # matched (for example, '==' might get confused as two '=' if the smaller tokens are ordered first).
+        return self.get_symbol_token()
+
+    def get_symbol_token(self) -> Token:
+        """Find all tokens starting with the current character. Sort by the length of each token in descending
+        order. This ensures shorter tokens with similar characters to longer tokens are not mistakenly
+        matched (for example, '==' might get confused as two '=' if the smaller tokens are ordered first).
+
+        l = literal
+        t = type
+        """
+        key_sort: Callable[[tuple[str, str, int]], int] = lambda data: data[2]
+        matching_tokens: list[tuple[str, str, int]] = sorted(
+            # error: Argument 1 to "startswith" of "str" has incompatible type "Optional[str]"; expected
+            # "Union[str, Tuple[str, ...]]"
             #
-            # l = literal
-            # t = type
-            key_sort: Callable[[Tuple[str, str, int]], int] = lambda data: data[2]
-            matching_tokens: list[Tuple[str, str, int]] = sorted(
-                [(l, t, len(l)) for l, t in tokens_dict.items() if l.startswith(self.current)],
-                key=key_sort, reverse=True
-            )
+            # Reason for ignoring: The None check in "self.next_token" ensures "self.current" will
+            # never be None in this method.
+            [(l, t, len(l)) for l, t in tokens_dict.items()if l.startswith(self.current)],  # type: ignore
+            key=key_sort, reverse=True
+        )
 
-            for literal, _type, literal_len in matching_tokens:
-                matching_source: str = self.source[self.index:self.index + literal_len]
-                if matching_source == literal:
-                    # Advance past the number of characters in the matching literal string
-                    for _ in range(literal_len):
-                        self.advance()
-                    return Token(literal, _type, self.line_num)
+        for literal, _type, literal_len in matching_tokens:
+            matching_source: str = self.source[self.index:self.index + literal_len]
+            if matching_source == literal:
+                # Advance past the number of characters in the matching literal string
+                for _ in range(literal_len):
+                    self.advance()
+                return Token(self.line_num, literal, _type)
 
-            # If no tokens are found, then assume an invalid character
-            raise utils.language_error(self.line_num, f"invalid character {repr(self.current)}")
+        # If no tokens are found, then assume an invalid character
+        raise utils.language_error(self.line_num, f"invalid character {repr(self.current)}")
 
     @property
     def current(self) -> Optional[str]:
         return self.source[self.index] if self.index < len(self.source) else None
 
     @property
-    def next_char(self) -> Optional[str]:
+    def peek(self) -> Optional[str]:
         next_char_index: int = self.index + 1
         return self.source[next_char_index] if next_char_index < len(self.source) else None
 
