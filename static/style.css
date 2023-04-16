@@ -36,3 +36,22 @@ textarea {
     padding: 0;
     height: 99%;
 }
+
+.cm-keywords {
+    color: orange;
+    font-weight: bold;
+}
+
+.cm-strings {
+    color: green;
+}
+
+.cm-builtins {
+    color: darkorchid;
+    font-weight: bold;
+}
+
+.cm-numbers {
+    color: steelblue;
+    font-weight: bold;
+}
