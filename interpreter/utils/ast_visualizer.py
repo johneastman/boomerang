@@ -36,8 +36,8 @@ class ASTVisualizer:
 
         elif isinstance(expression, Assignment):
             self.add_node(node_id, "=")
-            self.add_edge(node_id, expression.value)
-            self.add_edge(node_id, expression.variable)
+            self.add_edge(node_id, expression.variable)  # variable name
+            self.add_edge(node_id, expression.value)     # variable value
             self.__visualize(expression.value)
 
         elif isinstance(expression, List):
