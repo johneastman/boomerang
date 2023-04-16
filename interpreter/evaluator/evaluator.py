@@ -75,22 +75,7 @@ class Evaluator:
             return List(expression.line_num, values)
 
         # Base Types
-        elif isinstance(expression, Number):
-            return expression
-
-        elif isinstance(expression, String):
-            return expression
-
-        elif isinstance(expression, Boolean):
-            return expression
-
-        elif isinstance(expression, BuiltinFunction):
-            return expression
-
-        elif isinstance(expression, Error):
-            return expression
-
-        elif isinstance(expression, Function):
+        elif any(isinstance(expression, t) for t in [Number, String, Boolean, BuiltinFunction, Error, Function]):
             return expression
 
         # This is a program-specific error because a missing object type would come about during development, not

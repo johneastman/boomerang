@@ -2,6 +2,10 @@ import json
 from flask import Flask, request, render_template, redirect, make_response
 
 from interpreter.parser_.ast_objects import Output, Error
+from interpreter.parser_.parser_ import Parser
+from interpreter.tokens.token_queue import TokenQueue
+from interpreter.tokens.tokenizer import Tokenizer
+from interpreter.utils.ast_visualizer import ASTVisualizer
 from main import evaluate
 from interpreter.evaluator.environment_ import Environment
 
@@ -45,3 +49,16 @@ def clear():
     resp.delete_cookie("source_code")
     resp.delete_cookie("results")
     return resp
+
+
+@app.route("/visualize")
+def visualize():
+    source_code = request.cookies.get("source_code", "")
+
+    t = Tokenizer(source_code)
+    tq = TokenQueue(t)
+    p = Parser(tq)
+    ast = p.parse()
+
+    ast_v = ASTVisualizer(ast)
+    ast_v.visualize()

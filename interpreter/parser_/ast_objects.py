@@ -501,7 +501,7 @@ class PostfixExpression(Expression):
         self.expression = expression
 
     def __str__(self) -> str:
-        return self.__repr__()
+        return f"{self.expression}{self.operator.value}"
 
     def __repr__(self, **kwargs: typing.Any) -> str:
         return super().__repr__(operator=self.operator, expression=self.expression)

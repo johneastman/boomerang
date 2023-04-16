@@ -9,6 +9,7 @@ from interpreter.parser_.parser_ import Parser
 from interpreter.evaluator.evaluator import Evaluator
 from interpreter.evaluator.environment_ import Environment
 from interpreter.tokens.tokens import POINTER, get_token_literal, get_token_type
+from interpreter.utils.ast_visualizer import ASTVisualizer
 from interpreter.utils.utils import LanguageRuntimeException
 
 
@@ -55,9 +56,13 @@ if __name__ == "__main__":
     repl_flags = ("--repl", "-r")
     parser.add_argument(*repl_flags, help="Run Boomerang repl (Read-Evaluate-Print Loop)", action="store_true")
 
+    visualize_flags = ("--visualize", "-v")
+    parser.add_argument(*visualize_flags, help="Create an Abstract Syntax Tree visualization", action="store_true")
+
     args = parser.parse_args()
     repl_var = args.repl
     path_var = args.path
+    visualize_path = args.visualize
 
     if repl_var and path_var:
         parser.error(f"{path_flags[0]} and {repl_flags[0]} cannot be given together")
@@ -65,7 +70,17 @@ if __name__ == "__main__":
     if args.repl:
         repl()
     elif args.path:
-        results = evaluate(get_source(args.path), Environment())
+        source = get_source(args.path)
+        results = evaluate(source, Environment())
         for result in results:
             if isinstance(result, Output) or isinstance(result, Error):
                 print(result)
+
+        if visualize_path:
+            t = Tokenizer(source)
+            tq = TokenQueue(t)
+            p = Parser(tq)
+            ast = p.parse()
+
+            ast_v = ASTVisualizer(ast)
+            ast_v.visualize()
