@@ -22,29 +22,36 @@ class ASTVisualizer:
 
     def __visualize(self, expression: Expression) -> None:
         node_id = str(id(expression))
-        if isinstance(expression, BinaryExpression):
-            self.add_node(node_id, expression.operator.value)
 
-            if not all(isinstance(expression.left, t) for t in [Number, Boolean, String]):
-                self.add_edge(node_id, expression.left)
-
-            if not all(isinstance(expression.right, t) for t in [Number, Boolean, String]):
-                self.add_edge(node_id, expression.right)
-
-            self.__visualize(expression.left)
-            self.__visualize(expression.right)
-
-        elif isinstance(expression, Assignment):
-            self.add_node(node_id, "=")
-            self.add_edge(node_id, expression.variable)  # variable name
-            self.add_edge(node_id, expression.value)     # variable value
-            self.__visualize(expression.value)
+        if any(isinstance(expression, t)
+               for t in [Number, String, Boolean, BuiltinFunction, Error, Identifier]):
+            self.add_node(node_id, str(expression))
 
         elif isinstance(expression, List):
             self.add_node(node_id, "List")
             for value in expression.values:
                 self.add_edge(node_id, value)
                 self.__visualize(value)
+
+        elif isinstance(expression, BinaryExpression):
+            self.add_node(node_id, expression.operator.value)
+
+            self.add_edge(node_id, expression.left)
+            self.__visualize(expression.left)
+
+            self.add_edge(node_id, expression.right)
+            self.__visualize(expression.right)
+
+        elif isinstance(expression, UnaryExpression) or isinstance(expression, PostfixExpression):
+            self.add_node(node_id, expression.operator.value)
+            self.add_edge(node_id, expression.expression)
+            self.__visualize(expression.expression)
+
+        elif isinstance(expression, Assignment):
+            self.add_node(node_id, "=")
+            self.add_edge(node_id, expression.name)
+            self.add_edge(node_id, expression.value)
+            self.__visualize(expression.value)
 
         elif isinstance(expression, Function):
             self.add_node(node_id, "Function")
@@ -86,7 +93,7 @@ class ASTVisualizer:
                 self.__visualize(case_val)
 
         else:
-            self.add_node(node_id, str(expression))
+            raise Exception(f"Unsupported type: {type(expression).__name__}")
 
     def add_node(self, _id: str, label: str) -> None:
         self.dot.node(str(_id), label)

@@ -13,6 +13,8 @@ ASSIGN = "ASSIGN"
 COMPARE = "COMPARE"  # ==, !=, &&, ||, <, >, >=, <=
 SUM = "SUM"  # +, -
 PRODUCT = "PRODUCT"  # *, /
+PREFIX = "PREFIX"
+POSTFIX = "POSTFIX"
 SEND = "SEND"  # <-
 
 
@@ -34,16 +36,18 @@ class Parser:
             COMPARE,
             SUM,
             PRODUCT,
-            SEND,
+            PREFIX,
+            POSTFIX,
+            SEND
         ]
 
         self.infix_precedence: dict[str, str] = {
             POINTER: SEND,
             PLUS: SUM,
             MINUS: SUM,
-            BANG: SUM,
-            DEC: SUM,
-            INC: SUM,
+            BANG: PREFIX,
+            DEC: POSTFIX,
+            INC: POSTFIX,
             OR: SUM,
             AND: SUM,
             MULTIPLY: PRODUCT,
@@ -119,7 +123,7 @@ class Parser:
         if self.current.type == IDENTIFIER and self.peek.type == ASSIGN:
             return self.parse_assign()
 
-        if self.current.type in [MINUS, PLUS, BANG]:
+        elif self.current.type in [MINUS, PLUS, BANG]:
             return self.parse_unary_expression()
 
         elif self.current.type == OPEN_PAREN:
@@ -235,7 +239,7 @@ class Parser:
                 self.advance()
                 break
 
-            expression = self.expression(LOWEST)
+            expression = self.expression()
             values.append(expression)
 
             if self.current.type == CLOSED_PAREN:
@@ -271,7 +275,7 @@ class Parser:
         self.advance()
 
         # Function body
-        body = self.expression(LOWEST)
+        body = self.expression()
 
         return Function(line_num, params, body)
 
@@ -285,7 +289,7 @@ class Parser:
         if self.current.type != COLON:
             # Switch
             is_switch = True
-            switch_expression = self.expression(LOWEST)
+            switch_expression = self.expression()
         else:
             # if-else
             switch_expression = Boolean(line_num, True)
@@ -304,12 +308,12 @@ class Parser:
                 self.is_expected_token(IS)
                 self.advance()
 
-            comparison_expression = self.expression(LOWEST)
+            comparison_expression = self.expression()
 
             self.is_expected_token(COLON)
             self.advance()
 
-            return_expression = self.expression(LOWEST)
+            return_expression = self.expression()
 
             expressions.append((comparison_expression, return_expression))
 
@@ -324,7 +328,7 @@ class Parser:
         self.advance()
 
         # Else expression
-        else_return_expression = self.expression(LOWEST)
+        else_return_expression = self.expression()
 
         # Make a copy so the line numbers are different between the "when" and "else"
         else_expression = copy(switch_expression)

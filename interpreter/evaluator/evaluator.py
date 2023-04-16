@@ -100,7 +100,7 @@ class Evaluator:
 
     def evaluate_assign_variable(self, variable: Assignment) -> Expression:
         var_value: Expression = self.evaluate_expression(variable.value)
-        self.get_env.set_var(variable.variable, var_value)
+        self.get_env.set_var(variable.name, var_value)
         return var_value
 
     def evaluate_identifier(self, identifier: Identifier) -> Expression:
