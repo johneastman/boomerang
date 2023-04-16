@@ -104,7 +104,7 @@ class Tokenizer:
             self.advance()
 
     def skip_comments(self) -> None:
-        if self.current == get_token_literal("COMMENT"):
+        while self.current == get_token_literal("COMMENT"):
             # If a hash symbol is found, skip until the end of the line
             while self.current is not None and self.current != "\n":
                 self.advance()
@@ -112,7 +112,7 @@ class Tokenizer:
 
             self.line_num += 1
 
-        self.skip_whitespace()  # for any whitespace that may be after the comments
+            self.skip_whitespace()  # for any whitespace that may be after the comments
 
     def is_string(self) -> bool:
         return self.current is not None and self.current == get_token_literal("DOUBLE_QUOTE")

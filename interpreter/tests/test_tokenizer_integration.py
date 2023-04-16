@@ -115,15 +115,18 @@ def test_tokenizer(source, expected_tokens):
 def test_skip_comments():
     source = """
     # this is a comment
+    # THIS IS ANOTHER COMMENT BUT IN ALL CAPS!!!
+    # a...third comment!
     a = 1;
     """
+    line_num = 5
     actual_tokens = get_tokens(source)
     assert actual_tokens == [
-        Token(3, "a", IDENTIFIER),
-        Token(3, "=", ASSIGN),
-        Token(3, "1", NUMBER),
-        Token(3, ";", SEMICOLON),
-        Token(4, "", EOF)
+        Token(line_num, "a", IDENTIFIER),
+        Token(line_num, "=", ASSIGN),
+        Token(line_num, "1", NUMBER),
+        Token(line_num, ";", SEMICOLON),
+        Token(line_num + 1, "", EOF)
     ]
 
 
