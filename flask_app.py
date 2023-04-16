@@ -51,14 +51,17 @@ def clear():
     return resp
 
 
-@app.route("/visualize")
+@app.route("/visualize", methods=["POST"])
 def visualize():
-    source_code = request.cookies.get("source_code", "")
+    source_code = request.form["source"]
+    print(source_code)
 
     t = Tokenizer(source_code)
     tq = TokenQueue(t)
     p = Parser(tq)
     ast = p.parse()
 
-    ast_v = ASTVisualizer(ast)
+    ast_v = ASTVisualizer(ast, "static/graph.gv")
     ast_v.visualize()
+
+    return redirect(f"/static/graph.gv.pdf")

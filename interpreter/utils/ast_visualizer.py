@@ -6,8 +6,9 @@ from ..parser_.ast_objects import *
 
 
 class ASTVisualizer:
-    def __init__(self, ast: list[Expression]):
+    def __init__(self, ast: list[Expression], save_path: str):
         self.ast = ast
+        self.save_path = save_path
         self.dot = graphviz.Digraph(comment="Abstract Syntax Tree (AST)")
 
     def visualize(self) -> None:
@@ -17,7 +18,7 @@ class ASTVisualizer:
             self.__visualize(statement)
             self.add_edge(root_node_id, str(id(statement)))
 
-        self.dot.render("graph.gv", view=True)
+        self.dot.render(self.save_path)
 
     def __visualize(self, expression: Expression) -> None:
         node_id = str(id(expression))

@@ -82,5 +82,5 @@ if __name__ == "__main__":
             p = Parser(tq)
             ast = p.parse()
 
-            ast_v = ASTVisualizer(ast)
+            ast_v = ASTVisualizer(ast, "static/graph.gv")
             ast_v.visualize()
