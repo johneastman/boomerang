@@ -1,24 +1,27 @@
 # TODO: implement AST visualization (may cause issued with deployment on pythonanywhere)
 # mypy error: Skipping analyzing "graphviz": module is installed, but missing library stubs or py.typed marker
+#
 # reason for ignore: mypy doesn't know about dependency types
 import graphviz  # type: ignore
 from ..parser_.ast_objects import *
 
 
 class ASTVisualizer:
-    def __init__(self, ast: list[Expression], save_path: str):
+    def __init__(self, ast: list[Expression]):
         self.ast = ast
-        self.save_path = save_path
         self.dot = graphviz.Digraph(comment="Abstract Syntax Tree (AST)")
 
-    def visualize(self) -> None:
+    def visualize(self) -> bytes:
         root_node_id = "0"
         self.add_node(root_node_id, "Statements")
         for statement in self.ast:
             self.__visualize(statement)
             self.add_edge(root_node_id, str(id(statement)))
 
-        self.dot.render(self.save_path)
+        # mypy error: Returning Any from function declared to return "bytes"
+        #
+        # Reason for ignoring: This does return bytes, but mypy doesn't know about dependency types
+        return self.dot.pipe(format="pdf")  # type: ignore
 
     def __visualize(self, expression: Expression) -> None:
         node_id = str(id(expression))

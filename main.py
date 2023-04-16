@@ -32,6 +32,17 @@ def evaluate(source: str, environment: Environment) -> list[Expression]:
         return [Error(e.line_num, str(e))]
 
 
+def visualize_ast(source: str) -> bytes:
+    t = Tokenizer(source)
+    tq = TokenQueue(t)
+    p = Parser(tq)
+    ast = p.parse()
+
+    ast_v = ASTVisualizer(ast)
+
+    return ast_v.visualize()
+
+
 def repl(prompt: str = ">>") -> None:
     env = Environment()
     while True:
@@ -77,10 +88,4 @@ if __name__ == "__main__":
                 print(result)
 
         if visualize_path:
-            t = Tokenizer(source)
-            tq = TokenQueue(t)
-            p = Parser(tq)
-            ast = p.parse()
-
-            ast_v = ASTVisualizer(ast, "static/graph.gv")
-            ast_v.visualize()
+            visualize_ast(source)

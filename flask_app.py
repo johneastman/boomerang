@@ -1,13 +1,12 @@
+"""
+For saving files locally, use "app.root_path"
+"""
 import json
-import os
+import base64
 from flask import Flask, request, render_template, redirect, make_response
 
 from interpreter.parser_.ast_objects import Output, Error
-from interpreter.parser_.parser_ import Parser
-from interpreter.tokens.token_queue import TokenQueue
-from interpreter.tokens.tokenizer import Tokenizer
-from interpreter.utils.ast_visualizer import ASTVisualizer
-from main import evaluate
+from main import evaluate, visualize_ast
 from interpreter.evaluator.environment_ import Environment
 
 app = Flask(__name__)
@@ -56,12 +55,9 @@ def clear():
 def visualize():
     source_code = request.form["source"]
 
-    t = Tokenizer(source_code)
-    tq = TokenQueue(t)
-    p = Parser(tq)
-    ast = p.parse()
+    vis_data = visualize_ast(source_code)
 
-    ast_v = ASTVisualizer(ast, os.path.join(app.root_path, "static", "graph.gv"))
-    ast_v.visualize()
+    vis_data = base64.b64encode(vis_data)  # convert to base64 as bytes
+    vis_data = vis_data.decode()  # convert bytes to string
 
-    return redirect(f"/static/graph.gv.pdf")
+    return render_template("visualize.html", data=vis_data)

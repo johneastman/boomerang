@@ -3,15 +3,9 @@
     <head>
         <meta charset="UTF-8">
         <title>Boomerang</title>
-        <link rel="stylesheet" type= "text/css" href="static/style.css">
+        <link rel="stylesheet" type= "text/css" href="static/visualize.css">
     </head>
     <body>
-        <embed
-            src="./graph.gv.pdf"
-            type="application/pdf"
-            frameBorder="0"
-            scrolling="auto"
-            height="100%"
-            width="100%">
+        <object data="data:application/pdf;base64,{{ data }}"></object>
     </body>
 </html>
