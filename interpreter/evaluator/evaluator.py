@@ -195,10 +195,15 @@ class Evaluator:
         line_num: int = function_call.line_num
         function_definition: Function = function_call.function
         call_params: List = function_call.call_params
+        # callstack.push(function, call_params)
 
         if len(call_params.values) != len(function_definition.parameters):
             raise language_error(line_num, f"Expected {len(function_definition.parameters)}, got {len(call_params.values)}")
 
+        # while not callstack.empty():
+        #   call = pop()
+        #   call.params
+        #   call.call_params
         self.env = Environment(parent_env=self.get_env)
 
         # Set parameters as variables in new environment

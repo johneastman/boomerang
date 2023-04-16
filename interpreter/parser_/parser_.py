@@ -9,12 +9,12 @@ from interpreter.utils.utils import language_error, unexpected_token_error
 
 # Precedence names
 LOWEST = "LOWEST"  # default
-ASSIGN = "ASSIGN"
-COMPARE = "COMPARE"  # ==, !=, &&, ||, <, >, >=, <=
+COMPARE = "COMPARE"  # ==, !=, <, >, >=, <=
+AND_OR = "AND_OR"  # |, &
 SUM = "SUM"  # +, -
 PRODUCT = "PRODUCT"  # *, /
-PREFIX = "PREFIX"
-POSTFIX = "POSTFIX"
+PREFIX = "PREFIX"  # Before an expression: !, -, +
+POSTFIX = "POSTFIX"  # after an expression: !, --, ++
 SEND = "SEND"  # <-
 
 
@@ -32,7 +32,7 @@ class Parser:
         # index + 1).
         self.precedences: list[str] = [
             LOWEST,
-            ASSIGN,
+            AND_OR,
             COMPARE,
             SUM,
             PRODUCT,
@@ -48,8 +48,8 @@ class Parser:
             BANG: PREFIX,
             DEC: POSTFIX,
             INC: POSTFIX,
-            OR: SUM,
-            AND: SUM,
+            OR: AND_OR,
+            AND: AND_OR,
             MULTIPLY: PRODUCT,
             DIVIDE: PRODUCT,
             MOD: PRODUCT,

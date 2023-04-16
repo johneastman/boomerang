@@ -99,8 +99,9 @@ def test_binary_expressions(source, left, operator, right):
     assert actual_ast == expected_ast
 
 
-def test_precedence_multiply():
-    expected_ast = [
+@pytest.mark.parametrize("source, expected_result", [
+    (
+        "1+2*4",
         BinaryExpression(
             1,
             Number(1, 1),
@@ -112,11 +113,36 @@ def test_precedence_multiply():
                 Number(1, 4)
             )
         )
-    ]
-
-    parser = testing_utils.parser("1+2*4;")
+    ),
+    (
+        "n != 0 & n % 2 == 0",
+        BinaryExpression(
+            1,
+            BinaryExpression(
+                1,
+                Identifier(1, "n"),
+                Token(1, "!=", NE),
+                Number(1, 0)
+            ),
+            Token(1, "&", AND),
+            BinaryExpression(
+                1,
+                BinaryExpression(
+                    1,
+                    Identifier(1, "n"),
+                    Token(1, "%", MOD),
+                    Number(1, 2)
+                ),
+                Token(1, "==", EQ),
+                Number(1, 0)
+            ),
+        )
+    )
+])
+def test_precedence(source, expected_result):
+    parser = testing_utils.parser(f"{source};")
     actual_ast = parser.parse()
-    assert actual_ast == expected_ast
+    assert actual_ast == [expected_result]
 
 
 @pytest.mark.parametrize("name, ast_object", [
