@@ -3,19 +3,26 @@ For saving files locally, use "app.root_path"
 """
 import json
 import base64
-from flask import Flask, request, render_template, redirect, make_response
+
+from flask import Flask, Response, request, render_template, redirect, make_response
 
 from interpreter.parser_.ast_objects import Output, Error
+from interpreter.utils.utils import LanguageRuntimeException
 from main import evaluate, visualize_ast
 from interpreter.evaluator.environment_ import Environment
 
 app = Flask(__name__)
 
 
+# Cookie keys
+SOURCE_CODE = "source_code"
+RESULTS = "results"
+
+
 @app.route("/")
 def index():
-    source_code = request.cookies.get("source_code", "")
-    results = request.cookies.get("results", "")
+    source_code = request.cookies.get(SOURCE_CODE, "")
+    results = request.cookies.get(RESULTS, "")
     if results:
         results = json.loads(results)
     else:
@@ -37,17 +44,14 @@ def interpret():
         message = str(e)
         output_data = [Output(-1, f"Unexpected internal error: {message}")]
 
-    resp = make_response(redirect("/"))
-    resp.set_cookie("source_code", source_code)
-    resp.set_cookie("results", json.dumps(list(map(str, output_data))))
-    return resp
+    return create_response("/", source_code, json.dumps(list(map(str, output_data))))
 
 
 @app.route("/clear", methods=["POST"])
 def clear():
     resp = make_response(redirect("/"))
-    resp.delete_cookie("source_code")
-    resp.delete_cookie("results")
+    resp.delete_cookie(SOURCE_CODE)
+    resp.delete_cookie(RESULTS)
     return resp
 
 
@@ -55,9 +59,24 @@ def clear():
 def visualize():
     source_code = request.form["source"]
 
-    vis_data = visualize_ast(source_code)
+    try:
+        vis_data = visualize_ast(source_code)
+        vis_data = base64.b64encode(vis_data)  # convert to base64 as bytes
+        vis_data = vis_data.decode()  # convert bytes to string
+        return render_template("visualize.html", data=vis_data)
 
-    vis_data = base64.b64encode(vis_data)  # convert to base64 as bytes
-    vis_data = vis_data.decode()  # convert bytes to string
+    except LanguageRuntimeException as e:
+        output_data = [Error(e.line_num, str(e))]
 
-    return render_template("visualize.html", data=vis_data)
+    except Exception as e:
+        message = str(e)
+        output_data = [Output(-1, f"Unexpected internal error: {message}")]
+
+    return create_response("/", source_code, json.dumps(list(map(str, output_data))))
+
+
+def create_response(path: str, source_code: str, return_results: str) -> Response:
+    resp = make_response(redirect(path))
+    resp.set_cookie(SOURCE_CODE, source_code)
+    resp.set_cookie(RESULTS, return_results)
+    return resp
