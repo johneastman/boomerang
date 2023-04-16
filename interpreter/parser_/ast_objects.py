@@ -513,21 +513,21 @@ class PostfixExpression(Expression):
 
 
 class Assignment(Expression):
-    def __init__(self, line_num: int, variable: str, value: Expression):
+    def __init__(self, line_num: int, name: str, value: Expression):
         super().__init__(line_num)
-        self.variable = variable
+        self.name = name
         self.value = value
 
     def __str__(self) -> str:
         return self.__repr__()
 
     def __repr__(self, **kwargs: typing.Any) -> str:
-        return super().__repr__(variable=self.variable, value=self.value)
+        return super().__repr__(name=self.name, value=self.value)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Assignment):
             return False
-        return self.line_num == other.line_num and self.variable == other.variable and self.value == other.value
+        return self.line_num == other.line_num and self.name == other.name and self.value == other.value
 
 
 class Error(Expression):
@@ -545,20 +545,3 @@ class Error(Expression):
         if not isinstance(other, Error):
             return False
         return self.line_num == other.line_num and self.message == other.message
-
-
-# class Factorial(Expression):
-#     def __init__(self, line_num: int, expression: Expression):
-#         super().__init__(line_num)
-#         self.expression = expression
-#
-#     def __str__(self) -> str:
-#         return self.__repr__()
-#
-#     def __repr__(self, **kwargs: typing.Any) -> str:
-#         return super().__repr__(expression=self.expression)
-#
-#     def __eq__(self, other: object) -> bool:
-#         if not isinstance(other, Factorial):
-#             return False
-#         return self.line_num == other.line_num and self.expression == other.expression

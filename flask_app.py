@@ -1,7 +1,12 @@
 import json
+import os
 from flask import Flask, request, render_template, redirect, make_response
 
 from interpreter.parser_.ast_objects import Output, Error
+from interpreter.parser_.parser_ import Parser
+from interpreter.tokens.token_queue import TokenQueue
+from interpreter.tokens.tokenizer import Tokenizer
+from interpreter.utils.ast_visualizer import ASTVisualizer
 from main import evaluate
 from interpreter.evaluator.environment_ import Environment
 
@@ -45,3 +50,18 @@ def clear():
     resp.delete_cookie("source_code")
     resp.delete_cookie("results")
     return resp
+
+
+@app.route("/visualize", methods=["POST"])
+def visualize():
+    source_code = request.form["source"]
+
+    t = Tokenizer(source_code)
+    tq = TokenQueue(t)
+    p = Parser(tq)
+    ast = p.parse()
+
+    ast_v = ASTVisualizer(ast, os.path.join(app.root_path, "static", "graph.gv"))
+    ast_v.visualize()
+
+    return redirect(f"/static/graph.gv.pdf")

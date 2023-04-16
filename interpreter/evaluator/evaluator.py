@@ -75,22 +75,7 @@ class Evaluator:
             return List(expression.line_num, values)
 
         # Base Types
-        elif isinstance(expression, Number):
-            return expression
-
-        elif isinstance(expression, String):
-            return expression
-
-        elif isinstance(expression, Boolean):
-            return expression
-
-        elif isinstance(expression, BuiltinFunction):
-            return expression
-
-        elif isinstance(expression, Error):
-            return expression
-
-        elif isinstance(expression, Function):
+        elif any(isinstance(expression, t) for t in [Number, String, Boolean, BuiltinFunction, Error, Function]):
             return expression
 
         # This is a program-specific error because a missing object type would come about during development, not
@@ -115,7 +100,7 @@ class Evaluator:
 
     def evaluate_assign_variable(self, variable: Assignment) -> Expression:
         var_value: Expression = self.evaluate_expression(variable.value)
-        self.get_env.set_var(variable.variable, var_value)
+        self.get_env.set_var(variable.name, var_value)
         return var_value
 
     def evaluate_identifier(self, identifier: Identifier) -> Expression:
