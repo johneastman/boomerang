@@ -1,4 +1,5 @@
 import json
+import os
 from flask import Flask, request, render_template, redirect, make_response
 
 from interpreter.parser_.ast_objects import Output, Error
@@ -60,7 +61,7 @@ def visualize():
     p = Parser(tq)
     ast = p.parse()
 
-    ast_v = ASTVisualizer(ast, "./static/graph.gv")
+    ast_v = ASTVisualizer(ast, os.path.join(os.getcwd(), "static", "graph.gv"))
     ast_v.visualize()
 
     return redirect(f"/static/graph.gv.pdf")
