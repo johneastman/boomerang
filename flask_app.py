@@ -61,7 +61,7 @@ def visualize():
     p = Parser(tq)
     ast = p.parse()
 
-    ast_v = ASTVisualizer(ast, os.path.join(os.getcwd(), "mysite", "static", "graph.gv"))
+    ast_v = ASTVisualizer(ast, os.path.join(app.root_path, "static", "graph.gv"))
     ast_v.visualize()
 
     return redirect(f"/static/graph.gv.pdf")
