@@ -27,8 +27,11 @@ class ASTVisualizer:
         node_id = str(id(expression))
 
         if any(isinstance(expression, t)
-               for t in [Number, String, Boolean, BuiltinFunction, Error, Identifier]):
+               for t in [Number, String, Boolean, Error, Identifier]):
             self.add_node(node_id, str(expression))
+
+        elif isinstance(expression, BuiltinFunction):
+            self.add_node(node_id, expression.name)
 
         elif isinstance(expression, List):
             self.add_node(node_id, "List")

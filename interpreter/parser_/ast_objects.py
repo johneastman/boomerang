@@ -353,7 +353,7 @@ class Function(Expression):
         self.body = body
 
     def __str__(self) -> str:
-        return self.__repr__()
+        return f"<function {hex(id(self))}>"
 
     def __repr__(self, **kwargs: typing.Any) -> str:
         return super().__repr__(parameters=self.parameters, body=self.body)
@@ -395,7 +395,7 @@ class When(Expression):
             self.case_expressions == other.case_expressions
 
     def __str__(self) -> str:
-        return self.__repr__()
+        return f"<when {hex(id(self))}>"
 
     def __repr__(self, **kwargs: typing.Any) -> str:
         return super().__repr__(expression=self.expression, case_expressions=self.case_expressions)
