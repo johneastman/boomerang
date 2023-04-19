@@ -304,6 +304,10 @@ class List(Expression):
             return Boolean(self.line_num, self.values != other.values)
         return super().ne(other)
 
+    def neg(self) -> "Expression":
+        values = list(reversed(self.values))
+        return List(self.line_num, values)
+
     def ptr(self, other: object) -> "Expression":
         if isinstance(other, Number) or isinstance(other, String) or isinstance(other, Boolean):
             self.values.append(other)

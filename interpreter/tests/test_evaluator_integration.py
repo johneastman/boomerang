@@ -184,6 +184,9 @@ def test_suffix_operators(source, expected_results):
     ("!!false", [
         o.Boolean(1, False)
     ]),
+    ("-(1, 2, 3)", [
+        o.List(1, [o.Number(1, 3), o.Number(1, 2), o.Number(1, 1)])
+    ])
 ])
 def test_valid_unary_operations(source, expected_results):
     actual_results = actual_result(f"{source};")
