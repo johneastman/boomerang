@@ -1,4 +1,3 @@
-import typing
 from functools import reduce
 
 from interpreter.tokens.token import Token
@@ -11,15 +10,14 @@ class Expression:
     def __init__(self, line_num: int):
         self.line_num = line_num
 
-        # For displaying object representations
-        self.class_name = self.__class__.__name__
-
     def __str__(self) -> str:
         raise Exception(f"__str__ method in {type(self).__name__} not implemented.")
 
-    def __repr__(self, **kwargs: typing.Any) -> str:
-        variables = {**{"line_num": self.line_num}, **kwargs}
-        return f"{self.class_name}({', '.join(list(map(lambda p: f'{p[0]}={repr(p[1])}', variables.items())))})"
+    def __repr__(self) -> str:
+        class_name = self.__class__.__name__
+        instance_vars = vars(self)
+
+        return f"{class_name}({', '.join(list(map(lambda p: f'{p[0]}={repr(p[1])}', instance_vars.items())))})"
 
     def eq(self, _: object) -> "Expression":
         return Boolean(self.line_num, False)
@@ -95,9 +93,6 @@ class Number(Expression):
 
     def __str__(self) -> str:
         return str(self.__display_value())
-
-    def __repr__(self, **kwargs: typing.Any) -> str:
-        return super().__repr__(value=self.__display_value())
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Number):
@@ -227,9 +222,6 @@ class String(Expression):
     def __str__(self) -> str:
         return f"\"{self.value}\""
 
-    def __repr__(self, **kwargs: typing.Any) -> str:
-        return super().__repr__(value=self.value)
-
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, String):
             return False
@@ -259,9 +251,6 @@ class Boolean(Expression):
 
     def __str__(self) -> str:
         return get_token_literal("TRUE") if self.value else get_token_literal("FALSE")
-
-    def __repr__(self, **kwargs: typing.Any) -> str:
-        return super().__repr__(value=self.value)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Boolean):
@@ -300,9 +289,6 @@ class List(Expression):
     def __str__(self) -> str:
         return f"({', '.join(map(str, self.values))})"
 
-    def __repr__(self, **kwargs: typing.Any) -> str:
-        return super().__repr__(values=self.values)
-
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, List):
             return False
@@ -337,9 +323,6 @@ class Identifier(Expression):
     def __str__(self) -> str:
         return self.value
 
-    def __repr__(self, **kwargs: typing.Any) -> str:
-        return super().__repr__(value=self.value)
-
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Identifier):
             return False
@@ -354,9 +337,6 @@ class Function(Expression):
 
     def __str__(self) -> str:
         return f"<function {hex(id(self))}>"
-
-    def __repr__(self, **kwargs: typing.Any) -> str:
-        return super().__repr__(parameters=self.parameters, body=self.body)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Function):
@@ -375,12 +355,6 @@ class FunctionCall(Expression):
         self.function = function
         self.call_params = call_params
 
-    def __str__(self) -> str:
-        return self.__repr__()
-
-    def __repr__(self, **kwargs: typing.Any) -> str:
-        return super().__repr__(function=self.function, call_params=self.call_params)
-
 
 class When(Expression):
     def __init__(self, line_num: int, expression: Expression, case_expressions: list[tuple[Expression, Expression]]):
@@ -397,9 +371,6 @@ class When(Expression):
     def __str__(self) -> str:
         return f"<when {hex(id(self))}>"
 
-    def __repr__(self, **kwargs: typing.Any) -> str:
-        return super().__repr__(expression=self.expression, case_expressions=self.case_expressions)
-
 
 class Output(Expression):
     """Stores representation of what is printed to the console.
@@ -411,9 +382,6 @@ class Output(Expression):
 
     def __str__(self) -> str:
         return self.value
-
-    def __repr__(self, **kwargs: typing.Any) -> str:
-        return super().__repr__(value=self.value)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Output):
@@ -434,9 +402,6 @@ class BuiltinFunction(Expression):
 
     def __str__(self) -> str:
         return f"<built-in function {self.name}>"
-
-    def __repr__(self, **kwargs: typing.Any) -> str:
-        return super().__repr__(name=self.name)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, BuiltinFunction):
@@ -466,9 +431,6 @@ class UnaryExpression(Expression):
     def __str__(self) -> str:
         return self.__repr__()
 
-    def __repr__(self, **kwargs: typing.Any) -> str:
-        return super().__repr__(operator=self.operator, expression=self.expression)
-
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, UnaryExpression):
             return False
@@ -485,9 +447,6 @@ class BinaryExpression(Expression):
     def __str__(self) -> str:
         return self.__repr__()
 
-    def __repr__(self, **kwargs: typing.Any) -> str:
-        return super().__repr__(left=self.left, operator=self.operator, right=self.right)
-
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, BinaryExpression):
             return False
@@ -502,9 +461,6 @@ class PostfixExpression(Expression):
 
     def __str__(self) -> str:
         return self.__repr__()
-
-    def __repr__(self, **kwargs: typing.Any) -> str:
-        return super().__repr__(operator=self.operator, expression=self.expression)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, PostfixExpression):
@@ -521,9 +477,6 @@ class Assignment(Expression):
     def __str__(self) -> str:
         return self.__repr__()
 
-    def __repr__(self, **kwargs: typing.Any) -> str:
-        return super().__repr__(name=self.name, value=self.value)
-
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Assignment):
             return False
@@ -537,9 +490,6 @@ class Error(Expression):
 
     def __str__(self) -> str:
         return self.message
-
-    def __repr__(self, **kwargs: typing.Any) -> str:
-        return super().__repr__(message=self.message)
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Error):
