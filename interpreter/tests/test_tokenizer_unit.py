@@ -1,4 +1,6 @@
 import pytest
+
+from interpreter.tests.testing_utils import assert_token_equal
 from interpreter.tokens.tokenizer import Tokenizer, Token
 from interpreter.tokens.tokens import EQ, ASSIGN, LE, LT, GE, GT, SEND, BANG, NE, INC, PLUS, DEC, MINUS, IDENTIFIER, \
     NUMBER
@@ -191,7 +193,7 @@ def test_advance_current_peek_index():
 ])
 def test_get_symbol_token(symbol, type_):
     tokenizer = Tokenizer(symbol)
-    assert tokenizer.get_symbol_token() == Token(1, symbol, type_)
+    assert_token_equal(Token(1, symbol, type_), tokenizer.get_symbol_token())
 
 
 def test_skip_whitespace():

@@ -1,4 +1,6 @@
 import pytest
+
+from interpreter.tests.testing_utils import assert_tokens_equal
 from interpreter.tokens.tokens import *
 from interpreter.tokens.tokenizer import Tokenizer, Token
 
@@ -36,7 +38,7 @@ def test_symbols(symbol, type_):
     - DOUBLE_QUOTE (indicates start and end of strings)
     """
     actual_tokens = get_tokens(symbol)
-    assert actual_tokens == [Token(1, symbol, type_), Token(1, "", EOF)]
+    assert_tokens_equal([Token(1, symbol, type_), Token(1, "", EOF)], actual_tokens)
 
 
 @pytest.mark.parametrize("keyword, type_", [
@@ -55,7 +57,7 @@ def test_keywords(keyword, type_):
     - DOUBLE_QUOTE (indicates start and end of strings)
     """
     actual_tokens = get_tokens(keyword)
-    assert actual_tokens == [Token(1, keyword, type_), Token(1, "", EOF)]
+    assert_tokens_equal([Token(1, keyword, type_), Token(1, "", EOF)], actual_tokens)
 
 
 @pytest.mark.parametrize("source,expected_token", [
@@ -69,7 +71,7 @@ def test_keywords(keyword, type_):
 ])
 def test_data_types(source, expected_token):
     actual_tokens = get_tokens(source)
-    assert actual_tokens == [expected_token, Token(1, "", EOF)]
+    assert_tokens_equal([expected_token, Token(1, "", EOF)], actual_tokens)
 
 
 @pytest.mark.parametrize("source, expected_tokens", [
@@ -109,7 +111,7 @@ def test_data_types(source, expected_token):
 ])
 def test_tokenizer(source, expected_tokens):
     actual_tokens = get_tokens(source)
-    assert actual_tokens == expected_tokens
+    assert_tokens_equal(expected_tokens, actual_tokens)
 
 
 def test_skip_comments():
@@ -121,13 +123,13 @@ def test_skip_comments():
     """
     line_num = 5
     actual_tokens = get_tokens(source)
-    assert actual_tokens == [
+    assert_tokens_equal([
         Token(line_num, "a", IDENTIFIER),
         Token(line_num, "=", ASSIGN),
         Token(line_num, "1", NUMBER),
         Token(line_num, ";", SEMICOLON),
         Token(line_num + 1, "", EOF)
-    ]
+    ], actual_tokens)
 
 
 def get_tokens(source: str) -> list[Token]:

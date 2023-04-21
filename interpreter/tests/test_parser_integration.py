@@ -2,7 +2,7 @@ import pytest
 
 from interpreter.tokens import tokens as t
 from interpreter.tokens.tokenizer import Token
-from .testing_utils import create_when
+from .testing_utils import create_when, assert_expressions_equal
 from . import testing_utils
 from ..parser_.ast_objects import BuiltinFunction, Boolean, Number, List, Identifier, BinaryExpression, \
     UnaryExpression, Function, String, PostfixExpression
@@ -20,7 +20,7 @@ def test_boolean(source, expected_value):
 
     parser = testing_utils.parser(f"{source};")
     actual_ast = parser.parse()
-    assert actual_ast == expected_ast
+    assert_expressions_equal(expected_ast, actual_ast)
 
 
 @pytest.mark.parametrize("source, expected_list_values", [
@@ -39,7 +39,7 @@ def test_list(source, expected_list_values):
 
     parser = testing_utils.parser(f"{source};")
     actual_ast = parser.parse()
-    assert actual_ast == expected_ast
+    assert_expressions_equal(expected_ast, actual_ast)
 
 
 @pytest.mark.parametrize("source, operator, expression", [
@@ -54,7 +54,7 @@ def test_unary_expressions(source, operator, expression):
 
     parser = testing_utils.parser(f"{source};")
     actual_ast = parser.parse()
-    assert actual_ast == expected_ast
+    assert_expressions_equal(expected_ast, actual_ast)
 
 
 @pytest.mark.parametrize("source, ast_object", [
@@ -70,7 +70,7 @@ def test_suffix_operators(source, ast_object):
 
     parser = testing_utils.parser(f"{source};")
     actual_ast = parser.parse()
-    assert actual_ast == expected_ast
+    assert_expressions_equal(expected_ast, actual_ast)
 
 
 @pytest.mark.parametrize("source, left, operator, right", [
@@ -95,7 +95,7 @@ def test_binary_expressions(source, left, operator, right):
 
     parser = testing_utils.parser(f"{source};")
     actual_ast = parser.parse()
-    assert actual_ast == expected_ast
+    assert_expressions_equal(expected_ast, actual_ast)
 
 
 @pytest.mark.parametrize("source, expected_result", [
@@ -154,16 +154,16 @@ def test_binary_expressions(source, left, operator, right):
 def test_precedence(source, expected_result):
     parser = testing_utils.parser(f"{source};")
     actual_ast = parser.parse()
-    assert actual_ast == [expected_result]
+    assert_expressions_equal([expected_result], actual_ast)
 
 
-@pytest.mark.parametrize("name, ast_object", [
+@pytest.mark.parametrize("name, expected_ast", [
     ("print", BuiltinFunction(1, "print"))
 ])
-def test_builtin_functions(name, ast_object):
+def test_builtin_functions(name, expected_ast):
     parser = testing_utils.parser(f"{name};")
     actual_ast = parser.parse()
-    assert actual_ast == [ast_object]
+    assert_expressions_equal([expected_ast], actual_ast)
 
 
 @pytest.mark.parametrize("source, expected_error_message", [
@@ -203,7 +203,7 @@ def test_functions(params_str, params_list, body_str, body_ast):
     expected_ast = [
         Function(1, params_list, body_ast)
     ]
-    assert actual_ast == expected_ast
+    assert_expressions_equal(expected_ast, actual_ast)
 
 
 def test_function_calls():
@@ -217,7 +217,7 @@ def test_function_calls():
             List(1, [])
         )
     ]
-    assert actual_ast == expected_ast
+    assert_expressions_equal(expected_ast, actual_ast)
 
 
 @pytest.mark.parametrize("switch_expression, case_expressions", [
@@ -261,4 +261,4 @@ def test_when(switch_expression, case_expressions):
 
     expected_ast = [expected_when_ast]
 
-    assert actual_ast == expected_ast
+    assert_expressions_equal(expected_ast, actual_ast)

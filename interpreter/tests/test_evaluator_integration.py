@@ -1,6 +1,7 @@
 import pytest
 
 import interpreter.parser_.ast_objects as o
+from interpreter.tests.testing_utils import assert_expressions_equal
 from interpreter.tokens.tokenizer import Tokenizer, Token
 from interpreter.tokens.token_queue import TokenQueue
 from interpreter.parser_.parser_ import Parser
@@ -29,7 +30,7 @@ from interpreter.tokens.tokens import PLUS, LE, SEND, MINUS
 ])
 def test_evaluator(source, expected_results):
     actual_results = actual_result(f"{source};")
-    assert expected_results == actual_results
+    assert_expressions_equal(expected_results, actual_results)
 
 
 @pytest.mark.parametrize("source, expected_results", [
@@ -110,7 +111,7 @@ def test_evaluator(source, expected_results):
 ])
 def test_binary_expressions(source, expected_results):
     actual_results = actual_result(f"{source};")
-    assert expected_results == actual_results
+    assert_expressions_equal(expected_results, actual_results)
 
 
 @pytest.mark.parametrize("source, expected_results", [
@@ -150,7 +151,7 @@ def test_binary_expressions(source, expected_results):
 ])
 def test_suffix_operators(source, expected_results):
     actual_results = actual_result(f"{source};")
-    assert expected_results == actual_results
+    assert_expressions_equal(expected_results, actual_results)
 
 
 @pytest.mark.parametrize("source,expected_results", [
@@ -190,7 +191,7 @@ def test_suffix_operators(source, expected_results):
 ])
 def test_valid_unary_operations(source, expected_results):
     actual_results = actual_result(f"{source};")
-    assert actual_results == expected_results
+    assert_expressions_equal(expected_results, actual_results)
 
 
 @pytest.mark.parametrize("source, output_str", [
@@ -198,8 +199,8 @@ def test_valid_unary_operations(source, expected_results):
     ("1", "1")
 ])
 def test_print(source, output_str):
-    results = actual_result(f"print <- ({source},);")
-    assert results == [o.Output(1, output_str)]
+    actual_results = actual_result(f"print <- ({source},);")
+    assert_expressions_equal([o.Output(1, output_str)], actual_results)
 
 
 @pytest.mark.parametrize("source, expected_results", [
@@ -276,8 +277,8 @@ def test_print(source, output_str):
     )
 ])
 def test_functions(source, expected_results):
-    results = actual_result(source)
-    assert results == expected_results
+    actual_results = actual_result(source)
+    assert_expressions_equal(expected_results, actual_results)
 
 
 def test_when_if_implementation():
@@ -318,7 +319,7 @@ def test_when_if_implementation():
         a == 4: "4"
         else: "0";
     """
-    results = actual_result(src)
+    actual_results = actual_result(src)
     expected_results = [
         o.Number(2, 1),
         o.String(3, "1"),
@@ -331,7 +332,7 @@ def test_when_if_implementation():
         o.Number(30, 5),
         o.String(31, "0"),
     ]
-    assert results == expected_results
+    assert_expressions_equal(expected_results, actual_results)
 
 
 def test_when_switch_implementation():
@@ -372,7 +373,7 @@ def test_when_switch_implementation():
         is 4: "4"
         else: "0";
     """
-    results = actual_result(src)
+    actual_results = actual_result(src)
     expected_results = [
         o.Number(2, 1),
         o.String(3, "1"),
@@ -385,7 +386,7 @@ def test_when_switch_implementation():
         o.Number(30, 5),
         o.String(31, "0"),
     ]
-    assert results == expected_results
+    assert_expressions_equal(expected_results, actual_results)
 
 
 def actual_result(source):

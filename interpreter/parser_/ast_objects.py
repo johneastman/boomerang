@@ -12,9 +12,6 @@ class Expression:
     def __str__(self) -> str:
         raise Exception(f"__str__ method in {type(self).__name__} not implemented.")
 
-    def __hash__(self) -> int:
-        raise Exception(f"__hash__ method in type {type(self).__name__} not implemented.")
-
     def __repr__(self) -> str:
         class_name = self.__class__.__name__
         instance_vars = vars(self)
@@ -22,7 +19,7 @@ class Expression:
         return f"{class_name}({', '.join(list(map(lambda p: f'{p[0]}={repr(p[1])}', instance_vars.items())))})"
 
     def eq(self, other: "Expression") -> "Boolean":
-        return Boolean(self.line_num, hash((self, type(self).__name__)) == hash((other, type(other).__name__)))
+        return Boolean(self.line_num, type(self) == type(other) and self == other)
 
     def ne(self, other: "Expression") -> "Boolean":
         return Boolean(self.line_num, not self.eq(other).value)
@@ -99,10 +96,7 @@ class Number(Expression):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Number):
             return False
-        return self.line_num == other.line_num and self.value == other.value
-
-    def __hash__(self) -> int:
-        return hash(self.value)
+        return self.value == other.value
 
     def __display_value(self) -> float:
         if self.is_whole_number():
@@ -220,10 +214,7 @@ class String(Expression):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, String):
             return False
-        return self.line_num == other.line_num and self.value == other.value
-
-    def __hash__(self) -> int:
-        return hash(self.value)
+        return self.value == other.value
 
     def add(self, other: object) -> Expression:
         if isinstance(other, String):
@@ -243,10 +234,7 @@ class Boolean(Expression):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Boolean):
             return False
-        return self.line_num == other.line_num and self.value == other.value
-
-    def __hash__(self) -> int:
-        return hash(self.value)
+        return self.value == other.value
 
     def bang(self) -> "Expression":
         return Boolean(self.line_num, not self.value)
@@ -273,10 +261,7 @@ class List(Expression):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, List):
             return False
-        return self.line_num == other.line_num and self.values == other.values
-
-    def __hash__(self) -> int:
-        return hash(tuple(self.values))
+        return self.values == other.values
 
     def neg(self) -> "Expression":
         values = list(reversed(self.values))
@@ -292,6 +277,15 @@ class List(Expression):
             return List(self.line_num, self.values + other.values)
         return super().add(other)
 
+    def sub(self, other: object) -> "Expression":
+        if isinstance(other, List):
+            new_values = self.values
+            for value_to_remove in other.values:
+                new_values = [v for v in new_values if v.ne(value_to_remove).value]
+            return List(self.line_num, new_values)
+
+        return super().sub(other)
+
 
 class Function(Expression):
     def __init__(self, line_num: int, parameters: list["Identifier"], body: Expression):
@@ -305,10 +299,7 @@ class Function(Expression):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Function):
             return False
-        return self.line_num == other.line_num and self.parameters == other.parameters and self.body == other.body
-
-    def __hash__(self) -> int:
-        return hash((tuple(self.parameters), self.body))
+        return self.parameters == other.parameters and self.body == other.body
 
     def ptr(self, other: object) -> "Expression":
         if isinstance(other, List):
@@ -325,7 +316,7 @@ class FunctionCall(Expression):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, FunctionCall):
             return False
-        return self.line_num == other.line_num and self.function == other.function and self.call_params == other.call_params
+        return self.function == other.function and self.call_params == other.call_params
 
 
 class Identifier(Expression):
@@ -339,10 +330,7 @@ class Identifier(Expression):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Identifier):
             return False
-        return self.line_num == other.line_num and self.value == other.value
-
-    def __hash__(self) -> int:
-        return hash(self.value)
+        return self.value == other.value
 
 
 class When(Expression):
@@ -354,8 +342,7 @@ class When(Expression):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, When):
             return False
-        return self.line_num == other.line_num and self.expression == other.expression and \
-            self.case_expressions == other.case_expressions
+        return self.expression == other.expression and self.case_expressions == other.case_expressions
 
     def __str__(self) -> str:
         return f"<when {hex(id(self))}>"
@@ -375,7 +362,7 @@ class Output(Expression):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Output):
             return False
-        return self.line_num == other.line_num and self.value == other.value
+        return self.value == other.value
 
 
 class BuiltinFunction(Expression):
@@ -395,7 +382,7 @@ class BuiltinFunction(Expression):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, BuiltinFunction):
             return False
-        return self.line_num == other.line_num and self.name == other.name
+        return self.name == other.name
 
     def ptr(self, other: object) -> "Expression":
         if isinstance(other, List):
@@ -423,7 +410,7 @@ class UnaryExpression(Expression):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, UnaryExpression):
             return False
-        return self.line_num == other.line_num and self.operator == other.operator and self.expression == other.expression
+        return self.operator == other.operator and self.expression == other.expression
 
 
 class BinaryExpression(Expression):
@@ -439,10 +426,7 @@ class BinaryExpression(Expression):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, BinaryExpression):
             return False
-        return self.line_num == other.line_num and self.left == other.left and self.operator == other.operator and self.right == other.right
-
-    def __hash__(self) -> int:
-        return hash((self.left, self.operator, self.right))
+        return self.left == other.left and self.operator == other.operator and self.right == other.right
 
 
 class PostfixExpression(Expression):
@@ -457,7 +441,7 @@ class PostfixExpression(Expression):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, PostfixExpression):
             return False
-        return self.line_num == other.line_num and self.operator == other.operator and self.expression == other.expression
+        return self.operator == other.operator and self.expression == other.expression
 
 
 class Assignment(Expression):
@@ -472,7 +456,7 @@ class Assignment(Expression):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Assignment):
             return False
-        return self.line_num == other.line_num and self.name == other.name and self.value == other.value
+        return self.name == other.name and self.value == other.value
 
 
 class Error(Expression):
@@ -486,4 +470,4 @@ class Error(Expression):
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Error):
             return False
-        return self.line_num == other.line_num and self.message == other.message
+        return self.message == other.message

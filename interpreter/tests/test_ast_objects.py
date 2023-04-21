@@ -1,8 +1,7 @@
-import token
-
 import pytest
 
 from interpreter.parser_.ast_objects import *
+from interpreter.tests.testing_utils import assert_expression_equal
 from interpreter.tokens import tokens as t
 
 test_binary_expression = BinaryExpression(1, Identifier(1, "a"), Token(1, "+", t.PLUS), Identifier(1, "b"))
@@ -99,7 +98,30 @@ def test_repr(ast_object, repr_str):
 ])
 def test_add(left, right, expected_result):
     actual_result = left.add(right)
-    assert actual_result == expected_result
+    assert_expression_equal(expected_result, actual_result)
+
+
+@pytest.mark.parametrize("left, right, expected_result", [
+    # Lists
+    (
+        List(1, [Number(1, 1), Number(1, 2), Number(1, 3), Number(1, 4), Number(1, 5)]),
+        List(1, [Number(1, 1), Number(1, 3), Number(1, 5)]),
+        List(1, [Number(1, 2), Number(1, 4)]),
+    ),
+    (
+        List(1, [Number(1, 1), Number(1, 2), Number(1, 3), Number(1, 4), Number(1, 5)]),
+        List(1, []),
+        List(1, [Number(1, 1), Number(1, 2), Number(1, 3), Number(1, 4), Number(1, 5)]),
+    ),
+    (
+        List(1, []),
+        List(1, [Number(1, 1)]),
+        List(1, []),
+    ),
+])
+def test_sub(left, right, expected_result):
+    actual_result = left.sub(right)
+    assert_expression_equal(expected_result, actual_result)
 
 
 @pytest.mark.parametrize("left, right, expected_result", [
@@ -143,7 +165,7 @@ def test_add(left, right, expected_result):
 ])
 def test_ptr(left, right, expected_result):
     actual_result = left.ptr(right)
-    assert actual_result == expected_result
+    assert_expression_equal(expected_result, actual_result)
 
 
 @pytest.mark.parametrize("left, right, expected_equal_result, expected_not_equal_result", [
@@ -242,5 +264,5 @@ def test_ptr(left, right, expected_result):
 def test_equal_not_equal(left, right, expected_equal_result, expected_not_equal_result):
     """Test that object are equal and not equal without consideration for the line number.
     """
-    assert left.eq(right) == Boolean(1, expected_equal_result)
-    assert left.ne(right) == Boolean(1, expected_not_equal_result)
+    assert_expression_equal(Boolean(1, expected_equal_result), left.eq(right))
+    assert_expression_equal(Boolean(1, expected_not_equal_result), left.ne(right))
