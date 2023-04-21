@@ -123,13 +123,14 @@ def test_skip_comments():
     """
     line_num = 5
     actual_tokens = get_tokens(source)
-    assert_tokens_equal([
+    expected_tokens = [
         Token(line_num, "a", IDENTIFIER),
         Token(line_num, "=", ASSIGN),
         Token(line_num, "1", NUMBER),
         Token(line_num, ";", SEMICOLON),
         Token(line_num + 1, "", EOF)
-    ], actual_tokens)
+    ]
+    assert_tokens_equal(expected_tokens, actual_tokens)
 
 
 def get_tokens(source: str) -> list[Token]:
