@@ -1,9 +1,11 @@
+import token
+
 import pytest
 
 from interpreter.parser_.ast_objects import *
-from interpreter.tokens.tokens import INC
+from interpreter.tokens import tokens as t
 
-test_binary_expression = BinaryExpression(1, Identifier(1, "a"), Token(1, "+", PLUS), Identifier(1, "b"))
+test_binary_expression = BinaryExpression(1, Identifier(1, "a"), Token(1, "+", t.PLUS), Identifier(1, "b"))
 
 test_function = Function(
     1,
@@ -54,7 +56,7 @@ test_function = Function(
         "BuiltinFunction(line_num=1, name='print')"
     ),
     (
-        UnaryExpression(1, Token(1, "-", MINUS), Number(1, 1)),
+        UnaryExpression(1, Token(1, "-", t.MINUS), Number(1, 1)),
         "UnaryExpression(line_num=1, operator=Token(line_num=1, value='-', type=MINUS), expression=Number(line_num=1, value=1))"
     ),
     (
@@ -62,7 +64,7 @@ test_function = Function(
         "BinaryExpression(line_num=1, left=Identifier(line_num=1, value='a'), operator=Token(line_num=1, value='+', type=PLUS), right=Identifier(line_num=1, value='b'))"
     ),
     (
-        PostfixExpression(1, Token(1, "++", INC), Number(1, 5)),
+        PostfixExpression(1, Token(1, "++", t.INC), Number(1, 5)),
         "PostfixExpression(line_num=1, operator=Token(line_num=1, value='++', type=INC), expression=Number(line_num=1, value=5))"
     ),
     (
@@ -110,6 +112,33 @@ def test_add(left, right, expected_result):
         List(1, [Number(1, 1)]),
         List(1, [String(1, "hello"), String(1, "world")]),
         List(1, [Number(1, 1), List(1, [String(1, "hello"), String(1, "world")])])
+    ),
+    (
+        Function(
+            1,
+            [Identifier(1, "a"), Identifier(1, "b")],
+            BinaryExpression(
+                1,
+                Identifier(1, "a"),
+                Token(1, "+", t.PLUS),
+                Identifier(1, "b")
+            )
+        ),
+        List(1, [Number(1, 1), Number(1, 2)]),
+        FunctionCall(
+            1,
+            Function(
+                1,
+                [Identifier(1, "a"), Identifier(1, "b")],
+                BinaryExpression(
+                    1,
+                    Identifier(1, "a"),
+                    Token(1, "+", t.PLUS),
+                    Identifier(1, "b")
+                )
+            ),
+            List(1, [Number(1, 1), Number(1, 2)])
+        )
     )
 ])
 def test_ptr(left, right, expected_result):

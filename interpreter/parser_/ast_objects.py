@@ -1,8 +1,7 @@
 from functools import reduce
 
 from interpreter.tokens.token import Token
-from interpreter.tokens.tokens import get_token_literal, PLUS, MINUS, MULTIPLY, DIVIDE, SEND, BANG, GT, GE, \
-    LT, LE, AND, OR, MOD
+from interpreter.tokens import tokens as t
 from interpreter.utils.utils import language_error, divide_by_zero_error
 
 
@@ -41,49 +40,49 @@ class Expression:
         raise language_error(self.line_num, f"Invalid type {type(self).__name__} for decrement")
 
     def and_(self, other: object) -> "Expression":
-        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {AND}")
+        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.AND}")
 
     def or_(self, other: object) -> "Expression":
-        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {OR}")
+        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.OR}")
 
     def gt(self, other: object) -> "Expression":
-        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {GT}")
+        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.GT}")
 
     def ge(self, other: object) -> "Expression":
-        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {GE}")
+        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.GE}")
 
     def lt(self, other: object) -> "Expression":
-        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {LT}")
+        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.LT}")
 
     def le(self, other: object) -> "Expression":
-        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {LE}")
+        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.LE}")
 
     def add(self, other: object) -> "Expression":
         raise language_error(self.line_num,
-                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {PLUS}")
+                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.PLUS}")
 
     def sub(self, other: object) -> "Expression":
         raise language_error(self.line_num,
-                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {MINUS}")
+                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.MINUS}")
 
     def mul(self, other: object) -> "Expression":
         raise language_error(self.line_num,
-                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {MULTIPLY}")
+                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.MULTIPLY}")
 
     def div(self, other: object) -> "Expression":
         raise language_error(self.line_num,
-                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {DIVIDE}")
+                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.DIVIDE}")
 
     def mod(self, other: object) -> "Expression":
         raise language_error(self.line_num,
-                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {MOD}")
+                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.MOD}")
 
     def ptr(self, other: object) -> "Expression":
         raise language_error(self.line_num,
-                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {SEND}")
+                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.SEND}")
 
     def bang(self) -> "Expression":
-        raise language_error(self.line_num, f"Invalid type {type(self).__name__} for {BANG}")
+        raise language_error(self.line_num, f"Invalid type {type(self).__name__} for {t.BANG}")
 
 
 class Number(Expression):
@@ -250,7 +249,7 @@ class Boolean(Expression):
         self.value = value
 
     def __str__(self) -> str:
-        return get_token_literal("TRUE") if self.value else get_token_literal("FALSE")
+        return t.get_token_literal("TRUE") if self.value else t.get_token_literal("FALSE")
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Boolean):
@@ -358,6 +357,11 @@ class FunctionCall(Expression):
         super().__init__(line_num)
         self.function = function
         self.call_params = call_params
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, FunctionCall):
+            return False
+        return self.line_num == other.line_num and self.function == other.function and self.call_params == other.call_params
 
 
 class When(Expression):
