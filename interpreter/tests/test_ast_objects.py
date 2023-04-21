@@ -144,3 +144,103 @@ def test_add(left, right, expected_result):
 def test_ptr(left, right, expected_result):
     actual_result = left.ptr(right)
     assert actual_result == expected_result
+
+
+@pytest.mark.parametrize("left, right, expected_equal_result, expected_not_equal_result", [
+    # Numbers
+    (
+        Number(1, 1),
+        Number(2, 1),
+        True,
+        False
+    ),
+    (
+        Number(1, 2),
+        Number(2, 1),
+        False,
+        True
+    ),
+
+    # Booleans
+    (
+        Boolean(1, True),
+        Boolean(2, True),
+        True,
+        False
+    ),
+    (
+        Boolean(1, True),
+        Boolean(2, False),
+        False,
+        True
+    ),
+
+    # Strings
+    (
+        String(1, "hello, world"),
+        String(2, "hello, world"),
+        True,
+        False
+    ),
+    (
+        String(1, "hello, world"),
+        String(2, "Hello, World"),
+        False,
+        True
+    ),
+
+    # Lists
+    (
+        List(1, []),
+        List(2, []),
+        True,
+        False
+    ),
+    (
+        List(1, [Number(1, 1)]),
+        List(2, [Number(2, 1)]),  # Line numbers don't need to match for equality
+        True,
+        False
+    ),
+    (
+        List(1, [Number(1, 1)]),
+        List(2, [Number(2, 2)]),
+        False,
+        True
+    ),
+
+    # Functions
+    (
+        Function(
+            1,
+            [Identifier(1, "a"), Identifier(1, "b")],
+            BinaryExpression(1, Identifier(1, "a"), Token(1, "+", t.PLUS), Identifier(1, "b"))
+        ),
+        Function(
+            2,
+            [Identifier(2, "a"), Identifier(2, "b")],
+            BinaryExpression(2, Identifier(2, "a"), Token(2, "+", t.PLUS), Identifier(2, "b"))
+        ),
+        True,
+        False
+    ),
+    (
+        Function(
+            1,
+            [Identifier(1, "b"), Identifier(1, "a")],
+            BinaryExpression(1, Identifier(1, "a"), Token(1, "+", t.PLUS), Identifier(1, "b"))
+        ),
+        Function(
+            2,
+            [Identifier(2, "a"), Identifier(2, "b")],
+            BinaryExpression(2, Identifier(2, "a"), Token(2, "+", t.PLUS), Identifier(2, "b"))
+        ),
+        False,
+        True
+    ),
+])
+def test_equal_not_equal(left, right, expected_equal_result, expected_not_equal_result):
+    """Test that object are equal and not equal without consideration for the line number.
+    """
+    assert left.eq(right) == Boolean(1, expected_equal_result)
+    assert left.ne(right) == Boolean(1, expected_not_equal_result)

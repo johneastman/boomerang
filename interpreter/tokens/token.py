@@ -20,3 +20,6 @@ class Token:
         if not isinstance(other, Token):
             return False
         return self.value == other.value and self.type == other.type and self.line_num == other.line_num
+
+    def __hash__(self) -> int:
+        return hash((self.value, self.type))
