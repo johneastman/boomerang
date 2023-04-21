@@ -8,7 +8,7 @@ venv/
 
 # graphviz
 *.gv
-*.gv.pdf
+*.pdf
 
 # Language Files
 main.bng

@@ -1,4 +1,3 @@
-# TODO: implement AST visualization (may cause issued with deployment on pythonanywhere)
 # mypy error: Skipping analyzing "graphviz": module is installed, but missing library stubs or py.typed marker
 #
 # reason for ignore: mypy doesn't know about dependency types
@@ -13,10 +12,10 @@ class ASTVisualizer:
 
     def visualize(self) -> bytes:
         root_node_id = "0"
-        self.add_node(root_node_id, "Statements")
+        self.add_node(root_node_id, "Expressions")
         for statement in self.ast:
             self.__visualize(statement)
-            self.add_edge(root_node_id, str(id(statement)))
+            self.add_edge(root_node_id, statement)
 
         # mypy error: Returning Any from function declared to return "bytes"
         #
@@ -26,8 +25,8 @@ class ASTVisualizer:
     def __visualize(self, expression: Expression) -> None:
         node_id = str(id(expression))
 
-        if any(isinstance(expression, t)
-               for t in [Number, String, Boolean, Error, Identifier]):
+        if any(isinstance(expression, type_)
+               for type_ in [Number, String, Boolean, Error, Identifier]):
             self.add_node(node_id, str(expression))
 
         elif isinstance(expression, BuiltinFunction):

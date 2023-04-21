@@ -77,14 +77,16 @@ if __name__ == "__main__":
     if repl_var and path_var:
         parser.error(f"{path_flags[0]} and {repl_flags[0]} cannot be given together")
 
-    if args.repl:
+    if repl_var:
         repl()
-    elif args.path:
-        source = get_source(args.path)
+    elif path_var:
+        source = get_source(path_var)
         results = evaluate(source, Environment())
         for result in results:
             if isinstance(result, Output) or isinstance(result, Error):
                 print(result)
 
         if visualize_path:
-            visualize_ast(source)
+            pdf_data: bytes = visualize_ast(source)
+            with open("graph.pdf", "wb") as file:
+                file.write(pdf_data)

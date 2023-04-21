@@ -9,7 +9,7 @@ Some defining characteristics of Boomerang are:
 * **Immutable:** data is immutable, and operations return new data instead of modifying existing data.
 
 # Install
-1. Download and install [Python](https://www.python.org/downloads/)
+1. Download and install [Python 3.11+](https://www.python.org/downloads/)
 2. `pip install -r requirements.txt`
     * May need to run `python3 -m pip install -r requirements.txt`
 3. Install [graphviz](https://graphviz.org/download/)
@@ -19,12 +19,16 @@ Some defining characteristics of Boomerang are:
 Boomerang files end with the `.bng` extension (e.g., `main.bng`).
 
 To run a Boomerang file:
-`python3 main.py --path [PATH TO FILE]`
+`python main.py --path [PATH TO FILE]`
+
+Include the `-v`/`--visualize` flag to save a graph representation of the Abstract Syntax Tree as a PDF.
 
 To run the repl:
-`python3 main.py --repl`
+`python main.py --repl`
 
-**NOTE:** `python3` may not be how python files are run on your machine.
+AST visualization is not available for the REPL.
+
+**NOTE:** may need to replace `python` with `python3`.
 
 ## Flask App
 Boomerang has a web interface that will allow you to run it from the browser!
