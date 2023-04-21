@@ -106,18 +106,23 @@ def test_add(left, right, expected_result):
     (
         List(1, [Number(1, 1), Number(1, 2), Number(1, 3), Number(1, 4), Number(1, 5)]),
         List(1, [Number(1, 1), Number(1, 3), Number(1, 5)]),
-        List(1, [Number(1, 2), Number(1, 4)]),
+        List(1, [Number(1, 2), Number(1, 4)])
     ),
     (
         List(1, [Number(1, 1), Number(1, 2), Number(1, 3), Number(1, 4), Number(1, 5)]),
         List(1, []),
-        List(1, [Number(1, 1), Number(1, 2), Number(1, 3), Number(1, 4), Number(1, 5)]),
+        List(1, [Number(1, 1), Number(1, 2), Number(1, 3), Number(1, 4), Number(1, 5)])
     ),
     (
         List(1, []),
         List(1, [Number(1, 1)]),
-        List(1, []),
+        List(1, [])
     ),
+    (
+        List(1, [Number(1, 1), Number(1, 1), Number(1, 3), Number(1, 4), Number(1, 4)]),
+        List(1, [Number(1, 1), Number(1, 4)]),
+        List(1, [Number(1, 3)])
+    )
 ])
 def test_sub(left, right, expected_result):
     actual_result = left.sub(right)

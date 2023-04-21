@@ -9,6 +9,9 @@ class Expression:
     def __init__(self, line_num: int):
         self.line_num = line_num
 
+    def __eq__(self, other: object) -> bool:
+        raise Exception(f"__eq__ method in {type(self).__name__} not implemented.")
+
     def __str__(self) -> str:
         raise Exception(f"__str__ method in {type(self).__name__} not implemented.")
 
@@ -19,7 +22,7 @@ class Expression:
         return f"{class_name}({', '.join(list(map(lambda p: f'{p[0]}={repr(p[1])}', instance_vars.items())))})"
 
     def eq(self, other: "Expression") -> "Boolean":
-        return Boolean(self.line_num, type(self) == type(other) and self == other)
+        return Boolean(self.line_num, self == other)
 
     def ne(self, other: "Expression") -> "Boolean":
         return Boolean(self.line_num, not self.eq(other).value)
