@@ -4,7 +4,7 @@ from copy import copy
 from interpreter.tokens.token import Token
 from interpreter.tokens.token_queue import TokenQueue
 from interpreter.parser_.ast_objects import *
-from interpreter.tokens.tokens import *
+from interpreter.tokens import tokens as t
 from interpreter.utils.utils import language_error, unexpected_token_error
 
 # Precedence names
@@ -33,36 +33,36 @@ class Parser:
         self.precedences: list[str] = [
             LOWEST,
             AND_OR,
+            SEND,
             COMPARE,
             SUM,
             PRODUCT,
             PREFIX,
-            POSTFIX,
-            SEND
+            POSTFIX
         ]
 
         self.infix_precedence: dict[str, str] = {
-            POINTER: SEND,
-            PLUS: SUM,
-            MINUS: SUM,
-            BANG: PREFIX,
-            DEC: POSTFIX,
-            INC: POSTFIX,
-            OR: AND_OR,
-            AND: AND_OR,
-            MULTIPLY: PRODUCT,
-            DIVIDE: PRODUCT,
-            MOD: PRODUCT,
-            EQ: COMPARE,
-            NE: COMPARE,
-            LT: COMPARE,
-            LE: COMPARE,
-            GT: COMPARE,
-            GE: COMPARE,
+            t.SEND: SEND,
+            t.PLUS: SUM,
+            t.MINUS: SUM,
+            t.BANG: PREFIX,
+            t.DEC: POSTFIX,
+            t.INC: POSTFIX,
+            t.OR: AND_OR,
+            t.AND: AND_OR,
+            t.MULTIPLY: PRODUCT,
+            t.DIVIDE: PRODUCT,
+            t.MOD: PRODUCT,
+            t.EQ: COMPARE,
+            t.NE: COMPARE,
+            t.LT: COMPARE,
+            t.LE: COMPARE,
+            t.GT: COMPARE,
+            t.GE: COMPARE,
         }
 
     def parse(self) -> list[Expression]:
-        return self.parse_statements(EOF)
+        return self.parse_statements(t.EOF)
 
     def parse_statements(self, end_type: str) -> list[Expression]:
         """Parse statements within a certain scope (set by 'end_type')
@@ -73,7 +73,7 @@ class Parser:
         statements = []
         while self.current.type != end_type:
             statements.append(self.expression())
-            self.is_expected_token(SEMICOLON)
+            self.is_expected_token(t.SEMICOLON)
             self.advance()
         return statements
 
@@ -120,31 +120,31 @@ class Parser:
 
     def parse_prefix(self) -> Expression:
 
-        if self.current.type == IDENTIFIER and self.peek.type == ASSIGN:
+        if self.current.type == t.IDENTIFIER and self.peek.type == t.ASSIGN:
             return self.parse_assign()
 
-        elif self.current.type in [MINUS, PLUS, BANG]:
+        elif self.current.type in [t.MINUS, t.PLUS, t.BANG]:
             return self.parse_unary_expression()
 
-        elif self.current.type == OPEN_PAREN:
+        elif self.current.type == t.OPEN_PAREN:
             return self.parse_grouped_expression()
 
-        elif self.current.type == NUMBER:
+        elif self.current.type == t.NUMBER:
             return self.parse_number()
 
-        elif self.current.type == STRING:
+        elif self.current.type == t.STRING:
             return self.parse_string()
 
-        elif self.current.type == BOOLEAN:
+        elif self.current.type == t.BOOLEAN:
             return self.parse_boolean()
 
-        elif self.current.type == IDENTIFIER:
+        elif self.current.type == t.IDENTIFIER:
             return self.parse_identifier()
 
-        elif self.current.type == FUNCTION:
+        elif self.current.type == t.FUNCTION:
             return self.parse_function()
 
-        elif self.current.type == WHEN:
+        elif self.current.type == t.WHEN:
             return self.parse_when()
 
         raise language_error(self.current.line_num, f"invalid prefix operator: {self.current.type} ({self.current.value})")
@@ -154,7 +154,7 @@ class Parser:
         self.advance()
 
         # Suffix operators go here
-        if op.type in [BANG, DEC, INC]:
+        if op.type in [t.BANG, t.DEC, t.INC]:
             return PostfixExpression(op.line_num, op, left)
 
         right = self.expression(self.infix_precedence.get(op.type, LOWEST))
@@ -175,36 +175,36 @@ class Parser:
         self.advance()
         return Boolean(
             boolean_token.line_num,
-            boolean_token.value == get_token_literal("TRUE")
+            boolean_token.value == t.get_token_literal("TRUE")
         )
 
     def parse_unary_expression(self) -> UnaryExpression:
         op = self.current
         self.advance()
-        expression = self.expression()
+        expression = self.expression(PREFIX)
         return UnaryExpression(op.line_num, op, expression)
 
     def parse_grouped_expression(self) -> Expression:
         self.advance()
 
         # An open paren immediately followed by a closed paren is an empty list
-        if self.current.type == CLOSED_PAREN:
+        if self.current.type == t.CLOSED_PAREN:
             self.advance()
             return List(self.current.line_num, [])
 
         # If a token other than a closed paren comes after the open paren, parse the expression
         expression = self.expression()
 
-        if self.current.type == CLOSED_PAREN:
+        if self.current.type == t.CLOSED_PAREN:
             self.advance()
             return expression
 
         # If the token after the expression is a comma, we're parsing a list
-        elif self.current.type == COMMA:
+        elif self.current.type == t.COMMA:
             self.advance()
             return self.parse_list(expression)
 
-        raise unexpected_token_error(self.current.line_num, CLOSED_PAREN, self.current)
+        raise unexpected_token_error(self.current.line_num, t.CLOSED_PAREN, self.current)
 
     def parse_identifier(self) -> Identifier | BuiltinFunction:
         identifier_token = self.current
@@ -216,14 +216,14 @@ class Parser:
         return Identifier(identifier_token.line_num, identifier_token.value)
 
     def parse_assign(self) -> Expression:
-        self.is_expected_token(IDENTIFIER)
+        self.is_expected_token(t.IDENTIFIER)
         variable_name = self.current
 
         # Skip over identifier token
         self.advance()
 
         # Confirm current token is an assignment operator. If it is, skip over it.
-        self.is_expected_token(ASSIGN)
+        self.is_expected_token(t.ASSIGN)
         self.advance()
 
         right = self.expression()
@@ -235,18 +235,18 @@ class Parser:
         values = [first_expression]
 
         while True:
-            if self.current.type == CLOSED_PAREN:
+            if self.current.type == t.CLOSED_PAREN:
                 self.advance()
                 break
 
             expression = self.expression()
             values.append(expression)
 
-            if self.current.type == CLOSED_PAREN:
+            if self.current.type == t.CLOSED_PAREN:
                 self.advance()
                 break
 
-            self.is_expected_token(COMMA)
+            self.is_expected_token(t.COMMA)
 
             self.advance()
 
@@ -259,19 +259,19 @@ class Parser:
 
         # Parse function parameters
         params = []
-        while self.current.type != COLON:
-            self.is_expected_token(IDENTIFIER)
+        while self.current.type != t.COLON:
+            self.is_expected_token(t.IDENTIFIER)
 
             params.append(Identifier(self.current.line_num, self.current.value))
             self.advance()
 
-            if self.current.type == COLON:
+            if self.current.type == t.COLON:
                 break
 
-            self.is_expected_token(COMMA)
+            self.is_expected_token(t.COMMA)
             self.advance()
 
-        self.is_expected_token(COLON)
+        self.is_expected_token(t.COLON)
         self.advance()
 
         # Function body
@@ -286,7 +286,7 @@ class Parser:
 
         # If the token after "when" is a colon, assume the if-else implementation is being used.
         # Otherwise, assume the switch implementation is being used.
-        if self.current.type != COLON:
+        if self.current.type != t.COLON:
             # Switch
             is_switch = True
             switch_expression = self.expression()
@@ -295,7 +295,7 @@ class Parser:
             switch_expression = Boolean(line_num, True)
             is_switch = False
 
-        self.is_expected_token(COLON)
+        self.is_expected_token(t.COLON)
         self.advance()
 
         expressions: list[tuple[Expression, Expression]] = []
@@ -305,26 +305,26 @@ class Parser:
 
             if is_switch:
                 # For the switch statement, cases start with the "is" token
-                self.is_expected_token(IS)
+                self.is_expected_token(t.IS)
                 self.advance()
 
             comparison_expression = self.expression()
 
-            self.is_expected_token(COLON)
+            self.is_expected_token(t.COLON)
             self.advance()
 
             return_expression = self.expression()
 
             expressions.append((comparison_expression, return_expression))
 
-            if self.current.type == ELSE:
+            if self.current.type == t.ELSE:
                 break
 
-        self.is_expected_token(ELSE)
+        self.is_expected_token(t.ELSE)
         else_line_num = self.current.line_num
         self.advance()
 
-        self.is_expected_token(COLON)
+        self.is_expected_token(t.COLON)
         self.advance()
 
         # Else expression

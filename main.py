@@ -8,7 +8,6 @@ from interpreter.tokens.token_queue import TokenQueue
 from interpreter.parser_.parser_ import Parser
 from interpreter.evaluator.evaluator import Evaluator
 from interpreter.evaluator.environment_ import Environment
-from interpreter.tokens.tokens import POINTER, get_token_literal, get_token_type
 from interpreter.utils.ast_visualizer import ASTVisualizer
 from interpreter.utils.utils import LanguageRuntimeException
 

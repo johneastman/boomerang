@@ -59,8 +59,8 @@ tokens:
       name: COMMA
       type: COMMA
     - literal: '<-'
-      name: POINTER
-      type: POINTER
+      name: SEND
+      type: SEND
     - literal: '=='
       name: EQ
       type: EQ

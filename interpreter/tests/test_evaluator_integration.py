@@ -6,7 +6,7 @@ from interpreter.tokens.token_queue import TokenQueue
 from interpreter.parser_.parser_ import Parser
 from interpreter.evaluator.evaluator import Evaluator
 from interpreter.evaluator.environment_ import Environment
-from interpreter.tokens.tokens import PLUS, LE, POINTER, MINUS
+from interpreter.tokens.tokens import PLUS, LE, SEND, MINUS
 
 
 @pytest.mark.parametrize("source,expected_results", [
@@ -254,7 +254,7 @@ def test_print(source, output_str):
                             o.BinaryExpression(
                                 5,
                                 o.Identifier(5, "decrement"),
-                                Token(5, "<-", POINTER),
+                                Token(5, "<-", SEND),
                                 o.List(
                                     5,
                                     [

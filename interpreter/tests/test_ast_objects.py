@@ -76,3 +76,42 @@ test_function = Function(
 ])
 def test_repr(ast_object, repr_str):
     assert repr(ast_object) == repr_str
+
+
+@pytest.mark.parametrize("left, right, expected_result", [
+    (
+        List(1, [Number(1, 1), Number(1, 2)]),
+        List(1, [Number(1, 3), Number(1, 4)]),
+        List(1, [Number(1, 1), Number(1, 2), Number(1, 3), Number(1, 4)])
+    ),
+    (
+        List(1, []),
+        List(1, [Number(1, 3), Number(1, 4)]),
+        List(1, [Number(1, 3), Number(1, 4)])
+    ),
+    (
+        List(1, [Number(1, 1), Number(1, 2)]),
+        List(1, []),
+        List(1, [Number(1, 1), Number(1, 2)])
+    ),
+])
+def test_add(left, right, expected_result):
+    actual_result = left.add(right)
+    assert actual_result == expected_result
+
+
+@pytest.mark.parametrize("left, right, expected_result", [
+    (
+        List(1, [Number(1, 1)]),
+        Number(1, 2),
+        List(1, [Number(1, 1), Number(1, 2)])
+    ),
+    (
+        List(1, [Number(1, 1)]),
+        List(1, [String(1, "hello"), String(1, "world")]),
+        List(1, [Number(1, 1), List(1, [String(1, "hello"), String(1, "world")])])
+    )
+])
+def test_ptr(left, right, expected_result):
+    actual_result = left.ptr(right)
+    assert actual_result == expected_result

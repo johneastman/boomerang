@@ -1,6 +1,6 @@
 import pytest
 from interpreter.tokens.tokenizer import Tokenizer, Token
-from interpreter.tokens.tokens import EQ, ASSIGN, LE, LT, GE, GT, POINTER, BANG, NE, INC, PLUS, DEC, MINUS, IDENTIFIER, \
+from interpreter.tokens.tokens import EQ, ASSIGN, LE, LT, GE, GT, SEND, BANG, NE, INC, PLUS, DEC, MINUS, IDENTIFIER, \
     NUMBER
 
 
@@ -179,7 +179,7 @@ def test_advance_current_peek_index():
     ("=", ASSIGN),
     ("<=", LE),
     ("<", LT),
-    ("<-", POINTER),
+    ("<-", SEND),
     (">=", GE),
     (">", GT),
     ("!=", NE),

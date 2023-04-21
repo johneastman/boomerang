@@ -2,11 +2,10 @@ import typing
 
 from interpreter.parser_.ast_objects import Expression, BinaryExpression, UnaryExpression, Identifier, Number, String, \
     Assignment, Error, Boolean, List, BuiltinFunction, Function, FunctionCall, When, PostfixExpression
-from interpreter.tokens.tokens import *
+from interpreter.tokens import tokens as t
 from interpreter.evaluator.environment_ import Environment
 from interpreter.utils.utils import language_error, LanguageRuntimeException
 import copy
-from functools import reduce
 
 
 class Evaluator:
@@ -86,13 +85,13 @@ class Evaluator:
         result = self.evaluate_expression(postfix_expression.expression)
         op = postfix_expression.operator
 
-        if op.type == BANG:
+        if op.type == t.BANG:
             # Factorial
             return result.fac()
-        elif op.type == DEC:
+        elif op.type == t.DEC:
             # Decrement
             return result.dec()
-        elif op.type == INC:
+        elif op.type == t.INC:
             # Increment
             return result.inc()
 
@@ -124,13 +123,13 @@ class Evaluator:
         expression_result = self.evaluate_expression(unary_expression.expression)
         op = unary_expression.operator
 
-        if op.type == PLUS:
+        if op.type == t.PLUS:
             return expression_result.abs()
 
-        elif op.type == MINUS:
+        elif op.type == t.MINUS:
             return expression_result.neg()
 
-        elif op.type == BANG:
+        elif op.type == t.BANG:
             return expression_result.bang()
 
         raise Exception(f"Invalid unary operator: {op.type} ({op.value})")
@@ -142,51 +141,51 @@ class Evaluator:
         op = binary_operation.operator
 
         # Math operations
-        if op.type == PLUS:
+        if op.type == t.PLUS:
             return left.add(right)
 
-        elif op.type == MINUS:
+        elif op.type == t.MINUS:
             return left.sub(right)
 
-        elif op.type == MULTIPLY:
+        elif op.type == t.MULTIPLY:
             return left.mul(right)
 
-        elif op.type == DIVIDE:
+        elif op.type == t.DIVIDE:
             return left.div(right)
 
-        elif op.type == MOD:
+        elif op.type == t.MOD:
             return left.mod(right)
 
-        elif op.type == POINTER:
+        elif op.type == t.SEND:
             result = left.ptr(right)
             if isinstance(result, FunctionCall):
                 return self.evaluate_function_call(result)
             return result
 
         # Comparison Operations
-        elif op.type == EQ:
+        elif op.type == t.EQ:
             return left.eq(right)
 
-        elif op.type == NE:
+        elif op.type == t.NE:
             return left.ne(right)
 
-        elif op.type == GT:
+        elif op.type == t.GT:
             return left.gt(right)
 
-        elif op.type == GE:
+        elif op.type == t.GE:
             return left.ge(right)
 
-        elif op.type == LT:
+        elif op.type == t.LT:
             return left.lt(right)
 
-        elif op.type == LE:
+        elif op.type == t.LE:
             return left.le(right)
 
         # Boolean Operations
-        elif op.type == AND:
+        elif op.type == t.AND:
             return left.and_(right)
 
-        elif op.type == OR:
+        elif op.type == t.OR:
             return left.or_(right)
 
         raise language_error(op.line_num, f"Invalid binary operator '{op.value}'")
@@ -195,7 +194,6 @@ class Evaluator:
         line_num: int = function_call.line_num
         function_definition: Function = function_call.function
         call_params: List = function_call.call_params
-        # callstack.push(function, call_params)
 
         if len(call_params.values) != len(function_definition.parameters):
             raise language_error(line_num, f"Expected {len(function_definition.parameters)}, got {len(call_params.values)}")

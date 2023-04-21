@@ -5,7 +5,7 @@ from interpreter.tokens.tokenizer import Tokenizer, Token
 
 @pytest.mark.parametrize("symbol, type_", [
     (";", SEMICOLON),
-    ("<-", POINTER),
+    ("<-", SEND),
     (",", COMMA),
     ("(", OPEN_PAREN),
     (")", CLOSED_PAREN),

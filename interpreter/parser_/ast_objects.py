@@ -1,7 +1,7 @@
 from functools import reduce
 
 from interpreter.tokens.token import Token
-from interpreter.tokens.tokens import get_token_literal, PLUS, MINUS, MULTIPLY, DIVIDE, POINTER, BANG, GT, GE, \
+from interpreter.tokens.tokens import get_token_literal, PLUS, MINUS, MULTIPLY, DIVIDE, SEND, BANG, GT, GE, \
     LT, LE, AND, OR, MOD
 from interpreter.utils.utils import language_error, divide_by_zero_error
 
@@ -80,7 +80,7 @@ class Expression:
 
     def ptr(self, other: object) -> "Expression":
         raise language_error(self.line_num,
-                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {POINTER}")
+                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {SEND}")
 
     def bang(self) -> "Expression":
         raise language_error(self.line_num, f"Invalid type {type(self).__name__} for {BANG}")
@@ -309,14 +309,14 @@ class List(Expression):
         return List(self.line_num, values)
 
     def ptr(self, other: object) -> "Expression":
-        if isinstance(other, Number) or isinstance(other, String) or isinstance(other, Boolean):
-            self.values.append(other)
-            return List(self.line_num, self.values)
-        elif isinstance(other, List):
-            self.values.extend(other.values)
-            return List(self.line_num, self.values)
-
+        if isinstance(other, Expression):
+            return List(self.line_num, self.values + [other])
         return super().ptr(other)
+
+    def add(self, other: object) -> "Expression":
+        if isinstance(other, List):
+            return List(self.line_num, self.values + other.values)
+        return super().add(other)
 
 
 class Identifier(Expression):
