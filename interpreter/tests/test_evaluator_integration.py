@@ -220,6 +220,18 @@ def test_random(low, high, params):
         assert low <= actual_value.value <= high
 
 
+@pytest.mark.parametrize("list_, length", [
+    ("()", 0),
+    ("(1,)", 1),
+    ("(1, \"hello, world!\")", 2),
+    ("(1, true, false)", 3),
+    ("\"hello, world\"", 12)
+])
+def test_len(list_, length):
+    ast_results = actual_result(f"len <- ({list_},);")
+    assert_expressions_equal([o.Number(1, length)], ast_results)
+
+
 @pytest.mark.parametrize("source, expected_results", [
     (
         """

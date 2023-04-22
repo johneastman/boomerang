@@ -1,5 +1,6 @@
 from functools import reduce
 from random import random, randint
+from typing import Callable
 
 from interpreter.tokens.token import Token
 from interpreter.tokens import tokens as t
@@ -378,10 +379,12 @@ class Output(Expression):
 class BuiltinFunction(Expression):
     print_ = "print"
     random_ = "random"
+    len_ = "len"
 
     builtin_function_names = [
         print_,
-        random_
+        random_,
+        len_
     ]
 
     def __init__(self, line_num: int, name: str):
@@ -398,15 +401,29 @@ class BuiltinFunction(Expression):
 
     def ptr(self, other: object) -> "Expression":
         if isinstance(other, List):
-            match self.name:
-                case self.print_:
-                    return self.print(other.values)
-                case self.random_:
-                    return self.random(other.values)
-                case _:
-                    raise Exception(f"Unimplemented builtin function {self.name}")
+            function: Callable[[list[Expression]], Expression] | None = {
+                self.print_: self.print,
+                self.random_: self.random,
+                self.len_: self.len
+            }.get(self.name, None)
+
+            if function is None:
+                raise Exception(f"Unimplemented builtin function {self.name}")
+            return function(other.values)
 
         return super().ptr(other)
+
+    def len(self, arguments: list[Expression]) -> Number:
+        if len(arguments) != 1:
+            raise language_error(self.line_num, f"expected 1 argument, got {len(arguments)}")
+
+        collection = arguments[0]
+
+        if isinstance(collection, String):
+            return Number(self.line_num, len(collection.value))
+        elif isinstance(collection, List):
+            return Number(self.line_num, len(collection.values))
+        raise language_error(self.line_num, f"Unsupported type {type(collection).__name__} for built-in function len")
 
     def print(self, arguments: list[Expression]) -> Output:
         return Output(
