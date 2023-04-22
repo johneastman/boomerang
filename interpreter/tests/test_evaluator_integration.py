@@ -203,6 +203,23 @@ def test_print(source, output_str):
     assert_expressions_equal([o.Output(1, output_str)], actual_results)
 
 
+@pytest.mark.parametrize("low, high, params", [
+    (0, 1, ""),
+    (0, 5, "5,"),
+    (5, 10, "5, 10"),
+    (-5, 5, "-5, 5"),
+    (-5, 0, "-5, 0"),
+    (-5, 5, "-5, 5"),
+])
+def test_random(low, high, params):
+    for _ in range(100):
+        ast_results = actual_result(f"random <- ({params});")
+        actual_value = ast_results[0]
+
+        assert type(actual_value) == o.Number
+        assert low <= actual_value.value <= high
+
+
 @pytest.mark.parametrize("source, expected_results", [
     (
         """

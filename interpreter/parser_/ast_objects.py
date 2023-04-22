@@ -1,4 +1,5 @@
 from functools import reduce
+from random import random, randint
 
 from interpreter.tokens.token import Token
 from interpreter.tokens import tokens as t
@@ -43,22 +44,28 @@ class Expression:
         raise language_error(self.line_num, f"Invalid type {type(self).__name__} for decrement")
 
     def and_(self, other: object) -> "Expression":
-        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.AND}")
+        raise language_error(self.line_num,
+                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.AND}")
 
     def or_(self, other: object) -> "Expression":
-        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.OR}")
+        raise language_error(self.line_num,
+                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.OR}")
 
     def gt(self, other: object) -> "Expression":
-        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.GT}")
+        raise language_error(self.line_num,
+                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.GT}")
 
     def ge(self, other: object) -> "Expression":
-        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.GE}")
+        raise language_error(self.line_num,
+                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.GE}")
 
     def lt(self, other: object) -> "Expression":
-        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.LT}")
+        raise language_error(self.line_num,
+                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.LT}")
 
     def le(self, other: object) -> "Expression":
-        raise language_error(self.line_num, f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.LE}")
+        raise language_error(self.line_num,
+                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.LE}")
 
     def add(self, other: object) -> "Expression":
         raise language_error(self.line_num,
@@ -370,9 +377,11 @@ class Output(Expression):
 
 class BuiltinFunction(Expression):
     print_ = "print"
+    random_ = "random"
 
     builtin_function_names = [
-        print_
+        print_,
+        random_
     ]
 
     def __init__(self, line_num: int, name: str):
@@ -391,14 +400,66 @@ class BuiltinFunction(Expression):
         if isinstance(other, List):
             match self.name:
                 case self.print_:
-                    return Output(
-                        self.line_num,
-                        ", ".join(map(str, other.values))
-                    )
+                    return self.print(other.values)
+                case self.random_:
+                    return self.random(other.values)
                 case _:
                     raise Exception(f"Unimplemented builtin function {self.name}")
 
         return super().ptr(other)
+
+    def print(self, arguments: list[Expression]) -> Output:
+        return Output(
+            self.line_num,
+            ", ".join(map(str, arguments))
+        )
+
+    def random(self, arguments: list[Expression]) -> Number:
+
+        if len(arguments) == 0:
+            return Number(self.line_num, random())
+
+        elif len(arguments) == 1:
+            start: Expression = Number(self.line_num, 0)
+            end: Expression = arguments[0]
+        elif len(arguments) == 2:
+
+            start = arguments[0]
+            end = arguments[1]
+        else:
+            raise language_error(
+                self.line_num,
+                f"incorrect number of arguments. Excepts 0, 1, or 2 arguments, but got {len(arguments)}"
+            )
+
+        # Validate start-range value
+        if not isinstance(start, Number):
+            raise language_error(
+                self.line_num,
+                f"expected Number for first parameter, got {type(start).__name__}"
+            )
+
+        if not start.is_whole_number():
+            raise language_error(self.line_num, f"first parameter value must be a whole number")
+
+        # Validate end-range value
+        if not isinstance(end, Number):
+            raise language_error(
+                self.line_num,
+                f"expected Number for second parameter, got {type(end).__name__}"
+            )
+
+        if not start.is_whole_number():
+            raise language_error(self.line_num, f"second parameter value must be a whole number")
+
+        # Ensure start value is less than end value
+        if end.value < start.value:
+            raise language_error(
+                self.line_num,
+                f"end value ({end.value}) must be greater than start value ({start.value})"
+            )
+
+        return Number(self.line_num, randint(int(start.value), int(end.value)))
 
 
 class UnaryExpression(Expression):
