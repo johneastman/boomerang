@@ -99,6 +99,7 @@ Operators that appear between two expressions.
 |Less Than or Equal|<=|
 |Greater Than|>|
 |Greater Than or Equal|>=|
+|Get Value at List Index|@|
 
 ### Unary Operators
 Operators that appear before an expression

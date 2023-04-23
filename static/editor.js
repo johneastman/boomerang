@@ -5,7 +5,7 @@ CodeMirror.defineMode("boomerang", function() {
                 return "keywords";
             } else if (stream.match(/\".*?\"/)) {
                 return "strings";
-            } else if (stream.match(/print/)) {
+            } else if (stream.match(/print|len|random/)) {
                 return "builtins";
             } else if (stream.match(/[0-9]+(.?[0-9]+)*/)) {
                 return "numbers";

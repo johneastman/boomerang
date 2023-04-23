@@ -149,6 +149,36 @@ def test_binary_expressions(source, left, operator, right):
             Token(1, "<-", t.SEND),
             Number(1, 5)
         )
+    ),
+
+    # Index
+    (
+        "(1, 2) @ 1 + 1",
+        BinaryExpression(
+            1,
+            List(1, [Number(1, 1), Number(1, 2)]),
+            Token(1, "@", t.INDEX),
+            BinaryExpression(
+                1,
+                Number(1, 1),
+                Token(1, "+", t.PLUS),
+                Number(1, 1)
+            ),
+        )
+    ),
+    (
+        "(1, 2) @ 0 == 1",
+        BinaryExpression(
+            1,
+            BinaryExpression(
+                1,
+                List(1, [Number(1, 1), Number(1, 2)]),
+                Token(1, "@", t.INDEX),
+                Number(1, 0)
+            ),
+            Token(1, "==", t.EQ),
+            Number(1, 1)
+        )
     )
 ])
 def test_precedence(source, expected_result):

@@ -97,6 +97,9 @@ tokens:
     - literal: '#'
       name: COMMENT
       type: COMMENT
+    - literal: '@'
+      name: INDEX
+      type: INDEX
   data_types:
     - literal: ''
       name: EOF

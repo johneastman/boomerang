@@ -95,6 +95,10 @@ class Expression:
     def bang(self) -> "Expression":
         raise language_error(self.line_num, f"Invalid type {type(self).__name__} for {t.BANG}")
 
+    def at(self, other: object) -> "Expression":
+        raise language_error(self.line_num,
+                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.INDEX}")
+
 
 class Number(Expression):
     def __init__(self, line_num: int, value: float):
@@ -296,6 +300,18 @@ class List(Expression):
             return List(self.line_num, new_values)
 
         return super().sub(other)
+
+    def at(self, other: object) -> "Expression":
+        if isinstance(other, Number):
+            if not other.is_whole_number():
+                raise language_error(self.line_num, "list index must be a whole number")
+
+            if 0 <= other.value < len(self.values):
+                return self.values[int(other.value)]
+
+            raise language_error(self.line_num, f"list index {other} is out of range")
+
+        return super().at(other)
 
 
 class Function(Expression):

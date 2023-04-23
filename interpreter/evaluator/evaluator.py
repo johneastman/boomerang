@@ -188,6 +188,10 @@ class Evaluator:
         elif op.type == t.OR:
             return left.or_(right)
 
+        # Array index
+        elif op.type == t.INDEX:
+            return left.at(right)
+
         raise language_error(op.line_num, f"Invalid binary operator '{op.value}'")
 
     def evaluate_function_call(self, function_call: FunctionCall) -> Expression:

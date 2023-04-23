@@ -16,6 +16,7 @@ PRODUCT = "PRODUCT"  # *, /
 PREFIX = "PREFIX"  # Before an expression: !, -, +
 POSTFIX = "POSTFIX"  # after an expression: !, --, ++
 SEND = "SEND"  # <-
+INDEX = "INDEX"  # @
 
 
 class Parser:
@@ -35,6 +36,7 @@ class Parser:
             AND_OR,
             SEND,
             COMPARE,
+            INDEX,
             SUM,
             PRODUCT,
             PREFIX,
@@ -59,6 +61,7 @@ class Parser:
             t.LE: COMPARE,
             t.GT: COMPARE,
             t.GE: COMPARE,
+            t.INDEX: INDEX
         }
 
     def parse(self) -> list[Expression]:
