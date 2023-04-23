@@ -5,7 +5,7 @@ import json
 import base64
 import secrets
 
-from flask import Flask, Response, request, render_template, redirect, make_response, session
+from flask import Flask, Response, request, render_template, redirect, session
 
 from interpreter.parser_.ast_objects import Output, Error
 from interpreter.utils.utils import LanguageRuntimeException
