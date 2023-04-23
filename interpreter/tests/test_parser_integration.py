@@ -193,6 +193,20 @@ def test_binary_expressions(source, left, operator, right):
             Token(1, "==", t.EQ),
             Number(1, 10)
         )
+    ),
+    (
+        "list @ random <- (0, 10,)",
+        BinaryExpression(
+            1,
+            Identifier(1, "list"),
+            Token(1, "@", t.INDEX),
+            BinaryExpression(
+                1,
+                BuiltinFunction(1, "random"),
+                Token(1, "<-", t.SEND),
+                List(1, [Number(1, 0), Number(1, 10)]),
+            ),
+        )
     )
 ])
 def test_precedence(source, expected_result):
