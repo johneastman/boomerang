@@ -34,8 +34,8 @@ class Parser:
         self.precedences: list[str] = [
             LOWEST,
             AND_OR,
-            SEND,
             COMPARE,
+            SEND,
             INDEX,
             SUM,
             PRODUCT,

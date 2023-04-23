@@ -179,6 +179,20 @@ def test_binary_expressions(source, left, operator, right):
             Token(1, "==", t.EQ),
             Number(1, 1)
         )
+    ),
+    (
+        "len <- (list,) == 10",
+        BinaryExpression(
+            1,
+            BinaryExpression(
+                1,
+                BuiltinFunction(1, "len"),
+                Token(1, "<-", t.SEND),
+                List(1, [Identifier(1, "list")]),
+            ),
+            Token(1, "==", t.EQ),
+            Number(1, 10)
+        )
     )
 ])
 def test_precedence(source, expected_result):
