@@ -3,8 +3,9 @@ For saving files locally, use "app.root_path"
 """
 import json
 import base64
+import secrets
 
-from flask import Flask, Response, request, render_template, redirect, make_response
+from flask import Flask, Response, request, render_template, redirect, make_response, session
 
 from interpreter.parser_.ast_objects import Output, Error
 from interpreter.utils.utils import LanguageRuntimeException
@@ -12,6 +13,7 @@ from main import evaluate, visualize_ast
 from interpreter.evaluator.environment_ import Environment
 
 app = Flask(__name__)
+app.secret_key = secrets.token_hex(64)
 
 
 # Cookie keys
@@ -21,14 +23,12 @@ RESULTS = "results"
 
 @app.route("/")
 def index():
-    source_code = request.cookies.get(SOURCE_CODE, "")
-    results = request.cookies.get(RESULTS, "")
-    if results:
-        results = json.loads(results)
-    else:
-        results = []
+    source_code = session.get(SOURCE_CODE, "")
+    code_output = session.get(RESULTS, None)
 
-    return render_template("index.html", source_code=source_code, results=results)
+    parsed_results = [] if code_output is None else json.loads(code_output)
+
+    return render_template("index.html", source_code=source_code, results=parsed_results)
 
 
 @app.route("/interpret", methods=["POST"])
@@ -49,10 +49,8 @@ def interpret():
 
 @app.route("/clear", methods=["POST"])
 def clear():
-    resp = make_response(redirect("/"))
-    resp.delete_cookie(SOURCE_CODE)
-    resp.delete_cookie(RESULTS)
-    return resp
+    session.clear()
+    return redirect("/")
 
 
 @app.route("/visualize", methods=["POST"])
@@ -76,7 +74,10 @@ def visualize():
 
 
 def create_response(path: str, source_code: str, return_results: str) -> Response:
-    resp = make_response(redirect(path))
-    resp.set_cookie(SOURCE_CODE, source_code)
-    resp.set_cookie(RESULTS, return_results)
-    return resp
+    session[SOURCE_CODE] = source_code
+    session[RESULTS] = return_results
+    return redirect(path)
+
+
+if __name__ == "__main__":
+    app.run()
