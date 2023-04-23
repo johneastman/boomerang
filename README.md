@@ -33,7 +33,7 @@ AST visualization is not available for the REPL.
 ## Flask App
 Boomerang has a web interface that will allow you to run it from the browser!
 
-To run the Flask app, run `flask --app flask_app run`.
+To run the Flask app, run `python flask_app.py`.
 
 ### Deploying to Pythonanywhere
 1. Make sure you have signed up for a free PythonAnywhere account, and you’re logged in. 
