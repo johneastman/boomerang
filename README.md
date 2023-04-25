@@ -107,9 +107,9 @@ All expressions end with a semicolon `;`.
 |Number|`<=`|Number|Boolean|Return `true` if the left value is less than or equal to the right value; `false` otherwise.|
 |Number|`%`|Number|Number|Modulus. Divide the left value by the right value and return the remainder as a whole number.|
 |Boolean|`&`|Boolean|Boolean|Return `true` if left and right are `true`; `false` otherwise.|
-|Boolean|`|`|Boolean|Boolean|Return `true` if left is `true` or right is `true`; `false` if both left and right are `false`.|
+|Boolean|`\|`|Boolean|Boolean|Return `true` if left is `true` or right is `true`; `false` if both left and right are `false`.|
 |List|`<-`|Any|List|Append the value on the right to the end of the list on the left. Return a new list.|
-|Function|`<-`|List|Any|Call function on left with parameters on right|
+|Function|`<-`|List|Any|Call function on left with parameters on right.|
 
 ### Postfix Operators and Operations
 |Left Type|Operator Symbol|Result Type|Result Description|
@@ -150,7 +150,7 @@ Send data to the output stream (e.g., print to console).
 
 |Arguments|Return Value|
 |---|---|
-|`(v1:Any, v2:Any, ..., vn:Any)`|Print all values on same line separated by commas|
+|`(v1:Any, v2:Any, ..., vn:Any)`|Print all values on same line separated by commas.|
 
 #### Random
 Return a random number.
@@ -166,7 +166,7 @@ Return the length of a sequence.
 
 |Arguments|Return Value|
 |---|---|
-|`(sequence:List|String,)`|For lists, return the number of elements. For strings, return the number of characters|
+|`(sequence:List\|String,)`|For lists, return the number of elements. For strings, return the number of characters.|
 
 ### Functions
 Boomerang has first-class functions, meaning they are treated like any other type of data (number, boolean, string, etc.). They are defined by being assigned to variables.
