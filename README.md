@@ -79,45 +79,44 @@ All expressions end with a semicolon `;`.
 
 ## Operators
 
-### Binary Operators
-Operators that appear between two expressions.
+### Prefix Operators and Operations
+|Operator Symbol|Right Type|Result Type|Result Description|
+|---|---|---|---|
+|`-`|Number|Number|Make number negative.|
+|`-`|List|List|Reverse list.|
+|`+`|Number|Number|Absolute value. Make number positive.|
+|`!`|Boolean|Boolean|Not operator. Return opposite boolean value (`true` becomes `false` and `false` becomes `true`)|
 
-|Operator Name|Literal|
-|---|---|
-|Add|+|
-|Subtract|-|
-|Multiply|*|
-|Divide|/|
-|Modulo|%|
-|Assignment|=|
-|Pointer|<-|
-|Equals|==|
-|Not Equals|!=|
-|Or|\||
-|And|&|
-|Less Than|<|
-|Less Than or Equal|<=|
-|Greater Than|>|
-|Greater Than or Equal|>=|
-|Get Value at List Index|@|
+### Infix Operators and Operations
+|Left Type|Operator Symbol|Right Type|Result Type|Result Description|
+|---|---|---|---|---|
+|Identifier|`=`|Any|Any|Assign right value to variable on right. Return value of variable.|
+|Any|`==`|Any|Boolean|Return `true` if both values are equal; `false` otherwise.|
+|Any|`!=`|Any|Boolean|Return `false` if both values are equal; `true` otherwise.|
+|Number|`+`|Number|Number|Add right number to left number.|
+|String|`+`|String|String|Combine both strings into one new string.|
+|List|`+`|List|List|Combine both lists into one new list.|
+|Number|`-`|Number|Number|Subtract right number from left number.|
+|List|`-`|List|List|Filter lists by value. Return a new list where values in the right list are removed from the left list.|
+|Number|`*`|Number|Number|Multiply left number by right number.|
+|Number|`/`|Number|Number|Divide left number by right number.|
+|List|`@`|Number|Any|Get the value in the list at the given index position (e.g., index == 0 is the first element, index == 1 is the second element, index == 2 is the second element, etc.).|
+|Number|`>`|Number|Boolean|Return `true` if the left value is greater than the right value; `false` otherwise.|
+|Number|`>=`|Number|Boolean|Return `true` if the left value is greater than or equal to the right value; `false` otherwise.|
+|Number|`<`|Number|Boolean|Return `true` if the left value is less than the right value; `false` otherwise.|
+|Number|`<=`|Number|Boolean|Return `true` if the left value is less than or equal to the right value; `false` otherwise.|
+|Number|`%`|Number|Number|Modulus. Divide the left value by the right value and return the remainder as a whole number.|
+|Boolean|`&`|Boolean|Boolean|Return `true` if left and right are `true`; `false` otherwise.|
+|Boolean|`|`|Boolean|Boolean|Return `true` if left is `true` or right is `true`; `false` if both left and right are `false`.|
+|List|`<-`|Any|List|Append the value on the right to the end of the list on the left. Return a new list.|
+|Function|`<-`|List|Any|Call function on left with parameters on right|
 
-### Unary Operators
-Operators that appear before an expression
-
-|Operator Name|Literal|
-|---|---|
-|Negate|-|
-|Absolute Value|+|
-|Boolean Opposite (Not)|!|
-
-### Suffix Operators
-Operators that appear after an expression
-
-|Operator Name|Literal|
-|---|---|
-|Factorial|!|
-|Increment by 1|--|
-|Decrement by 1|++|
+### Postfix Operators and Operations
+|Left Type|Operator Symbol|Result Type|Result Description|
+|---|---|---|---|
+|Number|`--`|Number|Decrement number by 1. Return a new number.|
+|Number|`++`|Number|Increment number by 1. Return a new number.|
+|Number|`!`|Number|Factorial. Iteratively multiply values from 1 to left.|
 
 ## Expressions
 
@@ -125,6 +124,10 @@ Operators that appear after an expression
 ```
 number = 10;
 float = 3.14;
+string = "hello, world!";
+boolean = true;
+list = (1, 2, 3, 4);
+function = func a, b: a + b;
 ```
 
 ### Math Expressions
@@ -141,9 +144,29 @@ float = 3.14;
 ```
 
 ### Builtin Functions
-|Name|Description|
-|----|-----------|
-|print|output data to output stream|
+
+#### Print
+Send data to the output stream (e.g., print to console).
+
+|Arguments|Return Value|
+|---|---|
+|`(v1:Any, v2:Any, ..., vn:Any)`|Print all values on same line separated by commas|
+
+#### Random
+Return a random number.
+
+|Arguments|Return Value|
+|---|---|
+|`()`|Return random number between 0 and 1.|
+|`(end:Number,)`|Return random number between 0 and `end`.|
+|`(start: Number, end:Number)`|Return random number between `start` and `end`.|
+
+#### len
+Return the length of a sequence.
+
+|Arguments|Return Value|
+|---|---|
+|`(sequence:List|String,)`|For lists, return the number of elements. For strings, return the number of characters|
 
 ### Functions
 Boomerang has first-class functions, meaning they are treated like any other type of data (number, boolean, string, etc.). They are defined by being assigned to variables.
