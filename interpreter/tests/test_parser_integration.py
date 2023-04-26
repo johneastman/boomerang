@@ -4,8 +4,8 @@ from interpreter.tokens import tokens as t
 from interpreter.tokens.tokenizer import Token
 from .testing_utils import create_when, assert_expressions_equal
 from . import testing_utils
-from ..parser_.ast_objects import BuiltinFunction, Boolean, Number, List, Identifier, BinaryExpression, \
-    UnaryExpression, Function, String, PostfixExpression
+from ..parser_.ast_objects import BuiltinFunction, Boolean, Number, List, Identifier, InfixExpression, \
+    PrefixExpression, Function, String, PostfixExpression
 from ..utils.utils import LanguageRuntimeException
 
 
@@ -49,7 +49,7 @@ def test_list(source, expected_list_values):
 ])
 def test_unary_expressions(source, operator, expression):
     expected_ast = [
-        UnaryExpression(1, operator, expression)
+        PrefixExpression(1, operator, expression)
     ]
 
     parser = testing_utils.parser(f"{source};")
@@ -90,7 +90,7 @@ def test_suffix_operators(source, ast_object):
 ])
 def test_binary_expressions(source, left, operator, right):
     expected_ast = [
-        BinaryExpression(1, left, operator, right)
+        InfixExpression(1, left, operator, right)
     ]
 
     parser = testing_utils.parser(f"{source};")
@@ -101,11 +101,11 @@ def test_binary_expressions(source, left, operator, right):
 @pytest.mark.parametrize("source, expected_result", [
     (
         "1+2*4",
-        BinaryExpression(
+        InfixExpression(
             1,
             Number(1, 1),
             Token(1, "+", t.PLUS),
-            BinaryExpression(
+            InfixExpression(
                 1,
                 Number(1, 2),
                 Token(1, "*", t.MULTIPLY),
@@ -115,18 +115,18 @@ def test_binary_expressions(source, left, operator, right):
     ),
     (
         "n != 0 & n % 2 == 0",
-        BinaryExpression(
+        InfixExpression(
             1,
-            BinaryExpression(
+            InfixExpression(
                 1,
                 Identifier(1, "n"),
                 Token(1, "!=", t.NE),
                 Number(1, 0)
             ),
             Token(1, "&", t.AND),
-            BinaryExpression(
+            InfixExpression(
                 1,
-                BinaryExpression(
+                InfixExpression(
                     1,
                     Identifier(1, "n"),
                     Token(1, "%", t.MOD),
@@ -139,9 +139,9 @@ def test_binary_expressions(source, left, operator, right):
     ),
     (
         "-(1, 2) <- 5",
-        BinaryExpression(
+        InfixExpression(
             1,
-            UnaryExpression(
+            PrefixExpression(
                 1,
                 Token(1, "-", t.MINUS),
                 List(1, [Number(1, 1), Number(1, 2)])
@@ -154,11 +154,11 @@ def test_binary_expressions(source, left, operator, right):
     # Index
     (
         "(1, 2) @ 1 + 1",
-        BinaryExpression(
+        InfixExpression(
             1,
             List(1, [Number(1, 1), Number(1, 2)]),
             Token(1, "@", t.INDEX),
-            BinaryExpression(
+            InfixExpression(
                 1,
                 Number(1, 1),
                 Token(1, "+", t.PLUS),
@@ -168,9 +168,9 @@ def test_binary_expressions(source, left, operator, right):
     ),
     (
         "(1, 2) @ 0 == 1",
-        BinaryExpression(
+        InfixExpression(
             1,
-            BinaryExpression(
+            InfixExpression(
                 1,
                 List(1, [Number(1, 1), Number(1, 2)]),
                 Token(1, "@", t.INDEX),
@@ -182,9 +182,9 @@ def test_binary_expressions(source, left, operator, right):
     ),
     (
         "len <- (list,) == 10",
-        BinaryExpression(
+        InfixExpression(
             1,
-            BinaryExpression(
+            InfixExpression(
                 1,
                 BuiltinFunction(1, "len"),
                 Token(1, "<-", t.SEND),
@@ -196,11 +196,11 @@ def test_binary_expressions(source, left, operator, right):
     ),
     (
         "list @ random <- (0, 10,)",
-        BinaryExpression(
+        InfixExpression(
             1,
             Identifier(1, "list"),
             Token(1, "@", t.INDEX),
-            BinaryExpression(
+            InfixExpression(
                 1,
                 BuiltinFunction(1, "random"),
                 Token(1, "<-", t.SEND),
@@ -247,7 +247,7 @@ def test_unexpected_token(source, expected_error_message):
     ),
     (
         "a, b", [Identifier(1, "a"), Identifier(1, "b")],
-        "a + b", BinaryExpression(
+        "a + b", InfixExpression(
             1,
             Identifier(1, "a"),
             Token(1, "+", t.PLUS),
@@ -268,7 +268,7 @@ def test_function_calls():
     parser = testing_utils.parser(f"(func: 0) <- ();")
     actual_ast = parser.parse()
     expected_ast = [
-        BinaryExpression(
+        InfixExpression(
             1,
             Function(1, [], Number(1, 0.0)),
             Token(1, "<-", t.SEND),
@@ -280,7 +280,7 @@ def test_function_calls():
 
 @pytest.mark.parametrize("switch_expression, case_expressions", [
     (Boolean(1, True), [
-        ("1 == 1: true", BinaryExpression(2, Number(2, 1), Token(2, "==", t.EQ), Number(2, 1)), Boolean(2, True)),
+        ("1 == 1: true", InfixExpression(2, Number(2, 1), Token(2, "==", t.EQ), Number(2, 1)), Boolean(2, True)),
         ("else: false", Boolean(3, True), Boolean(3, False))
     ]),
     (Identifier(1, "a"), [
@@ -288,8 +288,8 @@ def test_function_calls():
         ("else: false", Identifier(3, "a"), Boolean(3, False))
     ]),
     (Boolean(1, True), [
-        ("a == 1: \"1\"", BinaryExpression(2, Identifier(2, "a"), Token(2, "==", t.EQ), Number(2, 1)), String(2, "1")),
-        ("a == 2: \"2\"", BinaryExpression(3, Identifier(3, "a"), Token(3, "==", t.EQ), Number(3, 2)), String(3, "2")),
+        ("a == 1: \"1\"", InfixExpression(2, Identifier(2, "a"), Token(2, "==", t.EQ), Number(2, 1)), String(2, "1")),
+        ("a == 2: \"2\"", InfixExpression(3, Identifier(3, "a"), Token(3, "==", t.EQ), Number(3, 2)), String(3, "2")),
         ("else: false", Boolean(4, True), Boolean(4, False))
     ]),
     (Identifier(1, "a"), [
@@ -298,9 +298,9 @@ def test_function_calls():
         ("else: false", Identifier(4, "a"), Boolean(4, False))
     ]),
     (Boolean(1, True), [
-        ("a == 1: \"1\"", BinaryExpression(2, Identifier(2, "a"), Token(2, "==", t.EQ), Number(2, 1)), String(2, "1")),
-        ("a == 2: \"2\"", BinaryExpression(3, Identifier(3, "a"), Token(3, "==", t.EQ), Number(3, 2)), String(3, "2")),
-        ("a == 3: \"3\"", BinaryExpression(4, Identifier(4, "a"), Token(4, "==", t.EQ), Number(4, 3)), String(4, "3")),
+        ("a == 1: \"1\"", InfixExpression(2, Identifier(2, "a"), Token(2, "==", t.EQ), Number(2, 1)), String(2, "1")),
+        ("a == 2: \"2\"", InfixExpression(3, Identifier(3, "a"), Token(3, "==", t.EQ), Number(3, 2)), String(3, "2")),
+        ("a == 3: \"3\"", InfixExpression(4, Identifier(4, "a"), Token(4, "==", t.EQ), Number(4, 3)), String(4, "3")),
         ("else: false", Boolean(5, True), Boolean(5, False))
     ]),
     (Identifier(1, "a"), [

@@ -2,7 +2,7 @@ import pytest
 
 from . import testing_utils
 from .testing_utils import create_when, assert_expression_equal
-from ..parser_.ast_objects import Assignment, Number, Function, Identifier, BinaryExpression, Boolean, \
+from ..parser_.ast_objects import Assignment, Number, Function, Identifier, InfixExpression, Boolean, \
     String, Expression, PostfixExpression
 from ..tokens.tokenizer import Token
 from ..tokens.tokens import PLUS, EQ, BANG, INC, DEC
@@ -52,7 +52,7 @@ def test_parse_function(params_str, params_list):
 
 @pytest.mark.parametrize("source, expected_result", [
     ("!", PostfixExpression(1, Token(1, "!", BANG), Number(1, 3))),
-    ("+1", BinaryExpression(1, Number(1, 3), Token(1, "+", PLUS), Number(1, 1)))
+    ("+1", InfixExpression(1, Number(1, 3), Token(1, "+", PLUS), Number(1, 1)))
 ])
 def test_parse_infix(source, expected_result):
     p = testing_utils.parser(source)
@@ -73,7 +73,7 @@ def test_parse_prefix(source, token):
 
 @pytest.mark.parametrize("switch_expression, case_expressions", [
     (Boolean(1, True), [
-        ("1 == 1: true", BinaryExpression(2, Number(2, 1), Token(2, "==", EQ), Number(2, 1)), Boolean(2, True)),
+        ("1 == 1: true", InfixExpression(2, Number(2, 1), Token(2, "==", EQ), Number(2, 1)), Boolean(2, True)),
         ("else: false", Boolean(3, True), Boolean(3, False))
     ]),
     (Identifier(1, "a"), [
@@ -81,8 +81,8 @@ def test_parse_prefix(source, token):
         ("else: false", Identifier(3, "a"), Boolean(3, False))
     ]),
     (Boolean(1, True), [
-        ("a == 1: \"1\"", BinaryExpression(2, Identifier(2, "a"), Token(2, "==", EQ), Number(2, 1)), String(2, "1")),
-        ("a == 2: \"2\"", BinaryExpression(3, Identifier(3, "a"), Token(3, "==", EQ), Number(3, 2)), String(3, "2")),
+        ("a == 1: \"1\"", InfixExpression(2, Identifier(2, "a"), Token(2, "==", EQ), Number(2, 1)), String(2, "1")),
+        ("a == 2: \"2\"", InfixExpression(3, Identifier(3, "a"), Token(3, "==", EQ), Number(3, 2)), String(3, "2")),
         ("else: false", Boolean(4, True), Boolean(4, False))
     ]),
     (Identifier(1, "a"), [
@@ -91,9 +91,9 @@ def test_parse_prefix(source, token):
         ("else: false", Identifier(4, "a"), Boolean(4, False))
     ]),
     (Boolean(1, True), [
-        ("a == 1: \"1\"", BinaryExpression(2, Identifier(2, "a"), Token(2, "==", EQ), Number(2, 1)), String(2, "1")),
-        ("a == 2: \"2\"", BinaryExpression(3, Identifier(3, "a"), Token(3, "==", EQ), Number(3, 2)), String(3, "2")),
-        ("a == 3: \"3\"", BinaryExpression(4, Identifier(4, "a"), Token(4, "==", EQ), Number(4, 3)), String(4, "3")),
+        ("a == 1: \"1\"", InfixExpression(2, Identifier(2, "a"), Token(2, "==", EQ), Number(2, 1)), String(2, "1")),
+        ("a == 2: \"2\"", InfixExpression(3, Identifier(3, "a"), Token(3, "==", EQ), Number(3, 2)), String(3, "2")),
+        ("a == 3: \"3\"", InfixExpression(4, Identifier(4, "a"), Token(4, "==", EQ), Number(4, 3)), String(4, "3")),
         ("else: false", Boolean(5, True), Boolean(5, False))
     ]),
     (Identifier(1, "a"), [

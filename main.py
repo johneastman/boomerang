@@ -1,8 +1,8 @@
 import argparse
 import typing
 
-from interpreter.parser_.parser_ import Expression, Error, SEND
-from interpreter.parser_.ast_objects import BinaryExpression, BuiltinFunction, List, Output
+from interpreter.parser_.parser_ import Expression, Error
+from interpreter.parser_.ast_objects import Output
 from interpreter.tokens.tokenizer import Tokenizer
 from interpreter.tokens.token_queue import TokenQueue
 from interpreter.parser_.parser_ import Parser

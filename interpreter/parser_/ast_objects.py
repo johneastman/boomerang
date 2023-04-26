@@ -495,7 +495,7 @@ class BuiltinFunction(Expression):
         return Number(self.line_num, randint(int(start.value), int(end.value)))
 
 
-class UnaryExpression(Expression):
+class PrefixExpression(Expression):
     def __init__(self, line_num: int, operator: Token, expression: Expression):
         super().__init__(line_num)
         self.operator = operator
@@ -505,12 +505,12 @@ class UnaryExpression(Expression):
         return self.__repr__()
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, UnaryExpression):
+        if not isinstance(other, PrefixExpression):
             return False
         return self.operator == other.operator and self.expression == other.expression
 
 
-class BinaryExpression(Expression):
+class InfixExpression(Expression):
     def __init__(self, line_num: int, left: Expression, operator: Token, right: Expression):
         super().__init__(line_num)
         self.left = left
@@ -521,7 +521,7 @@ class BinaryExpression(Expression):
         return self.__repr__()
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, BinaryExpression):
+        if not isinstance(other, InfixExpression):
             return False
         return self.left == other.left and self.operator == other.operator and self.right == other.right
 

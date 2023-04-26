@@ -152,7 +152,7 @@ class Parser:
 
         raise language_error(self.current.line_num, f"invalid prefix operator: {self.current.type} ({self.current.value})")
 
-    def parse_infix(self, left: Expression) -> Expression:
+    def parse_infix(self, left: Expression) -> InfixExpression | PostfixExpression:
         op = self.current
         self.advance()
 
@@ -161,7 +161,7 @@ class Parser:
             return PostfixExpression(op.line_num, op, left)
 
         right = self.expression(self.infix_precedence.get(op.type, LOWEST))
-        return BinaryExpression(op.line_num, left, op, right)
+        return InfixExpression(op.line_num, left, op, right)
 
     def parse_number(self) -> Number:
         number_token = self.current
@@ -181,11 +181,11 @@ class Parser:
             boolean_token.value == t.get_token_literal("TRUE")
         )
 
-    def parse_unary_expression(self) -> UnaryExpression:
+    def parse_unary_expression(self) -> PrefixExpression:
         op = self.current
         self.advance()
         expression = self.expression(PREFIX)
-        return UnaryExpression(op.line_num, op, expression)
+        return PrefixExpression(op.line_num, op, expression)
 
     def parse_grouped_expression(self) -> Expression:
         self.advance()

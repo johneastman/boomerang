@@ -38,7 +38,7 @@ class ASTVisualizer:
                 self.add_edge(node_id, value)
                 self.__visualize(value)
 
-        elif isinstance(expression, BinaryExpression):
+        elif isinstance(expression, InfixExpression):
             self.add_node(node_id, expression.operator.value)
 
             self.add_edge(node_id, expression.left)
@@ -47,7 +47,7 @@ class ASTVisualizer:
             self.add_edge(node_id, expression.right)
             self.__visualize(expression.right)
 
-        elif isinstance(expression, UnaryExpression) or isinstance(expression, PostfixExpression):
+        elif isinstance(expression, PrefixExpression) or isinstance(expression, PostfixExpression):
             self.add_node(node_id, expression.operator.value)
             self.add_edge(node_id, expression.expression)
             self.__visualize(expression.expression)

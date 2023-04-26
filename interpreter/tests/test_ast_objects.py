@@ -4,7 +4,7 @@ from interpreter.parser_.ast_objects import *
 from interpreter.tests.testing_utils import assert_expression_equal
 from interpreter.tokens import tokens as t
 
-test_binary_expression = BinaryExpression(1, Identifier(1, "a"), Token(1, "+", t.PLUS), Identifier(1, "b"))
+test_binary_expression = InfixExpression(1, Identifier(1, "a"), Token(1, "+", t.PLUS), Identifier(1, "b"))
 
 test_function = Function(
     1,
@@ -36,11 +36,11 @@ test_function = Function(
     ),
     (
         test_function,
-        "Function(line_num=1, parameters=[Identifier(line_num=1, value='a'), Identifier(line_num=1, value='b')], body=BinaryExpression(line_num=1, left=Identifier(line_num=1, value='a'), operator=Token(line_num=1, value='+', type=PLUS), right=Identifier(line_num=1, value='b')))"
+        "Function(line_num=1, parameters=[Identifier(line_num=1, value='a'), Identifier(line_num=1, value='b')], body=InfixExpression(line_num=1, left=Identifier(line_num=1, value='a'), operator=Token(line_num=1, value='+', type=PLUS), right=Identifier(line_num=1, value='b')))"
     ),
     (
         FunctionCall(1, test_function, List(1, [Number(1, 1), Number(1, 2)])),
-        "FunctionCall(line_num=1, function=Function(line_num=1, parameters=[Identifier(line_num=1, value='a'), Identifier(line_num=1, value='b')], body=BinaryExpression(line_num=1, left=Identifier(line_num=1, value='a'), operator=Token(line_num=1, value='+', type=PLUS), right=Identifier(line_num=1, value='b'))), call_params=List(line_num=1, values=[Number(line_num=1, value=1), Number(line_num=1, value=2)]))"
+        "FunctionCall(line_num=1, function=Function(line_num=1, parameters=[Identifier(line_num=1, value='a'), Identifier(line_num=1, value='b')], body=InfixExpression(line_num=1, left=Identifier(line_num=1, value='a'), operator=Token(line_num=1, value='+', type=PLUS), right=Identifier(line_num=1, value='b'))), call_params=List(line_num=1, values=[Number(line_num=1, value=1), Number(line_num=1, value=2)]))"
     ),
     (
         When(1, Boolean(1, True), [(Boolean(1, False), String(1, "yes")), (Boolean(1, True), String(1, "no"))]),
@@ -55,12 +55,12 @@ test_function = Function(
         "BuiltinFunction(line_num=1, name='print')"
     ),
     (
-        UnaryExpression(1, Token(1, "-", t.MINUS), Number(1, 1)),
-        "UnaryExpression(line_num=1, operator=Token(line_num=1, value='-', type=MINUS), expression=Number(line_num=1, value=1))"
+        PrefixExpression(1, Token(1, "-", t.MINUS), Number(1, 1)),
+        "PrefixExpression(line_num=1, operator=Token(line_num=1, value='-', type=MINUS), expression=Number(line_num=1, value=1))"
     ),
     (
         test_binary_expression,
-        "BinaryExpression(line_num=1, left=Identifier(line_num=1, value='a'), operator=Token(line_num=1, value='+', type=PLUS), right=Identifier(line_num=1, value='b'))"
+        "InfixExpression(line_num=1, left=Identifier(line_num=1, value='a'), operator=Token(line_num=1, value='+', type=PLUS), right=Identifier(line_num=1, value='b'))"
     ),
     (
         PostfixExpression(1, Token(1, "++", t.INC), Number(1, 5)),
@@ -144,7 +144,7 @@ def test_sub(left, right, expected_result):
         Function(
             1,
             [Identifier(1, "a"), Identifier(1, "b")],
-            BinaryExpression(
+            InfixExpression(
                 1,
                 Identifier(1, "a"),
                 Token(1, "+", t.PLUS),
@@ -157,7 +157,7 @@ def test_sub(left, right, expected_result):
             Function(
                 1,
                 [Identifier(1, "a"), Identifier(1, "b")],
-                BinaryExpression(
+                InfixExpression(
                     1,
                     Identifier(1, "a"),
                     Token(1, "+", t.PLUS),
@@ -241,12 +241,12 @@ def test_ptr(left, right, expected_result):
         Function(
             1,
             [Identifier(1, "a"), Identifier(1, "b")],
-            BinaryExpression(1, Identifier(1, "a"), Token(1, "+", t.PLUS), Identifier(1, "b"))
+            InfixExpression(1, Identifier(1, "a"), Token(1, "+", t.PLUS), Identifier(1, "b"))
         ),
         Function(
             2,
             [Identifier(2, "a"), Identifier(2, "b")],
-            BinaryExpression(2, Identifier(2, "a"), Token(2, "+", t.PLUS), Identifier(2, "b"))
+            InfixExpression(2, Identifier(2, "a"), Token(2, "+", t.PLUS), Identifier(2, "b"))
         ),
         True,
         False
@@ -255,12 +255,12 @@ def test_ptr(left, right, expected_result):
         Function(
             1,
             [Identifier(1, "b"), Identifier(1, "a")],
-            BinaryExpression(1, Identifier(1, "a"), Token(1, "+", t.PLUS), Identifier(1, "b"))
+            InfixExpression(1, Identifier(1, "a"), Token(1, "+", t.PLUS), Identifier(1, "b"))
         ),
         Function(
             2,
             [Identifier(2, "a"), Identifier(2, "b")],
-            BinaryExpression(2, Identifier(2, "a"), Token(2, "+", t.PLUS), Identifier(2, "b"))
+            InfixExpression(2, Identifier(2, "a"), Token(2, "+", t.PLUS), Identifier(2, "b"))
         ),
         False,
         True

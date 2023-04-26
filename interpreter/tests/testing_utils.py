@@ -67,7 +67,7 @@ def assert_expression_equal(expected: Expression, actual: Expression) -> None:
         assert_expression_equal(expected.function, actual.function)
         assert_expression_equal(expected.call_params, actual.call_params)
 
-    elif isinstance(expected, UnaryExpression) and isinstance(actual, UnaryExpression):
+    elif isinstance(expected, PrefixExpression) and isinstance(actual, PrefixExpression):
         assert_expression_equal(expected.expression, actual.expression)
         assert actual.operator == expected.operator
 
@@ -75,7 +75,7 @@ def assert_expression_equal(expected: Expression, actual: Expression) -> None:
         assert_expression_equal(expected.expression, actual.expression)
         assert actual.operator == expected.operator
 
-    elif isinstance(expected, BinaryExpression) and isinstance(actual, BinaryExpression):
+    elif isinstance(expected, InfixExpression) and isinstance(actual, InfixExpression):
         assert_expression_equal(expected.left, actual.left)
         assert actual.operator == expected.operator
         assert_expression_equal(expected.right, actual.right)

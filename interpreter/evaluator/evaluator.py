@@ -1,6 +1,6 @@
 import typing
 
-from interpreter.parser_.ast_objects import Expression, BinaryExpression, UnaryExpression, Identifier, Number, String, \
+from interpreter.parser_.ast_objects import Expression, InfixExpression, PrefixExpression, Identifier, Number, String, \
     Assignment, Error, Boolean, List, BuiltinFunction, Function, FunctionCall, When, PostfixExpression
 from interpreter.tokens import tokens as t
 from interpreter.evaluator.environment_ import Environment
@@ -39,10 +39,10 @@ class Evaluator:
 
     def evaluate_expression(self, expression: Expression) -> Expression:
 
-        if isinstance(expression, BinaryExpression):
+        if isinstance(expression, InfixExpression):
             return self.evaluate_binary_expression(expression)
 
-        elif isinstance(expression, UnaryExpression):
+        elif isinstance(expression, PrefixExpression):
             return self.evaluate_unary_expression(expression)
 
         elif isinstance(expression, Assignment):
@@ -119,7 +119,7 @@ class Evaluator:
 
         raise language_error(identifier.line_num, f"undefined variable: {identifier.value}")
 
-    def evaluate_unary_expression(self, unary_expression: UnaryExpression) -> Expression:
+    def evaluate_unary_expression(self, unary_expression: PrefixExpression) -> Expression:
         expression_result = self.evaluate_expression(unary_expression.expression)
         op = unary_expression.operator
 
@@ -134,7 +134,7 @@ class Evaluator:
 
         raise Exception(f"Invalid unary operator: {op.type} ({op.value})")
 
-    def evaluate_binary_expression(self, binary_operation: BinaryExpression) -> Expression:
+    def evaluate_binary_expression(self, binary_operation: InfixExpression) -> Expression:
         left = self.evaluate_expression(binary_operation.left)
 
         right = self.evaluate_expression(binary_operation.right)

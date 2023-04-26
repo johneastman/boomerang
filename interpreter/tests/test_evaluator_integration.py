@@ -242,7 +242,7 @@ def test_len(list_, length):
             o.Function(
                 2,
                 [o.Identifier(2, "a"), o.Identifier(2, "b")],
-                o.BinaryExpression(
+                o.InfixExpression(
                     2,
                     o.Identifier(2, "a"),
                     Token(2, "+", PLUS),
@@ -271,7 +271,7 @@ def test_len(list_, length):
                     o.Boolean(3, True),
                     [
                         (
-                            o.BinaryExpression(
+                            o.InfixExpression(
                                 4,
                                 o.Identifier(4, "n"),
                                 Token(4, "<=", LE),
@@ -281,14 +281,14 @@ def test_len(list_, length):
                         ),
                         (
                             o.Boolean(5, True),
-                            o.BinaryExpression(
+                            o.InfixExpression(
                                 5,
                                 o.Identifier(5, "decrement"),
                                 Token(5, "<-", SEND),
                                 o.List(
                                     5,
                                     [
-                                        o.BinaryExpression(
+                                        o.InfixExpression(
                                             5,
                                             o.Identifier(5, "n"),
                                             Token(5, "-", MINUS),

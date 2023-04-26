@@ -37,6 +37,6 @@ pre-commit:
   parallel: true
   commands:
     mypy:
-      run: mypy  interpreter main.py --config-file=mypy.ini
+      run: mypy interpreter main.py --config-file=mypy.ini
     tests:
       run: pytest
