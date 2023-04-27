@@ -402,11 +402,13 @@ class BuiltinFunction(Expression):
     print_ = "print"
     random_ = "random"
     len_ = "len"
+    range_ = "range"
 
     builtin_function_names = [
         print_,
         random_,
-        len_
+        len_,
+        range_
     ]
 
     def __init__(self, line_num: int, name: str):
@@ -426,7 +428,8 @@ class BuiltinFunction(Expression):
             function: Callable[[list[Expression]], Expression] | None = {
                 self.print_: self.print,
                 self.random_: self.random,
-                self.len_: self.len
+                self.len_: self.len,
+                self.range_: self.range
             }.get(self.name, None)
 
             if function is None:
@@ -454,24 +457,20 @@ class BuiltinFunction(Expression):
         )
 
     def random(self, arguments: list[Expression]) -> Number:
-
         if len(arguments) == 0:
             return Number(self.line_num, random())
-
         elif len(arguments) == 1:
             start: Expression = Number(self.line_num, 0)
             end: Expression = arguments[0]
         elif len(arguments) == 2:
-
-            start = arguments[0]
-            end = arguments[1]
+            start, end = arguments
         else:
             raise language_error(
                 self.line_num,
                 f"incorrect number of arguments. Excepts 0, 1, or 2 arguments, but got {len(arguments)}"
             )
 
-        # Validate start-range value
+        # Validate start value
         if not isinstance(start, Number):
             raise language_error(
                 self.line_num,
@@ -481,7 +480,7 @@ class BuiltinFunction(Expression):
         if not start.is_whole_number():
             raise language_error(self.line_num, f"first parameter value must be a whole number")
 
-        # Validate end-range value
+        # Validate end value
         if not isinstance(end, Number):
             raise language_error(
                 self.line_num,
@@ -499,6 +498,79 @@ class BuiltinFunction(Expression):
             )
 
         return Number(self.line_num, randint(int(start.value), int(end.value)))
+
+    def range(self, arguments: list[Expression]) -> List:
+        if len(arguments) == 1:
+            start: Expression = Number(self.line_num, 0)
+            end: Expression = arguments[0]
+            step: Expression = Number(self.line_num, 1)
+        elif len(arguments) == 2:
+            start, end = arguments
+            step = Number(self.line_num, 1)
+        elif len(arguments) == 3:
+            start, end, step = arguments
+        else:
+            raise language_error(
+                self.line_num,
+                f"incorrect number of arguments. Excepts 1, 2, or 3 arguments, but got {len(arguments)}"
+            )
+
+        # Validate start value
+        if not isinstance(start, Number):
+            raise language_error(
+                self.line_num,
+                f"expected Number for start, got {type(start).__name__}"
+            )
+
+        # Validate end value
+        if not isinstance(end, Number):
+            raise language_error(
+                self.line_num,
+                f"expected Number for end, got {type(end).__name__}"
+            )
+
+        # Validate step value
+        if not isinstance(step, Number):
+            raise language_error(
+                self.line_num,
+                f"expected Number for step, got {type(step).__name__}"
+            )
+
+        if step.value == 0:
+            raise language_error(
+                self.line_num,
+                f"step cannot be 0"
+            )
+
+        # Make sure step value is correct for start and end. If "start" is greater than "end" but "step" is positive,
+        # raise an error. Similarly, if "start" is less than "end" but "step" is negative, raise an error.
+        if start.value > end.value and step.value > 0:
+            raise language_error(
+                self.line_num,
+                f"step value must be negative if start value is greater than end value"
+            )
+        elif start.value < end.value and step.value < 0:
+            raise language_error(
+                self.line_num,
+                f"step value must be positive if start value is less than end value"
+            )
+
+        # If "start" is less than "end", generate numbers in ascending order. Otherwise, if "start" is
+        # greater than "end", generate numbers in descending order.
+        is_within_range: Callable[[float, float], bool] = \
+            (lambda a, b: a < b) if start.value < end.value else (lambda a, b: a > b)
+
+        # Generate the range
+        values: list[Expression] = []
+        next_value = start.value
+        while is_within_range(next_value, end.value):
+            values.append(Number(self.line_num, next_value))
+            next_value += step.value
+
+        # range is inclusive of both "start" and "end", so add the last value to the list
+        values.append(Number(self.line_num, next_value))
+
+        return List(self.line_num, values)
 
 
 class PrefixExpression(Expression):

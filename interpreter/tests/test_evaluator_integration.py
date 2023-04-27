@@ -1,12 +1,8 @@
 import pytest
 
 import interpreter.parser_.ast_objects as o
-from interpreter.tests.testing_utils import assert_expressions_equal
-from interpreter.tokens.tokenizer import Tokenizer, Token
-from interpreter.tokens.token_queue import TokenQueue
-from interpreter.parser_.parser_ import Parser
-from interpreter.evaluator.evaluator import Evaluator
-from interpreter.evaluator.environment_ import Environment
+from interpreter.tests.testing_utils import assert_expressions_equal, evaluator_actual_result
+from interpreter.tokens.tokenizer import Token
 from interpreter.tokens.tokens import PLUS, LE, SEND, MINUS
 
 
@@ -29,7 +25,7 @@ from interpreter.tokens.tokens import PLUS, LE, SEND, MINUS
     ("(1, 2, 3)", [o.List(1, [o.Number(1, 1), o.Number(1, 2), o.Number(1, 3)])]),
 ])
 def test_evaluator(source, expected_results):
-    actual_results = actual_result(f"{source};")
+    actual_results = evaluator_actual_result(f"{source};")
     assert_expressions_equal(expected_results, actual_results)
 
 
@@ -110,7 +106,7 @@ def test_evaluator(source, expected_results):
     ("(1,) == (\"1\",)", [o.Boolean(1, False)])
 ])
 def test_binary_expressions(source, expected_results):
-    actual_results = actual_result(f"{source};")
+    actual_results = evaluator_actual_result(f"{source};")
     assert_expressions_equal(expected_results, actual_results)
 
 
@@ -150,7 +146,7 @@ def test_binary_expressions(source, expected_results):
     ("13++--", [o.Number(1, 13)]),
 ])
 def test_suffix_operators(source, expected_results):
-    actual_results = actual_result(f"{source};")
+    actual_results = evaluator_actual_result(f"{source};")
     assert_expressions_equal(expected_results, actual_results)
 
 
@@ -193,46 +189,8 @@ def test_suffix_operators(source, expected_results):
     ])
 ])
 def test_valid_prefix_operations(source, expected_results):
-    actual_results = actual_result(f"{source};")
+    actual_results = evaluator_actual_result(f"{source};")
     assert_expressions_equal(expected_results, actual_results)
-
-
-@pytest.mark.parametrize("source, output_str", [
-    ("\"hello, world!\"", "\"hello, world!\""),
-    ("1", "1")
-])
-def test_print(source, output_str):
-    actual_results = actual_result(f"print <- ({source},);")
-    assert_expressions_equal([o.Output(1, output_str)], actual_results)
-
-
-@pytest.mark.parametrize("low, high, params", [
-    (0, 1, ""),
-    (0, 5, "5,"),
-    (5, 10, "5, 10"),
-    (-5, 5, "-5, 5"),
-    (-5, 0, "-5, 0"),
-    (-5, 5, "-5, 5"),
-])
-def test_random(low, high, params):
-    for _ in range(100):
-        ast_results = actual_result(f"random <- ({params});")
-        actual_value = ast_results[0]
-
-        assert type(actual_value) == o.Number
-        assert low <= actual_value.value <= high
-
-
-@pytest.mark.parametrize("list_, length", [
-    ("()", 0),
-    ("(1,)", 1),
-    ("(1, \"hello, world!\")", 2),
-    ("(1, true, false)", 3),
-    ("\"hello, world\"", 12)
-])
-def test_len(list_, length):
-    ast_results = actual_result(f"len <- ({list_},);")
-    assert_expressions_equal([o.Number(1, length)], ast_results)
 
 
 @pytest.mark.parametrize("source, expected_results", [
@@ -309,7 +267,7 @@ def test_len(list_, length):
     )
 ])
 def test_functions(source, expected_results):
-    actual_results = actual_result(source)
+    actual_results = evaluator_actual_result(source)
     assert_expressions_equal(expected_results, actual_results)
 
 
@@ -351,7 +309,7 @@ def test_when_if_implementation():
         a == 4: "4"
         else: "0";
     """
-    actual_results = actual_result(src)
+    actual_results = evaluator_actual_result(src)
     expected_results = [
         o.Number(2, 1),
         o.String(3, "1"),
@@ -405,7 +363,7 @@ def test_when_switch_implementation():
         is 4: "4"
         else: "0";
     """
-    actual_results = actual_result(src)
+    actual_results = evaluator_actual_result(src)
     expected_results = [
         o.Number(2, 1),
         o.String(3, "1"),
@@ -430,16 +388,6 @@ def test_when_switch_implementation():
     ("(1, 2) @ 1.5", [o.Error(1, "Error at line 1: list index must be a whole number")]),
 ])
 def test_list_index(source, expected_ast):
-    actual_results = actual_result(f"{source};")
+    actual_results = evaluator_actual_result(f"{source};")
     assert_expressions_equal(expected_ast, actual_results)
 
-
-def actual_result(source):
-    t = Tokenizer(source)
-    tokens = TokenQueue(t)
-
-    p = Parser(tokens)
-    ast = p.parse()
-
-    e = Evaluator(ast, Environment())
-    return e.evaluate()

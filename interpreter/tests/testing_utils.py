@@ -1,7 +1,19 @@
+from interpreter.evaluator.evaluator import Evaluator, Environment
 from interpreter.parser_.ast_objects import *
 from interpreter.parser_.parser_ import Parser
 from interpreter.tokens.tokenizer import Tokenizer
 from interpreter.tokens.token_queue import TokenQueue
+
+
+def evaluator_actual_result(source: str) -> list[Expression]:
+    t = Tokenizer(source)
+    tokens = TokenQueue(t)
+
+    p = Parser(tokens)
+    ast = p.parse()
+
+    e = Evaluator(ast, Environment())
+    return e.evaluate()
 
 
 def create_when(line_num: int, switch_expression: Expression, case_expressions: list[tuple[str, Expression, Expression]]) -> tuple[str, When]:
