@@ -30,10 +30,19 @@ AST visualization is not available for the REPL.
 
 **NOTE:** may need to replace `python` with `python3`.
 
-## Flask App
+## Run the Flask App
 Boomerang has a web interface that will allow you to run it from the browser!
 
-To run the Flask app, run `python flask_app.py`.
+1. Open a Python console and run the following code:
+   ```python
+   import secrets
+   secrets.token_hex()
+   ```
+2. Take the value returned from `secrets.token_hex()`, and use it as the value for `SECRET_KEY` in  local `.env` file. Below is the bash command to do this:
+   ```bash
+   echo "export SECRET_KEY='your secret key'" >> .env
+   ```
+3. Run the app with `python flask_app.py`.
 
 ### Deploying to Pythonanywhere
 1. Make sure you have signed up for a free PythonAnywhere account, and you’re logged in. 
