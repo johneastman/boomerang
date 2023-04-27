@@ -448,7 +448,7 @@ class BuiltinFunction(Expression):
             return Number(self.line_num, len(collection.value))
         elif isinstance(collection, List):
             return Number(self.line_num, len(collection.values))
-        raise language_error(self.line_num, f"Unsupported type {type(collection).__name__} for built-in function len")
+        raise language_error(self.line_num, f"unsupported type {type(collection).__name__} for built-in function len")
 
     def print(self, arguments: list[Expression]) -> Output:
         return Output(
@@ -474,30 +474,36 @@ class BuiltinFunction(Expression):
         if not isinstance(start, Number):
             raise language_error(
                 self.line_num,
-                f"expected Number for first parameter, got {type(start).__name__}"
+                f"expected Number for start, got {type(start).__name__}"
             )
 
         if not start.is_whole_number():
-            raise language_error(self.line_num, f"first parameter value must be a whole number")
+            raise language_error(self.line_num, f"start must be a whole number")
 
         # Validate end value
         if not isinstance(end, Number):
             raise language_error(
                 self.line_num,
-                f"expected Number for second parameter, got {type(end).__name__}"
+                f"expected Number for end, got {type(end).__name__}"
             )
 
-        if not start.is_whole_number():
-            raise language_error(self.line_num, f"second parameter value must be a whole number")
+        if not end.is_whole_number():
+            raise language_error(self.line_num, f"end must be a whole number")
 
         # Ensure start value is less than end value
         if end.value < start.value:
             raise language_error(
                 self.line_num,
-                f"end value ({end.value}) must be greater than start value ({start.value})"
+                f"end ({str(end)}) must be greater than start ({str(start)})"
             )
 
-        return Number(self.line_num, randint(int(start.value), int(end.value)))
+        return Number(
+            self.line_num,
+            randint(
+                int(start.value),
+                int(end.value)
+            )
+        )
 
     def range(self, arguments: list[Expression]) -> List:
         if len(arguments) == 1:
