@@ -5,6 +5,7 @@ __pycache__/
 .pytype/
 .mypy_cache/
 venv/
+.env
 
 # graphviz
 *.gv
