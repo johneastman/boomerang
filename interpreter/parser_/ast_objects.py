@@ -567,9 +567,6 @@ class BuiltinFunction(Expression):
             values.append(Number(self.line_num, next_value))
             next_value += step.value
 
-        # range is inclusive of both "start" and "end", so add the last value to the list
-        values.append(Number(self.line_num, next_value))
-
         return List(self.line_num, values)
 
 

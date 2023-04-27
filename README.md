@@ -170,13 +170,13 @@ Return the length of a sequence.
 |`(sequence:List\|String,)`|For lists, return the number of elements. For strings, return the number of characters.|
 
 #### range
-Return a list of values from `start` to `end` (inclusive).
+Return a list of values from `start` to `end` (exclusive).
 
 |Arguments|Return Value|
 |---|---|
-|`(start:Number)`|List of numbers from 0 up to and including `start`.|
-|`(start:Number, end:Number,)`|List of numbers from `start` up to and including `end`.|
-|`(start:Number, end:Number, step:Number)`|Return a list of numbers from `start` up to and including `end` incrementing by `step`. If `step` is negative, the list will generate in descending order, but `start` will need to be greater than `end`.|
+|`(start:Number)`|List of numbers from 0 to `start`.|
+|`(start:Number, end:Number,)`|List of numbers from `start` to `end`.|
+|`(start:Number, end:Number, step:Number)`|Return a list of numbers from `start` to `end` incrementing by `step`. If `step` is negative, the list will generate in descending order, but `start` will need to be greater than `end`.|
 
 ### Functions
 Boomerang has first-class functions, meaning they are treated like any other type of data (number, boolean, string, etc.). They are defined by being assigned to variables.

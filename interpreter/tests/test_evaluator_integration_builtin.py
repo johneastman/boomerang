@@ -46,28 +46,22 @@ def test_len(list_, length):
     (
         ["1"],
         o.List(1, [
-            o.Number(1, 0),
-            o.Number(1, 1)
+            o.Number(1, 0)
         ])
     ),
     (
         ["0"],
-        o.List(1, [
-            o.Number(1, 0)
-        ])
+        o.List(1, [])
     ),
     (
         ["0", "0"],
-        o.List(1, [
-            o.Number(1, 0)
-        ])
+        o.List(1, [])
     ),
     (
         ["1", "3"],
         o.List(1, [
             o.Number(1, 1),
             o.Number(1, 2),
-            o.Number(1, 3)
         ])
     ),
     (
@@ -78,7 +72,6 @@ def test_len(list_, length):
             o.Number(1, 4),
             o.Number(1, 6),
             o.Number(1, 8),
-            o.Number(1, 10)
         ])
     ),
     (
@@ -86,7 +79,6 @@ def test_len(list_, length):
         o.List(1, [
             o.Number(1, 3),
             o.Number(1, 2),
-            o.Number(1, 1)
         ])
     ),
     (
@@ -96,7 +88,6 @@ def test_len(list_, length):
             o.Number(1, 1.25),
             o.Number(1, 1.5),
             o.Number(1, 1.75),
-            o.Number(1, 2)
         ])
     ),
     (
@@ -106,7 +97,6 @@ def test_len(list_, length):
             o.Number(1, 1.75),
             o.Number(1, 1.5),
             o.Number(1, 1.25),
-            o.Number(1, 1),
         ])
     ),
 

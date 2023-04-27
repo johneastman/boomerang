@@ -10,7 +10,6 @@ CodeMirror.defineMode("boomerang", function() {
             } else if (stream.match(/[0-9]+(.?[0-9]+)*/)) {
                 return "numbers";
             }
-
             stream.next();
             return null;
         }
