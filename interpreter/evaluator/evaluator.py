@@ -132,6 +132,9 @@ class Evaluator:
         elif op.type == t.BANG:
             return expression_result.bang()
 
+        elif op.type == t.PACK:
+            return expression_result.pack()
+
         raise Exception(f"Invalid unary operator: {op.type} ({op.value})")
 
     def evaluate_binary_expression(self, binary_operation: InfixExpression) -> Expression:

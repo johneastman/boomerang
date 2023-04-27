@@ -126,8 +126,8 @@ class Parser:
         if self.current.type == t.IDENTIFIER and self.peek.type == t.ASSIGN:
             return self.parse_assign()
 
-        elif self.current.type in [t.MINUS, t.PLUS, t.BANG]:
-            return self.parse_unary_expression()
+        elif self.current.type in [t.MINUS, t.PLUS, t.BANG, t.PACK]:
+            return self.parse_prefix_expression()
 
         elif self.current.type == t.OPEN_PAREN:
             return self.parse_grouped_expression()
@@ -181,7 +181,7 @@ class Parser:
             boolean_token.value == t.get_token_literal("TRUE")
         )
 
-    def parse_unary_expression(self) -> PrefixExpression:
+    def parse_prefix_expression(self) -> PrefixExpression:
         op = self.current
         self.advance()
         expression = self.expression(PREFIX)

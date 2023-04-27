@@ -71,7 +71,8 @@ SEND: str = get_token_type("SEND")
 DEC: str = get_token_type("DEC")
 INC: str = get_token_type("INC")
 MOD: str = get_token_type("MOD")
-INDEX:str = get_token_type("INDEX")
+INDEX: str = get_token_type("INDEX")
+PACK: str = get_token_type("PACK")
 
 # Comparison/Boolean Operators
 EQ: str = get_token_type("EQ")  # Equal

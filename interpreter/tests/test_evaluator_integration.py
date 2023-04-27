@@ -187,9 +187,12 @@ def test_suffix_operators(source, expected_results):
     ]),
     ("-(1, 2, 3)", [
         o.List(1, [o.Number(1, 3), o.Number(1, 2), o.Number(1, 1)])
+    ]),
+    ("**(1, 2, 3)", [
+        o.List(1, [o.List(1, [o.Number(1, 1), o.Number(1, 2), o.Number(1, 3)])])
     ])
 ])
-def test_valid_unary_operations(source, expected_results):
+def test_valid_prefix_operations(source, expected_results):
     actual_results = actual_result(f"{source};")
     assert_expressions_equal(expected_results, actual_results)
 

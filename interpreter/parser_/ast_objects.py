@@ -95,6 +95,9 @@ class Expression:
     def bang(self) -> "Expression":
         raise language_error(self.line_num, f"Invalid type {type(self).__name__} for {t.BANG}")
 
+    def pack(self) -> "Expression":
+        raise language_error(self.line_num, f"Invalid type {type(self).__name__} for {t.PACK}")
+
     def at(self, other: object) -> "Expression":
         raise language_error(self.line_num,
                              f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.INDEX}")
@@ -281,6 +284,9 @@ class List(Expression):
     def neg(self) -> "Expression":
         values = list(reversed(self.values))
         return List(self.line_num, values)
+
+    def pack(self) -> "Expression":
+        return List(self.line_num, [List(self.line_num, self.values)])
 
     def ptr(self, other: object) -> "Expression":
         if isinstance(other, Expression):

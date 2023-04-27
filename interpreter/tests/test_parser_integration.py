@@ -45,9 +45,10 @@ def test_list(source, expected_list_values):
 @pytest.mark.parametrize("source, operator, expression", [
     ("+1", Token(1, "+", t.PLUS), Number(1, 1)),
     ("-1", Token(1, "-", t.MINUS), Number(1, 1)),
-    ("!true", Token(1, "!", t.BANG), Boolean(1, True))
+    ("!true", Token(1, "!", t.BANG), Boolean(1, True)),
+    ("**(1, 2, 3)", Token(1, "**", t.PACK), List(1, [Number(1, 1), Number(1, 2), Number(1, 3)]))
 ])
-def test_unary_expressions(source, operator, expression):
+def test_prefix_expressions(source, operator, expression):
     expected_ast = [
         PrefixExpression(1, operator, expression)
     ]
@@ -65,7 +66,7 @@ def test_unary_expressions(source, operator, expression):
     ("6++--", PostfixExpression(1, Token(1, "--", t.DEC), PostfixExpression(1, Token(1, "++", t.INC), Number(1, 6)))),
     ("6--++", PostfixExpression(1, Token(1, "++", t.INC), PostfixExpression(1, Token(1, "--", t.DEC), Number(1, 6)))),
 ])
-def test_suffix_operators(source, ast_object):
+def test_postfix_operators(source, ast_object):
     expected_ast = [ast_object]
 
     parser = testing_utils.parser(f"{source};")

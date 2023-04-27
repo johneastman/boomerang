@@ -2,8 +2,7 @@ import pytest
 
 from interpreter.tests.testing_utils import assert_token_equal
 from interpreter.tokens.tokenizer import Tokenizer, Token
-from interpreter.tokens.tokens import EQ, ASSIGN, LE, LT, GE, GT, SEND, BANG, NE, INC, PLUS, DEC, MINUS, IDENTIFIER, \
-    NUMBER
+import interpreter.tokens.tokens as t
 
 
 @pytest.mark.parametrize("source,is_digit", [
@@ -177,19 +176,21 @@ def test_advance_current_peek_index():
 
 
 @pytest.mark.parametrize("symbol, type_", [
-    ("==", EQ),
-    ("=", ASSIGN),
-    ("<=", LE),
-    ("<", LT),
-    ("<-", SEND),
-    (">=", GE),
-    (">", GT),
-    ("!=", NE),
-    ("!", BANG),
-    ("++", INC),
-    ("+", PLUS),
-    ("--", DEC),
-    ("-", MINUS)
+    ("==", t.EQ),
+    ("=", t.ASSIGN),
+    ("<=", t.LE),
+    ("<", t.LT),
+    ("<-", t.SEND),
+    (">=", t.GE),
+    (">", t.GT),
+    ("!=", t.NE),
+    ("!", t.BANG),
+    ("++", t.INC),
+    ("+", t.PLUS),
+    ("--", t.DEC),
+    ("-", t.MINUS),
+    ("*", t.MULTIPLY),
+    ("**", t.PACK)
 ])
 def test_get_symbol_token(symbol, type_):
     tokenizer = Tokenizer(symbol)
@@ -217,6 +218,6 @@ def test_skip_comments():
 
 def test_next_token():
     tokenizer = Tokenizer("# this is a comment\na \t= \n1")
-    assert tokenizer.next_token() == Token(2, "a", IDENTIFIER)
-    assert tokenizer.next_token() == Token(2, "=", ASSIGN)
-    assert tokenizer.next_token() == Token(3, "1", NUMBER)
+    assert tokenizer.next_token() == Token(2, "a", t.IDENTIFIER)
+    assert tokenizer.next_token() == Token(2, "=", t.ASSIGN)
+    assert tokenizer.next_token() == Token(3, "1", t.NUMBER)

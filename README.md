@@ -85,7 +85,8 @@ All expressions end with a semicolon `;`.
 |`-`|Number|Number|Make number negative.|
 |`-`|List|List|Reverse list.|
 |`+`|Number|Number|Absolute value. Make number positive.|
-|`!`|Boolean|Boolean|Not operator. Return opposite boolean value (`true` becomes `false` and `false` becomes `true`)|
+|`!`|Boolean|Boolean|Not operator. Return opposite boolean value (`true` becomes `false` and `false` becomes `true`).|
+|`**`|List|List|Create a new 1-element list, where the first and only element is the given list (list of lists).|
 
 ### Infix Operators and Operations
 |Left Type|Operator Symbol|Right Type|Result Type|Result Description|

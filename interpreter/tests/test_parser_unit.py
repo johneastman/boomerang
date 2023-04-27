@@ -5,7 +5,7 @@ from .testing_utils import create_when, assert_expression_equal
 from ..parser_.ast_objects import Assignment, Number, Function, Identifier, InfixExpression, Boolean, \
     String, Expression, PostfixExpression
 from ..tokens.tokenizer import Token
-from ..tokens.tokens import PLUS, EQ, BANG, INC, DEC
+from ..tokens.tokens import PLUS, EQ, BANG, INC, DEC, PACK
 from ..utils.utils import LanguageRuntimeException
 
 
@@ -64,7 +64,7 @@ def test_parse_infix(source, expected_result):
     ("--", Token(1, "--", DEC)),
     ("++", Token(1, "++", INC))
 ])
-def test_parse_prefix(source, token):
+def test_parse_prefix_invalid_operators(source, token):
     p = testing_utils.parser(source)
     with pytest.raises(LanguageRuntimeException) as e:
         p.parse_prefix()
