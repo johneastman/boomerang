@@ -11,9 +11,11 @@ Some defining characteristics of Boomerang are:
 # Install
 1. Download and install [Python 3.11+](https://www.python.org/downloads/)
 2. `pip install -r requirements.txt`
-    * May need to run `python3 -m pip install -r requirements.txt`
+    * May need to run `python -m pip install -r requirements.txt`
 3. Install [graphviz](https://graphviz.org/download/)
-4. Optional: this project uses lefthook for pre-commit verification. Follow the installation and setup process [here](https://github.com/evilmartians/lefthook/blob/master/docs/full_guide.md)
+4. Optional: this project uses lefthook for pre-commit verification. Follow the installation and setup process [here](https://github.com/evilmartians/lefthook/blob/master/docs/full_guide.md).
+
+**NOTE:** you may need to replace `python` with `python3`, though throughout the rest of the setup guide, I simply use `python`.
 
 # Running
 Boomerang files end with the `.bng` extension (e.g., `main.bng`).
@@ -28,21 +30,18 @@ To run the repl:
 
 AST visualization is not available for the REPL.
 
-**NOTE:** may need to replace `python` with `python3`.
-
 ## Run the Flask App
 Boomerang has a web interface that will allow you to run it from the browser!
 
-1. Open a Python console and run the following code:
+1. Generate a `.env` file with `SECRET_KEY` key using the following Python script:
    ```python
-   import secrets
-   secrets.token_hex()
+    import secrets
+
+    key = secrets.token_hex()
+    with open(".env", "w") as file:
+        file.write(f"export SECRET_KEY={key}")
    ```
-2. Take the value returned from `secrets.token_hex()`, and use it as the value for `SECRET_KEY` in  local `.env` file. Below is the bash command to do this:
-   ```bash
-   echo "export SECRET_KEY='your secret key'" >> .env
-   ```
-3. Run the app with `python flask_app.py`.
+2. Run the app with `python flask_app.py`.
 
 ### Deploying to Pythonanywhere
 1. Make sure you have signed up for a free PythonAnywhere account, and you’re logged in. 
