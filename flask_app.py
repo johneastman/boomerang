@@ -3,10 +3,10 @@ For saving files locally, use "app.root_path"
 """
 import json
 import base64
-import secrets
 import os
+from io import BytesIO
 
-from flask import Flask, Response, request, render_template, redirect, session
+from flask import Flask, Response, request, render_template, redirect, session, send_file
 
 from interpreter.parser_.ast_objects import Output, Error
 from interpreter.utils.utils import LanguageRuntimeException
@@ -76,6 +76,22 @@ def visualize():
         output_data = [Output(-1, f"Unexpected internal error: {message}")]
 
     return create_response("/", source_code, json.dumps(list(map(str, output_data))))
+
+
+@app.route("/download", methods=["POST"])
+def download():
+    source_code = request.form["source"]
+
+    buffer = BytesIO()
+    buffer.write(source_code.encode("utf-8"))
+    buffer.seek(0)
+
+    return send_file(
+        buffer,
+        as_attachment=True,
+        download_name="main.bng",
+        mimetype="text"
+    )
 
 
 def create_response(path: str, source_code: str, return_results: str) -> Response:
