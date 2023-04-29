@@ -8,7 +8,7 @@ from io import BytesIO
 
 from flask import Flask, Response, request, render_template, redirect, session, send_file
 
-from interpreter.parser_.ast_objects import Output, Error
+from interpreter.parser_.ast_objects import Error
 from interpreter.utils.utils import LanguageRuntimeException
 from main import evaluate, visualize_ast
 from interpreter.evaluator.environment_ import Environment
@@ -41,15 +41,11 @@ def interpret():
     source_code = request.form["source"]
 
     try:
-        results = evaluate(source_code, Environment())
-
-        # Filter out results that do not produce an output. These will be sent to the page for display
-        output_data = filter(lambda obj: isinstance(obj, Output) or isinstance(obj, Error), results)
+        results, output_data = evaluate(source_code, Environment())
     except Exception as e:
-        message = str(e)
-        output_data = [Output(-1, f"Unexpected internal error: {message}")]
+        output_data = [f"Unexpected internal error: {str(e)}"]
 
-    return create_response("/", source_code, json.dumps(list(map(str, output_data))))
+    return create_response("/", source_code, json.dumps(output_data))
 
 
 @app.route("/clear", methods=["POST"])

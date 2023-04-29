@@ -155,7 +155,7 @@ function = func a, b: a + b;
 ### Builtin Functions
 
 #### print
-Send data to the output stream (e.g., print to console).
+Send data to the output stream (e.g., print to console). Returns the list of values passed to `print`.
 
 |Arguments|Return Value|
 |---|---|

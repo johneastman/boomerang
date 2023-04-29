@@ -47,10 +47,6 @@ test_function = Function(
         "When(line_num=1, expression=Boolean(line_num=1, value=True), case_expressions=[(Boolean(line_num=1, value=False), String(line_num=1, value='yes')), (Boolean(line_num=1, value=True), String(line_num=1, value='no'))])"
     ),
     (
-        Output(1, "output!"),
-        "Output(line_num=1, value='output!')"
-    ),
-    (
         BuiltinFunction(1, "print"),
         "BuiltinFunction(line_num=1, name='print')"
     ),

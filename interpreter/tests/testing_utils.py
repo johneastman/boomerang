@@ -5,7 +5,7 @@ from interpreter.tokens.tokenizer import Tokenizer
 from interpreter.tokens.token_queue import TokenQueue
 
 
-def evaluator_actual_result(source: str) -> list[Expression]:
+def evaluator_actual_result(source: str) -> tuple[list[Expression], list[str]]:
     t = Tokenizer(source)
     tokens = TokenQueue(t)
 
@@ -55,9 +55,6 @@ def assert_expression_equal(expected: Expression, actual: Expression) -> None:
 
     elif isinstance(expected, Error) and isinstance(actual, Error):
         assert actual.message == expected.message
-
-    elif isinstance(expected, Output) and isinstance(actual, Output):
-        assert actual.value == expected.value
 
     elif isinstance(expected, BuiltinFunction) and isinstance(actual, BuiltinFunction):
         assert actual.name == expected.name

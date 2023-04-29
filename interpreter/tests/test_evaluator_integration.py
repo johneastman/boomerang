@@ -25,7 +25,7 @@ from interpreter.tokens.tokens import PLUS, LE, SEND, MINUS
     ("(1, 2, 3)", [o.List(1, [o.Number(1, 1), o.Number(1, 2), o.Number(1, 3)])]),
 ])
 def test_evaluator(source, expected_results):
-    actual_results = evaluator_actual_result(f"{source};")
+    actual_results, _ = evaluator_actual_result(f"{source};")
     assert_expressions_equal(expected_results, actual_results)
 
 
@@ -106,7 +106,7 @@ def test_evaluator(source, expected_results):
     ("(1,) == (\"1\",)", [o.Boolean(1, False)])
 ])
 def test_binary_expressions(source, expected_results):
-    actual_results = evaluator_actual_result(f"{source};")
+    actual_results, _ = evaluator_actual_result(f"{source};")
     assert_expressions_equal(expected_results, actual_results)
 
 
@@ -146,7 +146,7 @@ def test_binary_expressions(source, expected_results):
     ("13++--", [o.Number(1, 13)]),
 ])
 def test_suffix_operators(source, expected_results):
-    actual_results = evaluator_actual_result(f"{source};")
+    actual_results, _ = evaluator_actual_result(f"{source};")
     assert_expressions_equal(expected_results, actual_results)
 
 
@@ -189,7 +189,7 @@ def test_suffix_operators(source, expected_results):
     ])
 ])
 def test_valid_prefix_operations(source, expected_results):
-    actual_results = evaluator_actual_result(f"{source};")
+    actual_results, _ = evaluator_actual_result(f"{source};")
     assert_expressions_equal(expected_results, actual_results)
 
 
@@ -267,7 +267,7 @@ def test_valid_prefix_operations(source, expected_results):
     )
 ])
 def test_functions(source, expected_results):
-    actual_results = evaluator_actual_result(source)
+    actual_results, _ = evaluator_actual_result(source)
     assert_expressions_equal(expected_results, actual_results)
 
 
@@ -309,7 +309,7 @@ def test_when_if_implementation():
         a == 4: "4"
         else: "0";
     """
-    actual_results = evaluator_actual_result(src)
+    actual_results, _ = evaluator_actual_result(src)
     expected_results = [
         o.Number(2, 1),
         o.String(3, "1"),
@@ -363,7 +363,7 @@ def test_when_switch_implementation():
         is 4: "4"
         else: "0";
     """
-    actual_results = evaluator_actual_result(src)
+    actual_results, _ = evaluator_actual_result(src)
     expected_results = [
         o.Number(2, 1),
         o.String(3, "1"),
@@ -388,6 +388,6 @@ def test_when_switch_implementation():
     ("(1, 2) @ 1.5", [o.Error(1, "Error at line 1: list index must be a whole number")]),
 ])
 def test_list_index(source, expected_ast):
-    actual_results = evaluator_actual_result(f"{source};")
+    actual_results, _ = evaluator_actual_result(f"{source};")
     assert_expressions_equal(expected_ast, actual_results)
 

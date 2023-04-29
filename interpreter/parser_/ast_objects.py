@@ -381,23 +381,6 @@ class When(Expression):
         return f"<when {hex(id(self))}>"
 
 
-class Output(Expression):
-    """Stores representation of what is printed to the console.
-    """
-
-    def __init__(self, line_num: int, value: str):
-        super().__init__(line_num)
-        self.value = value
-
-    def __str__(self) -> str:
-        return self.value
-
-    def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Output):
-            return False
-        return self.value == other.value
-
-
 class BuiltinFunction(Expression):
     print_ = "print"
     random_ = "random"
@@ -450,11 +433,9 @@ class BuiltinFunction(Expression):
             return Number(self.line_num, len(collection.values))
         raise language_error(self.line_num, f"unsupported type {type(collection).__name__} for built-in function len")
 
-    def print(self, arguments: list[Expression]) -> Output:
-        return Output(
-            self.line_num,
-            ", ".join(map(str, arguments))
-        )
+    def print(self, arguments: list[Expression]) -> List:
+        print(", ".join(map(str, arguments)))
+        return List(self.line_num, arguments)
 
     def random(self, arguments: list[Expression]) -> Number:
         if len(arguments) == 0:

@@ -1,8 +1,6 @@
 import argparse
-import typing
 
 from interpreter.parser_.parser_ import Expression, Error
-from interpreter.parser_.ast_objects import Output
 from interpreter.tokens.tokenizer import Tokenizer
 from interpreter.tokens.token_queue import TokenQueue
 from interpreter.parser_.parser_ import Parser
@@ -13,11 +11,11 @@ from interpreter.utils.utils import LanguageRuntimeException
 
 
 def get_source(filepath: str) -> str:
-    with open(filepath, "r") as file:
-        return file.read()
+    with open(filepath, "r") as f:
+        return f.read()
 
 
-def evaluate(source: str, environment: Environment) -> list[Expression]:
+def evaluate(source: str, environment: Environment) -> tuple[list[Expression], list[str]]:
     try:
         t = Tokenizer(source)
         tokens = TokenQueue(t)
@@ -25,10 +23,9 @@ def evaluate(source: str, environment: Environment) -> list[Expression]:
         p = Parser(tokens)
         ast = p.parse()
 
-        e = Evaluator(ast, environment)
-        return e.evaluate()
+        return Evaluator(ast, environment).evaluate()
     except LanguageRuntimeException as e:
-        return [Error(e.line_num, str(e))]
+        return [Error(e.line_num, str(e))], []
 
 
 def visualize_ast(source: str) -> bytes:
@@ -36,10 +33,7 @@ def visualize_ast(source: str) -> bytes:
     tq = TokenQueue(t)
     p = Parser(tq)
     ast = p.parse()
-
-    ast_v = ASTVisualizer(ast)
-
-    return ast_v.visualize()
+    return ASTVisualizer(ast).visualize()
 
 
 def repl(prompt: str = ">>") -> None:
@@ -50,11 +44,15 @@ def repl(prompt: str = ">>") -> None:
         if _input.lower() == "exit":
             break
         else:
-            evaluated_expressions = evaluate(_input, env)
-            # if 'evaluated_expressions' is None, an error likely occurred
-            if evaluated_expressions is not None:
-                for expression in evaluated_expressions:
-                    print(str(expression))
+            evaluated_expressions, output = evaluate(_input, env)
+
+            # Display output, if any exists
+            if len(output) > 0:
+                print("\n".join(output))
+
+            # Display evaluated results
+            for expression in evaluated_expressions:
+                print(str(expression))
 
 
 if __name__ == "__main__":
@@ -81,10 +79,9 @@ if __name__ == "__main__":
         repl()
     elif path_var:
         source = get_source(path_var)
-        results = evaluate(source, Environment())
-        for result in results:
-            if isinstance(result, Output) or isinstance(result, Error):
-                print(result)
+        _, output = evaluate(source, Environment())
+        if len(output) > 0:
+            print("\n".join(output))
 
         if visualize_path:
             pdf_data: bytes = visualize_ast(source)

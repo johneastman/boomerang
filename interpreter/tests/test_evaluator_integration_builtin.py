@@ -4,14 +4,31 @@ import interpreter.parser_.ast_objects as o
 from interpreter.tests.testing_utils import evaluator_actual_result, assert_expressions_equal
 
 
-@pytest.mark.parametrize("params, expected_result", [
-    (["\"hello, world!\""], o.Output(1, "\"hello, world!\"")),
-    (["1"], o.Output(1, "1")),
-    (["1", "true", "\"string\""], o.Output(1, "1, true, \"string\"")),
-    ([], o.Output(1, "")),
+@pytest.mark.parametrize("params, expected_result, expected_output_results", [
+    (
+        ["\"hello, world!\""],
+        o.List(1, [o.String(1, "hello, world!")]),
+        ["\"hello, world!\""]
+    ),
+    (
+        ["1"],
+        o.List(1, [o.Number(1, 1)]),
+        ["1"]
+    ),
+    (
+        ["1", "true", "\"string\""],
+        o.List(1, [o.Number(1, 1), o.Boolean(1, True), o.String(1, "string")]),
+        ["1, true, \"string\""]
+    ),
+    (
+        [],
+        o.List(1, []),
+        []
+    ),
 ])
-def test_print(params, expected_result):
-    actual_results = evaluator_actual_result(f"print <- ({params_str(params)});")
+def test_print(params, expected_result, expected_output_results):
+    actual_results, output_results = evaluator_actual_result(f"print <- ({params_str(params)});")
+    assert output_results == expected_output_results
     assert_expressions_equal([expected_result], actual_results)
 
 
@@ -25,7 +42,7 @@ def test_print(params, expected_result):
 ])
 def test_random(params, low, high):
     for _ in range(100):
-        ast_results = evaluator_actual_result(f"random <- ({params_str(params)});")
+        ast_results, _ = evaluator_actual_result(f"random <- ({params_str(params)});")
         actual_value = ast_results[0]
 
         assert type(actual_value) == o.Number
@@ -88,7 +105,7 @@ def test_random_error(params, error_result):
     """Due to the nature of the random function not returning consistent values, error tests had to be
     put in a separate test.
     """
-    ast_results = evaluator_actual_result(f"random <- ({params_str(params)});")
+    ast_results, _ = evaluator_actual_result(f"random <- ({params_str(params)});")
     assert ast_results[0] == error_result
 
 
@@ -135,7 +152,7 @@ def test_random_error(params, error_result):
     ),
 ])
 def test_len(params, length):
-    ast_results = evaluator_actual_result(f"len <- ({params_str(params)});")
+    ast_results, _ = evaluator_actual_result(f"len <- ({params_str(params)});")
     assert_expressions_equal([length], ast_results)
 
 
@@ -232,7 +249,7 @@ def test_len(params, length):
     ),
 ])
 def test_range(params, expected_result):
-    ast_results = evaluator_actual_result(f"range <- ({params_str(params)});")
+    ast_results, _ = evaluator_actual_result(f"range <- ({params_str(params)});")
     assert_expressions_equal([expected_result], ast_results)
 
 
