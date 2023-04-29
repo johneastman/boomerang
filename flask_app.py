@@ -68,8 +68,7 @@ def visualize():
         output_data = [Error(e.line_num, str(e))]
 
     except Exception as e:
-        message = str(e)
-        output_data = [Output(-1, f"Unexpected internal error: {message}")]
+        output_data = [f"Unexpected internal error: {str(e)}"]
 
     return create_response("/", source_code, json.dumps(list(map(str, output_data))))
 
