@@ -34,7 +34,6 @@ def test_print(params, expected_result, expected_output_results):
 
 @pytest.mark.parametrize("params, is_randint, low, high", [
     # randint
-    ([], True, 0, 1),
     (["5"], True, 0, 5),
     (["5", "10"], True, 5, 10),
     (["-5", "5"], True, -5, 5),
@@ -63,10 +62,17 @@ def test_random(params, is_randint, low, high):
 
 @pytest.mark.parametrize("params, error_result", [
     (
+        [],
+        o.Error(
+            1,
+            "Error at line 1: incorrect number of arguments. Excepts 1 or 2 arguments, but got 0"
+        )
+    ),
+    (
         ["1", "2", "3"],
         o.Error(
             1,
-            "Error at line 1: incorrect number of arguments. Excepts 0, 1, or 2 arguments, but got 3"
+            "Error at line 1: incorrect number of arguments. Excepts 1 or 2 arguments, but got 3"
         )
     ),
     # With one parameter, range is 0 to end

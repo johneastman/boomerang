@@ -161,8 +161,16 @@ Send data to the output stream (e.g., print to console). Returns the list of val
 |---|---|
 |`(v1:Any, v2:Any, ..., vn:Any)`|Print all values on same line separated by commas.|
 
-#### random
-Return a random number.
+#### randint
+Return a random whole (integer) number between two whole (integer) numbers.
+
+|Arguments|Return Value|
+|---|---|
+|`(end:Number,)`|Return random number between 0 and `end`.|
+|`(start:Number, end:Number)`|Return random number between `start` and `end`.|
+
+#### randfloat
+Return a random decimal (float) number between two decimal (float) or whole (integer) numbers.
 
 |Arguments|Return Value|
 |---|---|

@@ -165,12 +165,13 @@ class Evaluator:
             tmp_stdout = StringIO()
             sys.stdout = tmp_stdout
 
-            result = left.ptr(right)
-            if isinstance(result, o.FunctionCall):
-                return self.evaluate_function_call(result)
-
-            # Reset STDOUT
-            sys.stdout = sys.__stdout__
+            try:
+                result = left.ptr(right)
+                if isinstance(result, o.FunctionCall):
+                    return self.evaluate_function_call(result)
+            finally:
+                # Reset STDOUT
+                sys.stdout = sys.__stdout__
 
             # Get value from String stream
             output_str = tmp_stdout.getvalue().strip()

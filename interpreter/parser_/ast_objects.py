@@ -441,7 +441,7 @@ class BuiltinFunction(Expression):
         return List(self.line_num, arguments)
 
     def random(self, arguments: list[Expression], is_float: bool) -> Number:
-        if len(arguments) == 0:
+        if is_float and len(arguments) == 0:
             return Number(self.line_num, random())
         elif len(arguments) == 1:
             start: Expression = Number(self.line_num, 0)
@@ -449,9 +449,12 @@ class BuiltinFunction(Expression):
         elif len(arguments) == 2:
             start, end = arguments
         else:
+            # randint accepts 1 or 2 arguments, whereas randfloat can accept 0 arguments to return a random number
+            # between 0 and 1.
+            num_args_str = "0, 1, or 2" if is_float else "1 or 2"
             raise language_error(
                 self.line_num,
-                f"incorrect number of arguments. Excepts 0, 1, or 2 arguments, but got {len(arguments)}"
+                f"incorrect number of arguments. Excepts {num_args_str} arguments, but got {len(arguments)}"
             )
 
         # Validate start value
