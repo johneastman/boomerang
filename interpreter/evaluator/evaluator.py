@@ -32,12 +32,12 @@ class Evaluator:
                 # `copy.deepcopy` ensures each evaluated expression in `evaluated_expressions` is accurate to the state
                 # of the program during the evaluation of that particular expression.
                 evaluated_expressions.append(copy.deepcopy(evaluated_expression))
+            return evaluated_expressions
 
-            # TODO: Figure out how to handle returns for both REPL and regular code execution
-            return evaluated_expressions
         except LanguageRuntimeException as e:
-            evaluated_expressions.append(o.Error(e.line_num, str(e)))
-            return evaluated_expressions
+            error_obj = o.Error(e.line_num, str(e))
+            self.output.append(str(error_obj))
+            return [error_obj]
 
     def evaluate_expression(self, expression: o.Expression) -> o.Expression:
 

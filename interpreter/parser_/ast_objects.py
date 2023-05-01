@@ -1,5 +1,5 @@
 from functools import reduce
-from random import random, randint
+from random import random, randint, uniform
 from typing import Callable
 
 from interpreter.tokens.token import Token
@@ -383,13 +383,15 @@ class When(Expression):
 
 class BuiltinFunction(Expression):
     print_ = "print"
-    random_ = "random"
+    randint_ = "randint"
+    randfloat = "randfloat"
     len_ = "len"
     range_ = "range"
 
     builtin_function_names = [
         print_,
-        random_,
+        randint_,
+        randfloat,
         len_,
         range_
     ]
@@ -410,7 +412,8 @@ class BuiltinFunction(Expression):
         if isinstance(other, List):
             function: Callable[[list[Expression]], Expression] | None = {
                 self.print_: self.print,
-                self.random_: self.random,
+                self.randint_: lambda args: self.random(args, False),
+                self.randfloat: lambda args: self.random(args, True),
                 self.len_: self.len,
                 self.range_: self.range
             }.get(self.name, None)
@@ -437,7 +440,7 @@ class BuiltinFunction(Expression):
         print(", ".join(map(str, arguments)))
         return List(self.line_num, arguments)
 
-    def random(self, arguments: list[Expression]) -> Number:
+    def random(self, arguments: list[Expression], is_float: bool) -> Number:
         if len(arguments) == 0:
             return Number(self.line_num, random())
         elif len(arguments) == 1:
@@ -458,7 +461,7 @@ class BuiltinFunction(Expression):
                 f"expected Number for start, got {type(start).__name__}"
             )
 
-        if not start.is_whole_number():
+        if not is_float and not start.is_whole_number():
             raise language_error(self.line_num, f"start must be a whole number")
 
         # Validate end value
@@ -468,7 +471,7 @@ class BuiltinFunction(Expression):
                 f"expected Number for end, got {type(end).__name__}"
             )
 
-        if not end.is_whole_number():
+        if not is_float and not end.is_whole_number():
             raise language_error(self.line_num, f"end must be a whole number")
 
         # Ensure start value is less than end value
@@ -480,10 +483,7 @@ class BuiltinFunction(Expression):
 
         return Number(
             self.line_num,
-            randint(
-                int(start.value),
-                int(end.value)
-            )
+            uniform(start.value, end.value) if is_float else randint(int(start.value), int(end.value))
         )
 
     def range(self, arguments: list[Expression]) -> List:

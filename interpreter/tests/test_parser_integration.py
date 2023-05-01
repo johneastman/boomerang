@@ -89,7 +89,7 @@ def test_postfix_operators(source, ast_object):
     ("6 < 12", Number(1, 6), Token(1, "<", t.LT), Number(1, 12)),
     ("7 <= 13", Number(1, 7), Token(1, "<=", t.LE), Number(1, 13)),
 ])
-def test_binary_expressions(source, left, operator, right):
+def test_infix_expressions(source, left, operator, right):
     expected_ast = [
         InfixExpression(1, left, operator, right)
     ]
@@ -196,14 +196,14 @@ def test_binary_expressions(source, left, operator, right):
         )
     ),
     (
-        "list @ random <- (0, 10,)",
+        "list @ randint <- (0, 10,)",
         InfixExpression(
             1,
             Identifier(1, "list"),
             Token(1, "@", t.INDEX),
             InfixExpression(
                 1,
-                BuiltinFunction(1, "random"),
+                BuiltinFunction(1, "randint"),
                 Token(1, "<-", t.SEND),
                 List(1, [Number(1, 0), Number(1, 10)]),
             ),

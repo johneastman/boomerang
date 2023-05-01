@@ -21,7 +21,7 @@ project_folder = os.path.expanduser(app.root_path)
 load_dotenv(os.path.join(project_folder, '.env'))
 app.secret_key = os.getenv("SECRET_KEY")
 
-# Cookie keys
+# Cookie/Session keys
 SOURCE_CODE = "source_code"
 RESULTS = "results"
 
@@ -41,11 +41,11 @@ def interpret():
     source_code = request.form["source"]
 
     try:
-        results, output_data = evaluate(source_code, Environment())
+        output: list[str] = evaluate(source_code, Environment())
     except Exception as e:
-        output_data = [f"Unexpected internal error: {str(e)}"]
+        output = [f"Unexpected internal error: {str(e)}"]
 
-    return create_response("/", source_code, json.dumps(output_data))
+    return create_response("/", source_code, json.dumps(output))
 
 
 @app.route("/clear", methods=["POST"])
