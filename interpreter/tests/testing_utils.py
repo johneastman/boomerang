@@ -98,6 +98,11 @@ def assert_expression_equal(expected: Expression, actual: Expression) -> None:
             assert_expression_equal(expected_case, actual_case)
             assert_expression_equal(expected_expr, actual_expression)
 
+    elif isinstance(expected, ForLoop) and isinstance(actual, ForLoop):
+        assert actual.element_identifier == expected.element_identifier
+        assert_expression_equal(expected.values, actual.values)
+        assert_expression_equal(expected.expression, actual.expression)
+
     elif isinstance(expected, Assignment) and isinstance(actual, Assignment):
         assert actual.name == expected.name
         assert_expression_equal(expected.value, actual.value)

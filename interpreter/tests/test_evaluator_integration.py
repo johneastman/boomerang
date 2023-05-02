@@ -391,3 +391,27 @@ def test_list_index(source, expected_ast):
     actual_results, _ = evaluator_actual_result(f"{source};")
     assert_expressions_equal(expected_ast, actual_results)
 
+
+@pytest.mark.parametrize("source, expected_results", [
+    (
+        "for i in (1, 2, 3): i + 1",
+        [
+            o.List(1, [o.Number(1, 2), o.Number(1, 3), o.Number(1, 4)])
+        ]
+    ),
+    (
+        "for i in (): i + 1",
+        [
+            o.List(1, [])
+        ]
+    ),
+    (
+        "for i in 3: i + 1",
+        [
+            o.Error(1, "Error at line 1: expected List, got Number")
+        ]
+    )
+])
+def test_for_loop(source, expected_results):
+    actual_results, _ = evaluator_actual_result(f"{source};")
+    assert_expressions_equal(expected_results, actual_results)

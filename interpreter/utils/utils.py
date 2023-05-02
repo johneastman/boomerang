@@ -22,7 +22,7 @@ def language_error(line_num: int, description: str) -> LanguageRuntimeException:
 def unexpected_token_error(line_num: int, expected_token: str, actual_token: Token) -> LanguageRuntimeException:
     return language_error(
         line_num,
-        f"Expected {expected_token}, got {actual_token.type} ('{actual_token.value}')"
+        f"expected {expected_token}, got {actual_token.type} ('{actual_token.value}')"
     )
 
 

@@ -18,6 +18,12 @@ tokens:
     - literal: 'else'
       name: ELSE
       type: ELSE
+    - literal: 'for'
+      name: FOR
+      type: FOR
+    - literal: 'in'
+      name: IN
+      type: IN
   symbols:
     - literal: '.'
       name: PERIOD

@@ -381,6 +381,23 @@ class When(Expression):
         return f"<when {hex(id(self))}>"
 
 
+class ForLoop(Expression):
+    def __init__(self, line_num: int, element_identifier: str, values: Expression, expression: Expression) -> None:
+        super().__init__(line_num)
+        self.element_identifier = element_identifier
+        self.values = values
+        self.expression = expression
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, ForLoop):
+            return False
+        return self.element_identifier == other.element_identifier and self.values == other.values \
+            and self.expression == other.expression
+
+    def __str__(self) -> str:
+        return f"<for {hex(id(self))}>"
+
+
 class BuiltinFunction(Expression):
     print_ = "print"
     randint_ = "randint"

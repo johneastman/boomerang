@@ -1,7 +1,7 @@
 CodeMirror.defineMode("boomerang", function() {
     return {
         token: function(stream,state) {
-            if (stream.match(/\b(func|when|is|else|true|false)\b/)) {
+            if (stream.match(/\b(func|when|is|else|true|false|for|in)\b/)) {
                 return "keywords";
             } else if (stream.match(/\".*?\"/)) {
                 return "strings";

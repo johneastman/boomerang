@@ -53,6 +53,9 @@ class Evaluator:
         elif isinstance(expression, o.When):
             return self.evaluate_when(expression)
 
+        elif isinstance(expression, o.ForLoop):
+            return self.evaluate_for(expression)
+
         elif isinstance(expression, o.Identifier):
             return self.evaluate_identifier(expression)
 
@@ -254,3 +257,27 @@ class Evaluator:
         # When expressions should always return something because of the "else" clause. If nothing
         # is returned, there is a bug in the code.
         raise Exception(f"Error at line {when.line_num}: When statement did not return")
+
+    def evaluate_for(self, for_loop: o.ForLoop) -> o.Expression:
+
+        values = self.evaluate_expression(for_loop.values)
+
+        if not isinstance(values, o.List):
+            raise language_error(values.line_num, f"expected List, got {type(values).__name__}")
+
+        # Create new environment for for-loop expression scope
+        self.env = Environment(parent_env=self.get_env)
+
+        new_values = []
+        for value in values.values:
+            self.evaluate_assign_variable(
+                o.Assignment(value.line_num, for_loop.element_identifier, value)
+            )
+            new_values.append(
+                self.evaluate_expression(for_loop.expression)
+            )
+
+        # Reset environment back to old environment
+        self.env = self.get_env.parent_env
+
+        return o.List(for_loop.line_num, new_values)

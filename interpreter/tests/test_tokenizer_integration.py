@@ -49,7 +49,9 @@ def test_symbols(symbol, type_):
     ("func", FUNCTION),
     ("when", WHEN),
     ("is", IS),
-    ("else", ELSE)
+    ("else", ELSE),
+    ("for", FOR),
+    ("in", IN)
 ])
 def test_keywords(keyword, type_):
     """Test symbols

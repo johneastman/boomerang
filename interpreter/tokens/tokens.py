@@ -93,6 +93,8 @@ FUNCTION: str = get_token_type("FUNCTION")
 WHEN: str = get_token_type("WHEN")
 IS: str = get_token_type("IS")
 ELSE: str = get_token_type("ELSE")
+FOR: str = get_token_type("FOR")
+IN: str = get_token_type("IN")
 
 # Misc
 EOF: str = get_token_type("EOF")  # End of File

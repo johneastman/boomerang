@@ -152,48 +152,6 @@ function = func a, b: a + b;
 +6;
 ```
 
-### Builtin Functions
-
-#### print
-Send data to the output stream (e.g., print to console). Returns the list of values passed to `print`.
-
-|Arguments|Return Value|
-|---|---|
-|`(v1:Any, v2:Any, ..., vn:Any)`|Print all values on same line separated by commas.|
-
-#### randint
-Return a random whole (integer) number between two whole (integer) numbers.
-
-|Arguments|Return Value|
-|---|---|
-|`(end:Number,)`|Return random number between 0 and `end`.|
-|`(start:Number, end:Number)`|Return random number between `start` and `end`.|
-
-#### randfloat
-Return a random decimal (float) number between two decimal (float) or whole (integer) numbers.
-
-|Arguments|Return Value|
-|---|---|
-|`()`|Return random number between 0 and 1.|
-|`(end:Number,)`|Return random number between 0 and `end`.|
-|`(start:Number, end:Number)`|Return random number between `start` and `end`.|
-
-#### len
-Return the length of a sequence.
-
-|Arguments|Return Value|
-|---|---|
-|`(sequence:List\|String,)`|For lists, return the number of elements. For strings, return the number of characters.|
-
-#### range
-Return a list of values from `start` to `end` (exclusive).
-
-|Arguments|Return Value|
-|---|---|
-|`(start:Number)`|List of numbers from 0 to `start`.|
-|`(start:Number, end:Number,)`|List of numbers from `start` to `end`.|
-|`(start:Number, end:Number, step:Number)`|Return a list of numbers from `start` to `end` incrementing by `step`. If `step` is negative, the list will generate in descending order, but `start` will need to be greater than `end`.|
-
 ### Functions
 Boomerang has first-class functions, meaning they are treated like any other type of data (number, boolean, string, etc.). They are defined by being assigned to variables.
 
@@ -239,3 +197,55 @@ when a:
 ```
 
 Note the `else` at the end of both. This handles the default case (when none of the above cases match or return true) and is required.
+
+### For Loops
+For loops act like `map` in other languages. They return a new list where the expression is evaluated for each element in the original list. However, unlike `map`, the expression does not have to be applied to each element; any expression, including one that does not use the element variable, can be used.
+
+Below are some examples:
+```
+for i in (1, 2, 3): i + 1;  # Returns: (2, 3, 4)
+for i in range <- (10,): i % 2 == 0;  # Returns: (true, false, true, false, true, false, true, false, true, false)
+for i in (1, 2, 3): "hello";  # Returns ("hello", "hello", "hello"). This ignores "i" entirely and returns its own thing
+```
+
+### Builtin Functions
+
+#### print
+Send data to the output stream (e.g., print to console). Returns the list of values passed to `print`.
+
+|Arguments|Return Value|
+|---|---|
+|`(v1:Any, v2:Any, ..., vn:Any)`|Print all values on same line separated by commas.|
+
+#### randint
+Return a random whole (integer) number between two whole (integer) numbers.
+
+|Arguments|Return Value|
+|---|---|
+|`(end:Number,)`|Return random number between 0 and `end`.|
+|`(start:Number, end:Number)`|Return random number between `start` and `end`.|
+
+#### randfloat
+Return a random decimal (float) number between two decimal (float) or whole (integer) numbers.
+
+|Arguments|Return Value|
+|---|---|
+|`()`|Return random number between 0 and 1.|
+|`(end:Number,)`|Return random number between 0 and `end`.|
+|`(start:Number, end:Number)`|Return random number between `start` and `end`.|
+
+#### len
+Return the length of a sequence.
+
+|Arguments|Return Value|
+|---|---|
+|`(sequence:List\|String,)`|For lists, return the number of elements. For strings, return the number of characters.|
+
+#### range
+Return a list of values from `start` to `end` (exclusive).
+
+|Arguments|Return Value|
+|---|---|
+|`(start:Number)`|List of numbers from 0 to `start`.|
+|`(start:Number, end:Number,)`|List of numbers from `start` to `end`.|
+|`(start:Number, end:Number, step:Number)`|Return a list of numbers from `start` to `end` incrementing by `step`. If `step` is negative, the list will generate in descending order, but `start` will need to be greater than `end`.|

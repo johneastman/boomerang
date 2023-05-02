@@ -35,6 +35,10 @@ test_function = Function(
         "Identifier(line_num=1, value='name')"
     ),
     (
+        Error(1, "error message"),
+        "Error(line_num=1, message='error message')"
+    ),
+    (
         test_function,
         "Function(line_num=1, parameters=[Identifier(line_num=1, value='a'), Identifier(line_num=1, value='b')], body=InfixExpression(line_num=1, left=Identifier(line_num=1, value='a'), operator=Token(line_num=1, value='+', type=PLUS), right=Identifier(line_num=1, value='b')))"
     ),
@@ -45,6 +49,10 @@ test_function = Function(
     (
         When(1, Boolean(1, True), [(Boolean(1, False), String(1, "yes")), (Boolean(1, True), String(1, "no"))]),
         "When(line_num=1, expression=Boolean(line_num=1, value=True), case_expressions=[(Boolean(line_num=1, value=False), String(line_num=1, value='yes')), (Boolean(line_num=1, value=True), String(line_num=1, value='no'))])"
+    ),
+    (
+        ForLoop(1, "i", List(1, [Number(1, 1), Number(1, 2), Number(1, 3)]), InfixExpression(1, Identifier(1, "i"), Token(1, "+", t.PLUS), Number(1, 1))),
+        "ForLoop(line_num=1, element_identifier='i', values=List(line_num=1, values=[Number(line_num=1, value=1), Number(line_num=1, value=2), Number(line_num=1, value=3)]), expression=InfixExpression(line_num=1, left=Identifier(line_num=1, value='i'), operator=Token(line_num=1, value='+', type=PLUS), right=Number(line_num=1, value=1)))"
     ),
     (
         BuiltinFunction(1, "print"),
@@ -65,10 +73,6 @@ test_function = Function(
     (
         Assignment(1, "variable", String(1, "hello")),
         "Assignment(line_num=1, name='variable', value=String(line_num=1, value='hello'))"
-    ),
-    (
-        Error(1, "error message"),
-        "Error(line_num=1, message='error message')"
     )
 ])
 def test_repr(ast_object, repr_str):

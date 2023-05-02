@@ -150,7 +150,12 @@ class Parser:
         elif self.current.type == t.WHEN:
             return self.parse_when()
 
-        raise language_error(self.current.line_num, f"invalid prefix operator: {self.current.type} ({self.current.value})")
+        elif self.current.type == t.FOR:
+            return self.parse_for()
+
+        raise language_error(
+            self.current.line_num,
+            f"invalid prefix operator: {self.current.type} ({repr(self.current.value)})")
 
     def parse_infix(self, left: Expression) -> InfixExpression | PostfixExpression:
         op = self.current
@@ -340,6 +345,28 @@ class Parser:
         expressions.append((else_expression, else_return_expression))
 
         return When(line_num, switch_expression, expressions)
+
+    def parse_for(self) -> ForLoop:
+        line_num = self.current.line_num
+
+        # Skip "for" token
+        self.advance()
+
+        self.is_expected_token(t.IDENTIFIER)
+        element_identifier = self.current
+        self.advance()
+
+        self.is_expected_token(t.IN)
+        self.advance()
+
+        values = self.expression()
+
+        self.is_expected_token(t.COLON)
+        self.advance()
+
+        expression = self.expression()
+
+        return ForLoop(line_num, element_identifier.value, values, expression)
 
     def add_semicolon(self) -> None:
         self.tokens.add("SEMICOLON")
