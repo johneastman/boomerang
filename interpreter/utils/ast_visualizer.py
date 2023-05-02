@@ -97,6 +97,26 @@ class ASTVisualizer:
                 self.add_edge(case_index_node, case_val)
                 self.__visualize(case_val)
 
+        elif isinstance(expression, ForLoop):
+            self.add_node(node_id, f"For Loop")
+
+            # "in" keyword
+            in_id = f"{node_id}_in"
+            self.add_node(in_id, "in")
+            self.add_edge(node_id, in_id)
+
+            element_identifier_id = f"{node_id}_element_{expression.element_identifier}"
+            self.add_node(element_identifier_id, expression.element_identifier)
+            self.add_edge(in_id, element_identifier_id)
+
+            # Values/List
+            self.add_edge(in_id, expression.values)
+            self.__visualize(expression.values)
+
+            # For loop expression
+            self.add_edge(node_id, expression.expression)
+            self.__visualize(expression.expression)
+
         else:
             raise Exception(f"Unsupported type: {type(expression).__name__}")
 
