@@ -1,7 +1,7 @@
 import pytest
 import interpreter.parser_.ast_objects as o
 
-from interpreter.tests.testing_utils import evaluator_actual_result, assert_expressions_equal
+from tests.testing_utils import evaluator_actual_result, assert_expressions_equal
 
 
 @pytest.mark.parametrize("params, expected_result, expected_output_results", [

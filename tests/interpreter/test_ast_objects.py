@@ -1,7 +1,7 @@
 import pytest
 
 from interpreter.parser_.ast_objects import *
-from interpreter.tests.testing_utils import assert_expression_equal
+from tests.testing_utils import assert_expression_equal
 from interpreter.tokens import tokens as t
 
 test_binary_expression = InfixExpression(1, Identifier(1, "a"), Token(1, "+", t.PLUS), Identifier(1, "b"))

@@ -1,11 +1,11 @@
 import pytest
 
-from . import testing_utils
-from .testing_utils import create_when, assert_expression_equal
+import tests.testing_utils as testing_utils
+from tests.testing_utils import create_when, assert_expression_equal
 import interpreter.parser_.ast_objects as o
-from ..tokens.tokenizer import Token
-from ..tokens.tokens import PLUS, EQ, BANG, INC, DEC
-from ..utils.utils import LanguageRuntimeException
+from interpreter.tokens.tokenizer import Token
+from interpreter.tokens.tokens import PLUS, EQ, BANG, INC, DEC
+from interpreter.utils.utils import LanguageRuntimeException
 
 
 def test_set_expression():

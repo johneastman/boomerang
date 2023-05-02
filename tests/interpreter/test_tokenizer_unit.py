@@ -1,6 +1,6 @@
 import pytest
 
-from interpreter.tests.testing_utils import assert_token_equal
+from ..testing_utils import assert_token_equal
 from interpreter.tokens.tokenizer import Tokenizer, Token
 import interpreter.tokens.tokens as t
 

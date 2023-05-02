@@ -5,6 +5,12 @@ from interpreter.tokens.tokenizer import Tokenizer
 from interpreter.tokens.token_queue import TokenQueue
 
 
+def parser(source: str) -> Parser:
+    tokenizer = Tokenizer(source)
+    tokens = TokenQueue(tokenizer)
+    return Parser(tokens)
+
+
 def evaluator_actual_result(source: str) -> tuple[list[Expression], list[str]]:
     t = Tokenizer(source)
     tokens = TokenQueue(t)
@@ -30,12 +36,6 @@ def create_when(line_num: int, switch_expression: Expression, case_expressions: 
         conditions_and_expressions.append((left, right))
 
     return source, When(line_num, switch_expression, conditions_and_expressions)
-
-
-def parser(source: str) -> Parser:
-    tokenizer = Tokenizer(source)
-    tokens = TokenQueue(tokenizer)
-    return Parser(tokens)
 
 
 def assert_expression_equal(expected: Expression, actual: Expression) -> None:

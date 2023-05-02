@@ -3,22 +3,23 @@ For saving files locally, use "app.root_path"
 """
 import json
 import base64
-import os
 from io import BytesIO
+import os
 
 from flask import Flask, Response, request, render_template, redirect, session, send_file
+from dotenv import load_dotenv
 
 from interpreter.parser_.ast_objects import Error
 from interpreter.utils.utils import LanguageRuntimeException
 from main import evaluate, visualize_ast
 from interpreter.evaluator.environment_ import Environment
-from dotenv import load_dotenv
+
 
 app = Flask(__name__)
 
 # Set secret key
 project_folder = os.path.expanduser(app.root_path)
-load_dotenv(os.path.join(project_folder, '.env'))
+load_dotenv(os.path.join(project_folder, ".env"))
 app.secret_key = os.getenv("SECRET_KEY")
 
 # Cookie/Session keys

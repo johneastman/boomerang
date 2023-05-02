@@ -1,7 +1,7 @@
 import pytest
 
 import interpreter.parser_.ast_objects as o
-from interpreter.tests.testing_utils import assert_expressions_equal, evaluator_actual_result
+from tests.testing_utils import assert_expressions_equal, evaluator_actual_result
 from interpreter.tokens.tokenizer import Token
 from interpreter.tokens.tokens import PLUS, LE, SEND, MINUS
 
