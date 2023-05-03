@@ -72,7 +72,6 @@ def visualize():
     except Exception as e:
         output_data = [f"Unexpected internal error: {str(e)}"]
 
-    print(output_data)
     return create_response("/", source_code, json.dumps(output_data))
 
 
