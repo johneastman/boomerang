@@ -28,3 +28,19 @@ def runner(app):
 def test_request_index(client):
     response = client.get("/")
     assert response.status_code == 200
+
+
+def test_request_interpret(client):
+
+    response = client.post("/interpret", follow_redirects=True, data={
+        "source": "x = 1;"
+    })
+
+    assert response.status_code == 200
+
+    # Check that there was one redirect response.
+    assert len(response.history) == 1
+
+    # Check that the second request was to the index page.
+    assert response.request.path == "/"
+
