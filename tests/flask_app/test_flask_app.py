@@ -68,3 +68,19 @@ def test_request_interpret(client):
     # Check that the second request was to the index page.
     assert response.request.path == "/"
 
+
+def test_request_visualize(client):
+    with client:
+        response = client.post("/visualize", data={
+            "source": "x = 1;"
+        })
+
+    assert response.status_code == 200
+
+
+def test_request_download(client):
+    request = client.post("/download", data={
+        "source": "x = 1;"
+    })
+
+    assert request.data == b"x = 1;"
