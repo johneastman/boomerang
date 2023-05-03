@@ -66,12 +66,14 @@ def visualize():
         return render_template("visualize.html", data=vis_data)
 
     except LanguageRuntimeException as e:
-        output_data = [Error(e.line_num, str(e))]
+        error_object = Error(e.line_num, str(e))
+        output_data = [str(error_object)]
 
     except Exception as e:
         output_data = [f"Unexpected internal error: {str(e)}"]
 
-    return create_response("/", source_code, json.dumps(list(map(str, output_data))))
+    print(output_data)
+    return create_response("/", source_code, json.dumps(output_data))
 
 
 @app.route("/download", methods=["POST"])
