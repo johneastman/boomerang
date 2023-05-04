@@ -8,7 +8,7 @@ from interpreter.tokens.tokens import PLUS, EQ, BANG, INC, DEC
 from interpreter.utils.utils import LanguageRuntimeException
 
 
-def test_set_expression():
+def test_assign_expression():
     p = testing_utils.parser("variable = 1;")
     actual_assign_ast = p.parse_assign()
 
@@ -19,16 +19,6 @@ def test_set_expression():
     )
 
     assert_expression_equal(expected_assign_ast, actual_assign_ast)
-
-
-@pytest.mark.parametrize("value, str_repr, is_whole_num", [
-    (1.0, "1", True),
-    (1.45, "1.45", False)
-])
-def test_number_string(value, str_repr, is_whole_num):
-    n = o.Number(1, value)
-    assert str(n) == str_repr
-    assert n.is_whole_number() == is_whole_num
 
 
 @pytest.mark.parametrize("params_str, params_list", [
@@ -47,6 +37,20 @@ def test_parse_function(params_str, params_list):
         o.Number(1, 0)
     )
     assert_expression_equal(expected_function_ast, actual_function_ast)
+
+
+@pytest.mark.parametrize("source, error", [
+    ("func", "Error at line 1: expected IDENTIFIER, got EOF ('')"),
+    ("func a", "Error at line 1: expected COMMA, got EOF ('')"),
+    ("func a,", "Error at line 1: expected IDENTIFIER, got EOF ('')"),
+    ("func:", "Error at line 1: invalid prefix operator: EOF ('')"),
+    ("func:;", "Error at line 1: invalid prefix operator: SEMICOLON (';')"),
+])
+def test_parse_function_error(source, error):
+    p = testing_utils.parser(source)
+    with pytest.raises(LanguageRuntimeException) as e:
+        p.parse_function()
+    assert str(e.value) == error
 
 
 @pytest.mark.parametrize("source, expected_result", [

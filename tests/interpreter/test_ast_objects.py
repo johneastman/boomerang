@@ -79,6 +79,16 @@ def test_repr(ast_object, repr_str):
     assert repr(ast_object) == repr_str
 
 
+@pytest.mark.parametrize("value, str_repr, is_whole_num", [
+    (1.0, "1", True),
+    (1.45, "1.45", False)
+])
+def test_number_string(value, str_repr, is_whole_num):
+    n = Number(1, value)
+    assert str(n) == str_repr
+    assert n.is_whole_number() == is_whole_num
+
+
 @pytest.mark.parametrize("left, right, expected_result", [
     (
         List(1, [Number(1, 1), Number(1, 2)]),
