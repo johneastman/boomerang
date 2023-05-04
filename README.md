@@ -33,15 +33,15 @@ AST visualization is not available for the REPL.
 ## Run the Flask App
 Boomerang has a web interface that will allow you to run it from the browser!
 
-1. Generate a `.env` file with `SECRET_KEY` key using the following Python script:
+1. From this project's root directory, run the following code to create a `.env` file with `SECRET_KEY`:
    ```python
     import secrets
 
     key = secrets.token_hex()
-    with open(".env", "w") as file:
+    with open("flask_app/.env", "w") as file:
         file.write(f"export SECRET_KEY={key}")
    ```
-2. Run the app with `python flask_app.py`.
+2. Run the app with `python flask_main.py`.
 
 ### Deploying to Pythonanywhere
 1. Make sure you have signed up for a free PythonAnywhere account, and you’re logged in. 
@@ -51,7 +51,8 @@ Boomerang has a web interface that will allow you to run it from the browser!
 5. Click "Open Bash console here" at top of page.
 6. Replaced the content of `mysite` with this repo: `git clone https://github.com/johneastman/boomerang.git mysite`
     * You may need to delete (`rm -rf mysite`) or rename (`cp -r mysite/ mysite2/`) existing `mysite` directory.
-7. Back on the web app configuration page, I clicked `Reload jeastman.pythonanywhere.com`
+7. Edit last line of `jeastman_pythonanywhere_com_wsgi.py` file, replacing `from flask_app import app as application` with `from flask_app.app import app as application` (add `.app` after `flast_app`).
+8. Back on the web app configuration page, I clicked `Reload jeastman.pythonanywhere.com`
 
 ### Additional Resources
 * Steps 1 - 4 source: https://pythonhow.com/python-tutorial/flask/deploy-flask-web-app-pythonanywhere/
