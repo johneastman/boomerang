@@ -1,6 +1,7 @@
 import pytest
-from flask_app import app as main_app
 from flask import session
+
+from flask_app.app import app as main_app
 
 
 @pytest.fixture()
