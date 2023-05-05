@@ -1,5 +1,7 @@
+import io
+
 import pytest
-from flask import session
+from flask import session, flash
 
 from flask_app.app import app as main_app
 
@@ -80,8 +82,47 @@ def test_request_visualize(client):
 
 
 def test_request_download(client):
-    request = client.post("/download", data={
+    response = client.post("/download", data={
         "source": "x = 1;"
     })
 
-    assert request.data == b"x = 1;"
+    assert response.data == b"x = 1;"
+
+
+@pytest.mark.parametrize("data, num_redirects", [
+    # Proper response
+    (
+        {"file": (io.BytesIO(b"print <- (\"hello, world!\",)"), "main.bng")},
+        0
+    ),
+
+    # No file property in response
+    (
+        {},
+        1
+    ),
+
+    # Unsupported file type
+    (
+        {"file": (io.BytesIO(b"print <- (\"hello, world!\",)"), "main.json")},
+        1
+    ),
+
+    # No file was uploaded
+    (
+        {"file": (io.BytesIO(b"print <- (\"hello, world!\",)"), "")},
+        1
+    ),
+
+    # File has no extension
+    (
+        {"file": (io.BytesIO(b"print <- (\"hello, world!\",)"), "no extension")},
+        1
+    ),
+])
+def test_request_upload(client, data, num_redirects):
+    response = client.post("/", follow_redirects=True, data=data)
+
+    assert response.status_code == 200
+    assert len(response.history) == num_redirects
+    assert response.request.path == "/"

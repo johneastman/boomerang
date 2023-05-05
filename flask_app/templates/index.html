@@ -8,6 +8,17 @@
     </head>
     <body>
         <h1>Boomerang</h1>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
         Boomerang is a programming language. The defining characteristics of Boomerang are:
         <ul>
             <li><strong>Interpreted:</strong> code executes in the runtime of another language (in this case, Python).</li>
@@ -17,6 +28,9 @@
             <li><strong>Immutable:</strong> data is immutable, and operations return new data instead of modifying existing data.</li>
         </ul>
         Check out the <a href="https://github.com/johneastman/boomerang#language-specs" target="_blank">language guide</a> to learn about the syntax and try it out below!
+
+        <p>Be aware that this application does not save your code. If you want to save your code, download it as a file and upload it later.</p>
+
         <div class="container">
             <form method="post">
                 <textarea id="code-editor" name="source" placeholder="Enter code here">{{ source_code }}</textarea>
@@ -32,6 +46,12 @@
                 {% endfor %}
             </ul>
         </div>
+
+        <br/>
+        <form method=post enctype=multipart/form-data>
+            <input type=file name=file>
+            <input type=submit value=Upload>
+        </form>
 
         <!-- package imports -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js" integrity="sha512-8RnEqURPUc5aqFEN04aQEiPlSAdE0jlFS/9iGgUyNtwFnSKCXhmB6ZTNl7LnDtDWKabJIASzXrzD0K+LYexU9g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>

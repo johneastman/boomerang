@@ -6,7 +6,7 @@ import base64
 from io import BytesIO
 import os
 
-from flask import Flask, Response, request, render_template, redirect, session, send_file
+from flask import Flask, Response, request, render_template, redirect, session, send_file, flash
 from dotenv import load_dotenv
 
 from interpreter.parser_.ast_objects import Error
@@ -26,15 +26,44 @@ app.secret_key = os.getenv("SECRET_KEY")
 SOURCE_CODE = "source_code"
 RESULTS = "results"
 
+BOOMERANG_FILE_EXT = "bng"
 
-@app.route("/")
+
+@app.route("/", methods=["GET", "POST"])
 def index():
-    source_code = session.get(SOURCE_CODE, "")
-    code_output = session.get(RESULTS, None)
+    if request.method == "POST":
+        # Uploading Boomerang files
+        #
+        # Check if the post request has the file part
+        if "file" not in request.files:
+            flash("No file in request")
+            return redirect(request.url)
 
-    parsed_results = [] if code_output is None else json.loads(code_output)
+        file = request.files["file"]
 
-    return render_template("index.html", source_code=source_code, results=parsed_results)
+        # If the user does not select a file, the browser submits an
+        # empty file without a filename.
+        if file.filename == '':
+            flash("No selected file")
+            return redirect(request.url)
+
+        file_type, is_allowed = allowed_file(file.filename)
+        if not file or not is_allowed:
+            flash(f"Invalid file type: {file_type}")
+            return redirect(request.url)
+
+        content = file.read()
+        source_code = content.decode("utf-8")
+        code_output = None  # clear output from previous code when uploading a file
+
+    else:
+        # Request method == GET
+        source_code = session.get(SOURCE_CODE, "")
+        code_output = session.get(RESULTS, None)
+
+    parsed_output = [] if code_output is None else json.loads(code_output)
+
+    return render_template("index.html", source_code=source_code, results=parsed_output)
 
 
 @app.route("/interpret", methods=["POST"])
@@ -86,7 +115,7 @@ def download():
     return send_file(
         buffer,
         as_attachment=True,
-        download_name="main.bng",
+        download_name=f"main.{BOOMERANG_FILE_EXT}",
         mimetype="text"
     )
 
@@ -95,3 +124,11 @@ def create_response(path: str, source_code: str, return_results: str) -> Respons
     session[SOURCE_CODE] = source_code
     session[RESULTS] = return_results
     return redirect(path)
+
+
+def allowed_file(filename: str) -> tuple[str, bool]:
+    if "." not in filename:
+        return "no extension", False
+
+    file_type = filename.rsplit(".", 1)[1].lower()
+    return file_type, file_type in (BOOMERANG_FILE_EXT,)
