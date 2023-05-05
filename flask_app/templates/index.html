@@ -9,15 +9,7 @@
     <body>
         <h1>Boomerang</h1>
 
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul class="flashes">
-                    {% for message in messages %}
-                        <li>{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
+        {% include "flashes.html" %}
 
         Boomerang is a programming language. The defining characteristics of Boomerang are:
         <ul>
