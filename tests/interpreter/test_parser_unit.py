@@ -185,6 +185,25 @@ def test_when(switch_expression, case_expressions: list[tuple[str, o.Expression,
     assert_expression_equal(expected_when_ast, actual_when_ast)
 
 
+@pytest.mark.parametrize("source, error", [
+    ("when", "Error at line 1: invalid prefix operator: EOF ('')"),
+    ("when:", "Error at line 1: invalid prefix operator: EOF ('')"),
+    ("when: true", "Error at line 1: expected COLON, got EOF ('')"),
+    ("when: true:", "Error at line 1: invalid prefix operator: EOF ('')"),
+    ("when a:", "Error at line 1: expected IS, got EOF ('')"),
+    ("when a: is 1", "Error at line 1: expected COLON, got EOF ('')"),
+    ("when a: is 1:", "Error at line 1: invalid prefix operator: EOF ('')"),
+    ("when a: is 1: 1 else", "Error at line 1: expected COLON, got EOF ('')"),
+    ("when a: is 1: 1 else:", "Error at line 1: invalid prefix operator: EOF ('')"),
+])
+def test_when_errors(source, error):
+    p = testing_utils.parser(source)
+    with pytest.raises(LanguageRuntimeException) as e:
+        p.parse_when()
+
+    assert str(e.value) == error
+
+
 def test_for_loop():
     source = "for i in (1, 2, 3): i + 1;"
 
