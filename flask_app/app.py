@@ -32,27 +32,11 @@ BOOMERANG_FILE_EXT = "bng"
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        # Uploading Boomerang files
-        #
-        # Check if the post request has the file part
-        if "file" not in request.files:
-            flash("No file in request")
-            return redirect(request.url)
+        # Uploading Boomerang code
+        redirect_response, content = upload_files()
+        if redirect_response:
+            return redirect_response
 
-        file = request.files["file"]
-
-        # If the user does not select a file, the browser submits an
-        # empty file without a filename.
-        if file.filename == '':
-            flash("No selected file")
-            return redirect(request.url)
-
-        file_type, is_allowed = allowed_file(file.filename)
-        if not file or not is_allowed:
-            flash(f"Invalid file type: {file_type}")
-            return redirect(request.url)
-
-        content = file.read()
         source_code = content.decode("utf-8")
         code_output = None  # clear output from previous code when uploading a file
 
@@ -64,6 +48,32 @@ def index():
     parsed_output = [] if code_output is None else json.loads(code_output)
 
     return render_template("index.html", source_code=source_code, results=parsed_output)
+
+
+def upload_files() -> tuple[Response | None, bytes]:
+    """Handle uploading Boomerang code.
+    """
+    # Check if the post request has the file part
+    if "file" not in request.files:
+        flash("No file in request")
+        return redirect(request.url), b""
+
+    file = request.files["file"]
+
+    # If the user does not select a file, the browser submits an
+    # empty file without a filename.
+    if file.filename == "":
+        flash("No selected file")
+        return redirect(request.url), b""
+
+    # Check that the file uploaded is a valid type
+    valid_types = [BOOMERANG_FILE_EXT]
+    file_type, is_allowed = allowed_file(file.filename, valid_types)
+    if not file or not is_allowed:
+        flash(f"Invalid file type: {file_type}. Valid file types: {', '.join(valid_types)}")
+        return redirect(request.url), b""
+
+    return None, file.read()
 
 
 @app.route("/interpret", methods=["POST"])
@@ -126,9 +136,9 @@ def create_response(path: str, source_code: str, return_results: str) -> Respons
     return redirect(path)
 
 
-def allowed_file(filename: str) -> tuple[str, bool]:
+def allowed_file(filename: str, valid_types: list[str]) -> tuple[str, bool]:
     if "." not in filename:
         return "no extension", False
 
     file_type = filename.rsplit(".", 1)[1].lower()
-    return file_type, file_type in (BOOMERANG_FILE_EXT,)
+    return file_type, file_type in valid_types
