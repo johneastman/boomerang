@@ -134,13 +134,13 @@ class Evaluator:
         elif op.type == t.MINUS:
             return expression_result.neg()
 
-        elif op.type == t.BANG:
-            return expression_result.bang()
+        elif op.type == t.NOT:
+            return expression_result.not_()
 
         elif op.type == t.PACK:
             return expression_result.pack()
 
-        raise Exception(f"Invalid unary operator: {op.type} ({op.value})")
+        raise Exception(f"Invalid prefix operator: {op.type} ({op.value})")
 
     def evaluate_binary_expression(self, binary_operation: o.InfixExpression) -> o.Expression:
         left = self.evaluate_expression(binary_operation.left)
@@ -207,6 +207,9 @@ class Evaluator:
 
         elif op.type == t.OR:
             return left.or_(right)
+
+        elif op.type == t.XOR:
+            return left.xor(right)
 
         # Array index
         elif op.type == t.INDEX:

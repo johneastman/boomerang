@@ -52,6 +52,10 @@ class Expression:
         raise language_error(self.line_num,
                              f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.OR}")
 
+    def xor(self, other: object) -> "Expression":
+        raise language_error(self.line_num,
+                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.XOR}")
+
     def gt(self, other: object) -> "Expression":
         raise language_error(self.line_num,
                              f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.GT}")
@@ -92,8 +96,8 @@ class Expression:
         raise language_error(self.line_num,
                              f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.SEND}")
 
-    def bang(self) -> "Expression":
-        raise language_error(self.line_num, f"Invalid type {type(self).__name__} for {t.BANG}")
+    def not_(self) -> "Expression":
+        raise language_error(self.line_num, f"Invalid type {type(self).__name__} for {t.NOT}")
 
     def pack(self) -> "Expression":
         raise language_error(self.line_num, f"Invalid type {type(self).__name__} for {t.PACK}")
@@ -254,7 +258,7 @@ class Boolean(Expression):
             return False
         return self.value == other.value
 
-    def bang(self) -> "Expression":
+    def not_(self) -> "Expression":
         return Boolean(self.line_num, not self.value)
 
     def and_(self, other: object) -> "Expression":
@@ -266,6 +270,11 @@ class Boolean(Expression):
         if isinstance(other, Boolean):
             return Boolean(self.line_num, self.value or other.value)
         return super().or_(other)
+
+    def xor(self, other: object) -> "Expression":
+        if isinstance(other, Boolean):
+            return Boolean(self.line_num, self.value != other.value)
+        return super().xor(other)
 
 
 class List(Expression):

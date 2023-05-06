@@ -6,6 +6,18 @@ tokens:
     - literal: 'false'
       name: 'FALSE'
       type: BOOLEAN
+    - literal: 'and'
+      name: AND
+      type: AND
+    - literal: 'or'
+      name: OR
+      type: OR
+    - literal: 'xor'
+      name: XOR
+      type: XOR
+    - literal: 'not'
+      name: NOT
+      type: NOT
     - literal: 'func'
       name: FUNCTION
       type: FUNCTION
@@ -94,12 +106,6 @@ tokens:
     - literal: '!'
       name: BANG
       type: BANG
-    - literal: '&'
-      name: AND
-      type: AND
-    - literal: '|'
-      name: OR
-      type: OR
     - literal: '#'
       name: COMMENT
       type: COMMENT

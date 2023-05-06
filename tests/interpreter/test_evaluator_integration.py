@@ -68,14 +68,18 @@ def test_evaluator(source, expected_results):
     ("\"hello\" / \"world\"", [o.Error(1, "Error at line 1: Invalid types String and String for DIVIDE")]),
 
     # Boolean
-    ("true & true", [o.Boolean(1, True)]),
-    ("true & false", [o.Boolean(1, False)]),
-    ("false & true", [o.Boolean(1, False)]),
-    ("false & false", [o.Boolean(1, False)]),
-    ("true | true", [o.Boolean(1, True)]),
-    ("true | false", [o.Boolean(1, True)]),
-    ("false | true", [o.Boolean(1, True)]),
-    ("false | false", [o.Boolean(1, False)]),
+    ("true and true", [o.Boolean(1, True)]),
+    ("true and false", [o.Boolean(1, False)]),
+    ("false and true", [o.Boolean(1, False)]),
+    ("false and false", [o.Boolean(1, False)]),
+    ("true or true", [o.Boolean(1, True)]),
+    ("true or false", [o.Boolean(1, True)]),
+    ("false or true", [o.Boolean(1, True)]),
+    ("false or false", [o.Boolean(1, False)]),
+    ("true xor true", [o.Boolean(1, False)]),
+    ("true xor false", [o.Boolean(1, True)]),
+    ("false xor true", [o.Boolean(1, True)]),
+    ("false xor false", [o.Boolean(1, False)]),
     ("true == true", [o.Boolean(1, True)]),
     ("true != true", [o.Boolean(1, False)]),
     ("true != false", [o.Boolean(1, True)]),
@@ -169,16 +173,16 @@ def test_suffix_operators(source, expected_results):
     ("+5.258", [
         o.Number(1, 5.258)
     ]),
-    ("!true", [
+    ("not true", [
         o.Boolean(1, False)
     ]),
-    ("!false", [
+    ("not false", [
         o.Boolean(1, True)
     ]),
-    ("!!true", [
+    ("not not true", [
         o.Boolean(1, True)
     ]),
-    ("!!false", [
+    ("not not false", [
         o.Boolean(1, False)
     ]),
     ("-(1, 2, 3)", [

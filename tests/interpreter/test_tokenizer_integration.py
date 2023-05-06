@@ -23,8 +23,6 @@ from interpreter.tokens.tokenizer import Tokenizer, Token
     ("<", LT),
     ("<=", LE),
     ("!", BANG),
-    ("&", AND),
-    ("|", OR),
     (":", COLON),
     ("--", DEC),
     ("++", INC),
@@ -51,7 +49,10 @@ def test_symbols(symbol, type_):
     ("is", IS),
     ("else", ELSE),
     ("for", FOR),
-    ("in", IN)
+    ("in", IN),
+    ("and", AND),
+    ("or", OR),
+    ("xor", XOR)
 ])
 def test_keywords(keyword, type_):
     """Test symbols

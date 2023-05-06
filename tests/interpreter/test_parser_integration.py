@@ -44,7 +44,7 @@ def test_list(source, expected_list_values):
 @pytest.mark.parametrize("source, operator, expression", [
     ("+1", Token(1, "+", t.PLUS), o.Number(1, 1)),
     ("-1", Token(1, "-", t.MINUS), o.Number(1, 1)),
-    ("!true", Token(1, "!", t.BANG), o.Boolean(1, True)),
+    ("not true", Token(1, "not", t.NOT), o.Boolean(1, True)),
     ("**(1, 2, 3)", Token(1, "**", t.PACK), o.List(1, [o.Number(1, 1), o.Number(1, 2), o.Number(1, 3)]))
 ])
 def test_prefix_expressions(source, operator, expression):
@@ -99,8 +99,9 @@ def test_postfix_operators(source, ast_object):
     ("a <- (1,)", o.Identifier(1, "a"), Token(1, "<-", t.SEND), o.List(1, [o.Number(1, 1)])),
     ("true == false", o.Boolean(1, True), Token(1, "==", t.EQ), o.Boolean(1, False)),
     ("false != true", o.Boolean(1, False), Token(1, "!=", t.NE), o.Boolean(1, True)),
-    ("false & false", o.Boolean(1, False), Token(1, "&", t.AND), o.Boolean(1, False)),
-    ("true | true", o.Boolean(1, True), Token(1, "|", t.OR), o.Boolean(1, True)),
+    ("false and false", o.Boolean(1, False), Token(1, "and", t.AND), o.Boolean(1, False)),
+    ("true or true", o.Boolean(1, True), Token(1, "or", t.OR), o.Boolean(1, True)),
+    ("true xor true", o.Boolean(1, True), Token(1, "xor", t.XOR), o.Boolean(1, True)),
     ("5 > 3", o.Number(1, 5), Token(1, ">", t.GT), o.Number(1, 3)),
     ("4 >= 2", o.Number(1, 4), Token(1, ">=", t.GE), o.Number(1, 2)),
     ("6 < 12", o.Number(1, 6), Token(1, "<", t.LT), o.Number(1, 12)),
@@ -132,7 +133,7 @@ def test_infix_expressions(source, left, operator, right):
         )
     ),
     (
-        "n != 0 & n % 2 == 0",
+        "n != 0 and n % 2 == 0",
         o.InfixExpression(
             1,
             o.InfixExpression(
@@ -141,7 +142,7 @@ def test_infix_expressions(source, left, operator, right):
                 Token(1, "!=", t.NE),
                 o.Number(1, 0)
             ),
-            Token(1, "&", t.AND),
+            Token(1, "and", t.AND),
             o.InfixExpression(
                 1,
                 o.InfixExpression(

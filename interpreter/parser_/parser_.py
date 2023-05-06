@@ -10,7 +10,7 @@ from interpreter.utils.utils import language_error, unexpected_token_error
 # Precedence names
 LOWEST = "LOWEST"  # default
 COMPARE = "COMPARE"  # ==, !=, <, >, >=, <=
-AND_OR = "AND_OR"  # |, &
+BOOLEAN = "BOOLEAN"  # and, or, xor
 SUM = "SUM"  # +, -
 PRODUCT = "PRODUCT"  # *, /
 PREFIX = "PREFIX"  # Before an expression: !, -, +
@@ -33,7 +33,7 @@ class Parser:
         # index + 1).
         self.precedences: list[str] = [
             LOWEST,
-            AND_OR,
+            BOOLEAN,
             COMPARE,
             INDEX,
             SEND,
@@ -47,11 +47,13 @@ class Parser:
             t.SEND: SEND,
             t.PLUS: SUM,
             t.MINUS: SUM,
+            t.NOT: PREFIX,
             t.BANG: PREFIX,
             t.DEC: POSTFIX,
             t.INC: POSTFIX,
-            t.OR: AND_OR,
-            t.AND: AND_OR,
+            t.OR: BOOLEAN,
+            t.AND: BOOLEAN,
+            t.XOR: BOOLEAN,
             t.MULTIPLY: PRODUCT,
             t.DIVIDE: PRODUCT,
             t.MOD: PRODUCT,
@@ -126,7 +128,7 @@ class Parser:
         if self.current.type == t.IDENTIFIER and self.peek.type == t.ASSIGN:
             return self.parse_assign()
 
-        elif self.current.type in [t.MINUS, t.PLUS, t.BANG, t.PACK]:
+        elif self.current.type in [t.MINUS, t.PLUS, t.NOT, t.PACK]:
             return self.parse_prefix_expression()
 
         elif self.current.type == t.OPEN_PAREN:
@@ -161,7 +163,7 @@ class Parser:
         op = self.current
         self.advance()
 
-        # Suffix operators go here
+        # Postfix operators go here
         if op.type in [t.BANG, t.DEC, t.INC]:
             return PostfixExpression(op.line_num, op, left)
 

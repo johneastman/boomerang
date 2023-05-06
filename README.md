@@ -116,8 +116,8 @@ All expressions end with a semicolon `;`.
 |Number|`<`|Number|Boolean|Return `true` if the left value is less than the right value; `false` otherwise.|
 |Number|`<=`|Number|Boolean|Return `true` if the left value is less than or equal to the right value; `false` otherwise.|
 |Number|`%`|Number|Number|Modulus. Divide the left value by the right value and return the remainder as a whole number.|
-|Boolean|`&`|Boolean|Boolean|Return `true` if left and right are `true`; `false` otherwise.|
-|Boolean|`\|`|Boolean|Boolean|Return `true` if left is `true` or right is `true`; `false` if both left and right are `false`.|
+|Boolean|`and`|Boolean|Boolean|Return `true` if left and right are `true`; `false` otherwise.|
+|Boolean|`or`|Boolean|Boolean|Return `true` if left is `true` or right is `true`; `false` if both left and right are `false`.|
 |List|`<-`|Any|List|Append the value on the right to the end of the list on the left. Return a new list.|
 |Function|`<-`|List|Any|Call function on left with parameters on right.|
 

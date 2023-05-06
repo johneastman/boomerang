@@ -82,8 +82,6 @@ GE: str = get_token_type("GE")  # Greater Than or Equal
 LT: str = get_token_type("LT")  # Less Than
 LE: str = get_token_type("LE")  # Less Than or Equal
 BANG: str = get_token_type("BANG")
-AND: str = get_token_type("AND")
-OR: str = get_token_type("OR")
 COMMENT: str = get_token_type("COMMENT")
 
 # Keywords
@@ -95,6 +93,10 @@ IS: str = get_token_type("IS")
 ELSE: str = get_token_type("ELSE")
 FOR: str = get_token_type("FOR")
 IN: str = get_token_type("IN")
+AND: str = get_token_type("AND")
+OR: str = get_token_type("OR")
+XOR: str = get_token_type("XOR")
+NOT: str = get_token_type("NOT")
 
 # Misc
 EOF: str = get_token_type("EOF")  # End of File
