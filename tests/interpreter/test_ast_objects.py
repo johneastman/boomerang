@@ -1,6 +1,7 @@
 import pytest
 
 from interpreter.parser_.ast_objects import *
+from interpreter.utils.utils import LanguageRuntimeException
 from tests.testing_utils import assert_expression_equal
 from interpreter.tokens import tokens as t
 
@@ -281,3 +282,25 @@ def test_equal_not_equal(left, right, expected_equal_result, expected_not_equal_
     """
     assert_expression_equal(Boolean(1, expected_equal_result), left.eq(right))
     assert_expression_equal(Boolean(1, expected_not_equal_result), left.ne(right))
+
+
+@pytest.mark.parametrize("left, right, expected_result", [
+    (Number(1, 1), List(1, [Number(1, 1), Number(1, 2)]), Boolean(1, True)),
+    (Number(1, 3), List(1, [Number(1, 1), Number(1, 2)]), Boolean(1, False)),
+    (Boolean(1, True), List(1, [Number(1, 1), Number(1, 2)]), Boolean(1, False)),
+    (String(1, "hello, world!"), List(1, [Number(1, 1), Number(1, 2)]), Boolean(1, False)),
+])
+def test_in_valid(left, right, expected_result):
+    actual_result = left.contains(right)
+    assert_expression_equal(expected_result, actual_result)
+
+
+@pytest.mark.parametrize("left, right, expected_error_message", [
+    (Number(1, 1), Number(1, 1), "Error at line 1: invalid types Number and Number for IN"),
+    (Number(1, 1), Boolean(1, True), "Error at line 1: invalid types Number and Boolean for IN"),
+    (Number(1, 1), String(1, "hello, world!"), "Error at line 1: invalid types Number and String for IN"),
+])
+def test_in_error(left, right, expected_error_message):
+    with pytest.raises(LanguageRuntimeException) as e:
+        left.contains(right)
+    assert str(e.value) == expected_error_message

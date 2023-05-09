@@ -211,6 +211,9 @@ class Evaluator:
         elif op.type == t.XOR:
             return left.xor(right)
 
+        elif op.type == t.IN:
+            return left.contains(right)
+
         # Array index
         elif op.type == t.INDEX:
             return left.at(right)

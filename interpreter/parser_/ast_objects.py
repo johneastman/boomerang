@@ -30,19 +30,19 @@ class Expression:
         return Boolean(self.line_num, not self.eq(other).value)
 
     def abs(self) -> "Expression":
-        raise language_error(self.line_num, f"Invalid type {type(self).__name__} for absolute value")
+        raise language_error(self.line_num, f"invalid type {type(self).__name__} for absolute value")
 
     def neg(self) -> "Expression":
-        raise language_error(self.line_num, f"Invalid type {type(self).__name__} for negation")
+        raise language_error(self.line_num, f"invalid type {type(self).__name__} for negation")
 
     def fac(self) -> "Expression":
-        raise language_error(self.line_num, f"Invalid type {type(self).__name__} for factorial")
+        raise language_error(self.line_num, f"invalid type {type(self).__name__} for factorial")
 
     def inc(self) -> "Expression":
-        raise language_error(self.line_num, f"Invalid type {type(self).__name__} for increment")
+        raise language_error(self.line_num, f"invalid type {type(self).__name__} for increment")
 
     def dec(self) -> "Expression":
-        raise language_error(self.line_num, f"Invalid type {type(self).__name__} for decrement")
+        raise language_error(self.line_num, f"invalid type {type(self).__name__} for decrement")
 
     def and_(self, other: object) -> "Expression":
         raise language_error(self.line_num,
@@ -50,61 +50,68 @@ class Expression:
 
     def or_(self, other: object) -> "Expression":
         raise language_error(self.line_num,
-                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.OR}")
+                             f"invalid types {type(self).__name__} and {type(other).__name__} for {t.OR}")
 
     def xor(self, other: object) -> "Expression":
         raise language_error(self.line_num,
-                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.XOR}")
+                             f"invalid types {type(self).__name__} and {type(other).__name__} for {t.XOR}")
+
+    def contains(self, other: object) -> "Boolean":
+        if isinstance(other, List):
+            return Boolean(self.line_num, self in other.values)
+
+        raise language_error(self.line_num,
+                             f"invalid types {type(self).__name__} and {type(other).__name__} for {t.IN}")
 
     def gt(self, other: object) -> "Expression":
         raise language_error(self.line_num,
-                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.GT}")
+                             f"invalid types {type(self).__name__} and {type(other).__name__} for {t.GT}")
 
     def ge(self, other: object) -> "Expression":
         raise language_error(self.line_num,
-                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.GE}")
+                             f"invalid types {type(self).__name__} and {type(other).__name__} for {t.GE}")
 
     def lt(self, other: object) -> "Expression":
         raise language_error(self.line_num,
-                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.LT}")
+                             f"invalid types {type(self).__name__} and {type(other).__name__} for {t.LT}")
 
     def le(self, other: object) -> "Expression":
         raise language_error(self.line_num,
-                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.LE}")
+                             f"invalid types {type(self).__name__} and {type(other).__name__} for {t.LE}")
 
     def add(self, other: object) -> "Expression":
         raise language_error(self.line_num,
-                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.PLUS}")
+                             f"invalid types {type(self).__name__} and {type(other).__name__} for {t.PLUS}")
 
     def sub(self, other: object) -> "Expression":
         raise language_error(self.line_num,
-                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.MINUS}")
+                             f"invalid types {type(self).__name__} and {type(other).__name__} for {t.MINUS}")
 
     def mul(self, other: object) -> "Expression":
         raise language_error(self.line_num,
-                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.MULTIPLY}")
+                             f"invalid types {type(self).__name__} and {type(other).__name__} for {t.MULTIPLY}")
 
     def div(self, other: object) -> "Expression":
         raise language_error(self.line_num,
-                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.DIVIDE}")
+                             f"invalid types {type(self).__name__} and {type(other).__name__} for {t.DIVIDE}")
 
     def mod(self, other: object) -> "Expression":
         raise language_error(self.line_num,
-                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.MOD}")
+                             f"invalid types {type(self).__name__} and {type(other).__name__} for {t.MOD}")
 
     def ptr(self, other: object) -> "Expression":
         raise language_error(self.line_num,
-                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.SEND}")
+                             f"invalid types {type(self).__name__} and {type(other).__name__} for {t.SEND}")
 
     def not_(self) -> "Expression":
-        raise language_error(self.line_num, f"Invalid type {type(self).__name__} for {t.NOT}")
+        raise language_error(self.line_num, f"invalid type {type(self).__name__} for {t.NOT}")
 
     def pack(self) -> "Expression":
-        raise language_error(self.line_num, f"Invalid type {type(self).__name__} for {t.PACK}")
+        raise language_error(self.line_num, f"invalid type {type(self).__name__} for {t.PACK}")
 
     def at(self, other: object) -> "Expression":
         raise language_error(self.line_num,
-                             f"Invalid types {type(self).__name__} and {type(other).__name__} for {t.INDEX}")
+                             f"invalid types {type(self).__name__} and {type(other).__name__} for {t.INDEX}")
 
 
 class Number(Expression):

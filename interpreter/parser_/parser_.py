@@ -10,7 +10,7 @@ from interpreter.utils.utils import language_error, unexpected_token_error
 # Precedence names
 LOWEST = "LOWEST"  # default
 COMPARE = "COMPARE"  # ==, !=, <, >, >=, <=
-BOOLEAN = "BOOLEAN"  # and, or, xor
+BOOLEAN = "BOOLEAN"  # and, or, xor, in
 SUM = "SUM"  # +, -
 PRODUCT = "PRODUCT"  # *, /
 PREFIX = "PREFIX"  # Before an expression: !, -, +
@@ -54,6 +54,7 @@ class Parser:
             t.OR: BOOLEAN,
             t.AND: BOOLEAN,
             t.XOR: BOOLEAN,
+            t.IN: BOOLEAN,
             t.MULTIPLY: PRODUCT,
             t.DIVIDE: PRODUCT,
             t.MOD: PRODUCT,
