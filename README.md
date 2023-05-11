@@ -73,7 +73,7 @@ To raise a language exception, call the `raise_error` method in `utils.py`, whic
 These are errors with the Python code itself and exist to aid the development process. To raise a program exception, raise any valid Python exception (e.g., `raise ValueError`, `raise Exception`, `raise RuntimeError`, etc.).
 
 # Language Specs
-The language specs can be found [here](./docs/docs.md).
+The language specs can be found [here](./docs/README.md).
 
 # License
 This project is licenced under the [MIT License](LICENSE).
