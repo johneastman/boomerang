@@ -1,7 +1,11 @@
 import yaml
 import typing
+from enum import Enum
 
 from interpreter.tokens.token import Token
+
+
+Platform = Enum("Platform", ["WEB", "CMD", "TEST"])
 
 
 class LanguageRuntimeException(Exception):

@@ -3,6 +3,7 @@ from interpreter.parser_.ast_objects import *
 from interpreter.parser_.parser_ import Parser
 from interpreter.tokens.tokenizer import Tokenizer
 from interpreter.tokens.token_queue import TokenQueue
+from utils.utils import Platform
 
 
 def parser(source: str) -> Parser:
@@ -18,7 +19,7 @@ def evaluator_actual_result(source: str) -> tuple[list[Expression], list[str]]:
     p = Parser(tokens)
     ast = p.parse()
 
-    e = Evaluator(ast, Environment())
+    e = Evaluator(ast, Environment(), Platform.TEST.name)
     return e.evaluate()
 
 

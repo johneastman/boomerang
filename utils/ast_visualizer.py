@@ -2,7 +2,7 @@
 #
 # reason for ignore: mypy doesn't know about dependency types
 import graphviz  # type: ignore
-from ..parser_.ast_objects import *
+from interpreter.parser_.ast_objects import *
 
 
 class ASTVisualizer:

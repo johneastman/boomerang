@@ -1,7 +1,7 @@
 from interpreter.tokens.tokenizer import Tokenizer
 from interpreter.tokens.token import Token
 from interpreter.tokens.tokens import get_token_literal, get_token_type
-from interpreter.utils import utils
+from utils import utils
 
 
 class TokenQueue:

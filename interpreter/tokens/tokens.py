@@ -1,7 +1,7 @@
 from typing import Tuple
 import os
 
-from interpreter.utils import utils
+from utils import utils
 
 TOKENS_FILE_PATH = os.path.join(os.path.dirname(__file__), "tokens.yaml")
 

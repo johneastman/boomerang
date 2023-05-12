@@ -5,7 +5,7 @@ from interpreter.tokens.tokenizer import Token
 from tests.testing_utils import create_when, assert_expressions_equal
 import tests.testing_utils as testing_utils
 import interpreter.parser_.ast_objects as o
-from interpreter.utils.utils import LanguageRuntimeException
+from utils.utils import LanguageRuntimeException
 
 
 @pytest.mark.parametrize("source, expected_value", [

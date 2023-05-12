@@ -1,11 +1,10 @@
-import typing
 from copy import copy
 
-from interpreter.tokens.token import Token
 from interpreter.tokens.token_queue import TokenQueue
-from interpreter.parser_.ast_objects import *
+from interpreter.tokens.token import Token
+import interpreter.parser_.ast_objects as o
 from interpreter.tokens import tokens as t
-from interpreter.utils.utils import language_error, unexpected_token_error
+from utils.utils import language_error, unexpected_token_error
 
 # Precedence names
 LOWEST = "LOWEST"  # default
@@ -67,10 +66,10 @@ class Parser:
             t.INDEX: INDEX
         }
 
-    def parse(self) -> list[Expression]:
+    def parse(self) -> list[o.Expression]:
         return self.parse_statements(t.EOF)
 
-    def parse_statements(self, end_type: str) -> list[Expression]:
+    def parse_statements(self, end_type: str) -> list[o.Expression]:
         """Parse statements within a certain scope (set by 'end_type')
 
         For block statements, that value will be a closed curly bracket. For program statements, that value will be an
@@ -112,7 +111,7 @@ class Parser:
         precedence_name = precedence_dict.get(self.current.type, LOWEST)
         return self.get_precedence_level(precedence_name)
 
-    def expression(self, precedence_name: str = LOWEST) -> Expression:
+    def expression(self, precedence_name: str = LOWEST) -> o.Expression:
         precedence_level = self.get_precedence_level(precedence_name)
 
         # Prefix
@@ -124,7 +123,7 @@ class Parser:
 
         return left
 
-    def parse_prefix(self) -> Expression:
+    def parse_prefix(self) -> o.Expression:
 
         if self.current.type == t.IDENTIFIER and self.peek.type == t.ASSIGN:
             return self.parse_assign()
@@ -160,48 +159,48 @@ class Parser:
             self.current.line_num,
             f"invalid prefix operator: {self.current.type} ({repr(self.current.value)})")
 
-    def parse_infix(self, left: Expression) -> InfixExpression | PostfixExpression:
+    def parse_infix(self, left: o.Expression) -> o.InfixExpression | o.PostfixExpression:
         op = self.current
         self.advance()
 
         # Postfix operators go here
         if op.type in [t.BANG, t.DEC, t.INC]:
-            return PostfixExpression(op.line_num, op, left)
+            return o.PostfixExpression(op.line_num, op, left)
 
         right = self.expression(self.infix_precedence.get(op.type, LOWEST))
-        return InfixExpression(op.line_num, left, op, right)
+        return o.InfixExpression(op.line_num, left, op, right)
 
-    def parse_number(self) -> Number:
+    def parse_number(self) -> o.Number:
         number_token = self.current
         self.advance()
-        return Number(number_token.line_num, float(number_token.value))
+        return o.Number(number_token.line_num, float(number_token.value))
 
-    def parse_string(self) -> String:
+    def parse_string(self) -> o.String:
         string_token = self.current
         self.advance()
-        return String(string_token.line_num, string_token.value)
+        return o.String(string_token.line_num, string_token.value)
 
-    def parse_boolean(self) -> Boolean:
+    def parse_boolean(self) -> o.Boolean:
         boolean_token = self.current
         self.advance()
-        return Boolean(
+        return o.Boolean(
             boolean_token.line_num,
             boolean_token.value == t.get_token_literal("TRUE")
         )
 
-    def parse_prefix_expression(self) -> PrefixExpression:
+    def parse_prefix_expression(self) -> o.PrefixExpression:
         op = self.current
         self.advance()
         expression = self.expression(PREFIX)
-        return PrefixExpression(op.line_num, op, expression)
+        return o.PrefixExpression(op.line_num, op, expression)
 
-    def parse_grouped_expression(self) -> Expression:
+    def parse_grouped_expression(self) -> o.Expression:
         self.advance()
 
         # An open paren immediately followed by a closed paren is an empty list
         if self.current.type == t.CLOSED_PAREN:
             self.advance()
-            return List(self.current.line_num, [])
+            return o.List(self.current.line_num, [])
 
         # If a token other than a closed paren comes after the open paren, parse the expression
         expression = self.expression()
@@ -217,16 +216,16 @@ class Parser:
 
         raise unexpected_token_error(self.current.line_num, t.CLOSED_PAREN, self.current)
 
-    def parse_identifier(self) -> Identifier | BuiltinFunction:
+    def parse_identifier(self) -> o.Identifier | o.BuiltinFunction:
         identifier_token = self.current
         self.advance()
 
-        if identifier_token.value in BuiltinFunction.builtin_function_names:
-            return BuiltinFunction(identifier_token.line_num, identifier_token.value)
+        if identifier_token.value in o.BuiltinFunction.builtin_function_names:
+            return o.BuiltinFunction(identifier_token.line_num, identifier_token.value)
 
-        return Identifier(identifier_token.line_num, identifier_token.value)
+        return o.Identifier(identifier_token.line_num, identifier_token.value)
 
-    def parse_assign(self) -> Expression:
+    def parse_assign(self) -> o.Expression:
         self.is_expected_token(t.IDENTIFIER)
         variable_name = self.current
 
@@ -239,9 +238,9 @@ class Parser:
 
         right = self.expression()
 
-        return Assignment(variable_name.line_num, variable_name.value, right)
+        return o.Assignment(variable_name.line_num, variable_name.value, right)
 
-    def parse_list(self, first_expression: Expression) -> List:
+    def parse_list(self, first_expression: o.Expression) -> o.List:
         line_num = self.current.line_num
         values = [first_expression]
 
@@ -262,9 +261,9 @@ class Parser:
             self.advance()
 
         # Return list object
-        return List(line_num, values)
+        return o.List(line_num, values)
 
-    def parse_function(self) -> Function:
+    def parse_function(self) -> o.Function:
         line_num: int = self.current.line_num
         self.advance()  # skip function keyword
 
@@ -273,7 +272,7 @@ class Parser:
         while self.current.type != t.COLON:
             self.is_expected_token(t.IDENTIFIER)
 
-            params.append(Identifier(self.current.line_num, self.current.value))
+            params.append(o.Identifier(self.current.line_num, self.current.value))
             self.advance()
 
             if self.current.type == t.COLON:
@@ -288,9 +287,9 @@ class Parser:
         # Function body
         body = self.expression()
 
-        return Function(line_num, params, body)
+        return o.Function(line_num, params, body)
 
-    def parse_when(self) -> When:
+    def parse_when(self) -> o.When:
         line_num = self.current.line_num
 
         self.advance()  # skip over "when" token
@@ -303,13 +302,13 @@ class Parser:
             switch_expression = self.expression()
         else:
             # if-else
-            switch_expression = Boolean(line_num, True)
+            switch_expression = o.Boolean(line_num, True)
             is_switch = False
 
         self.is_expected_token(t.COLON)
         self.advance()
 
-        expressions: list[tuple[Expression, Expression]] = []
+        expressions: list[tuple[o.Expression, o.Expression]] = []
 
         # Comparison expression
         while True:
@@ -347,9 +346,9 @@ class Parser:
 
         expressions.append((else_expression, else_return_expression))
 
-        return When(line_num, switch_expression, expressions)
+        return o.When(line_num, switch_expression, expressions)
 
-    def parse_for(self) -> ForLoop:
+    def parse_for(self) -> o.ForLoop:
         line_num = self.current.line_num
 
         # Skip "for" token
@@ -369,7 +368,7 @@ class Parser:
 
         expression = self.expression()
 
-        return ForLoop(line_num, element_identifier.value, values, expression)
+        return o.ForLoop(line_num, element_identifier.value, values, expression)
 
     def add_semicolon(self) -> None:
         self.tokens.add("SEMICOLON")

@@ -1,7 +1,7 @@
 import pytest
 
 from interpreter.parser_.ast_objects import *
-from interpreter.utils.utils import LanguageRuntimeException
+from utils.utils import LanguageRuntimeException
 from tests.testing_utils import assert_expression_equal
 from interpreter.tokens import tokens as t
 

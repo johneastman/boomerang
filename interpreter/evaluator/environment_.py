@@ -19,4 +19,14 @@ class Environment:
         self.variables = {**self.variables, **variables}
 
     def get_var(self, key: str) -> Optional[Expression]:
-        return self.variables.get(key, None)
+        # For variables, check the current environment. If it does not exist, check the parent environment.
+        # Continue doing this until there are no more parent environments. If the variable does not exist in all
+        # scopes, it does not exist anywhere in the code.
+        env: Optional[Environment] = self
+        while env is not None:
+            variable_value = env.variables.get(key, None)
+            if variable_value is not None:
+                return variable_value
+            env = env.parent_env
+
+        return None

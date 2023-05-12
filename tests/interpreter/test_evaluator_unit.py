@@ -3,9 +3,9 @@ import pytest
 from interpreter.parser_.ast_objects import Expression, Identifier
 from interpreter.evaluator.evaluator import Evaluator
 from interpreter.evaluator.environment_ import Environment
-from interpreter.utils.utils import LanguageRuntimeException
+from utils.utils import LanguageRuntimeException, Platform
 
-evaluator = Evaluator([], Environment())
+evaluator = Evaluator([], Environment(), Platform.TEST.name)
 
 
 class InvalidType(Expression):

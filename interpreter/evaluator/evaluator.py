@@ -6,13 +6,26 @@ import copy
 import interpreter.parser_.ast_objects as o
 from interpreter.tokens import tokens as t
 from interpreter.evaluator.environment_ import Environment
-from interpreter.utils.utils import language_error, LanguageRuntimeException
+from utils.utils import language_error, LanguageRuntimeException, Platform
 
 
 class Evaluator:
-    def __init__(self, ast: list[o.Expression], env: typing.Optional[Environment]) -> None:
+    def __init__(self, ast: list[o.Expression], env: typing.Optional[Environment], platform: str) -> None:
         self.ast = ast
+
+        # Environment needs to be optional because, when switching between scopes--such as a function call--the parent
+        # environment could be None.
         self.env = env
+
+        # Platform helps identify what features are or are not supported
+        self.platform = platform
+
+        self.unsupported_types: dict[str, list[typing.Type[o.Expression]]] = {
+            Platform.WEB.name: [],
+            Platform.CMD.name: [],
+            Platform.TEST.name: []
+        }
+
         self.output: list[str] = []
 
     @property
@@ -40,6 +53,14 @@ class Evaluator:
             return [error_obj]
 
     def evaluate_expression(self, expression: o.Expression) -> o.Expression:
+
+        # Raise an error if an expression instance is not supported on the current platform
+        unsupported_types = self.unsupported_types.get(self.platform, [])
+        if any(isinstance(expression, v) for v in unsupported_types):
+            raise language_error(
+                expression.line_num,
+                f"unsupported operation for platform {self.platform}: {type(expression).__name__}"
+            )
 
         if isinstance(expression, o.InfixExpression):
             return self.evaluate_binary_expression(expression)
@@ -108,21 +129,14 @@ class Evaluator:
         return var_value
 
     def evaluate_identifier(self, identifier: o.Identifier) -> o.Expression:
-        # For variables, check the current environment. If it does not exist, check the parent environment.
-        # Continue doing this until there are no more parent environments. If the variable does not exist in all
-        # scopes, it does not exist anywhere in the code.
-        env: typing.Optional[Environment] = self.env
-        while env is not None:
-            variable_value = env.get_var(identifier.value)
-            if variable_value is not None:
+        value = self.get_env.get_var(identifier.value)
+        if value is None:
+            raise language_error(identifier.line_num, f"undefined variable: {identifier.value}")
 
-                # When a variable is retrieved, update the line number to reflect the current line number because the
-                # variable was saved with the line number where it was defined.
-                variable_value.line_num = identifier.line_num
-                return variable_value
-            env = env.parent_env
-
-        raise language_error(identifier.line_num, f"undefined variable: {identifier.value}")
+        # When a variable is retrieved, update the line number to reflect the current line number because the
+        # variable was saved with the line number where it was defined.
+        value.line_num = identifier.line_num
+        return value
 
     def evaluate_unary_expression(self, unary_expression: o.PrefixExpression) -> o.Expression:
         expression_result = self.evaluate_expression(unary_expression.expression)

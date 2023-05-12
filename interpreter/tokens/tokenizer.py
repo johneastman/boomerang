@@ -1,7 +1,7 @@
 from typing import Optional, Callable
 import string
 
-from ..utils import utils
+import utils.utils as utils
 from .token import Token
 from .tokens import *
 

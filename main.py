@@ -1,13 +1,13 @@
 import argparse
 
-from interpreter.parser_.parser_ import Error
+from interpreter.parser_.ast_objects import Error
 from interpreter.tokens.tokenizer import Tokenizer
 from interpreter.tokens.token_queue import TokenQueue
 from interpreter.parser_.parser_ import Parser
 from interpreter.evaluator.evaluator import Evaluator
 from interpreter.evaluator.environment_ import Environment
-from interpreter.utils.ast_visualizer import ASTVisualizer
-from interpreter.utils.utils import LanguageRuntimeException
+from utils.ast_visualizer import ASTVisualizer
+from utils.utils import LanguageRuntimeException, Platform
 
 
 def get_source(filepath: str) -> str:
@@ -15,7 +15,7 @@ def get_source(filepath: str) -> str:
         return f.read()
 
 
-def evaluate(source: str, environment: Environment) -> list[str]:
+def evaluate(source: str, environment: Environment, platform: str = Platform.CMD.name) -> list[str]:
     """Execute code in a file.
 
     Unlike REPL, this execution style does not use the results of each individual expression.
@@ -26,7 +26,7 @@ def evaluate(source: str, environment: Environment) -> list[str]:
 
         p = Parser(tokens)
         ast = p.parse()
-        return Evaluator(ast, environment).evaluate()[1]
+        return Evaluator(ast, environment, platform).evaluate()[1]
 
     except LanguageRuntimeException as e:
         # This catch is needed for the parser and tokenizer. Evaluator.evaluate handles these errors on its own.

@@ -4,7 +4,7 @@ from typing import Callable
 
 from interpreter.tokens.token import Token
 from interpreter.tokens import tokens as t
-from interpreter.utils.utils import language_error, divide_by_zero_error
+from utils.utils import language_error, divide_by_zero_error
 
 
 class Expression:

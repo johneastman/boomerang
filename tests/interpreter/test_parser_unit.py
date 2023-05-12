@@ -5,7 +5,7 @@ from tests.testing_utils import create_when, assert_expression_equal
 import interpreter.parser_.ast_objects as o
 from interpreter.tokens.tokenizer import Token
 from interpreter.tokens.tokens import PLUS, EQ, BANG, INC, DEC
-from interpreter.utils.utils import LanguageRuntimeException
+from utils.utils import LanguageRuntimeException
 
 
 def test_assign_expression():
