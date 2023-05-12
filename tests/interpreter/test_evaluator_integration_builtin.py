@@ -334,6 +334,10 @@ def test_range(params, expected_result):
         o.Number(1, 3.142)
     ),
     (
+        ["3.14159", "4"],
+        o.Number(1, 3.1416)
+    ),
+    (
         ["3.14159", "5"],
         o.Number(1, 3.14159)
     ),
