@@ -316,6 +316,71 @@ def test_range(params, expected_result):
     assert_expressions_equal([expected_result], ast_results)
 
 
+@pytest.mark.parametrize("params, expected_result", [
+    (
+        ["3.14159", "0"],
+        o.Number(1, 3)
+    ),
+    (
+        ["3.14159", "1"],
+        o.Number(1, 3.1)
+    ),
+    (
+        ["3.14159", "2"],
+        o.Number(1, 3.14)
+    ),
+    (
+        ["3.14159", "3"],
+        o.Number(1, 3.142)
+    ),
+    (
+        ["3.14159", "5"],
+        o.Number(1, 3.14159)
+    ),
+    (
+        ["3.14159", "6"],
+        o.Number(1, 3.14159)
+    ),
+    (
+        ["3.14159", "7"],
+        o.Number(1, 3.14159)
+    ),
+
+    # Errors
+    (
+        [],
+        o.Error(1, "Error at line 1: incorrect number of arguments. Excepts 2 arguments, but got 0")
+    ),
+    (
+        ["3.14159"],
+        o.Error(1, "Error at line 1: incorrect number of arguments. Excepts 2 arguments, but got 1")
+    ),
+    (
+        ["3.14159", "2", "3"],
+        o.Error(1, "Error at line 1: incorrect number of arguments. Excepts 2 arguments, but got 3")
+    ),
+    (
+        ["\"hello\"", "2"],
+        o.Error(1, "Error at line 1: expected Number for number, got String")
+    ),
+    (
+        ["3.14159", "true"],
+        o.Error(1, "Error at line 1: expected Number for round_to, got Boolean")
+    ),
+    (
+        ["3.14159", "1.5"],
+        o.Error(1, "Error at line 1: round_to must be a whole number")
+    ),
+    (
+        ["3.14159", "-1"],
+        o.Error(1, "Error at line 1: round_to must be greater than or equal to 0")
+    ),
+])
+def test_round(params, expected_result):
+    ast_results, _ = evaluator_actual_result(f"round <- ({params_str(params)});")
+    assert_expressions_equal([expected_result], ast_results)
+
+
 def params_str(params: list[str]) -> str:
     """Take list of parameters and return them as a comma-separated string."""
     return ", ".join(params) + ("," if len(params) == 1 else "")

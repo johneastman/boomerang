@@ -420,13 +420,15 @@ class BuiltinFunction(Expression):
     randfloat = "randfloat"
     len_ = "len"
     range_ = "range"
+    round_ = "round"
 
     builtin_function_names = [
         print_,
         randint_,
         randfloat,
         len_,
-        range_
+        range_,
+        round_
     ]
 
     def __init__(self, line_num: int, name: str):
@@ -448,7 +450,8 @@ class BuiltinFunction(Expression):
                 self.randint_: lambda args: self.random(args, False),
                 self.randfloat: lambda args: self.random(args, True),
                 self.len_: self.len,
-                self.range_: self.range
+                self.range_: self.range,
+                self.round_: self.round
             }.get(self.name, None)
 
             if function is None:
@@ -591,6 +594,38 @@ class BuiltinFunction(Expression):
             next_value += step.value
 
         return List(self.line_num, values)
+
+    def round(self, arguments: list[Expression]) -> Number:
+        if len(arguments) != 2:
+            raise language_error(
+                self.line_num,
+                f"incorrect number of arguments. Excepts 2 arguments, but got {len(arguments)}"
+            )
+
+        number, round_to = arguments
+
+        if not isinstance(number, Number):
+            raise language_error(
+                self.line_num,
+                f"expected Number for number, got {type(number).__name__}"
+            )
+
+        if not isinstance(round_to, Number):
+            raise language_error(
+                self.line_num,
+                f"expected Number for round_to, got {type(round_to).__name__}"
+            )
+
+        if not round_to.is_whole_number():
+            raise language_error(self.line_num, "round_to must be a whole number")
+
+        if round_to.value < 0:
+            raise language_error(self.line_num, "round_to must be greater than or equal to 0")
+
+        return Number(
+            self.line_num,
+            round(number.value, int(round_to.value))
+        )
 
 
 class PrefixExpression(Expression):
