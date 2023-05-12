@@ -396,11 +396,13 @@ def test_when_switch_implementation():
 
 
 @pytest.mark.parametrize("source, expected_ast", [
+    ("(1, 2) @ -3", [o.Error(1, "Error at line 1: list index -3 is out of range")]),
+    ("(1, 2) @ -2", [o.Number(1, 1)]),
+    ("(1, 2) @ -1", [o.Number(1, 2)]),
     ("(1, 2) @ 0", [o.Number(1, 1)]),
     ("(1, 2) @ 1", [o.Number(1, 2)]),
-    ("(1, 2) @ 0 == 1", [o.Boolean(1, True)]),
-    ("(1, 2) @ -1", [o.Error(1, "Error at line 1: list index -1 is out of range")]),
     ("(1, 2) @ 2", [o.Error(1, "Error at line 1: list index 2 is out of range")]),
+    ("(1, 2) @ 0 == 1", [o.Boolean(1, True)]),
     ("(1, 2) @ 1.5", [o.Error(1, "Error at line 1: list index must be a whole number")]),
 ])
 def test_list_index(source, expected_ast):

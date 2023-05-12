@@ -304,3 +304,33 @@ def test_in_error(left, right, expected_error_message):
     with pytest.raises(LanguageRuntimeException) as e:
         left.contains(right)
     assert str(e.value) == expected_error_message
+
+
+@pytest.mark.parametrize("index, expected_result", [
+    (Number(1, -3), Number(1, 1)),
+    (Number(1, -2), Number(1, 2)),
+    (Number(1, -1), Number(1, 3)),
+    (Number(1, 0),  Number(1, 1)),
+    (Number(1, 1),  Number(1, 2)),
+    (Number(1, 2),  Number(1, 3))
+])
+def test_at(index, expected_result):
+    left = List(1, [Number(1, 1), Number(1, 2), Number(1, 3)])
+
+    actual_result = left.at(index)
+    assert_expression_equal(expected_result, actual_result)
+
+
+@pytest.mark.parametrize("index, expected_error_message", [
+    (Number(1, -4), "Error at line 1: list index -4 is out of range"),
+    (Number(1, 3), "Error at line 1: list index 3 is out of range"),
+    (Number(1, 3.4), "Error at line 1: list index must be a whole number"),
+    (Boolean(1, True), "Error at line 1: invalid types List and Boolean for INDEX"),
+    (String(1, "hello, world"), "Error at line 1: invalid types List and String for INDEX"),
+])
+def test_at_error(index, expected_error_message):
+    left = List(1, [Number(1, 1), Number(1, 2), Number(1, 3)])
+
+    with pytest.raises(LanguageRuntimeException) as e:
+        left.at(index)
+    assert str(e.value) == expected_error_message

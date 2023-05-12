@@ -328,7 +328,7 @@ class List(Expression):
             if not other.is_whole_number():
                 raise language_error(self.line_num, "list index must be a whole number")
 
-            if 0 <= other.value < len(self.values):
+            if -len(self.values) <= other.value < len(self.values):
                 return self.values[int(other.value)]
 
             raise language_error(self.line_num, f"list index {other} is out of range")

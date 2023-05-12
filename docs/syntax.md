@@ -36,7 +36,7 @@ All expressions end with a semicolon `;`.
 |List|`-`|List|List|Filter lists by value. Return a new list where values in the right list are removed from the left list.|
 |Number|`*`|Number|Number|Multiply left number by right number.|
 |Number|`/`|Number|Number|Divide left number by right number.|
-|List|`@`|Number|Any|Get the value in the list at the given index position (e.g., index == 0 is the first element, index == 1 is the second element, index == 2 is the second element, etc.).|
+|List|`@`|Number|Any|Get the value in the list at the given index position (e.g., index == 0 is the first element, index == 1 is the second element, index == 2 is the second element, etc.). Negative indices are supported as well, so index == -1 gets the last element, index == -2 gets the second-to-last element, etc. The range of valid indices is `-len(self.values) <= index < len(self.values)`.|
 |Number|`>`|Number|Boolean|Return `true` if the left value is greater than the right value; `false` otherwise.|
 |Number|`>=`|Number|Boolean|Return `true` if the left value is greater than or equal to the right value; `false` otherwise.|
 |Number|`<`|Number|Boolean|Return `true` if the left value is less than the right value; `false` otherwise.|
