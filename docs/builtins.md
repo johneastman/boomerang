@@ -40,3 +40,10 @@ Return a list of values from `start` to `end` (exclusive).
 |`(start:Number)`|List of numbers from 0 to `start`.|
 |`(start:Number, end:Number,)`|List of numbers from `start` to `end`.|
 |`(start:Number, end:Number, step:Number)`|Return a list of numbers from `start` to `end` incrementing by `step`. If `step` is negative, the list will generate in descending order, but `start` will need to be greater than `end`.|
+
+# round
+Round a decimal (floating-point) number to a certain number of digits after the decimal place.
+
+|Arguments|Return Value|
+|---|---|
+|`(number:Number, round_to:Number)`|Round `number`, a floating-point value, to `round_to` digits after the decimal place.|
