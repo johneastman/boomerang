@@ -178,6 +178,9 @@ class Evaluator:
         elif op.type == t.MOD:
             return left.mod(right)
 
+        elif op.type == t.PACK:
+            return left.pow(right)
+
         elif op.type == t.SEND:
             tmp_stdout = StringIO()
             sys.stdout = tmp_stdout

@@ -99,6 +99,10 @@ class Expression:
         raise language_error(self.line_num,
                              f"invalid types {type(self).__name__} and {type(other).__name__} for {t.MOD}")
 
+    def pow(self, other: object) -> "Expression":
+        raise language_error(self.line_num,
+                             f"invalid types {type(self).__name__} and {type(other).__name__} for {t.PACK}")
+
     def ptr(self, other: object) -> "Expression":
         raise language_error(self.line_num,
                              f"invalid types {type(self).__name__} and {type(other).__name__} for {t.SEND}")
@@ -219,6 +223,11 @@ class Number(Expression):
             return Number(self.line_num, self.value % other.value)
 
         return super().mod(other)
+
+    def pow(self, other: object) -> "Expression":
+        if isinstance(other, Number):
+            return Number(self.line_num, self.value ** other.value)
+        return super().pow(other)
 
     def is_whole_number(self) -> bool:
         """

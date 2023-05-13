@@ -226,6 +226,20 @@ def test_infix_expressions(source, left, operator, right):
                 o.List(1, [o.Number(1, 0), o.Number(1, 10)]),
             ),
         )
+    ),
+    (
+        "3 ** 2 * 2",
+        o.InfixExpression(
+            1,
+            o.InfixExpression(
+                1,
+                o.Number(1, 3),
+                Token(1, "**", t.PACK),
+                o.Number(1, 2)
+            ),
+            Token(1, "*", t.MULTIPLY),
+            o.Number(1, 2)
+        )
     )
 ])
 def test_precedence(source, expected_result):

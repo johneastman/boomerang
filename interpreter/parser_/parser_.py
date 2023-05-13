@@ -12,6 +12,7 @@ COMPARE = "COMPARE"  # ==, !=, <, >, >=, <=
 BOOLEAN = "BOOLEAN"  # and, or, xor, in
 SUM = "SUM"  # +, -
 PRODUCT = "PRODUCT"  # *, /
+POWER = "POWER"  # **
 PREFIX = "PREFIX"  # Before an expression: !, -, +
 POSTFIX = "POSTFIX"  # after an expression: !, --, ++
 SEND = "SEND"  # <-
@@ -38,6 +39,7 @@ class Parser:
             SEND,
             SUM,
             PRODUCT,
+            POWER,
             PREFIX,
             POSTFIX
         ]
@@ -57,6 +59,7 @@ class Parser:
             t.MULTIPLY: PRODUCT,
             t.DIVIDE: PRODUCT,
             t.MOD: PRODUCT,
+            t.PACK: POWER,
             t.EQ: COMPARE,
             t.NE: COMPARE,
             t.LT: COMPARE,
