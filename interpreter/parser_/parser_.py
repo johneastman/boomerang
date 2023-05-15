@@ -96,32 +96,34 @@ class Parser:
     def current(self) -> Token:
         return self.tokens.current
 
-    def get_precedence_level(self, precedence_name: str) -> int:
-        """Get the precedence level of a given precedence. The precedences are stores in 'self.precedences' from lowest
-        to highest, so the precedence value is just the index + 1, where LOWEST is 1.
+    def is_expected_token(self, expected_token_type: str) -> None:
+        if self.current.type != expected_token_type:
+            raise unexpected_token_error(self.current.line_num, expected_token_type, self.current)
+
+    def get_precedence_level_by_name(self, precedence_name: str) -> int:
+        """Get the precedence level of a precedence name. The precedences are stores in 'self.precedences' from lowest
+        to highest, so the precedence value is just the index of the value. For example, LOWEST is 0 because it is
+        first in that list.
 
         :param precedence_name: precedence name/label (see top of this file above Parser class)
         :return: the precedence level
         """
-        return self.precedences.index(precedence_name) + 1
+        return self.precedences.index(precedence_name)
 
-    def get_next_precedence_level(self, precedence_dict: dict[str, str]) -> int:
-        """Get the precedence level of the next operator in the expression.
-
-        :param precedence_dict: token-precedence mapping for the next token in the expression
-        :return: precedence level for token type in 'precedence_dict'
+    def get_current_precedence_level(self) -> int:
+        """Get the precedence level of the current token
         """
-        precedence_name = precedence_dict.get(self.current.type, LOWEST)
-        return self.get_precedence_level(precedence_name)
+        precedence_name = self.infix_precedence.get(self.current.type, LOWEST)
+        return self.get_precedence_level_by_name(precedence_name)
 
     def expression(self, precedence_name: str = LOWEST) -> o.Expression:
-        precedence_level = self.get_precedence_level(precedence_name)
+        precedence_level = self.get_precedence_level_by_name(precedence_name)
 
         # Prefix
         left = self.parse_prefix()
 
         # Infix
-        while self.current is not None and precedence_level < self.get_next_precedence_level(self.infix_precedence):
+        while self.current is not None and precedence_level < self.get_current_precedence_level():
             left = self.parse_infix(left)
 
         return left
@@ -130,6 +132,9 @@ class Parser:
 
         if self.current.type == t.IDENTIFIER and self.peek.type == t.ASSIGN:
             return self.parse_assign()
+
+        elif self.current.type == t.IDENTIFIER:
+            return self.parse_identifier()
 
         elif self.current.type in [t.MINUS, t.PLUS, t.NOT, t.PACK]:
             return self.parse_prefix_expression()
@@ -145,9 +150,6 @@ class Parser:
 
         elif self.current.type == t.BOOLEAN:
             return self.parse_boolean()
-
-        elif self.current.type == t.IDENTIFIER:
-            return self.parse_identifier()
 
         elif self.current.type == t.FUNCTION:
             return self.parse_function()
@@ -376,6 +378,3 @@ class Parser:
     def add_semicolon(self) -> None:
         self.tokens.add("SEMICOLON")
 
-    def is_expected_token(self, expected_token_type: str) -> None:
-        if self.current.type != expected_token_type:
-            raise unexpected_token_error(self.current.line_num, expected_token_type, self.current)

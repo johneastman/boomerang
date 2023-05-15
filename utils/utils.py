@@ -35,7 +35,7 @@ def divide_by_zero_error(line_num: int) -> LanguageRuntimeException:
 
 
 def raise_unexpected_end_of_file(line_num: int) -> LanguageRuntimeException:
-    return language_error(line_num, "Unexpected end of file")
+    return language_error(line_num, "unexpected end of file")
 
 
 def get(dictionary: dict[str, typing.Any], key_path: str) -> typing.Any:
