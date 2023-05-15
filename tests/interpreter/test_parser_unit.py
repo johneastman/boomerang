@@ -90,13 +90,21 @@ def test_get_current_precedence_level(symbol, precedence_level):
 
 
 @pytest.mark.parametrize("source, expected_result", [
-    ("!", o.PostfixExpression(1, Token(1, "!", t.BANG), o.Number(1, 3))),
-    ("+1", o.InfixExpression(1, o.Number(1, 3), Token(1, "+", t.PLUS), o.Number(1, 1)))
+    ("()", o.List(1, [])),
+    ("(1 + 1)", o.InfixExpression(1, o.Number(1, 1), Token(1, "+", t.PLUS), o.Number(1, 1))),
+    ("(1, 2)", o.List(1, [o.Number(1, 1), o.Number(1, 2)])),
 ])
-def test_parse_infix(source, expected_result):
+def test_grouped_expressions(source, expected_result):
     p = testing_utils.parser(source)
-    infix_object = p.parse_infix(o.Number(1, 3))
-    assert_expression_equal(expected_result, infix_object)
+    actual_result = p.parse_grouped_expression()
+    assert_expression_equal(expected_result, actual_result)
+
+
+def test_grouped_expressions_errors():
+    p = testing_utils.parser("(2")
+    with pytest.raises(LanguageRuntimeException) as e:
+        p.parse_grouped_expression()
+    assert str(e.value) == "Error at line 1: expected CLOSED_PAREN, got EOF ('')"
 
 
 @pytest.mark.parametrize("source, token", [

@@ -1,8 +1,8 @@
 import pytest
 
-from tests.testing_utils import assert_tokens_equal
+from tests.testing_utils import assert_tokens_equal, get_tokens
 from interpreter.tokens import tokens as t
-from interpreter.tokens.tokenizer import Tokenizer, Token
+from interpreter.tokens.tokenizer import Token
 
 
 @pytest.mark.parametrize("symbol, type_", [
@@ -136,7 +136,3 @@ def test_skip_comments():
         Token(line_num + 1, "", t.EOF)
     ]
     assert_tokens_equal(expected_tokens, actual_tokens)
-
-
-def get_tokens(source: str) -> list[Token]:
-    return [t for t in Tokenizer(source)]

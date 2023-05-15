@@ -7,6 +7,10 @@ from interpreter.tokens.token_queue import TokenQueue
 from utils.utils import Platform
 
 
+def get_tokens(source: str) -> list[Token]:
+    return [t for t in Tokenizer(source)]
+
+
 def parser(source: str) -> Parser:
     tokenizer = Tokenizer(source)
     tokens = TokenQueue(tokenizer)
