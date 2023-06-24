@@ -36,6 +36,9 @@ tokens:
     - literal: 'in'
       name: IN
       type: IN
+    - literal: 'if'
+      name: IF
+      type: IF
   symbols:
     - literal: '.'
       name: PERIOD

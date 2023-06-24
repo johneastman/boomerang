@@ -134,3 +134,9 @@ for i in (1, 2, 3): i + 1;  # Returns: (2, 3, 4)
 for i in range <- (10,): i % 2 == 0;  # Returns: (true, false, true, false, true, false, true, false, true, false)
 for i in (1, 2, 3): "hello";  # Returns ("hello", "hello", "hello"). This ignores "i" entirely and returns its own thing
 ```
+
+For loops also support a filtering mechanism with an optional conditional expression. With this expression, values are only returned in the new list if the conditional expression returns `true`. Below are some examples:
+```
+list = (0, 1, 2, 3, 4, 5, 6);
+list = for n in list if n % 2 == 0: n;  # Returns `(0, 2, 4, 6)`
+```

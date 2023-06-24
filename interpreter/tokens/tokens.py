@@ -97,6 +97,7 @@ AND: str = get_token_type("AND")
 OR: str = get_token_type("OR")
 XOR: str = get_token_type("XOR")
 NOT: str = get_token_type("NOT")
+IF: str = get_token_type("IF")
 
 # Misc
 EOF: str = get_token_type("EOF")  # End of File

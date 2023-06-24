@@ -434,12 +434,34 @@ def test_for_loop():
         1,
         "i",
         o.List(1, [o.Number(1, 1), o.Number(1, 2), o.Number(1, 3)]),
+        o.Boolean(1, True),
         o.InfixExpression(
             1,
             o.Identifier(1, "i"),
             Token(1, "+", t.PLUS),
             o.Number(1, 1)
         )
+    )
+
+    p = testing_utils.parser(source)
+    actual_for_ast = p.parse()
+    assert_expressions_equal([expected_for_object], actual_for_ast)
+
+
+def test_for_loop_conditional():
+    source = "for i in (1, 2, 3) if i > 2: i;"
+
+    expected_for_object = o.ForLoop(
+        1,
+        "i",
+        o.List(1, [o.Number(1, 1), o.Number(1, 2), o.Number(1, 3)]),
+        o.InfixExpression(
+            1,
+            o.Identifier(1, "i"),
+            Token(1, ">", t.GT),
+            o.Number(1, 2)
+        ),
+        o.Identifier(1, "i")
     )
 
     p = testing_utils.parser(source)

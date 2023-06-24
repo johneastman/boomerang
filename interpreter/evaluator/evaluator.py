@@ -296,9 +296,18 @@ class Evaluator:
             self.evaluate_assign_variable(
                 o.Assignment(value.line_num, for_loop.element_identifier, value)
             )
-            new_values.append(
-                self.evaluate_expression(for_loop.expression)
-            )
+
+            condition_evaluated = self.evaluate_expression(for_loop.conditional_expr)
+            if not isinstance(condition_evaluated, o.Boolean):
+                raise language_error(
+                    condition_evaluated.line_num,
+                    f"invalid type for for-loop conditional expression: {type(condition_evaluated).__name__}"
+                )
+
+            if condition_evaluated.value:
+                new_values.append(
+                    self.evaluate_expression(for_loop.expression)
+                )
 
         # Reset environment back to old environment
         self.env = self.get_env.parent_env

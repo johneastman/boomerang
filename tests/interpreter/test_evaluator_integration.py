@@ -434,6 +434,20 @@ def test_list_index(source, expected_ast):
         ]
     ),
     (
+        "for i in (0, 1, 2, 3, 4) if i % 2 == 0: i",
+        [
+            o.List(1, [o.Number(1, 0), o.Number(1, 2), o.Number(1, 4)])
+        ]
+    ),
+
+    # Errors
+    (
+        "for i in (0, 1, 2, 3, 4) if \"hello, world!\": i",
+        [
+            o.Error(1, "Error at line 1: invalid type for for-loop conditional expression: String")
+        ]
+    ),
+    (
         "for i in 3: i + 1",
         [
             o.Error(1, "Error at line 1: expected List, got Number")

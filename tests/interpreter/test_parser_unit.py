@@ -349,6 +349,7 @@ def test_for_loop():
         1,
         "i",
         o.List(1, [o.Number(1, 1), o.Number(1, 2), o.Number(1, 3)]),
+        o.Boolean(1, True),
         o.InfixExpression(
             1,
             o.Identifier(1, "i"),

@@ -53,8 +53,14 @@ test_function = o.Function(
         "When(line_num=1, expression=Boolean(line_num=1, value=True), case_expressions=[(Boolean(line_num=1, value=False), String(line_num=1, value='yes')), (Boolean(line_num=1, value=True), String(line_num=1, value='no'))])"
     ),
     (
-        o.ForLoop(1, "i", o.List(1, [o.Number(1, 1), o.Number(1, 2), o.Number(1, 3)]), o.InfixExpression(1, o.Identifier(1, "i"), Token(1, "+", t.PLUS), o.Number(1, 1))),
-        "ForLoop(line_num=1, element_identifier='i', values=List(line_num=1, values=[Number(line_num=1, value=1), Number(line_num=1, value=2), Number(line_num=1, value=3)]), expression=InfixExpression(line_num=1, left=Identifier(line_num=1, value='i'), operator=Token(line_num=1, value='+', type=PLUS), right=Number(line_num=1, value=1)))"
+        o.ForLoop(
+            1,
+            "i",
+            o.List(1, [o.Number(1, 1), o.Number(1, 2), o.Number(1, 3)]),
+            o.Boolean(1, True),
+            o.InfixExpression(1, o.Identifier(1, "i"), Token(1, "+", t.PLUS), o.Number(1, 1))
+        ),
+        "ForLoop(line_num=1, element_identifier='i', values=List(line_num=1, values=[Number(line_num=1, value=1), Number(line_num=1, value=2), Number(line_num=1, value=3)]), conditional_expr=Boolean(line_num=1, value=True), expression=InfixExpression(line_num=1, left=Identifier(line_num=1, value='i'), operator=Token(line_num=1, value='+', type=PLUS), right=Number(line_num=1, value=1)))"
     ),
     (
         o.BuiltinFunction(1, "print"),

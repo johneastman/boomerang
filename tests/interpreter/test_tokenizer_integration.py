@@ -52,7 +52,8 @@ def test_symbols(symbol, type_):
     ("in", t.IN),
     ("and", t.AND),
     ("or", t.OR),
-    ("xor", t.XOR)
+    ("xor", t.XOR),
+    ("if", t.IF)
 ])
 def test_keywords(keyword, type_):
     """Test symbols

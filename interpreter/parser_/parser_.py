@@ -368,12 +368,18 @@ class Parser:
 
         values = self.expression()
 
+        if self.current.type == t.IF:
+            self.advance()  # Skip over "if" token
+            conditional_expression = self.expression()
+        else:
+            conditional_expression = o.Boolean(self.current.line_num, True)
+
         self.is_expected_token(t.COLON)
         self.advance()
 
         expression = self.expression()
 
-        return o.ForLoop(line_num, element_identifier.value, values, expression)
+        return o.ForLoop(line_num, element_identifier.value, values, conditional_expression, expression)
 
     def add_semicolon(self) -> None:
         self.tokens.add("SEMICOLON")
