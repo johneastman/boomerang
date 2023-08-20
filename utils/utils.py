@@ -7,6 +7,9 @@ from interpreter.tokens.token import Token
 
 Platform = Enum("Platform", ["WEB", "CMD", "TEST"])
 
+# Environment Variables Keys
+BOOMERANG_PLATFORM = "boomerang_platform"
+
 
 class LanguageRuntimeException(Exception):
     def __init__(self, line_num: int, message: str):

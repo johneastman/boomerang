@@ -1,7 +1,17 @@
+import os
+
 import pytest
 import interpreter.parser_.ast_objects as o
 
 from tests.testing_utils import evaluator_actual_result, assert_expressions_equal
+from utils.utils import BOOMERANG_PLATFORM, Platform
+
+
+def test_input():
+    actual_results, output_results = evaluator_actual_result("input <- (\"name: \",);", platform=Platform.WEB.name)
+    expected_result = o.Error(1, "Error at line 1: unsupported builtin function 'input' for WEB platform")
+
+    assert_expressions_equal([expected_result], actual_results)
 
 
 @pytest.mark.parametrize("params, expected_result, expected_output_results", [

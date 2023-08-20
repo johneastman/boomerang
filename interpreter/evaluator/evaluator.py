@@ -1,3 +1,4 @@
+import os
 import typing
 from io import StringIO
 import sys
@@ -6,19 +7,16 @@ import copy
 import interpreter.parser_.ast_objects as o
 from interpreter.tokens import tokens as t
 from interpreter.evaluator.environment_ import Environment
-from utils.utils import language_error, LanguageRuntimeException, Platform
+from utils.utils import language_error, LanguageRuntimeException, Platform, BOOMERANG_PLATFORM
 
 
 class Evaluator:
-    def __init__(self, ast: list[o.Expression], env: typing.Optional[Environment], platform: str) -> None:
+    def __init__(self, ast: list[o.Expression], env: typing.Optional[Environment]) -> None:
         self.ast = ast
 
         # Environment needs to be optional because, when switching between scopes--such as a function call--the parent
         # environment could be None.
         self.env = env
-
-        # Platform helps identify what features are or are not supported
-        self.platform = platform
 
         self.unsupported_types: dict[str, list[typing.Type[o.Expression]]] = {
             Platform.WEB.name: [],
@@ -55,12 +53,12 @@ class Evaluator:
     def evaluate_expression(self, expression: o.Expression) -> o.Expression:
 
         # Raise an error if an expression instance is not supported on the current platform
-        unsupported_types = self.unsupported_types.get(self.platform, [])
-        if any(isinstance(expression, v) for v in unsupported_types):
-            raise language_error(
-                expression.line_num,
-                f"unsupported operation for platform {self.platform}: {type(expression).__name__}"
-            )
+        # unsupported_types = self.unsupported_types.get(self.platform, [])
+        # if any(isinstance(expression, v) for v in unsupported_types):
+        #     raise language_error(
+        #         expression.line_num,
+        #         f"unsupported operation for platform {self.platform}: {type(expression).__name__}"
+        #     )
 
         if isinstance(expression, o.InfixExpression):
             return self.evaluate_binary_expression(expression)
@@ -185,7 +183,8 @@ class Evaluator:
             tmp_stdout = StringIO()
 
             # Only divert standard output if the interpreter is being called from the web interface.
-            if self.platform == Platform.WEB.name:
+            platform = os.environ[BOOMERANG_PLATFORM]
+            if platform != Platform.CMD.name:
                 sys.stdout = tmp_stdout
 
             try:

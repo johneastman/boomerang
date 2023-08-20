@@ -1,10 +1,11 @@
+import os
 from functools import reduce
 from random import random, randint, uniform
 from typing import Callable
 
 from interpreter.tokens.token import Token
 from interpreter.tokens import tokens as t
-from utils.utils import language_error, divide_by_zero_error, Platform
+from utils.utils import language_error, divide_by_zero_error, Platform, BOOMERANG_PLATFORM
 
 
 class Expression:
@@ -451,10 +452,13 @@ class BuiltinFunction(Expression):
         input_
     ]
 
-    def __init__(self, line_num: int, name: str, platform: str):
+    unsupported_platform = {
+        input_: [Platform.WEB.name]
+    }
+
+    def __init__(self, line_num: int, name: str):
         super().__init__(line_num)
         self.name = name
-        self.platform = platform
 
     def __str__(self) -> str:
         return f"<built-in function {self.name}>"
@@ -466,8 +470,10 @@ class BuiltinFunction(Expression):
 
     def ptr(self, other: object) -> "Expression":
 
-        if self.platform != Platform.CMD.name:
-            raise language_error(self.line_num, f"unsupported builtin function for {self.platform} platform.")
+        # Check if the builtin function is supported on the current platform
+        platform = os.environ[BOOMERANG_PLATFORM]
+        if platform in self.unsupported_platform.get(self.name, []):
+            raise language_error(self.line_num, f"unsupported builtin function '{self.name}' for {platform} platform")
 
         if isinstance(other, List):
             function: Callable[[list[Expression]], Expression] | None = {
@@ -494,8 +500,10 @@ class BuiltinFunction(Expression):
         prompt = arguments[0]
 
         if not isinstance(prompt, String):
-            raise language_error(self.line_num,
-                                 f"unsupported type {type(prompt).__name__} for built-in function len")
+            raise language_error(
+                self.line_num,
+                f"unsupported type {type(prompt).__name__} for built-in function len"
+            )
 
         value = input(prompt.value)
 

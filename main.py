@@ -1,4 +1,5 @@
 import argparse
+import os
 
 from interpreter.parser_.ast_objects import Error
 from interpreter.tokens.tokenizer import Tokenizer
@@ -7,7 +8,7 @@ from interpreter.parser_.parser_ import Parser
 from interpreter.evaluator.evaluator import Evaluator
 from interpreter.evaluator.environment_ import Environment
 from utils.ast_visualizer import ASTVisualizer
-from utils.utils import LanguageRuntimeException, Platform
+from utils.utils import LanguageRuntimeException, Platform, BOOMERANG_PLATFORM
 
 
 def get_source(filepath: str) -> str:
@@ -15,7 +16,7 @@ def get_source(filepath: str) -> str:
         return f.read()
 
 
-def evaluate(source: str, environment: Environment, platform: str = Platform.CMD.name) -> list[str]:
+def evaluate(source: str, environment: Environment) -> list[str]:
     """Execute code in a file.
 
     Unlike REPL, this execution style does not use the results of each individual expression.
@@ -26,7 +27,7 @@ def evaluate(source: str, environment: Environment, platform: str = Platform.CMD
 
         p = Parser(tokens)
         ast = p.parse()
-        return Evaluator(ast, environment, platform).evaluate()[1]
+        return Evaluator(ast, environment).evaluate()[1]
 
     except LanguageRuntimeException as e:
         # This catch is needed for the parser and tokenizer. Evaluator.evaluate handles these errors on its own.
@@ -66,6 +67,8 @@ def visualize_ast(source: str) -> bytes:
 
 
 if __name__ == "__main__":
+    os.environ[BOOMERANG_PLATFORM] = Platform.CMD.name
+
     parser = argparse.ArgumentParser(description="Boomerang Interpreter")
 
     path_flags = ("--path", "-p")

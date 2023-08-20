@@ -10,7 +10,7 @@ from flask import Flask, Response, request, render_template, redirect, session, 
 from dotenv import load_dotenv
 
 from interpreter.parser_.ast_objects import Error
-from utils.utils import LanguageRuntimeException, Platform
+from utils.utils import LanguageRuntimeException, Platform, BOOMERANG_PLATFORM
 from main import evaluate, visualize_ast
 from interpreter.evaluator.environment_ import Environment
 
@@ -81,7 +81,8 @@ def interpret():
     source_code = request.form["source"]
 
     try:
-        output: list[str] = evaluate(source_code, Environment(), platform=Platform.WEB.name)
+        os.environ[BOOMERANG_PLATFORM] = Platform.WEB.name
+        output: list[str] = evaluate(source_code, Environment())
     except Exception as e:
         output = [f"Unexpected internal error: {str(e)}"]
 

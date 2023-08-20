@@ -1,10 +1,12 @@
+import os
+
 from interpreter.evaluator.evaluator import Evaluator, Environment
 import interpreter.parser_.ast_objects as o
 from interpreter.tokens.token import Token
 from interpreter.parser_.parser_ import Parser
 from interpreter.tokens.tokenizer import Tokenizer
 from interpreter.tokens.token_queue import TokenQueue
-from utils.utils import Platform
+from utils.utils import Platform, BOOMERANG_PLATFORM
 
 
 def get_tokens(source: str) -> list[Token]:
@@ -17,14 +19,16 @@ def parser(source: str) -> Parser:
     return Parser(tokens)
 
 
-def evaluator_actual_result(source: str) -> tuple[list[o.Expression], list[str]]:
+def evaluator_actual_result(source: str, platform: str = Platform.TEST.name) -> tuple[list[o.Expression], list[str]]:
     t = Tokenizer(source)
     tokens = TokenQueue(t)
 
     p = Parser(tokens)
     ast = p.parse()
 
-    e = Evaluator(ast, Environment(), Platform.TEST.name)
+    os.environ[BOOMERANG_PLATFORM] = platform
+
+    e = Evaluator(ast, Environment())
     return e.evaluate()
 
 
