@@ -1,5 +1,6 @@
 import pytest
 
+from interpreter.parser_.builtin_ast_objects import Length, RandomInt, Print
 from interpreter.tokens import tokens as t
 from interpreter.tokens.tokenizer import Token
 from tests.testing_utils import create_when, assert_expressions_equal
@@ -205,7 +206,7 @@ def test_infix_expressions(source, left, operator, right):
             1,
             o.InfixExpression(
                 1,
-                o.BuiltinFunction(1, "len"),
+                Length(1),
                 Token(1, "<-", t.SEND),
                 o.List(1, [o.Identifier(1, "list")]),
             ),
@@ -221,7 +222,7 @@ def test_infix_expressions(source, left, operator, right):
             Token(1, "@", t.INDEX),
             o.InfixExpression(
                 1,
-                o.BuiltinFunction(1, "randint"),
+                RandomInt(1),
                 Token(1, "<-", t.SEND),
                 o.List(1, [o.Number(1, 0), o.Number(1, 10)]),
             ),
@@ -249,7 +250,7 @@ def test_precedence(source, expected_result):
 
 
 @pytest.mark.parametrize("name, expected_ast", [
-    ("print", o.BuiltinFunction(1, "print"))
+    ("print", Print(1))
 ])
 def test_builtin_functions(name, expected_ast):
     parser = testing_utils.parser(f"{name};")

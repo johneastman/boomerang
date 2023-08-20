@@ -1,5 +1,6 @@
 from copy import copy
 
+from interpreter.parser_.builtin_ast_objects import Print, Input, RandomInt, RandomFloat, Length, Range, Round
 from interpreter.tokens.token_queue import TokenQueue
 from interpreter.tokens.token import Token
 import interpreter.parser_.ast_objects as o
@@ -221,14 +222,26 @@ class Parser:
 
         raise unexpected_token_error(self.current.line_num, t.CLOSED_PAREN, self.current)
 
-    def parse_identifier(self) -> o.Identifier | o.BuiltinFunction:
+    def parse_identifier(self) -> o.Identifier | o.Expression:
         identifier_token = self.current
         self.advance()
 
-        if identifier_token.value in o.BuiltinFunction.builtin_function_names:
-            return o.BuiltinFunction(identifier_token.line_num, identifier_token.value)
+        line_num = identifier_token.line_num
 
-        return o.Identifier(identifier_token.line_num, identifier_token.value)
+        return {
+            "print": Print(line_num),
+            "input": Input(line_num),
+            "randint": RandomInt(line_num),
+            "randfloat": RandomFloat(line_num),
+            "len": Length(line_num),
+            "range": Range(line_num),
+            "round": Round(line_num)
+        }.get(identifier_token.value, o.Identifier(identifier_token.line_num, identifier_token.value))
+
+        # if identifier_token.value in o.BuiltinFunction.builtin_function_names:
+        #     return o.BuiltinFunction(identifier_token.line_num, identifier_token.value)
+
+        # return o.Identifier(identifier_token.line_num, identifier_token.value)
 
     def parse_assign(self) -> o.Expression:
         self.is_expected_token(t.IDENTIFIER)

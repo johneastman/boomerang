@@ -1,6 +1,7 @@
 import pytest
 
 import interpreter.parser_.ast_objects as o
+from interpreter.parser_.builtin_ast_objects import Print
 from utils.utils import LanguageRuntimeException
 from tests.testing_utils import assert_expression_equal
 from interpreter.tokens import tokens as t
@@ -63,8 +64,8 @@ test_function = o.Function(
         "ForLoop(line_num=1, element_identifier='i', values=List(line_num=1, values=[Number(line_num=1, value=1), Number(line_num=1, value=2), Number(line_num=1, value=3)]), conditional_expr=Boolean(line_num=1, value=True), expression=InfixExpression(line_num=1, left=Identifier(line_num=1, value='i'), operator=Token(line_num=1, value='+', type=PLUS), right=Number(line_num=1, value=1)))"
     ),
     (
-        o.BuiltinFunction(1, "print"),
-        "BuiltinFunction(line_num=1, name='print')"
+        Print(1),
+        "Print(line_num=1)"
     ),
     (
         o.PrefixExpression(1, Token(1, "-", t.MINUS), o.Number(1, 1)),

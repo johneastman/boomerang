@@ -3,6 +3,7 @@
 # reason for ignore: mypy doesn't know about dependency types
 import graphviz  # type: ignore
 from interpreter.parser_.ast_objects import *
+from interpreter.parser_.builtin_ast_objects import BuiltinFunction
 
 
 class ASTVisualizer:
@@ -30,7 +31,8 @@ class ASTVisualizer:
             self.add_node(node_id, str(expression))
 
         elif isinstance(expression, BuiltinFunction):
-            self.add_node(node_id, expression.name)
+            # For builtin functions, the node display value is the name of the object.
+            self.add_node(node_id, type(expression).__name__)
 
         elif isinstance(expression, List):
             self.add_node(node_id, "List")

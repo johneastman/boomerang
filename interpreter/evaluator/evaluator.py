@@ -5,6 +5,7 @@ import sys
 import copy
 
 import interpreter.parser_.ast_objects as o
+from interpreter.parser_.builtin_ast_objects import BuiltinFunction, Input
 from interpreter.tokens import tokens as t
 from interpreter.evaluator.environment_ import Environment
 from utils.utils import language_error, LanguageRuntimeException, Platform, BOOMERANG_PLATFORM
@@ -98,7 +99,22 @@ class Evaluator:
             return o.List(expression.line_num, values)
 
         # Base Types
-        elif any(isinstance(expression, t) for t in [o.Number, o.String, o.Boolean, o.BuiltinFunction, o.Error, o.Function]):
+        elif any(isinstance(expression, t) for t in [o.Number, o.String, o.Boolean, o.Error, o.Function]):
+            return expression
+
+        elif isinstance(expression, BuiltinFunction):
+            platform = os.environ[BOOMERANG_PLATFORM]
+
+            unsupported_platform: typing.Dict[typing.Type[o.Expression], list[str]] = {
+                Input: [Platform.WEB.name]
+            }
+
+            if platform in unsupported_platform.get(type(expression), []):
+                raise language_error(
+                    expression.line_num,
+                    f"unsupported builtin function '{type(expression).__name__}' for {platform} platform"
+                )
+
             return expression
 
         # This is a program-specific error because a missing object type would come about during development, not

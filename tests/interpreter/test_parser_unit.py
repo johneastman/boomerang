@@ -1,6 +1,7 @@
 import pytest
 
 import tests.testing_utils as testing_utils
+from interpreter.parser_.builtin_ast_objects import BuiltinFunction, Print, RandomInt, RandomFloat, Length, Range, Round
 from tests.testing_utils import create_when, assert_expression_equal
 import interpreter.parser_.ast_objects as o
 from interpreter.tokens.tokenizer import Token
@@ -120,12 +121,12 @@ def test_parse_prefix_invalid_operators(source, token):
 
 @pytest.mark.parametrize("source, expected_result", [
     # built-in functions
-    ("print", o.BuiltinFunction(1, "print")),
-    ("randint", o.BuiltinFunction(1, "randint")),
-    ("randfloat", o.BuiltinFunction(1, "randfloat")),
-    ("len", o.BuiltinFunction(1, "len")),
-    ("range", o.BuiltinFunction(1, "range")),
-    ("round", o.BuiltinFunction(1, "round")),
+    ("print", Print(1)),
+    ("randint", RandomInt(1)),
+    ("randfloat", RandomFloat(1)),
+    ("len", Length(1)),
+    ("range", Range(1)),
+    ("round", Round(1)),
 
     # regular identifiers
     ("i", o.Identifier(1, "i")),

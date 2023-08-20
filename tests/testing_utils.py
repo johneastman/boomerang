@@ -2,6 +2,7 @@ import os
 
 from interpreter.evaluator.evaluator import Evaluator, Environment
 import interpreter.parser_.ast_objects as o
+import interpreter.parser_.builtin_ast_objects as bo
 from interpreter.tokens.token import Token
 from interpreter.parser_.parser_ import Parser
 from interpreter.tokens.tokenizer import Tokenizer
@@ -67,8 +68,10 @@ def assert_expression_equal(expected: o.Expression, actual: o.Expression) -> Non
         assert actual.message == expected.message, \
             f"actual.message: {actual.message}, expected.message: {expected.message}"
 
-    elif isinstance(expected, o.BuiltinFunction) and isinstance(actual, o.BuiltinFunction):
-        assert actual.name == expected.name, f"actual.value: {actual.name}, expected.value: {expected.name}"
+    elif isinstance(expected, bo.BuiltinFunction) and isinstance(actual, bo.BuiltinFunction):
+        # If both are instances of "BuiltinFunction", ensure both are of the same subclass/type (e.g., Print, Input,
+        # RandomInt, etc.)
+        assert type(actual) == type(expected), f"actual type: {type(actual)}, expected type: {type(expected)}"
 
     elif isinstance(expected, o.List) and isinstance(actual, o.List):
         assert len(actual.values) == len(expected.values), \
