@@ -61,6 +61,9 @@ Boomerang has a web interface that will allow you to run it from the browser!
 # Development Guide
 The following information is for contributing to this project.
 
+## Leftlook
+To disable lefthook, add `LEFTHOOK=0` before your command. More information, as well as other usage information, can be found [here](https://github.com/evilmartians/lefthook/blob/master/docs/usage.md).
+
 ## Exceptions
 There are two types of exceptions: [Language Exceptions](#language-exceptions) and [Program Exceptions](#program-exceptions).
 
