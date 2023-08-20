@@ -4,7 +4,7 @@ from typing import Callable
 
 from interpreter.tokens.token import Token
 from interpreter.tokens import tokens as t
-from utils.utils import language_error, divide_by_zero_error
+from utils.utils import language_error, divide_by_zero_error, Platform
 
 
 class Expression:
@@ -439,6 +439,7 @@ class BuiltinFunction(Expression):
     len_ = "len"
     range_ = "range"
     round_ = "round"
+    input_ = "input"
 
     builtin_function_names = [
         print_,
@@ -446,12 +447,14 @@ class BuiltinFunction(Expression):
         randfloat,
         len_,
         range_,
-        round_
+        round_,
+        input_
     ]
 
-    def __init__(self, line_num: int, name: str):
+    def __init__(self, line_num: int, name: str, platform: str):
         super().__init__(line_num)
         self.name = name
+        self.platform = platform
 
     def __str__(self) -> str:
         return f"<built-in function {self.name}>"
@@ -462,6 +465,10 @@ class BuiltinFunction(Expression):
         return self.name == other.name
 
     def ptr(self, other: object) -> "Expression":
+
+        if self.platform != Platform.CMD.name:
+            raise language_error(self.line_num, f"unsupported builtin function for {self.platform} platform.")
+
         if isinstance(other, List):
             function: Callable[[list[Expression]], Expression] | None = {
                 self.print_: self.print,
@@ -469,7 +476,8 @@ class BuiltinFunction(Expression):
                 self.randfloat: lambda args: self.random(args, True),
                 self.len_: self.len,
                 self.range_: self.range,
-                self.round_: self.round
+                self.round_: self.round,
+                self.input_: self.input
             }.get(self.name, None)
 
             if function is None:
@@ -477,6 +485,21 @@ class BuiltinFunction(Expression):
             return function(other.values)
 
         return super().ptr(other)
+
+    def input(self, arguments: list[Expression]) -> String:
+
+        if len(arguments) != 1:
+            raise language_error(self.line_num, f"expected 1 argument, got {len(arguments)}")
+
+        prompt = arguments[0]
+
+        if not isinstance(prompt, String):
+            raise language_error(self.line_num,
+                                 f"unsupported type {type(prompt).__name__} for built-in function len")
+
+        value = input(prompt.value)
+
+        return String(self.line_num, value)
 
     def len(self, arguments: list[Expression]) -> Number:
         if len(arguments) != 1:

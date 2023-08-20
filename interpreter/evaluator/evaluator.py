@@ -183,7 +183,10 @@ class Evaluator:
 
         elif op.type == t.SEND:
             tmp_stdout = StringIO()
-            sys.stdout = tmp_stdout
+
+            # Only divert standard output if the interpreter is being called from the web interface.
+            if self.platform == Platform.WEB.name:
+                sys.stdout = tmp_stdout
 
             try:
                 result = left.ptr(right)
@@ -193,7 +196,8 @@ class Evaluator:
                 # Reset STDOUT
                 sys.stdout = sys.__stdout__
 
-            # Get value from String stream
+            # Get value from String stream. If the interpreter is not being called from the web interface,
+            # this value will always be an empty string.
             output_str = tmp_stdout.getvalue().strip()
             if len(output_str) > 0:
                 self.output.append(output_str)

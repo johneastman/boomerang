@@ -70,7 +70,7 @@ class Tokenizer:
             #
             # Reason for ignoring: The None check in "self.next_token" ensures "self.current" will
             # never be None in this method.
-            [(l, t, len(l)) for l, t in tokens_dict.items()if l.startswith(self.current)],  # type: ignore
+            [(l, t, len(l)) for l, t in tokens_dict.items() if l.startswith(self.current)],  # type: ignore
             key=key_sort, reverse=True
         )
 

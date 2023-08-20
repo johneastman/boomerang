@@ -47,3 +47,10 @@ Round a decimal (floating-point) number to a certain number of digits after the 
 |Arguments|Return Value|
 |---|---|
 |`(number:Number, round_to:Number)`|Round `number`, a floating-point value, to `round_to` digits after the decimal place.|
+
+# input
+Accept input from the user. Returns a `String` value.
+
+|Arguments|Return Value|
+|---|---|
+|`(prompt:String,)`|Prompt displayed to the user when accepting user input.|
