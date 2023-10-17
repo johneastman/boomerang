@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 
 from interpreter.parser_.ast_objects import Error
 from utils.utils import LanguageRuntimeException, Platform, BOOMERANG_PLATFORM
-from main import evaluate, visualize_ast
+from main_utils import evaluate, visualize_ast
 from interpreter.evaluator.environment_ import Environment
 
 
@@ -70,7 +70,8 @@ def upload_files() -> tuple[Response | None, bytes]:
     valid_types = [BOOMERANG_FILE_EXT]
     file_type, is_allowed = allowed_file(file.filename, valid_types)
     if not file or not is_allowed:
-        flash(f"Invalid file type: {file_type}. Valid file types: {', '.join(valid_types)}")
+        flash(
+            f"Invalid file type: {file_type}. Valid file types: {', '.join(valid_types)}")
         return redirect(request.url), b""
 
     return None, file.read()
@@ -82,7 +83,7 @@ def interpret():
 
     try:
         os.environ[BOOMERANG_PLATFORM] = Platform.WEB.name
-        output: list[str] = evaluate(source_code, Environment())
+        _, output = evaluate(source_code, Environment())
     except Exception as e:
         output = [f"Unexpected internal error: {str(e)}"]
 
