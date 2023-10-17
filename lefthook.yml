@@ -34,11 +34,11 @@
 #     "any.go":
 #       runner: go run
 pre-commit:
-  parallel: true
-  commands:
-    mypy:
-      run: mypy interpreter main.py --config-file=mypy.ini
-    flake8:
-      run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics && flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    tests:
-      run: pytest
+    parallel: true
+    commands:
+        mypy:
+            run: mypy interpreter --config-file=mypy.ini
+        flake8:
+            run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics && flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+        tests:
+            run: pytest

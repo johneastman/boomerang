@@ -17,6 +17,11 @@ class LanguageRuntimeException(Exception):
         super().__init__(message)
 
 
+def get_source(filepath: str) -> str:
+    with open(filepath, "r") as f:
+        return f.read()
+
+
 def read_yaml_file(path: str) -> typing.Any:
     with open(path, "r") as file:
         return yaml.safe_load(file)

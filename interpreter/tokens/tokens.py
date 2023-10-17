@@ -1,15 +1,15 @@
 from typing import Tuple
 import os
 
-from utils import utils
+from utils.utils import read_yaml_file, get
 
 TOKENS_FILE_PATH = os.path.join(os.path.dirname(__file__), "tokens.yaml")
 
 
 def load_tokens(key_path: str) -> dict[str, Tuple[str, str]]:
-    content = utils.read_yaml_file(TOKENS_FILE_PATH)
+    content = read_yaml_file(TOKENS_FILE_PATH)
 
-    token_data = utils.get(content, key_path)
+    token_data = get(content, key_path)
 
     tokens: dict[str, Tuple[str, str]] = {}
     for token in token_data:
@@ -27,7 +27,8 @@ SYMBOLS = load_tokens("tokens.symbols")
 DATA_TYPES = load_tokens("tokens.data_types")
 
 
-language_tokens: dict[str, Tuple[str, str]] = {**KEYWORDS, **SYMBOLS, **DATA_TYPES}
+language_tokens: dict[str, Tuple[str, str]] = {
+    **KEYWORDS, **SYMBOLS, **DATA_TYPES}
 
 
 def get_keyword_dict(token_dicts: list[dict[str, Tuple[str, str]]]) -> dict[str, str]:

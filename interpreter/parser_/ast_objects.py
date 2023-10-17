@@ -2,7 +2,7 @@ from functools import reduce
 
 from interpreter.tokens.token import Token
 from interpreter.tokens import tokens as t
-from utils.utils import language_error, divide_by_zero_error, Platform, BOOMERANG_PLATFORM
+from utils.utils import language_error, divide_by_zero_error
 
 
 class Expression:
@@ -10,10 +10,12 @@ class Expression:
         self.line_num = line_num
 
     def __eq__(self, other: object) -> bool:
-        raise Exception(f"__eq__ method in {type(self).__name__} not implemented.")
+        raise Exception(
+            f"__eq__ method in {type(self).__name__} not implemented.")
 
     def __str__(self) -> str:
-        raise Exception(f"__str__ method in {type(self).__name__} not implemented.")
+        raise Exception(
+            f"__str__ method in {type(self).__name__} not implemented.")
 
     def __repr__(self) -> str:
         class_name = self.__class__.__name__
@@ -28,19 +30,24 @@ class Expression:
         return Boolean(self.line_num, not self.eq(other).value)
 
     def abs(self) -> "Expression":
-        raise language_error(self.line_num, f"invalid type {type(self).__name__} for absolute value")
+        raise language_error(
+            self.line_num, f"invalid type {type(self).__name__} for absolute value")
 
     def neg(self) -> "Expression":
-        raise language_error(self.line_num, f"invalid type {type(self).__name__} for negation")
+        raise language_error(
+            self.line_num, f"invalid type {type(self).__name__} for negation")
 
     def fac(self) -> "Expression":
-        raise language_error(self.line_num, f"invalid type {type(self).__name__} for factorial")
+        raise language_error(
+            self.line_num, f"invalid type {type(self).__name__} for factorial")
 
     def inc(self) -> "Expression":
-        raise language_error(self.line_num, f"invalid type {type(self).__name__} for increment")
+        raise language_error(
+            self.line_num, f"invalid type {type(self).__name__} for increment")
 
     def dec(self) -> "Expression":
-        raise language_error(self.line_num, f"invalid type {type(self).__name__} for decrement")
+        raise language_error(
+            self.line_num, f"invalid type {type(self).__name__} for decrement")
 
     def and_(self, other: object) -> "Expression":
         raise language_error(self.line_num,
@@ -106,10 +113,12 @@ class Expression:
                              f"invalid types {type(self).__name__} and {type(other).__name__} for {t.SEND}")
 
     def not_(self) -> "Expression":
-        raise language_error(self.line_num, f"invalid type {type(self).__name__} for {t.NOT}")
+        raise language_error(
+            self.line_num, f"invalid type {type(self).__name__} for {t.NOT}")
 
     def pack(self) -> "Expression":
-        raise language_error(self.line_num, f"invalid type {type(self).__name__} for {t.PACK}")
+        raise language_error(
+            self.line_num, f"invalid type {type(self).__name__} for {t.PACK}")
 
     def at(self, other: object) -> "Expression":
         raise language_error(self.line_num,
@@ -142,7 +151,8 @@ class Number(Expression):
 
     def fac(self) -> "Expression":
         if not self.is_whole_number():
-            raise language_error(self.line_num, "expression for factorial must be whole number")
+            raise language_error(
+                self.line_num, "expression for factorial must be whole number")
 
         base_number = int(self.value)
 
@@ -325,7 +335,8 @@ class List(Expression):
         if isinstance(other, List):
             new_values = self.values
             for value_to_remove in other.values:
-                new_values = [v for v in new_values if v.ne(value_to_remove).value]
+                new_values = [v for v in new_values if v.ne(
+                    value_to_remove).value]
             return List(self.line_num, new_values)
 
         return super().sub(other)
@@ -333,12 +344,14 @@ class List(Expression):
     def at(self, other: object) -> "Expression":
         if isinstance(other, Number):
             if not other.is_whole_number():
-                raise language_error(self.line_num, "list index must be a whole number")
+                raise language_error(
+                    self.line_num, "list index must be a whole number")
 
             if -len(self.values) <= other.value < len(self.values):
                 return self.values[int(other.value)]
 
-            raise language_error(self.line_num, f"list index {other} is out of range")
+            raise language_error(
+                self.line_num, f"list index {other} is out of range")
 
         return super().at(other)
 
