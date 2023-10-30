@@ -393,6 +393,41 @@ def test_round(params, expected_result):
     assert_expressions_equal([expected_result], ast_results)
 
 
+@pytest.mark.parametrize("params, expected_result", [
+    (
+        [],
+        o.Error(1, "Error at line 1: incorrect number of arguments. Excepted at least 1 argument, but got 0.")
+    ),
+    (
+        ["1"],
+        o.Error(1, "Error at line 1: expected String, got Number")
+    ),
+    (
+        ["true"],
+        o.Error(1, "Error at line 1: expected String, got Boolean")
+    ),
+    (
+        ["(1, 2, 3)"],
+        o.Error(1, "Error at line 1: expected String, got List")
+    ),
+    (
+        ["\"Hello, $0!\"", "\"John\""],
+        o.String(1, "Hello, John!")
+    ),
+    (
+        ["\"Hi, my name is $0, and I am $1 years old!\"", "\"John\"", "\"20\""],
+        o.String(1, "Hi, my name is John, and I am 20 years old!")
+    ),
+    (
+        ["\"I am $1 years old, and my name is $0\"", "\"John\"", "\"20\""],
+        o.String(1, "I am 20 years old, and my name is John")
+    ),
+])
+def test_format(params, expected_result):
+    ast_results, _ = evaluator_actual_result(f"format <- ({params_str(params)});")
+    assert_expressions_equal([expected_result], ast_results)
+
+
 def params_str(params: list[str]) -> str:
     """Take list of parameters and return them as a comma-separated string."""
     return ", ".join(params) + ("," if len(params) == 1 else "")

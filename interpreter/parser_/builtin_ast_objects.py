@@ -305,3 +305,36 @@ class Round(BuiltinFunction):
             )
 
         return super().ptr(other)
+
+
+class Format(BuiltinFunction):
+
+    def __init__(self, line_num: int):
+        super().__init__(line_num)
+
+    def ptr(self, other: object) -> "Expression":
+        if isinstance(other, List):
+            arguments = other.values
+
+            if len(arguments) <= 0:
+                raise language_error(
+                    self.line_num,
+                    "incorrect number of arguments. Excepted at least 1 argument, but got 0."
+                )
+
+            format_string = arguments[0]
+
+            if not isinstance(format_string, String):
+                raise language_error(
+                    self.line_num,
+                    f"expected String, got {type(format_string).__name__}"
+                )
+
+            # For each argument after the format string, replace each ${index} with its value
+            new_string = format_string.value
+            for i, arg in enumerate(arguments[1:]):
+                new_string = new_string.replace(f"${i}", arg.value if isinstance(arg, String) else str(arg))
+
+            return String(format_string.line_num, new_string)
+
+        return super().ptr(other)

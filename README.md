@@ -24,9 +24,8 @@ Some defining characteristics of Boomerang are:
 
 ## Command Line
 
-1. Run `chmod +x boomerang` from the root directory of this project.
-2. To run the REPL, run `./boomerang`
-3. To run a Boomerang file, run `./boomerang [path to file]`. Boomerang files end with `.bng`.
+2. To run the REPL, run `python main.py`
+3. To run a Boomerang file, run `python main.py [path to file]`. Boomerang files end with `.bng`.
 4. When running a Boomerang file, create an AST visualization with the `-v`/`--visualize` flag, which will save a graphical representation of the AST to a pdf file. AST visualization is not supported for the REPL.
 
 ## Flask App
