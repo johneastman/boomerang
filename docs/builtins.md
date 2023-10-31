@@ -54,3 +54,18 @@ Accept input from the user. Returns a `String` value.
 |Arguments|Return Value|
 |---|---|
 |`(prompt:String,)`|Prompt displayed to the user when accepting user input.|
+
+# format
+Create formatted strings.
+
+|Arguments|Return Value|
+|---|---|
+|`(s: String)`|Return `s`.|
+|`(s: String, ...args: Any)`|Replace placeholder values in `s` with values in `args`. Placeholders are a dollar sign followed by an integer (e.g., `$0`, `$1`, etc.). The integer corresponds to the position of a value in `args` (for example, `$0` refers to the first value in `args`, `$1` refers to the second value in `args`, etc.).|
+
+# is_whole_number
+Checks if a number is a whole number or not. Returns `Boolean` value.
+
+|Arguments|Return Value|
+|---|---|
+|`(n: Number)`|Any number value.|
