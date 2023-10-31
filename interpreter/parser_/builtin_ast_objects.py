@@ -1,8 +1,8 @@
 from random import random, uniform, randint
 from typing import Callable
 
-from interpreter.parser_.ast_objects import Expression, List, Number, String
-from utils.utils import language_error
+from interpreter.parser_.ast_objects import Expression, List, Number, String, Boolean
+from utils.utils import language_error, incorrect_number_of_arguments
 
 
 class BuiltinFunction(Expression):
@@ -31,7 +31,7 @@ class Input(BuiltinFunction):
             arguments = other.values
 
             if len(arguments) != 1:
-                raise language_error(self.line_num, f"expected 1 argument, got {len(arguments)}")
+                raise incorrect_number_of_arguments(self.line_num, 1, len(arguments))
 
             prompt = arguments[0]
 
@@ -62,10 +62,7 @@ class RandomInt(BuiltinFunction):
             elif len(arguments) == 2:
                 start, end = arguments
             else:
-                raise language_error(
-                    self.line_num,
-                    f"incorrect number of arguments. Excepts 1 or 2 arguments, but got {len(arguments)}"
-                )
+                raise incorrect_number_of_arguments(self.line_num, [1, 2], len(arguments))
 
             # Validate start value
             if not isinstance(start, Number):
@@ -118,10 +115,7 @@ class RandomFloat(BuiltinFunction):
             elif len(arguments) == 2:
                 start, end = arguments
             else:
-                raise language_error(
-                    self.line_num,
-                    f"incorrect number of arguments. Excepts 0, 1, or 2 arguments, but got {len(arguments)}"
-                )
+                raise incorrect_number_of_arguments(self.line_num, [0, 1, 2], len(arguments))
 
             # Validate start value
             if not isinstance(start, Number):
@@ -130,18 +124,12 @@ class RandomFloat(BuiltinFunction):
                     f"expected Number for start, got {type(start).__name__}"
                 )
 
-            # if not is_float and not start.is_whole_number():
-            #     raise language_error(self.line_num, f"start must be a whole number")
-
             # Validate end value
             if not isinstance(end, Number):
                 raise language_error(
                     self.line_num,
                     f"expected Number for end, got {type(end).__name__}"
                 )
-
-            # if not is_float and not end.is_whole_number():
-            #     raise language_error(self.line_num, f"end must be a whole number")
 
             # Ensure start value is less than end value
             if end.value < start.value:
@@ -167,7 +155,7 @@ class Length(BuiltinFunction):
         if isinstance(other, List):
             arguments = other.values
             if len(arguments) != 1:
-                raise language_error(self.line_num, f"expected 1 argument, got {len(arguments)}")
+                raise incorrect_number_of_arguments(self.line_num, 1, len(arguments))
 
             collection = arguments[0]
 
@@ -202,10 +190,7 @@ class Range(BuiltinFunction):
             elif len(arguments) == 3:
                 start, end, step = arguments
             else:
-                raise language_error(
-                    self.line_num,
-                    f"incorrect number of arguments. Excepts 1, 2, or 3 arguments, but got {len(arguments)}"
-                )
+                raise incorrect_number_of_arguments(self.line_num, [1, 2, 3], len(arguments))
 
             # Validate start value
             if not isinstance(start, Number):
@@ -274,10 +259,7 @@ class Round(BuiltinFunction):
             arguments = other.values
 
             if len(arguments) != 2:
-                raise language_error(
-                    self.line_num,
-                    f"incorrect number of arguments. Excepts 2 arguments, but got {len(arguments)}"
-                )
+                raise incorrect_number_of_arguments(self.line_num, 2, len(arguments))
 
             number, round_to = arguments
 
@@ -317,6 +299,8 @@ class Format(BuiltinFunction):
             arguments = other.values
 
             if len(arguments) <= 0:
+                # Not using 'incorrect_number_of_arguments' helper because the error message should indicate
+                # this method takes one required argument but can accept more.
                 raise language_error(
                     self.line_num,
                     "incorrect number of arguments. Excepted at least 1 argument, but got 0."
@@ -336,5 +320,30 @@ class Format(BuiltinFunction):
                 new_string = new_string.replace(f"${i}", arg.value if isinstance(arg, String) else str(arg))
 
             return String(format_string.line_num, new_string)
+
+        return super().ptr(other)
+
+
+class IsWholeNumber(BuiltinFunction):
+
+    def __init__(self, line_num: int):
+        super().__init__(line_num)
+
+    def ptr(self, other: object) -> "Expression":
+        if isinstance(other, List):
+            arguments = other.values
+
+            if len(arguments) != 1:
+                raise incorrect_number_of_arguments(self.line_num, 1, len(arguments))
+
+            value = arguments[0]
+
+            if not isinstance(value, Number):
+                raise language_error(
+                    self.line_num,
+                    f"expected Number, got {type(value).__name__}."
+                )
+
+            return Boolean(value.line_num, value.is_whole_number())
 
         return super().ptr(other)

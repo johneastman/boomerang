@@ -5,10 +5,23 @@ from tests.testing_utils import evaluator_actual_result, assert_expressions_equa
 from utils.utils import Platform
 
 
-def test_input():
-    actual_results, output_results = evaluator_actual_result("input <- (\"name: \",);", platform=Platform.WEB.name)
-    expected_result = o.Error(1, "Error at line 1: unsupported builtin function 'Input' for WEB platform")
-
+@pytest.mark.parametrize("params, platform, expected_result", [
+    (
+        ["\"name: \""],
+        Platform.WEB.name,
+        o.Error(1, "Error at line 1: unsupported builtin function 'Input' for WEB platform")
+    ),
+    (
+        [],
+        Platform.TEST.name,
+        o.Error(1, "Error at line 1: incorrect number of arguments. Expected 1 but got 0.")
+    ),
+])
+def test_input(params: list[str], platform: str, expected_result):
+    actual_results, output_results = evaluator_actual_result(
+        f"input <- ({params_str(params)});",
+        platform=platform
+    )
     assert_expressions_equal([expected_result], actual_results)
 
 
@@ -73,14 +86,14 @@ def test_random(params, is_randint, low, high):
         [],
         o.Error(
             1,
-            "Error at line 1: incorrect number of arguments. Excepts 1 or 2 arguments, but got 0"
+            "Error at line 1: incorrect number of arguments. Expected 1 or 2 but got 0."
         )
     ),
     (
         ["1", "2", "3"],
         o.Error(
             1,
-            "Error at line 1: incorrect number of arguments. Excepts 1 or 2 arguments, but got 3"
+            "Error at line 1: incorrect number of arguments. Expected 1 or 2 but got 3."
         )
     ),
     # With one parameter, range is 0 to end
@@ -139,7 +152,7 @@ def test_randint_error(params, error_result):
         ["1", "2", "3"],
         o.Error(
             1,
-            "Error at line 1: incorrect number of arguments. Excepts 0, 1, or 2 arguments, but got 3"
+            "Error at line 1: incorrect number of arguments. Expected 0, 1, or 2 but got 3."
         )
     ),
     # With one parameter, range is 0 to end
@@ -203,7 +216,7 @@ def test_randfloat_error(params, error_result):
     ),
     (
         ["\"hello, world\"", "(1, 2, 3)"],
-        o.Error(1, "Error at line 1: expected 1 argument, got 2")
+        o.Error(1, "Error at line 1: incorrect number of arguments. Expected 1 but got 2.")
     ),
     (
         ["true"],
@@ -288,11 +301,11 @@ def test_len(params, length):
     # Errors
     (
         [],
-        o.Error(1, "Error at line 1: incorrect number of arguments. Excepts 1, 2, or 3 arguments, but got 0")
+        o.Error(1, "Error at line 1: incorrect number of arguments. Expected 1, 2, or 3 but got 0.")
     ),
     (
         ["1", "2", "3", "4"],
-        o.Error(1, "Error at line 1: incorrect number of arguments. Excepts 1, 2, or 3 arguments, but got 4")
+        o.Error(1, "Error at line 1: incorrect number of arguments. Expected 1, 2, or 3 but got 4.")
     ),
     (
         ["0", "0", "0"],
@@ -361,15 +374,15 @@ def test_range(params, expected_result):
     # Errors
     (
         [],
-        o.Error(1, "Error at line 1: incorrect number of arguments. Excepts 2 arguments, but got 0")
+        o.Error(1, "Error at line 1: incorrect number of arguments. Expected 2 but got 0.")
     ),
     (
         ["3.14159"],
-        o.Error(1, "Error at line 1: incorrect number of arguments. Excepts 2 arguments, but got 1")
+        o.Error(1, "Error at line 1: incorrect number of arguments. Expected 2 but got 1.")
     ),
     (
         ["3.14159", "2", "3"],
-        o.Error(1, "Error at line 1: incorrect number of arguments. Excepts 2 arguments, but got 3")
+        o.Error(1, "Error at line 1: incorrect number of arguments. Expected 2 but got 3.")
     ),
     (
         ["\"hello\"", "2"],
@@ -425,6 +438,37 @@ def test_round(params, expected_result):
 ])
 def test_format(params, expected_result):
     ast_results, _ = evaluator_actual_result(f"format <- ({params_str(params)});")
+    assert_expressions_equal([expected_result], ast_results)
+
+
+@pytest.mark.parametrize("params, expected_result", [
+    (
+        [],
+        o.Error(1, "Error at line 1: incorrect number of arguments. Expected 1 but got 0.")
+    ),
+    (
+        ["5", "10"],
+        o.Error(1, "Error at line 1: incorrect number of arguments. Expected 1 but got 2.")
+    ),
+    (
+        ["true"],
+        o.Error(1, "Error at line 1: expected Number, got Boolean.")
+    ),
+    (
+        ["\"true\""],
+        o.Error(1, "Error at line 1: expected Number, got String.")
+    ),
+    (
+        ["5"],
+        o.Boolean(1, True)
+    ),
+    (
+        ["5.5"],
+        o.Boolean(1, False)
+    ),
+])
+def test_is_whole_number(params, expected_result):
+    ast_results, _ = evaluator_actual_result(f"is_whole_number <- ({params_str(params)});")
     assert_expressions_equal([expected_result], ast_results)
 
 

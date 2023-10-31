@@ -1,6 +1,7 @@
 from copy import copy
 
-from interpreter.parser_.builtin_ast_objects import Print, Input, RandomInt, RandomFloat, Length, Range, Round, Format
+from interpreter.parser_.builtin_ast_objects import Print, Input, RandomInt, RandomFloat, Length, Range, Round, Format, \
+    IsWholeNumber
 from interpreter.tokens.token_queue import TokenQueue
 from interpreter.tokens.token import Token
 import interpreter.parser_.ast_objects as o
@@ -236,7 +237,8 @@ class Parser:
             "len": Length(line_num),
             "range": Range(line_num),
             "round": Round(line_num),
-            "format": Format(line_num)
+            "format": Format(line_num),
+            "is_whole_number": IsWholeNumber(line_num)
         }.get(identifier_token.value, o.Identifier(identifier_token.line_num, identifier_token.value))
 
     def parse_assign(self) -> o.Expression:

@@ -38,6 +38,17 @@ def unexpected_token_error(line_num: int, expected_token: str, actual_token: Tok
     )
 
 
+def incorrect_number_of_arguments(
+        line_num: int, expected_number: int | list[int], actual_number: int) -> LanguageRuntimeException:
+
+    arg_display = arg_count_display(expected_number)
+
+    return language_error(
+        line_num,
+        f"incorrect number of arguments. Expected {arg_display} but got {actual_number}."
+    )
+
+
 def divide_by_zero_error(line_num: int) -> LanguageRuntimeException:
     return language_error(line_num, "cannot divide by zero")
 
@@ -59,3 +70,15 @@ def get(dictionary: dict[str, typing.Any], key_path: str) -> typing.Any:
     for key in key_path.split("."):
         value = value[key]
     return value
+
+
+def arg_count_display(num_args: int | list[int]) -> str:
+    if isinstance(num_args, list):
+        match len(num_args):
+            case 1 | 2:
+                # A list with one element will not display the " or " string.
+                return " or ".join(map(str, num_args))
+            case _:
+                return f"{', '.join(map(str, num_args[:-1]))}, or {num_args[-1]}"
+    else:
+        return str(num_args)
