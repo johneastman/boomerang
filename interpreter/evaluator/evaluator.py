@@ -8,7 +8,7 @@ import interpreter.parser_.ast_objects as o
 from interpreter.parser_.builtin_ast_objects import BuiltinFunction, Input
 from interpreter.tokens import tokens as t
 from interpreter.evaluator.environment_ import Environment
-from utils.utils import language_error, LanguageRuntimeException, Platform, BOOMERANG_PLATFORM
+from utils.utils import language_error, LanguageRuntimeException, Platform, BOOMERANG_PLATFORM, incorrect_number_of_arguments
 
 
 class Evaluator:
@@ -262,7 +262,7 @@ class Evaluator:
         call_params: o.List = function_call.call_params
 
         if len(call_params.values) != len(function_definition.parameters):
-            raise language_error(line_num, f"Expected {len(function_definition.parameters)}, got {len(call_params.values)}")
+            raise incorrect_number_of_arguments(line_num, len(function_definition.parameters), len(call_params.values))
 
         self.env = Environment(parent_env=self.get_env)
 
