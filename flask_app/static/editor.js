@@ -17,7 +17,7 @@ CodeMirror.defineMode("boomerang", function() {
 });
 
 let myTextarea = document.getElementById("code-editor");
-let editor = CodeMirror.fromTextArea(myTextarea, {
+CodeMirror.fromTextArea(myTextarea, {
     mode: "boomerang",
     lineNumbers: true
 });

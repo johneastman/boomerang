@@ -87,13 +87,13 @@ def interpret():
     except Exception as e:
         output = [f"Unexpected internal error: {str(e)}"]
 
-    return create_response("/", source_code, json.dumps(output))
+    return render_template("code_output.html", results=output)
 
 
 @app.route("/clear", methods=["POST"])
 def clear():
     session.clear()
-    return redirect("/")
+    return render_template("code_output.html", results=[])
 
 
 @app.route("/visualize", methods=["POST"])
@@ -105,11 +105,9 @@ def visualize():
         vis_data = base64.b64encode(vis_data)  # convert to base64 as bytes
         vis_data = vis_data.decode()  # convert bytes to string
         return render_template("visualize.html", data=vis_data)
-
     except LanguageRuntimeException as e:
         error_object = Error(e.line_num, str(e))
         output_data = [str(error_object)]
-
     except Exception as e:
         output_data = [f"Unexpected internal error: {str(e)}"]
 

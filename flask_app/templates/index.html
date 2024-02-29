@@ -3,52 +3,55 @@
     <head>
         <meta charset="UTF-8">
         <title>Boomerang</title>
-        <link rel="stylesheet" type= "text/css" href="static/style.css">
+        <link rel="stylesheet" type= "text/css" href="static/index.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.css" integrity="sha512-uf06llspW44/LZpHzHT6qBOIVODjWtv4MxCricRxkzvopAlSWnTf6hpZTFxuuZcuNE9CBQhqE0Seu1CoRk84nQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     </head>
     <body>
-        <h1>Boomerang</h1>
+        <div id="content">
+            <h1>Boomerang</h1>
 
-        {% include "flashes.html" %}
+            {% include "flashes.html" %}
 
-        Boomerang is a programming language. The defining characteristics of Boomerang are:
-        <ul>
-            <li><strong>Interpreted:</strong> code executes in the runtime of another language (in this case, Python).</li>
-            <li><strong>Procedural:</strong> commands are executed in the order they are defined.</li>
-            <li><strong>Dynamically Typed:</strong> types are not declared explicitly; rather, they are interpreted from the values they are assigned (for example, <code>1</code> is an integer, <code>3.14159</code> is a float, <code>"hello world"</code> is a string, etc.).</li>
-            <li><strong>Strongly Typed:</strong> strict rules are defined for how types interact (for example, <code>1 + 1</code> or <code>1 + 1.5</code> are valid, but <code>1 + "hello world!"</code> is invalid).</li>
-            <li><strong>Immutable:</strong> data is immutable, and operations return new data instead of modifying existing data.</li>
-        </ul>
-        Check out the <a href="https://github.com/johneastman/boomerang/tree/main/docs" target="_blank">language guide</a> to learn about the syntax and try it out below!
+            Boomerang is a programming language. The defining characteristics of Boomerang are:
+            <ul>
+                <li><strong>Interpreted:</strong> code executes in the runtime of another language (in this case, Python).</li>
+                <li><strong>Procedural:</strong> commands are executed in the order they are defined.</li>
+                <li><strong>Dynamically Typed:</strong> types are not declared explicitly; rather, they are interpreted from literal values. For example, <code>1</code> and <code>3.14159</code> are numbers, <code>"hello world"</code> is a string, <code>true</code> and <code>false</code> are booleans, etc.</li>
+                <li><strong>Strongly Typed:</strong> strict rules are defined for how types interact (for example, <code>1 + 1</code> or <code>1 + 1.5</code> are valid, but <code>1 + "hello world!"</code> is invalid).</li>
+                <li><strong>Immutable:</strong> data is immutable, and operations return new data instead of modifying existing data.</li>
+            </ul>
+            Check out the <a href="https://github.com/johneastman/boomerang/tree/main/docs" target="_blank">language guide</a> to learn about the syntax and try it out below!
 
-        <p>Be aware that this application does not save your code. If you want to save your code, download it as a file and upload it later.</p>
+            <p>Be aware that this application does not save your code. If you want to save your code, download it as a file and upload it later.</p>
 
-        <div class="container">
-            <form method="post">
-                <textarea id="code-editor" name="source" placeholder="Enter code here">{{ source_code }}</textarea>
-                <input type="submit" value="Run Code"   formaction="/interpret">
-                <input type="submit" value="Clear Code" formaction="/clear">
-                <input type="submit" value="Visualize AST" formaction="/visualize">
-                <input type="submit" value="Download File" formaction="/download">
+            <div id="container" class="container">
+                <form hx-post="/interpret" hx-target="#code-output">
+                    <textarea id="code-editor" name="source" placeholder="Enter code here">{{ source_code }}</textarea>
+                    <button>Run Code</button>
+                    <button hx-post="/clear">Clear Code</button>
+                    <button hx-post="/visualize" hx-target="#visualization">Show AST</button>
+                    <input type="submit" value="Download File" formaction="/download">
+                </form>
+
+                <div id="code-output" class="code-output"></div>
+            </div>
+
+            <br/>
+            <form method=post enctype=multipart/form-data>
+                <input type=file name=file>
+                <input type=submit value=Upload>
             </form>
 
-            <ul class="code-output">
-                {% for result in results %}
-                    <li>{{ result }}</li>
-                {% endfor %}
-            </ul>
+            <br/>
+            <div id="visualization"></div>
         </div>
-
-        <br/>
-        <form method=post enctype=multipart/form-data>
-            <input type=file name=file>
-            <input type=submit value=Upload>
-        </form>
 
         <!-- package imports -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/6.65.7/codemirror.min.js" integrity="sha512-8RnEqURPUc5aqFEN04aQEiPlSAdE0jlFS/9iGgUyNtwFnSKCXhmB6ZTNl7LnDtDWKabJIASzXrzD0K+LYexU9g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <script src="https://unpkg.com/htmx.org@1.9.10"></script>
 
         <!-- local javascript files -->
         <script src="static/editor.js"></script>
     </body>
 </html>
+

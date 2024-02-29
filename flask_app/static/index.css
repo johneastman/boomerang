@@ -56,3 +56,8 @@ textarea {
     color: steelblue;
     font-weight: bold;
 }
+
+object {
+    display: inline-block;
+    height: 100vh;
+}
