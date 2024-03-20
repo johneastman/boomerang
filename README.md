@@ -38,11 +38,11 @@ Boomerang has a web interface that will allow you to run it from the browser!
      import secrets
 
      key = secrets.token_hex()
-     with open("flask_app/.env", "w") as file:
+     with open(".env", "w") as file:
          file.write(f"export SECRET_KEY={key}")
     ```
 
-2. Run the app with `python flask_main.py`.
+2. Run the app with `python app.py`.
 
 ### Deploying to Pythonanywhere
 

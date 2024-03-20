@@ -144,3 +144,7 @@ def allowed_file(filename: str, valid_types: list[str]) -> tuple[str, bool]:
 
     file_type = filename.rsplit(".", 1)[1].lower()
     return file_type, file_type in valid_types
+
+
+if __name__ == "__main__":
+    app.run()
