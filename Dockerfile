@@ -7,9 +7,10 @@
 # Want to help us make this template better? Share your feedback here: https://forms.gle/ybq9Krt8jtBL3iCk7
 
 ARG PYTHON_VERSION=3.11.7
-FROM python:${PYTHON_VERSION}-alpine as base
+FROM python:${PYTHON_VERSION} as base
 
-RUN apk update && apk add graphviz
+# Install graphviz
+RUN apt-get update && apt-get install -y --no-install-recommends graphviz
 
 # Prevents Python from writing pyc files.
 ENV PYTHONDONTWRITEBYTECODE=1
