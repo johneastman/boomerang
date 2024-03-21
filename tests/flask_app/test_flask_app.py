@@ -1,9 +1,9 @@
 import io
 
 import pytest
-from flask import session, flash
+from flask import session
 
-from flask_app.app import app as main_app
+from app import app as main_app
 
 
 @pytest.fixture()
